@@ -9657,5 +9657,113 @@
     "colorTo": "#e4c4ab",
     "photo": "/produits/crayon-levres-extra-lipstay-moniamori-dusty-rose.png",
     "isOfficial": true
+  },
+  {
+    "id": "official-tatouage-levres-mylip-secret-moniamori-cherry-tint",
+    "slug": "tatouage-levres-mylip-secret-moniamori-cherry-tint",
+    "name": "Tatouage Lèvres MyLip Secret MoniAmori — Cherry Tint",
+    "category": "maquillage",
+    "family": "MyLip Secret MoniAmori",
+    "shortDescription": "Tatouage lèvres peel-off longue tenue MoniAmori, à l'effet naturel et antisbavures, avec aloe vera et panthénol.",
+    "longDescription": [
+      "Tatouage lèvres peel-off longue tenue MoniAmori, à l'effet naturel et antisbavures, avec aloe vera et panthénol."
+    ],
+    "regularPrice": 22.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "photo": "/produits/tatouage-levres-mylip-secret-moniamori-cherry-tint.png",
+    "isOfficial": true
+  },
+  {
+    "id": "official-tatouage-levres-mylip-secret-moniamori-red-velvet",
+    "slug": "tatouage-levres-mylip-secret-moniamori-red-velvet",
+    "name": "Tatouage Lèvres MyLip Secret MoniAmori — Red Velvet",
+    "category": "maquillage",
+    "family": "MyLip Secret MoniAmori",
+    "shortDescription": "Tatouage lèvres peel-off longue tenue MoniAmori, à l'effet naturel et antisbavures, avec aloe vera et panthénol.",
+    "longDescription": [
+      "Tatouage lèvres peel-off longue tenue MoniAmori, à l'effet naturel et antisbavures, avec aloe vera et panthénol."
+    ],
+    "regularPrice": 22.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "photo": "/produits/tatouage-levres-mylip-secret-moniamori-red-velvet.png",
+    "isOfficial": true
+  },
+  {
+    "id": "official-tatouage-levres-mylip-secret-moniamori-strawberry-souffle",
+    "slug": "tatouage-levres-mylip-secret-moniamori-strawberry-souffle",
+    "name": "Tatouage Lèvres MyLip Secret MoniAmori — Strawberry Soufflé",
+    "category": "maquillage",
+    "family": "MyLip Secret MoniAmori",
+    "shortDescription": "Tatouage lèvres peel-off longue tenue MoniAmori, à l'effet naturel et antisbavures, avec aloe vera et panthénol.",
+    "longDescription": [
+      "Tatouage lèvres peel-off longue tenue MoniAmori, à l'effet naturel et antisbavures, avec aloe vera et panthénol."
+    ],
+    "regularPrice": 22.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "photo": "/produits/tatouage-levres-mylip-secret-moniamori-strawberry-souffle.png",
+    "isOfficial": true
+  },
+  {
+    "id": "official-tatouage-levres-mylip-secret-moniamori-blackberry-delight",
+    "slug": "tatouage-levres-mylip-secret-moniamori-blackberry-delight",
+    "name": "Tatouage Lèvres MyLip Secret MoniAmori — Blackberry Delight",
+    "category": "maquillage",
+    "family": "MyLip Secret MoniAmori",
+    "shortDescription": "Tatouage lèvres peel-off longue tenue MoniAmori, à l'effet naturel et antisbavures, avec aloe vera et panthénol.",
+    "longDescription": [
+      "Tatouage lèvres peel-off longue tenue MoniAmori, à l'effet naturel et antisbavures, avec aloe vera et panthénol."
+    ],
+    "regularPrice": 22.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "photo": "/produits/tatouage-levres-mylip-secret-moniamori-blackberry-delight.png",
+    "isOfficial": true
+  },
+  {
+    "id": "official-tatouage-levres-mylip-secret-moniamori-biscuit-rose",
+    "slug": "tatouage-levres-mylip-secret-moniamori-biscuit-rose",
+    "name": "Tatouage Lèvres MyLip Secret MoniAmori — Biscuit Rose",
+    "category": "maquillage",
+    "family": "MyLip Secret MoniAmori",
+    "shortDescription": "Tatouage lèvres peel-off longue tenue MoniAmori, à l'effet naturel et antisbavures, avec aloe vera et panthénol.",
+    "longDescription": [
+      "Tatouage lèvres peel-off longue tenue MoniAmori, à l'effet naturel et antisbavures, avec aloe vera et panthénol."
+    ],
+    "regularPrice": 22.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "photo": "/produits/tatouage-levres-mylip-secret-moniamori-biscuit-rose.png",
+    "isOfficial": true
+  },
+  {
+    "id": "official-tatouage-levres-mylip-secret-moniamori-caramel-toffee",
+    "slug": "tatouage-levres-mylip-secret-moniamori-caramel-toffee",
+    "name": "Tatouage Lèvres MyLip Secret MoniAmori — Caramel Toffee",
+    "category": "maquillage",
+    "family": "MyLip Secret MoniAmori",
+    "shortDescription": "Tatouage lèvres peel-off longue tenue MoniAmori, à l'effet naturel et antisbavures, avec aloe vera et panthénol.",
+    "longDescription": [
+      "Tatouage lèvres peel-off longue tenue MoniAmori, à l'effet naturel et antisbavures, avec aloe vera et panthénol."
+    ],
+    "regularPrice": 22.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "photo": "/produits/tatouage-levres-mylip-secret-moniamori-caramel-toffee.png",
+    "isOfficial": true
   }
 ]
