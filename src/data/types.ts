@@ -1,6 +1,7 @@
 export type CategorySlug =
   | "parfum-femme"
   | "parfum-homme"
+  | "parfum-unisexe"
   | "aurodhea"
   | "lolum"
   | "maquillage"

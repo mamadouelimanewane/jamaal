@@ -1,1 +1,5306 @@
-[]
+[
+  {
+    "id": "official-jamaal-n-1",
+    "number": 1,
+    "slug": "jamaal-n-1",
+    "name": "Parfum JAMAAL N°1",
+    "category": "parfum-homme",
+    "family": "Collection Tribe Homme",
+    "shortDescription": "« Prestige For Him » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Prestige For Him » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-2",
+    "number": 2,
+    "slug": "jamaal-n-2",
+    "name": "Parfum JAMAAL N°2",
+    "category": "parfum-homme",
+    "family": "Collection Tribe Homme",
+    "shortDescription": "« Deep Blue For Him » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Deep Blue For Him » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-3",
+    "number": 3,
+    "slug": "jamaal-n-3",
+    "name": "Parfum JAMAAL N°3",
+    "category": "parfum-homme",
+    "family": "Collection Tribe Homme",
+    "shortDescription": "« Fireborn » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Fireborn » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-4",
+    "number": 4,
+    "slug": "jamaal-n-4",
+    "name": "Parfum JAMAAL N°4",
+    "category": "parfum-homme",
+    "family": "Collection Tribe Homme",
+    "shortDescription": "« Pure Ego For Him » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Pure Ego For Him » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-150",
+    "number": 150,
+    "slug": "jamaal-n-150",
+    "name": "Parfum JAMAAL N°150",
+    "category": "parfum-homme",
+    "family": "Collection Tribe Homme",
+    "shortDescription": "« Unbending Man » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Unbending Man » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-12",
+    "number": 12,
+    "slug": "jamaal-n-12",
+    "name": "Parfum JAMAAL N°12",
+    "category": "parfum-homme",
+    "family": "Collection Tribe Homme",
+    "shortDescription": "« Revenant » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Revenant » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-15",
+    "number": 15,
+    "slug": "jamaal-n-15",
+    "name": "Parfum JAMAAL N°15",
+    "category": "parfum-homme",
+    "family": "Collection Tribe Homme",
+    "shortDescription": "« Urbe » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Urbe » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-16",
+    "number": 16,
+    "slug": "jamaal-n-16",
+    "name": "Parfum JAMAAL N°16",
+    "category": "parfum-homme",
+    "family": "Collection Tribe Homme",
+    "shortDescription": "« Sailor » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Sailor » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-152",
+    "number": 152,
+    "slug": "jamaal-n-152",
+    "name": "Parfum JAMAAL N°152",
+    "category": "parfum-homme",
+    "family": "Collection Tribe Homme",
+    "shortDescription": "« To The Edge For Him » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« To The Edge For Him » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-18",
+    "number": 18,
+    "slug": "jamaal-n-18",
+    "name": "Parfum JAMAAL N°18",
+    "category": "parfum-homme",
+    "family": "Collection Tribe Homme",
+    "shortDescription": "« Revelation » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Revelation » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-20",
+    "number": 20,
+    "slug": "jamaal-n-20",
+    "name": "Parfum JAMAAL N°20",
+    "category": "parfum-homme",
+    "family": "Collection Tribe Homme",
+    "shortDescription": "« Obscuro » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Obscuro » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-21",
+    "number": 21,
+    "slug": "jamaal-n-21",
+    "name": "Parfum JAMAAL N°21",
+    "category": "parfum-homme",
+    "family": "Collection Tribe Homme",
+    "shortDescription": "« Aqua Soul For Him » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Aqua Soul For Him » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-22",
+    "number": 22,
+    "slug": "jamaal-n-22",
+    "name": "Parfum JAMAAL N°22",
+    "category": "parfum-homme",
+    "family": "Collection Tribe Homme",
+    "shortDescription": "« Elemental » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Elemental » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-30",
+    "number": 30,
+    "slug": "jamaal-n-30",
+    "name": "Parfum JAMAAL N°30",
+    "category": "parfum-homme",
+    "family": "Collection Tribe Homme",
+    "shortDescription": "« Maverick » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Maverick » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-31",
+    "number": 31,
+    "slug": "jamaal-n-31",
+    "name": "Parfum JAMAAL N°31",
+    "category": "parfum-homme",
+    "family": "Collection Tribe Homme",
+    "shortDescription": "Parfum Collection Tribe Homme, une création JAMAAL inspirée des grandes maisons de parfumerie.",
+    "longDescription": [
+      "Parfum Collection Tribe Homme, une création JAMAAL inspirée des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-32",
+    "number": 32,
+    "slug": "jamaal-n-32",
+    "name": "Parfum JAMAAL N°32",
+    "category": "parfum-homme",
+    "family": "Collection Tribe Homme",
+    "shortDescription": "« Explosive » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Explosive » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-33",
+    "number": 33,
+    "slug": "jamaal-n-33",
+    "name": "Parfum JAMAAL N°33",
+    "category": "parfum-homme",
+    "family": "Collection Tribe Homme",
+    "shortDescription": "« Nightfall » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Nightfall » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-37",
+    "number": 37,
+    "slug": "jamaal-n-37",
+    "name": "Parfum JAMAAL N°37",
+    "category": "parfum-homme",
+    "family": "Collection Tribe Homme",
+    "shortDescription": "« Gentleman » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Gentleman » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-38",
+    "number": 38,
+    "slug": "jamaal-n-38",
+    "name": "Parfum JAMAAL N°38",
+    "category": "parfum-homme",
+    "family": "Collection Tribe Homme",
+    "shortDescription": "« Abyss » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Abyss » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-48",
+    "number": 48,
+    "slug": "jamaal-n-48",
+    "name": "Parfum JAMAAL N°48",
+    "category": "parfum-homme",
+    "family": "Collection Tribe Homme",
+    "shortDescription": "« Sublime For Him » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Sublime For Him » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-160",
+    "number": 160,
+    "slug": "jamaal-n-160",
+    "name": "Parfum JAMAAL N°160",
+    "category": "parfum-homme",
+    "family": "Collection Tribe Homme",
+    "shortDescription": "« British Charm For Him » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« British Charm For Him » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-52",
+    "number": 52,
+    "slug": "jamaal-n-52",
+    "name": "Parfum JAMAAL N°52",
+    "category": "parfum-homme",
+    "family": "Collection Tribe Homme",
+    "shortDescription": "« Arabian Mirage » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Arabian Mirage » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-60",
+    "number": 60,
+    "slug": "jamaal-n-60",
+    "name": "Parfum JAMAAL N°60",
+    "category": "parfum-homme",
+    "family": "Collection Tribe Homme",
+    "shortDescription": "Parfum Collection Tribe Homme, une création JAMAAL inspirée des grandes maisons de parfumerie.",
+    "longDescription": [
+      "Parfum Collection Tribe Homme, une création JAMAAL inspirée des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 14.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 14.9
+      },
+      {
+        "label": "30 ml",
+        "price": 25.5
+      },
+      {
+        "label": "70 ml",
+        "price": 48
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-61",
+    "number": 61,
+    "slug": "jamaal-n-61",
+    "name": "Parfum JAMAAL N°61",
+    "category": "parfum-homme",
+    "family": "Collection Tribe Homme",
+    "shortDescription": "« Triumph » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Triumph » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-62",
+    "number": 62,
+    "slug": "jamaal-n-62",
+    "name": "Parfum JAMAAL N°62",
+    "category": "parfum-homme",
+    "family": "Collection Tribe Homme",
+    "shortDescription": "« Extreme » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Extreme » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-157",
+    "number": 157,
+    "slug": "jamaal-n-157",
+    "name": "Parfum JAMAAL N°157",
+    "category": "parfum-homme",
+    "family": "Collection Tribe Homme",
+    "shortDescription": "« Aftertouch » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Aftertouch » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-66",
+    "number": 66,
+    "slug": "jamaal-n-66",
+    "name": "Parfum JAMAAL N°66",
+    "category": "parfum-homme",
+    "family": "Collection Tribe Homme",
+    "shortDescription": "Parfum Collection Tribe Homme, une création JAMAAL inspirée des grandes maisons de parfumerie.",
+    "longDescription": [
+      "Parfum Collection Tribe Homme, une création JAMAAL inspirée des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-68",
+    "number": 68,
+    "slug": "jamaal-n-68",
+    "name": "Parfum JAMAAL N°68",
+    "category": "parfum-homme",
+    "family": "Collection Tribe Homme",
+    "shortDescription": "« Glory For Him » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Glory For Him » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 17.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 17.9
+      },
+      {
+        "label": "30 ml",
+        "price": 29.5
+      },
+      {
+        "label": "70 ml",
+        "price": 57
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-69",
+    "number": 69,
+    "slug": "jamaal-n-69",
+    "name": "Parfum JAMAAL N°69",
+    "category": "parfum-homme",
+    "family": "Collection Tribe Homme",
+    "shortDescription": "« Seaside » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Seaside » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-78",
+    "number": 78,
+    "slug": "jamaal-n-78",
+    "name": "Parfum JAMAAL N°78",
+    "category": "parfum-homme",
+    "family": "Collection Tribe Homme",
+    "shortDescription": "Parfum Collection Tribe Homme, une création JAMAAL inspirée des grandes maisons de parfumerie.",
+    "longDescription": [
+      "Parfum Collection Tribe Homme, une création JAMAAL inspirée des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-79",
+    "number": 79,
+    "slug": "jamaal-n-79",
+    "name": "Parfum JAMAAL N°79",
+    "category": "parfum-homme",
+    "family": "Collection Tribe Homme",
+    "shortDescription": "« So True » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« So True » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-84",
+    "number": 84,
+    "slug": "jamaal-n-84",
+    "name": "Parfum JAMAAL N°84",
+    "category": "parfum-homme",
+    "family": "Collection Tribe Homme",
+    "shortDescription": "« Indigo » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Indigo » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-86",
+    "number": 86,
+    "slug": "jamaal-n-86",
+    "name": "Parfum JAMAAL N°86",
+    "category": "parfum-homme",
+    "family": "Collection Tribe Homme",
+    "shortDescription": "« Titan » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Titan » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-87",
+    "number": 87,
+    "slug": "jamaal-n-87",
+    "name": "Parfum JAMAAL N°87",
+    "category": "parfum-homme",
+    "family": "Collection Tribe Homme",
+    "shortDescription": "« Wildman » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Wildman » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-88",
+    "number": 88,
+    "slug": "jamaal-n-88",
+    "name": "Parfum JAMAAL N°88",
+    "category": "parfum-homme",
+    "family": "Collection Tribe Homme",
+    "shortDescription": "« Midnight Man » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Midnight Man » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-91",
+    "number": 91,
+    "slug": "jamaal-n-91",
+    "name": "Parfum JAMAAL N°91",
+    "category": "parfum-homme",
+    "family": "Collection Tribe Homme",
+    "shortDescription": "« Bond » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Bond » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-94",
+    "number": 94,
+    "slug": "jamaal-n-94",
+    "name": "Parfum JAMAAL N°94",
+    "category": "parfum-homme",
+    "family": "Collection Tribe Homme",
+    "shortDescription": "« Revenant Intense » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Revenant Intense » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 14.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 14.9
+      },
+      {
+        "label": "30 ml",
+        "price": 25.5
+      },
+      {
+        "label": "70 ml",
+        "price": 48
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-108",
+    "number": 108,
+    "slug": "jamaal-n-108",
+    "name": "Parfum JAMAAL N°108",
+    "category": "parfum-homme",
+    "family": "Collection Tribe Homme",
+    "shortDescription": "Parfum Collection Tribe Homme, une création JAMAAL inspirée des grandes maisons de parfumerie.",
+    "longDescription": [
+      "Parfum Collection Tribe Homme, une création JAMAAL inspirée des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 14.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 14.9
+      },
+      {
+        "label": "30 ml",
+        "price": 25.5
+      },
+      {
+        "label": "70 ml",
+        "price": 48
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-113",
+    "number": 113,
+    "slug": "jamaal-n-113",
+    "name": "Parfum JAMAAL N°113",
+    "category": "parfum-homme",
+    "family": "Collection Tribe Homme",
+    "shortDescription": "« Your Journey » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Your Journey » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 17.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 17.9
+      },
+      {
+        "label": "30 ml",
+        "price": 29.5
+      },
+      {
+        "label": "70 ml",
+        "price": 57
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-136",
+    "number": 136,
+    "slug": "jamaal-n-136",
+    "name": "Parfum JAMAAL N°136",
+    "category": "parfum-homme",
+    "family": "Collection Tribe Homme",
+    "shortDescription": "« Modern Man » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Modern Man » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 13.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 13.9
+      },
+      {
+        "label": "30 ml",
+        "price": 23.5
+      },
+      {
+        "label": "70 ml",
+        "price": 45
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-140",
+    "number": 140,
+    "slug": "jamaal-n-140",
+    "name": "Parfum JAMAAL N°140",
+    "category": "parfum-homme",
+    "family": "Collection Tribe Homme",
+    "shortDescription": "« Cupid » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Cupid » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-147",
+    "number": 147,
+    "slug": "jamaal-n-147",
+    "name": "Parfum JAMAAL N°147",
+    "category": "parfum-homme",
+    "family": "Collection Tribe Homme",
+    "shortDescription": "« Dark Nectar » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Dark Nectar » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-162",
+    "number": 162,
+    "slug": "jamaal-n-162",
+    "name": "Parfum JAMAAL N°162",
+    "category": "parfum-homme",
+    "family": "Collection Tribe Homme",
+    "shortDescription": "« Eternal Love For Him » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Eternal Love For Him » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-164",
+    "number": 164,
+    "slug": "jamaal-n-164",
+    "name": "Parfum JAMAAL N°164",
+    "category": "parfum-homme",
+    "family": "Collection Tribe Homme",
+    "shortDescription": "« Unfold » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Unfold » — un parfum Collection Tribe Homme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 13.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 13.9
+      },
+      {
+        "label": "30 ml",
+        "price": 23.5
+      },
+      {
+        "label": "70 ml",
+        "price": 45
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-6",
+    "number": 6,
+    "slug": "jamaal-n-6",
+    "name": "Parfum JAMAAL N°6",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Addiction » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Addiction » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-7",
+    "number": 7,
+    "slug": "jamaal-n-7",
+    "name": "Parfum JAMAAL N°7",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Pure Gold » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Pure Gold » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-10",
+    "number": 10,
+    "slug": "jamaal-n-10",
+    "name": "Parfum JAMAAL N°10",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Stranger » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Stranger » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-11",
+    "number": 11,
+    "slug": "jamaal-n-11",
+    "name": "Parfum JAMAAL N°11",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Aqua Soul For Her » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Aqua Soul For Her » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-151",
+    "number": 151,
+    "slug": "jamaal-n-151",
+    "name": "Parfum JAMAAL N°151",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« To The Edge For Her » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« To The Edge For Her » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-14",
+    "number": 14,
+    "slug": "jamaal-n-14",
+    "name": "Parfum JAMAAL N°14",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Statement » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Statement » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-19",
+    "number": 19,
+    "slug": "jamaal-n-19",
+    "name": "Parfum JAMAAL N°19",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Prestige For Her » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Prestige For Her » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-23",
+    "number": 23,
+    "slug": "jamaal-n-23",
+    "name": "Parfum JAMAAL N°23",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Fatale » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Fatale » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-24",
+    "number": 24,
+    "slug": "jamaal-n-24",
+    "name": "Parfum JAMAAL N°24",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« The Essence » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« The Essence » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-25",
+    "number": 25,
+    "slug": "jamaal-n-25",
+    "name": "Parfum JAMAAL N°25",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Her Secret » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Her Secret » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-26",
+    "number": 26,
+    "slug": "jamaal-n-26",
+    "name": "Parfum JAMAAL N°26",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Wild Poppy » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Wild Poppy » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-27",
+    "number": 27,
+    "slug": "jamaal-n-27",
+    "name": "Parfum JAMAAL N°27",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« L’amour Rare » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« L’amour Rare » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-28",
+    "number": 28,
+    "slug": "jamaal-n-28",
+    "name": "Parfum JAMAAL N°28",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Etherea » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Etherea » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-29",
+    "number": 29,
+    "slug": "jamaal-n-29",
+    "name": "Parfum JAMAAL N°29",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Reve Parisien » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Reve Parisien » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-39",
+    "number": 39,
+    "slug": "jamaal-n-39",
+    "name": "Parfum JAMAAL N°39",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Darling » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Darling » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-40",
+    "number": 40,
+    "slug": "jamaal-n-40",
+    "name": "Parfum JAMAAL N°40",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Magnetic » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Magnetic » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-153",
+    "number": 153,
+    "slug": "jamaal-n-153",
+    "name": "Parfum JAMAAL N°153",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Rose Dust » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Rose Dust » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-42",
+    "number": 42,
+    "slug": "jamaal-n-42",
+    "name": "Parfum JAMAAL N°42",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Bonheur Supreme » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Bonheur Supreme » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-154",
+    "number": 154,
+    "slug": "jamaal-n-154",
+    "name": "Parfum JAMAAL N°154",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Liaison Rose » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Liaison Rose » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-47",
+    "number": 47,
+    "slug": "jamaal-n-47",
+    "name": "Parfum JAMAAL N°47",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Nigth Gem » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Nigth Gem » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-49",
+    "number": 49,
+    "slug": "jamaal-n-49",
+    "name": "Parfum JAMAAL N°49",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Pearl Bloom » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Pearl Bloom » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-51",
+    "number": 51,
+    "slug": "jamaal-n-51",
+    "name": "Parfum JAMAAL N°51",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Miss Bijou » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Miss Bijou » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-53",
+    "number": 53,
+    "slug": "jamaal-n-53",
+    "name": "Parfum JAMAAL N°53",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Vanite’ » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Vanite’ » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-55",
+    "number": 55,
+    "slug": "jamaal-n-55",
+    "name": "Parfum JAMAAL N°55",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Black Addiction » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Black Addiction » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-56",
+    "number": 56,
+    "slug": "jamaal-n-56",
+    "name": "Parfum JAMAAL N°56",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Ligth & Dark » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Ligth & Dark » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-57",
+    "number": 57,
+    "slug": "jamaal-n-57",
+    "name": "Parfum JAMAAL N°57",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Pure Purple » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Pure Purple » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-156",
+    "number": 156,
+    "slug": "jamaal-n-156",
+    "name": "Parfum JAMAAL N°156",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Unbending Woman » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Unbending Woman » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-64",
+    "number": 64,
+    "slug": "jamaal-n-64",
+    "name": "Parfum JAMAAL N°64",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Talisman » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Talisman » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-67",
+    "number": 67,
+    "slug": "jamaal-n-67",
+    "name": "Parfum JAMAAL N°67",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Victoria » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Victoria » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-70",
+    "number": 70,
+    "slug": "jamaal-n-70",
+    "name": "Parfum JAMAAL N°70",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Pure Ego For Her » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Pure Ego For Her » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-71",
+    "number": 71,
+    "slug": "jamaal-n-71",
+    "name": "Parfum JAMAAL N°71",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Sublime For Her » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Sublime For Her » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-76",
+    "number": 76,
+    "slug": "jamaal-n-76",
+    "name": "Parfum JAMAAL N°76",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Deep Blue For Her » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Deep Blue For Her » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-158",
+    "number": 158,
+    "slug": "jamaal-n-158",
+    "name": "Parfum JAMAAL N°158",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Wind Bloom » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Wind Bloom » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-80",
+    "number": 80,
+    "slug": "jamaal-n-80",
+    "name": "Parfum JAMAAL N°80",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Absolutely » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Absolutely » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-81",
+    "number": 81,
+    "slug": "jamaal-n-81",
+    "name": "Parfum JAMAAL N°81",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Allure Eternelle » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Allure Eternelle » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-82",
+    "number": 82,
+    "slug": "jamaal-n-82",
+    "name": "Parfum JAMAAL N°82",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Jeunesse » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Jeunesse » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-85",
+    "number": 85,
+    "slug": "jamaal-n-85",
+    "name": "Parfum JAMAAL N°85",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Serendipity » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Serendipity » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-89",
+    "number": 89,
+    "slug": "jamaal-n-89",
+    "name": "Parfum JAMAAL N°89",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Ville Lumiere » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Ville Lumiere » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-90",
+    "number": 90,
+    "slug": "jamaal-n-90",
+    "name": "Parfum JAMAAL N°90",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Femme Fatale » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Femme Fatale » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-93",
+    "number": 93,
+    "slug": "jamaal-n-93",
+    "name": "Parfum JAMAAL N°93",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Glory For Her » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Glory For Her » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 17.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 17.9
+      },
+      {
+        "label": "30 ml",
+        "price": 29.5
+      },
+      {
+        "label": "70 ml",
+        "price": 57
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-159",
+    "number": 159,
+    "slug": "jamaal-n-159",
+    "name": "Parfum JAMAAL N°159",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« British Charm For Her » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« British Charm For Her » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-96",
+    "number": 96,
+    "slug": "jamaal-n-96",
+    "name": "Parfum JAMAAL N°96",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« The Muse » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« The Muse » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-97",
+    "number": 97,
+    "slug": "jamaal-n-97",
+    "name": "Parfum JAMAAL N°97",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Vita » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Vita » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-98",
+    "number": 98,
+    "slug": "jamaal-n-98",
+    "name": "Parfum JAMAAL N°98",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Euphoria » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Euphoria » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-115",
+    "number": 115,
+    "slug": "jamaal-n-115",
+    "name": "Parfum JAMAAL N°115",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Icon » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Icon » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-116",
+    "number": 116,
+    "slug": "jamaal-n-116",
+    "name": "Parfum JAMAAL N°116",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Declare » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Declare » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-119",
+    "number": 119,
+    "slug": "jamaal-n-119",
+    "name": "Parfum JAMAAL N°119",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Dark Affair » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Dark Affair » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-120",
+    "number": 120,
+    "slug": "jamaal-n-120",
+    "name": "Parfum JAMAAL N°120",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Haute Couture » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Haute Couture » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-121",
+    "number": 121,
+    "slug": "jamaal-n-121",
+    "name": "Parfum JAMAAL N°121",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Segret Desire » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Segret Desire » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-122",
+    "number": 122,
+    "slug": "jamaal-n-122",
+    "name": "Parfum JAMAAL N°122",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Volare » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Volare » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 14.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 14.9
+      },
+      {
+        "label": "30 ml",
+        "price": 25.5
+      },
+      {
+        "label": "70 ml",
+        "price": 48
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-131",
+    "number": 131,
+    "slug": "jamaal-n-131",
+    "name": "Parfum JAMAAL N°131",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Chica Mala » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Chica Mala » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 14.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 14.9
+      },
+      {
+        "label": "30 ml",
+        "price": 25.5
+      },
+      {
+        "label": "70 ml",
+        "price": 48
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-132",
+    "number": 132,
+    "slug": "jamaal-n-132",
+    "name": "Parfum JAMAAL N°132",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« My Rules » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« My Rules » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 13.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 13.9
+      },
+      {
+        "label": "30 ml",
+        "price": 23.5
+      },
+      {
+        "label": "70 ml",
+        "price": 45
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-133",
+    "number": 133,
+    "slug": "jamaal-n-133",
+    "name": "Parfum JAMAAL N°133",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Enigma » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Enigma » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-145",
+    "number": 145,
+    "slug": "jamaal-n-145",
+    "name": "Parfum JAMAAL N°145",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Forever Yours » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Forever Yours » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-148",
+    "number": 148,
+    "slug": "jamaal-n-148",
+    "name": "Parfum JAMAAL N°148",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Divine Aura » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Divine Aura » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-161",
+    "number": 161,
+    "slug": "jamaal-n-161",
+    "name": "Parfum JAMAAL N°161",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Eternal Love For Her » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Eternal Love For Her » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-163",
+    "number": 163,
+    "slug": "jamaal-n-163",
+    "name": "Parfum JAMAAL N°163",
+    "category": "parfum-femme",
+    "family": "Collection Tribe Femme",
+    "shortDescription": "« Blooming Skin » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Blooming Skin » — un parfum Collection Tribe Femme signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 13.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 13.9
+      },
+      {
+        "label": "30 ml",
+        "price": 23.5
+      },
+      {
+        "label": "70 ml",
+        "price": 45
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-44",
+    "number": 44,
+    "slug": "jamaal-n-44",
+    "name": "Parfum JAMAAL N°44",
+    "category": "parfum-unisexe",
+    "family": "Collection Tribe Unisexe",
+    "shortDescription": "« Frozen Crest » — un parfum Collection Tribe Unisexe signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Frozen Crest » — un parfum Collection Tribe Unisexe signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 14.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 14.9
+      },
+      {
+        "label": "30 ml",
+        "price": 25.5
+      },
+      {
+        "label": "70 ml",
+        "price": 48
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-54",
+    "number": 54,
+    "slug": "jamaal-n-54",
+    "name": "Parfum JAMAAL N°54",
+    "category": "parfum-unisexe",
+    "family": "Collection Tribe Unisexe",
+    "shortDescription": "« Night Flower » — un parfum Collection Tribe Unisexe signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Night Flower » — un parfum Collection Tribe Unisexe signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-72",
+    "number": 72,
+    "slug": "jamaal-n-72",
+    "name": "Parfum JAMAAL N°72",
+    "category": "parfum-unisexe",
+    "family": "Collection Tribe Unisexe",
+    "shortDescription": "« Earth Memory » — un parfum Collection Tribe Unisexe signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Earth Memory » — un parfum Collection Tribe Unisexe signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-73",
+    "number": 73,
+    "slug": "jamaal-n-73",
+    "name": "Parfum JAMAAL N°73",
+    "category": "parfum-unisexe",
+    "family": "Collection Tribe Unisexe",
+    "shortDescription": "« The Summit » — un parfum Collection Tribe Unisexe signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« The Summit » — un parfum Collection Tribe Unisexe signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 14.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 14.9
+      },
+      {
+        "label": "30 ml",
+        "price": 25.5
+      },
+      {
+        "label": "70 ml",
+        "price": 48
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-99",
+    "number": 99,
+    "slug": "jamaal-n-99",
+    "name": "Parfum JAMAAL N°99",
+    "category": "parfum-unisexe",
+    "family": "Collection Tribe Unisexe",
+    "shortDescription": "« Orange Sun » — un parfum Collection Tribe Unisexe signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Orange Sun » — un parfum Collection Tribe Unisexe signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 13.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 13.9
+      },
+      {
+        "label": "30 ml",
+        "price": 23.5
+      },
+      {
+        "label": "70 ml",
+        "price": 45
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-100",
+    "number": 100,
+    "slug": "jamaal-n-100",
+    "name": "Parfum JAMAAL N°100",
+    "category": "parfum-unisexe",
+    "family": "Collection Tribe Unisexe",
+    "shortDescription": "« Mystic Woods » — un parfum Collection Tribe Unisexe signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Mystic Woods » — un parfum Collection Tribe Unisexe signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-105",
+    "number": 105,
+    "slug": "jamaal-n-105",
+    "name": "Parfum JAMAAL N°105",
+    "category": "parfum-unisexe",
+    "family": "Collection Tribe Unisexe",
+    "shortDescription": "« Expresso » — un parfum Collection Tribe Unisexe signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Expresso » — un parfum Collection Tribe Unisexe signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-110",
+    "number": 110,
+    "slug": "jamaal-n-110",
+    "name": "Parfum JAMAAL N°110",
+    "category": "parfum-unisexe",
+    "family": "Collection Tribe Unisexe",
+    "shortDescription": "« Mystic Spell » — un parfum Collection Tribe Unisexe signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Mystic Spell » — un parfum Collection Tribe Unisexe signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 14.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 14.9
+      },
+      {
+        "label": "30 ml",
+        "price": 25.5
+      },
+      {
+        "label": "70 ml",
+        "price": 48
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-114",
+    "number": 114,
+    "slug": "jamaal-n-114",
+    "name": "Parfum JAMAAL N°114",
+    "category": "parfum-unisexe",
+    "family": "Collection Tribe Unisexe",
+    "shortDescription": "« Desert Whisper » — un parfum Collection Tribe Unisexe signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Desert Whisper » — un parfum Collection Tribe Unisexe signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 14.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 14.9
+      },
+      {
+        "label": "30 ml",
+        "price": 25.5
+      },
+      {
+        "label": "70 ml",
+        "price": 48
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-135",
+    "number": 135,
+    "slug": "jamaal-n-135",
+    "name": "Parfum JAMAAL N°135",
+    "category": "parfum-unisexe",
+    "family": "Collection Tribe Unisexe",
+    "shortDescription": "« Mysticforest » — un parfum Collection Tribe Unisexe signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Mysticforest » — un parfum Collection Tribe Unisexe signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 17.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 17.9
+      },
+      {
+        "label": "30 ml",
+        "price": 29.5
+      },
+      {
+        "label": "70 ml",
+        "price": 57
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-142",
+    "number": 142,
+    "slug": "jamaal-n-142",
+    "name": "Parfum JAMAAL N°142",
+    "category": "parfum-unisexe",
+    "family": "Collection Tribe Unisexe",
+    "shortDescription": "« Dark Eclipse » — un parfum Collection Tribe Unisexe signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« Dark Eclipse » — un parfum Collection Tribe Unisexe signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 17.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 17.9
+      },
+      {
+        "label": "30 ml",
+        "price": 29.5
+      },
+      {
+        "label": "70 ml",
+        "price": 57
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-155",
+    "number": 155,
+    "slug": "jamaal-n-155",
+    "name": "Parfum JAMAAL N°155",
+    "category": "parfum-unisexe",
+    "family": "Collection Tribe Unisexe",
+    "shortDescription": "« True Self » — un parfum Collection Tribe Unisexe signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+    "longDescription": [
+      "« True Self » — un parfum Collection Tribe Unisexe signé JAMAAL, inspiré des grandes maisons de parfumerie.",
+      "Extrait de parfum concentré, pour une tenue longue durée sur la peau."
+    ],
+    "testerPrice": 11.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 11.9
+      },
+      {
+        "label": "30 ml",
+        "price": 18
+      },
+      {
+        "label": "70 ml",
+        "price": 35
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-74-luxury",
+    "number": 74,
+    "slug": "jamaal-n-74-luxury",
+    "name": "Parfum JAMAAL N°74 — Collection Luxury",
+    "category": "parfum-unisexe",
+    "family": "Collection Luxury",
+    "shortDescription": "« Essense Noire » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+    "longDescription": [
+      "« Essense Noire » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+      "Flacon 50 ml, extrait de parfum haute concentration."
+    ],
+    "testerPrice": 19.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 19.9
+      },
+      {
+        "label": "70 ml",
+        "price": 52
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-75-luxury",
+    "number": 75,
+    "slug": "jamaal-n-75-luxury",
+    "name": "Parfum JAMAAL N°75 — Collection Luxury",
+    "category": "parfum-homme",
+    "family": "Collection Luxury",
+    "shortDescription": "« Xcellence » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+    "longDescription": [
+      "« Xcellence » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+      "Flacon 50 ml, extrait de parfum haute concentration."
+    ],
+    "testerPrice": 19.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 19.9
+      },
+      {
+        "label": "70 ml",
+        "price": 52
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-101-luxury",
+    "number": 101,
+    "slug": "jamaal-n-101-luxury",
+    "name": "Parfum JAMAAL N°101 — Collection Luxury",
+    "category": "parfum-unisexe",
+    "family": "Collection Luxury",
+    "shortDescription": "« Soft Caress » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+    "longDescription": [
+      "« Soft Caress » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+      "Flacon 50 ml, extrait de parfum haute concentration."
+    ],
+    "testerPrice": 19.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 19.9
+      },
+      {
+        "label": "70 ml",
+        "price": 52
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-102-luxury",
+    "number": 102,
+    "slug": "jamaal-n-102-luxury",
+    "name": "Parfum JAMAAL N°102 — Collection Luxury",
+    "category": "parfum-unisexe",
+    "family": "Collection Luxury",
+    "shortDescription": "« Soft Rays » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+    "longDescription": [
+      "« Soft Rays » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+      "Flacon 50 ml, extrait de parfum haute concentration."
+    ],
+    "testerPrice": 19.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 19.9
+      },
+      {
+        "label": "70 ml",
+        "price": 52
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-106-luxury",
+    "number": 106,
+    "slug": "jamaal-n-106-luxury",
+    "name": "Parfum JAMAAL N°106 — Collection Luxury",
+    "category": "parfum-unisexe",
+    "family": "Collection Luxury",
+    "shortDescription": "« Rebel Icon » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+    "longDescription": [
+      "« Rebel Icon » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+      "Flacon 50 ml, extrait de parfum haute concentration."
+    ],
+    "testerPrice": 19.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 19.9
+      },
+      {
+        "label": "70 ml",
+        "price": 52
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-109-luxury",
+    "number": 109,
+    "slug": "jamaal-n-109-luxury",
+    "name": "Parfum JAMAAL N°109 — Collection Luxury",
+    "category": "parfum-femme",
+    "family": "Collection Luxury",
+    "shortDescription": "« Pure Gold Intense » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+    "longDescription": [
+      "« Pure Gold Intense » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+      "Flacon 50 ml, extrait de parfum haute concentration."
+    ],
+    "testerPrice": 19.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 19.9
+      },
+      {
+        "label": "70 ml",
+        "price": 52
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-111-luxury",
+    "number": 111,
+    "slug": "jamaal-n-111-luxury",
+    "name": "Parfum JAMAAL N°111 — Collection Luxury",
+    "category": "parfum-unisexe",
+    "family": "Collection Luxury",
+    "shortDescription": "« Ruby Love » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+    "longDescription": [
+      "« Ruby Love » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+      "Flacon 50 ml, extrait de parfum haute concentration."
+    ],
+    "testerPrice": 19.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 19.9
+      },
+      {
+        "label": "70 ml",
+        "price": 52
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-112-luxury",
+    "number": 112,
+    "slug": "jamaal-n-112-luxury",
+    "name": "Parfum JAMAAL N°112 — Collection Luxury",
+    "category": "parfum-unisexe",
+    "family": "Collection Luxury",
+    "shortDescription": "« Riviera » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+    "longDescription": [
+      "« Riviera » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+      "Flacon 50 ml, extrait de parfum haute concentration."
+    ],
+    "testerPrice": 19.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 19.9
+      },
+      {
+        "label": "70 ml",
+        "price": 52
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-117-luxury",
+    "number": 117,
+    "slug": "jamaal-n-117-luxury",
+    "name": "Parfum JAMAAL N°117 — Collection Luxury",
+    "category": "parfum-unisexe",
+    "family": "Collection Luxury",
+    "shortDescription": "« Velvet Smoke » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+    "longDescription": [
+      "« Velvet Smoke » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+      "Flacon 50 ml, extrait de parfum haute concentration."
+    ],
+    "testerPrice": 19.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 19.9
+      },
+      {
+        "label": "70 ml",
+        "price": 52
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-118-luxury",
+    "number": 118,
+    "slug": "jamaal-n-118-luxury",
+    "name": "Parfum JAMAAL N°118 — Collection Luxury",
+    "category": "parfum-unisexe",
+    "family": "Collection Luxury",
+    "shortDescription": "« Scarlet Fire » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+    "longDescription": [
+      "« Scarlet Fire » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+      "Flacon 50 ml, extrait de parfum haute concentration."
+    ],
+    "testerPrice": 19.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 19.9
+      },
+      {
+        "label": "70 ml",
+        "price": 52
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-123-luxury",
+    "number": 123,
+    "slug": "jamaal-n-123-luxury",
+    "name": "Parfum JAMAAL N°123 — Collection Luxury",
+    "category": "parfum-femme",
+    "family": "Collection Luxury",
+    "shortDescription": "« Sweet Rebel » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+    "longDescription": [
+      "« Sweet Rebel » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+      "Flacon 50 ml, extrait de parfum haute concentration."
+    ],
+    "testerPrice": 19.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 19.9
+      },
+      {
+        "label": "70 ml",
+        "price": 52
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-124-luxury",
+    "number": 124,
+    "slug": "jamaal-n-124-luxury",
+    "name": "Parfum JAMAAL N°124 — Collection Luxury",
+    "category": "parfum-unisexe",
+    "family": "Collection Luxury",
+    "shortDescription": "« Everlasting » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+    "longDescription": [
+      "« Everlasting » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+      "Flacon 50 ml, extrait de parfum haute concentration."
+    ],
+    "testerPrice": 19.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 19.9
+      },
+      {
+        "label": "70 ml",
+        "price": 52
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-125-luxury",
+    "number": 125,
+    "slug": "jamaal-n-125-luxury",
+    "name": "Parfum JAMAAL N°125 — Collection Luxury",
+    "category": "parfum-unisexe",
+    "family": "Collection Luxury",
+    "shortDescription": "« Mediterraneo » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+    "longDescription": [
+      "« Mediterraneo » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+      "Flacon 50 ml, extrait de parfum haute concentration."
+    ],
+    "testerPrice": 19.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 19.9
+      },
+      {
+        "label": "70 ml",
+        "price": 52
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-126-luxury",
+    "number": 126,
+    "slug": "jamaal-n-126-luxury",
+    "name": "Parfum JAMAAL N°126 — Collection Luxury",
+    "category": "parfum-unisexe",
+    "family": "Collection Luxury",
+    "shortDescription": "« Lumiere Doree » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+    "longDescription": [
+      "« Lumiere Doree » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+      "Flacon 50 ml, extrait de parfum haute concentration."
+    ],
+    "testerPrice": 19.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 19.9
+      },
+      {
+        "label": "70 ml",
+        "price": 52
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-127-luxury",
+    "number": 127,
+    "slug": "jamaal-n-127-luxury",
+    "name": "Parfum JAMAAL N°127 — Collection Luxury",
+    "category": "parfum-unisexe",
+    "family": "Collection Luxury",
+    "shortDescription": "« Agar Forest » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+    "longDescription": [
+      "« Agar Forest » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+      "Flacon 50 ml, extrait de parfum haute concentration."
+    ],
+    "testerPrice": 19.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 19.9
+      },
+      {
+        "label": "70 ml",
+        "price": 52
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-128-luxury",
+    "number": 128,
+    "slug": "jamaal-n-128-luxury",
+    "name": "Parfum JAMAAL N°128 — Collection Luxury",
+    "category": "parfum-unisexe",
+    "family": "Collection Luxury",
+    "shortDescription": "« Sugar Poison » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+    "longDescription": [
+      "« Sugar Poison » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+      "Flacon 50 ml, extrait de parfum haute concentration."
+    ],
+    "testerPrice": 19.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 19.9
+      },
+      {
+        "label": "70 ml",
+        "price": 52
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-129-luxury",
+    "number": 129,
+    "slug": "jamaal-n-129-luxury",
+    "name": "Parfum JAMAAL N°129 — Collection Luxury",
+    "category": "parfum-unisexe",
+    "family": "Collection Luxury",
+    "shortDescription": "« Chlorophyll » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+    "longDescription": [
+      "« Chlorophyll » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+      "Flacon 50 ml, extrait de parfum haute concentration."
+    ],
+    "testerPrice": 19.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 19.9
+      },
+      {
+        "label": "70 ml",
+        "price": 52
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-130-luxury",
+    "number": 130,
+    "slug": "jamaal-n-130-luxury",
+    "name": "Parfum JAMAAL N°130 — Collection Luxury",
+    "category": "parfum-unisexe",
+    "family": "Collection Luxury",
+    "shortDescription": "« Oceanic Pulse » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+    "longDescription": [
+      "« Oceanic Pulse » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+      "Flacon 50 ml, extrait de parfum haute concentration."
+    ],
+    "testerPrice": 22.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 22.9
+      },
+      {
+        "label": "70 ml",
+        "price": 65
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-134-luxury",
+    "number": 134,
+    "slug": "jamaal-n-134-luxury",
+    "name": "Parfum JAMAAL N°134 — Collection Luxury",
+    "category": "parfum-unisexe",
+    "family": "Collection Luxury",
+    "shortDescription": "« Orange Nectar » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+    "longDescription": [
+      "« Orange Nectar » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+      "Flacon 50 ml, extrait de parfum haute concentration."
+    ],
+    "testerPrice": 19.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 19.9
+      },
+      {
+        "label": "70 ml",
+        "price": 52
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-137-luxury",
+    "number": 137,
+    "slug": "jamaal-n-137-luxury",
+    "name": "Parfum JAMAAL N°137 — Collection Luxury",
+    "category": "parfum-unisexe",
+    "family": "Collection Luxury",
+    "shortDescription": "« Sicilian Garden » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+    "longDescription": [
+      "« Sicilian Garden » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+      "Flacon 50 ml, extrait de parfum haute concentration."
+    ],
+    "testerPrice": 19.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 19.9
+      },
+      {
+        "label": "70 ml",
+        "price": 52
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-138-luxury",
+    "number": 138,
+    "slug": "jamaal-n-138-luxury",
+    "name": "Parfum JAMAAL N°138 — Collection Luxury",
+    "category": "parfum-unisexe",
+    "family": "Collection Luxury",
+    "shortDescription": "« Woodland » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+    "longDescription": [
+      "« Woodland » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+      "Flacon 50 ml, extrait de parfum haute concentration."
+    ],
+    "testerPrice": 19.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 19.9
+      },
+      {
+        "label": "70 ml",
+        "price": 52
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-139-luxury",
+    "number": 139,
+    "slug": "jamaal-n-139-luxury",
+    "name": "Parfum JAMAAL N°139 — Collection Luxury",
+    "category": "parfum-unisexe",
+    "family": "Collection Luxury",
+    "shortDescription": "« Sahara Blush » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+    "longDescription": [
+      "« Sahara Blush » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+      "Flacon 50 ml, extrait de parfum haute concentration."
+    ],
+    "testerPrice": 22.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 22.9
+      },
+      {
+        "label": "70 ml",
+        "price": 65
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-141-luxury",
+    "number": 141,
+    "slug": "jamaal-n-141-luxury",
+    "name": "Parfum JAMAAL N°141 — Collection Luxury",
+    "category": "parfum-unisexe",
+    "family": "Collection Luxury",
+    "shortDescription": "« Sands Of Time » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+    "longDescription": [
+      "« Sands Of Time » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+      "Flacon 50 ml, extrait de parfum haute concentration."
+    ],
+    "testerPrice": 22.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 22.9
+      },
+      {
+        "label": "70 ml",
+        "price": 65
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-143-luxury",
+    "number": 143,
+    "slug": "jamaal-n-143-luxury",
+    "name": "Parfum JAMAAL N°143 — Collection Luxury",
+    "category": "parfum-unisexe",
+    "family": "Collection Luxury",
+    "shortDescription": "« Sweet Dust » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+    "longDescription": [
+      "« Sweet Dust » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+      "Flacon 50 ml, extrait de parfum haute concentration."
+    ],
+    "testerPrice": 19.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 19.9
+      },
+      {
+        "label": "70 ml",
+        "price": 52
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-144-luxury",
+    "number": 144,
+    "slug": "jamaal-n-144-luxury",
+    "name": "Parfum JAMAAL N°144 — Collection Luxury",
+    "category": "parfum-unisexe",
+    "family": "Collection Luxury",
+    "shortDescription": "« Creamy Dream » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+    "longDescription": [
+      "« Creamy Dream » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+      "Flacon 50 ml, extrait de parfum haute concentration."
+    ],
+    "testerPrice": 19.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 19.9
+      },
+      {
+        "label": "70 ml",
+        "price": 52
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-n-146-luxury",
+    "number": 146,
+    "slug": "jamaal-n-146-luxury",
+    "name": "Parfum JAMAAL N°146 — Collection Luxury",
+    "category": "parfum-unisexe",
+    "family": "Collection Luxury",
+    "shortDescription": "« Scarlet Flame » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+    "longDescription": [
+      "« Scarlet Flame » — Collection Luxury JAMAAL, inspirée des plus grandes maisons de haute parfumerie.",
+      "Flacon 50 ml, extrait de parfum haute concentration."
+    ],
+    "testerPrice": 19.9,
+    "volumes": [
+      {
+        "label": "Échantillon 3 ml",
+        "price": 19.9
+      },
+      {
+        "label": "70 ml",
+        "price": 52
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-scented-love-22",
+    "number": 22,
+    "slug": "jamaal-scented-love-22",
+    "name": "Parfum JAMAAL Scented Love N°22",
+    "category": "parfum-femme",
+    "family": "Scented Love",
+    "topNotes": [
+      "Anis étoilé",
+      "Bergamote",
+      "Cerise",
+      "Amande"
+    ],
+    "heartNotes": [
+      "Réglisse",
+      "Pêche",
+      "Rose",
+      "Rose de Bulgarie"
+    ],
+    "baseNotes": [
+      "Anis",
+      "Cèdre",
+      "Fève tonka",
+      "Musc",
+      "Vanille"
+    ],
+    "shortDescription": "Parfum JAMAAL Scented Love, un format 25 ml gourmand et floral, à la pyramide olfactive généreuse.",
+    "longDescription": [
+      "Parfum JAMAAL Scented Love, un format 25 ml gourmand et floral, à la pyramide olfactive généreuse.",
+      "Extrait de parfum concentré."
+    ],
+    "volumes": [
+      {
+        "label": "70 ml",
+        "price": 19.9
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-scented-love-24",
+    "number": 24,
+    "slug": "jamaal-scented-love-24",
+    "name": "Parfum JAMAAL Scented Love N°24",
+    "category": "parfum-femme",
+    "family": "Scented Love",
+    "topNotes": [
+      "Bergamote",
+      "Framboise",
+      "Mandarine",
+      "Osmanthe"
+    ],
+    "heartNotes": [
+      "Fleur de gingembre",
+      "Jasmin",
+      "Rose",
+      "Tubéreuse"
+    ],
+    "baseNotes": [
+      "Ambre",
+      "Caramel",
+      "Cèdre",
+      "Réglisse",
+      "Patchouli",
+      "Santal",
+      "Vanille"
+    ],
+    "shortDescription": "Parfum JAMAAL Scented Love, un format 25 ml gourmand et floral, à la pyramide olfactive généreuse.",
+    "longDescription": [
+      "Parfum JAMAAL Scented Love, un format 25 ml gourmand et floral, à la pyramide olfactive généreuse.",
+      "Extrait de parfum concentré."
+    ],
+    "volumes": [
+      {
+        "label": "70 ml",
+        "price": 24.9
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-jamaal-scented-love-25",
+    "number": 25,
+    "slug": "jamaal-scented-love-25",
+    "name": "Parfum JAMAAL Scented Love N°25",
+    "category": "parfum-femme",
+    "family": "Scented Love",
+    "topNotes": [
+      "Abricot",
+      "Orange amère",
+      "Noix de coco",
+      "Citron",
+      "Prune"
+    ],
+    "heartNotes": [
+      "Fleur d'oranger",
+      "Jasmin",
+      "Muguet",
+      "Rose",
+      "Tubéreuse"
+    ],
+    "baseNotes": [
+      "Fève tonka",
+      "Amande",
+      "Musc",
+      "Santal",
+      "Vanille"
+    ],
+    "shortDescription": "Parfum JAMAAL Scented Love, un format 25 ml gourmand et floral, à la pyramide olfactive généreuse.",
+    "longDescription": [
+      "Parfum JAMAAL Scented Love, un format 25 ml gourmand et floral, à la pyramide olfactive généreuse.",
+      "Extrait de parfum concentré."
+    ],
+    "volumes": [
+      {
+        "label": "70 ml",
+        "price": 24.9
+      }
+    ],
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-eau-de-soin-jamaal-bambino",
+    "slug": "eau-de-soin-jamaal-bambino",
+    "name": "Eau de Soin JAMAAL Bambino",
+    "category": "autres-produits",
+    "shortDescription": "Une eau de soin hypoallergénique 30 ml, formulée pour la peau délicate des petits garçons.",
+    "longDescription": [
+      "Une eau de soin hypoallergénique 30 ml, formulée pour la peau délicate des petits garçons."
+    ],
+    "regularPrice": 29,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-eau-de-soin-jamaal-bambina",
+    "slug": "eau-de-soin-jamaal-bambina",
+    "name": "Eau de Soin JAMAAL Bambina",
+    "category": "autres-produits",
+    "shortDescription": "Une eau de soin hypoallergénique 30 ml, formulée pour la peau délicate des petites filles.",
+    "longDescription": [
+      "Une eau de soin hypoallergénique 30 ml, formulée pour la peau délicate des petites filles."
+    ],
+    "regularPrice": 29,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-eau-de-soin-jamaal-neonatal",
+    "slug": "eau-de-soin-jamaal-neonatal",
+    "name": "Eau de Soin JAMAAL Néonatal",
+    "category": "autres-produits",
+    "shortDescription": "Une eau de soin hypoallergénique 30 ml, conçue pour les tout-petits dès la naissance.",
+    "longDescription": [
+      "Une eau de soin hypoallergénique 30 ml, conçue pour les tout-petits dès la naissance."
+    ],
+    "regularPrice": 29,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-brilgrease-bh0210",
+    "slug": "brilgrease-bh0210",
+    "name": "Brilgrease BH0210",
+    "category": "entretien-maison",
+    "shortDescription": "Nettoyant concentré dégraissant et assainissant, sans ammoniaque ni phosphate, pour toutes surfaces lavables.",
+    "longDescription": [
+      "Nettoyant concentré dégraissant et assainissant, sans ammoniaque ni phosphate, pour toutes surfaces lavables."
+    ],
+    "regularPrice": 15.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-fire-cleanse-bh0205",
+    "slug": "fire-cleanse-bh0205",
+    "name": "Fire Cleanse BH0205",
+    "category": "entretien-maison",
+    "shortDescription": "Nettoyant concentré décarbonisant pour l'entretien des cheminées à foyer fermé ou ouvert, poêles à granulés et à bois.",
+    "longDescription": [
+      "Nettoyant concentré décarbonisant pour l'entretien des cheminées à foyer fermé ou ouvert, poêles à granulés et à bois."
+    ],
+    "regularPrice": 16.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-brilgrill-bh0203",
+    "slug": "brilgrill-bh0203",
+    "name": "Brilgrill BH0203",
+    "category": "entretien-maison",
+    "shortDescription": "Détergent alcalin dégraissant pour l'élimination des résidus de cuisson et carbonisés des fours, hottes, grils et plaques.",
+    "longDescription": [
+      "Détergent alcalin dégraissant pour l'élimination des résidus de cuisson et carbonisés des fours, hottes, grils et plaques."
+    ],
+    "regularPrice": 13.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-brilsteel-bh0211",
+    "slug": "brilsteel-bh0211",
+    "name": "Brilsteel BH0211",
+    "category": "entretien-maison",
+    "shortDescription": "Nettoyant polissant spécialement conçu pour l'acier inoxydable, dégraisse et redonne de l'éclat sans rayer.",
+    "longDescription": [
+      "Nettoyant polissant spécialement conçu pour l'acier inoxydable, dégraisse et redonne de l'éclat sans rayer."
+    ],
+    "regularPrice": 15.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-frostaway-bh0215",
+    "slug": "frostaway-bh0215",
+    "name": "Frostaway BH0215",
+    "category": "entretien-maison",
+    "shortDescription": "Dégivrant pour l'entretien des congélateurs et compartiments freezer, accélère le dégivrage et protège l'appareil.",
+    "longDescription": [
+      "Dégivrant pour l'entretien des congélateurs et compartiments freezer, accélère le dégivrage et protège l'appareil."
+    ],
+    "regularPrice": 17.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-shinyfridge-bh0216",
+    "slug": "shinyfridge-bh0216",
+    "name": "Shinyfridge BH0216",
+    "category": "entretien-maison",
+    "shortDescription": "Nettoyant assainissant pour tous types de réfrigérateurs, intérieur et extérieur, sans résidus.",
+    "longDescription": [
+      "Nettoyant assainissant pour tous types de réfrigérateurs, intérieur et extérieur, sans résidus."
+    ],
+    "regularPrice": 16.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-brilcaf-bh0218",
+    "slug": "brilcaf-bh0218",
+    "name": "Brilcaf BH0218",
+    "category": "entretien-maison",
+    "shortDescription": "Détartrant d'origine naturelle pour l'intérieur des machines à café, sans altérer le goût du café.",
+    "longDescription": [
+      "Détartrant d'origine naturelle pour l'intérieur des machines à café, sans altérer le goût du café."
+    ],
+    "regularPrice": 15.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-saverwash-bh0225",
+    "slug": "saverwash-bh0225",
+    "name": "Saverwash BH0225",
+    "category": "entretien-maison",
+    "shortDescription": "Détergent dégraissant, détartrant, assainissant et désodorisant pour l'entretien courant des lave-linge.",
+    "longDescription": [
+      "Détergent dégraissant, détartrant, assainissant et désodorisant pour l'entretien courant des lave-linge."
+    ],
+    "regularPrice": 12.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-wonderiron-bh0219",
+    "slug": "wonderiron-bh0219",
+    "name": "Wonderiron BH0219",
+    "category": "entretien-maison",
+    "shortDescription": "Détartrant pour dissoudre les dépôts de calcaire dans la chaudière et la semelle du fer à repasser.",
+    "longDescription": [
+      "Détartrant pour dissoudre les dépôts de calcaire dans la chaudière et la semelle du fer à repasser."
+    ],
+    "regularPrice": 18.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-saverdish-bh0224",
+    "slug": "saverdish-bh0224",
+    "name": "Saverdish BH0224",
+    "category": "entretien-maison",
+    "shortDescription": "Détergent dégraissant, détartrant, assainissant et désodorisant pour l'entretien courant des lave-vaisselle.",
+    "longDescription": [
+      "Détergent dégraissant, détartrant, assainissant et désodorisant pour l'entretien courant des lave-vaisselle."
+    ],
+    "regularPrice": 12.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-briltotal-bh0212",
+    "slug": "briltotal-bh0212",
+    "name": "Briltotal BH0212",
+    "category": "entretien-maison",
+    "shortDescription": "Détergent hygiène anti-poussière prêt à l'emploi pour le nettoyage quotidien de toutes les surfaces, sans traces.",
+    "longDescription": [
+      "Détergent hygiène anti-poussière prêt à l'emploi pour le nettoyage quotidien de toutes les surfaces, sans traces."
+    ],
+    "regularPrice": 12.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-brilglass-bh0206",
+    "slug": "brilglass-bh0206",
+    "name": "Brilglass BH0206",
+    "category": "entretien-maison",
+    "shortDescription": "Nettoyant à base d'alcool pour vitres, miroirs et surfaces réfléchissantes, sans rinçage ni traces.",
+    "longDescription": [
+      "Nettoyant à base d'alcool pour vitres, miroirs et surfaces réfléchissantes, sans rinçage ni traces."
+    ],
+    "regularPrice": 13.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-brilbright-bh0202",
+    "slug": "brilbright-bh0202",
+    "name": "Brilbright BH0202",
+    "category": "entretien-maison",
+    "shortDescription": "Émulsion de cire de carnauba qui ravive et protège les surfaces en bois et les meubles/canapés en cuir.",
+    "longDescription": [
+      "Émulsion de cire de carnauba qui ravive et protège les surfaces en bois et les meubles/canapés en cuir."
+    ],
+    "regularPrice": 16.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-turbodrain-bh0228",
+    "slug": "turbodrain-bh0228",
+    "name": "Turbodrain BH0228",
+    "category": "entretien-maison",
+    "shortDescription": "Déboucheur en granulés super-concentré pour résoudre les obstructions des canalisations.",
+    "longDescription": [
+      "Déboucheur en granulés super-concentré pour résoudre les obstructions des canalisations."
+    ],
+    "regularPrice": 22.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-brilgrout-bh0222",
+    "slug": "brilgrout-bh0222",
+    "name": "Brilgrout BH0222",
+    "category": "entretien-maison",
+    "shortDescription": "Nettoyant concentré pour le nettoyage et la rénovation des joints et fissures de sols et murs.",
+    "longDescription": [
+      "Nettoyant concentré pour le nettoyage et la rénovation des joints et fissures de sols et murs."
+    ],
+    "regularPrice": 19.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-perfect-cotto-bh0209",
+    "slug": "perfect-cotto-bh0209",
+    "name": "Perfect Cotto BH0209",
+    "category": "entretien-maison",
+    "shortDescription": "Détergent détartrant concentré pour le nettoyage des sols en terre cuite, clinker et pierre naturelle poreuse.",
+    "longDescription": [
+      "Détergent détartrant concentré pour le nettoyage des sols en terre cuite, clinker et pierre naturelle poreuse."
+    ],
+    "regularPrice": 15.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-sanipaw-bh0226",
+    "slug": "sanipaw-bh0226",
+    "name": "Sanipaw BH0226",
+    "category": "entretien-maison",
+    "shortDescription": "Nettoyant désodorisant concentré, enrichi d'une molécule anti-odeur, pour les surfaces et espaces des animaux de compagnie.",
+    "longDescription": [
+      "Nettoyant désodorisant concentré, enrichi d'une molécule anti-odeur, pour les surfaces et espaces des animaux de compagnie."
+    ],
+    "regularPrice": 19.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-peroxygien-plus-bh0001",
+    "slug": "peroxygien-plus-bh0001",
+    "name": "Peroxygien Plus BH0001",
+    "category": "entretien-maison",
+    "shortDescription": "Nettoyant assainissant à base de peroxyde d'hydrogène pour locaux domestiques, professionnels et institutionnels.",
+    "longDescription": [
+      "Nettoyant assainissant à base de peroxyde d'hydrogène pour locaux domestiques, professionnels et institutionnels."
+    ],
+    "regularPrice": 4.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-brilparquet-bh0204",
+    "slug": "brilparquet-bh0204",
+    "name": "Brilparquet BH0204",
+    "category": "entretien-maison",
+    "shortDescription": "Émulsion de cire de carnauba autopolissante pour le nettoyage et l'entretien des sols et murs en parquet.",
+    "longDescription": [
+      "Émulsion de cire de carnauba autopolissante pour le nettoyage et l'entretien des sols et murs en parquet."
+    ],
+    "regularPrice": 17.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-nettoyant-parquet-lavande-bh0207",
+    "slug": "nettoyant-parquet-lavande-bh0207",
+    "name": "Nettoyant Parquet Lavande BH0207",
+    "category": "entretien-maison",
+    "shortDescription": "Émulsion autopolissante parfumée à la lavande, pour parquets et sols en bois.",
+    "longDescription": [
+      "Émulsion autopolissante parfumée à la lavande, pour parquets et sols en bois."
+    ],
+    "regularPrice": 15.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-nettoyant-parquet-coquelicot-fleur-des-champs-bh0213",
+    "slug": "nettoyant-parquet-coquelicot-fleur-des-champs-bh0213",
+    "name": "Nettoyant Parquet Coquelicot & Fleur des Champs BH0213",
+    "category": "entretien-maison",
+    "shortDescription": "Émulsion autopolissante parfumée coquelicot et fleur des champs, pour parquets et sols en bois.",
+    "longDescription": [
+      "Émulsion autopolissante parfumée coquelicot et fleur des champs, pour parquets et sols en bois."
+    ],
+    "regularPrice": 15.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-nettoyant-parquet-hibiscus-noir-bh0214",
+    "slug": "nettoyant-parquet-hibiscus-noir-bh0214",
+    "name": "Nettoyant Parquet Hibiscus Noir BH0214",
+    "category": "entretien-maison",
+    "shortDescription": "Émulsion autopolissante parfumée hibiscus noir, pour parquets et sols en bois.",
+    "longDescription": [
+      "Émulsion autopolissante parfumée hibiscus noir, pour parquets et sols en bois."
+    ],
+    "regularPrice": 15.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-supreme-lip-treatment-vanille-mm002",
+    "slug": "supreme-lip-treatment-vanille-mm002",
+    "name": "Supreme Lip Treatment — Vanille MM002",
+    "category": "maquillage",
+    "shortDescription": "Soin des lèvres teinté à action intensive et réparatrice, au miel cosmétique, huile de chanvre et beurre de karité.",
+    "longDescription": [
+      "Soin des lèvres teinté à action intensive et réparatrice, au miel cosmétique, huile de chanvre et beurre de karité."
+    ],
+    "regularPrice": 19.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-supreme-lip-treatment-fraise-mm003",
+    "slug": "supreme-lip-treatment-fraise-mm003",
+    "name": "Supreme Lip Treatment — Fraise MM003",
+    "category": "maquillage",
+    "shortDescription": "Soin des lèvres teinté à action intensive et réparatrice, au miel cosmétique, huile de chanvre et beurre de karité.",
+    "longDescription": [
+      "Soin des lèvres teinté à action intensive et réparatrice, au miel cosmétique, huile de chanvre et beurre de karité."
+    ],
+    "regularPrice": 19.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-supreme-lip-treatment-framboise-mm004",
+    "slug": "supreme-lip-treatment-framboise-mm004",
+    "name": "Supreme Lip Treatment — Framboise MM004",
+    "category": "maquillage",
+    "shortDescription": "Soin des lèvres teinté à action intensive et réparatrice, au miel cosmétique, huile de chanvre et beurre de karité.",
+    "longDescription": [
+      "Soin des lèvres teinté à action intensive et réparatrice, au miel cosmétique, huile de chanvre et beurre de karité."
+    ],
+    "regularPrice": 19.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-supreme-lip-treatment-meringa-mm005",
+    "slug": "supreme-lip-treatment-meringa-mm005",
+    "name": "Supreme Lip Treatment — Meringa MM005",
+    "category": "maquillage",
+    "shortDescription": "Soin des lèvres teinté à action intensive et réparatrice, au miel cosmétique, huile de chanvre et beurre de karité.",
+    "longDescription": [
+      "Soin des lèvres teinté à action intensive et réparatrice, au miel cosmétique, huile de chanvre et beurre de karité."
+    ],
+    "regularPrice": 19.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-supreme-lip-treatment-amaretto-mm006",
+    "slug": "supreme-lip-treatment-amaretto-mm006",
+    "name": "Supreme Lip Treatment — Amaretto MM006",
+    "category": "maquillage",
+    "shortDescription": "Soin des lèvres teinté à action intensive et réparatrice, au miel cosmétique, huile de chanvre et beurre de karité.",
+    "longDescription": [
+      "Soin des lèvres teinté à action intensive et réparatrice, au miel cosmétique, huile de chanvre et beurre de karité."
+    ],
+    "regularPrice": 19.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-supreme-lip-treatment-cinnamon-roll-mm007",
+    "slug": "supreme-lip-treatment-cinnamon-roll-mm007",
+    "name": "Supreme Lip Treatment — Cinnamon Roll MM007",
+    "category": "maquillage",
+    "shortDescription": "Soin des lèvres teinté à action intensive et réparatrice, au miel cosmétique, huile de chanvre et beurre de karité.",
+    "longDescription": [
+      "Soin des lèvres teinté à action intensive et réparatrice, au miel cosmétique, huile de chanvre et beurre de karité."
+    ],
+    "regularPrice": 19.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-supreme-lip-treatment-creme-caramel-mm008",
+    "slug": "supreme-lip-treatment-creme-caramel-mm008",
+    "name": "Supreme Lip Treatment — Crème Caramel MM008",
+    "category": "maquillage",
+    "shortDescription": "Soin des lèvres teinté à action intensive et réparatrice, au miel cosmétique, huile de chanvre et beurre de karité.",
+    "longDescription": [
+      "Soin des lèvres teinté à action intensive et réparatrice, au miel cosmétique, huile de chanvre et beurre de karité."
+    ],
+    "regularPrice": 19.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-supreme-lip-treatment-tiramisu-mm009",
+    "slug": "supreme-lip-treatment-tiramisu-mm009",
+    "name": "Supreme Lip Treatment — Tiramisù MM009",
+    "category": "maquillage",
+    "shortDescription": "Soin des lèvres teinté à action intensive et réparatrice, au miel cosmétique, huile de chanvre et beurre de karité.",
+    "longDescription": [
+      "Soin des lèvres teinté à action intensive et réparatrice, au miel cosmétique, huile de chanvre et beurre de karité."
+    ],
+    "regularPrice": 19.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-solar-defence-compact-foundation",
+    "slug": "solar-defence-compact-foundation",
+    "name": "Solar Defence Compact Foundation",
+    "category": "maquillage",
+    "shortDescription": "Fond de teint compact crémeux SPF 30, enrichi en actif anti-âge, farine d'avoine et huile de graines de pavot.",
+    "longDescription": [
+      "Fond de teint compact crémeux SPF 30, enrichi en actif anti-âge, farine d'avoine et huile de graines de pavot."
+    ],
+    "regularPrice": 35.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-sculpt-lift-contour-stick-stone-mm037",
+    "slug": "sculpt-lift-contour-stick-stone-mm037",
+    "name": "Sculpt & Lift Contour Stick — Stone MM037",
+    "category": "maquillage",
+    "shortDescription": "Stick contouring crémeux au fini mat, enrichi en huile et farine d'avoine et en aloe vera.",
+    "longDescription": [
+      "Stick contouring crémeux au fini mat, enrichi en huile et farine d'avoine et en aloe vera."
+    ],
+    "regularPrice": 19.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-sculpt-lift-contour-stick-clay-mm038",
+    "slug": "sculpt-lift-contour-stick-clay-mm038",
+    "name": "Sculpt & Lift Contour Stick — Clay MM038",
+    "category": "maquillage",
+    "shortDescription": "Stick contouring crémeux au fini mat, enrichi en huile et farine d'avoine et en aloe vera.",
+    "longDescription": [
+      "Stick contouring crémeux au fini mat, enrichi en huile et farine d'avoine et en aloe vera."
+    ],
+    "regularPrice": 19.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-sculpt-lift-contour-stick-ebony-mm039",
+    "slug": "sculpt-lift-contour-stick-ebony-mm039",
+    "name": "Sculpt & Lift Contour Stick — Ebony MM039",
+    "category": "maquillage",
+    "shortDescription": "Stick contouring crémeux au fini mat, enrichi en huile et farine d'avoine et en aloe vera.",
+    "longDescription": [
+      "Stick contouring crémeux au fini mat, enrichi en huile et farine d'avoine et en aloe vera."
+    ],
+    "regularPrice": 19.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-blush-kiss-multi-use-stick-watermelon-mm040",
+    "slug": "blush-kiss-multi-use-stick-watermelon-mm040",
+    "name": "Blush & Kiss Multi-Use Stick — Watermelon MM040",
+    "category": "maquillage",
+    "shortDescription": "Stick 2-en-1 au fini mat, couvrance modulable, enrichi en huile et farine de grains d'avoine et aloe vera.",
+    "longDescription": [
+      "Stick 2-en-1 au fini mat, couvrance modulable, enrichi en huile et farine de grains d'avoine et aloe vera."
+    ],
+    "regularPrice": 19.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-blush-kiss-multi-use-stick-peach-mm041",
+    "slug": "blush-kiss-multi-use-stick-peach-mm041",
+    "name": "Blush & Kiss Multi-Use Stick — Peach MM041",
+    "category": "maquillage",
+    "shortDescription": "Stick 2-en-1 au fini mat, couvrance modulable, enrichi en huile et farine de grains d'avoine et aloe vera.",
+    "longDescription": [
+      "Stick 2-en-1 au fini mat, couvrance modulable, enrichi en huile et farine de grains d'avoine et aloe vera."
+    ],
+    "regularPrice": 19.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-blush-kiss-multi-use-stick-berry-mm042",
+    "slug": "blush-kiss-multi-use-stick-berry-mm042",
+    "name": "Blush & Kiss Multi-Use Stick — Berry MM042",
+    "category": "maquillage",
+    "shortDescription": "Stick 2-en-1 au fini mat, couvrance modulable, enrichi en huile et farine de grains d'avoine et aloe vera.",
+    "longDescription": [
+      "Stick 2-en-1 au fini mat, couvrance modulable, enrichi en huile et farine de grains d'avoine et aloe vera."
+    ],
+    "regularPrice": 19.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-light-go-highlighter-stick-champagne-mm043",
+    "slug": "light-go-highlighter-stick-champagne-mm043",
+    "name": "Light & Go Highlighter Stick — Champagne MM043",
+    "category": "maquillage",
+    "shortDescription": "Stick illuminateur qui sublime le visage et le décolleté, enrichi en huile d'argan, vitamine E et extrait de ginseng.",
+    "longDescription": [
+      "Stick illuminateur qui sublime le visage et le décolleté, enrichi en huile d'argan, vitamine E et extrait de ginseng."
+    ],
+    "regularPrice": 19.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-light-go-highlighter-stick-rose-gold-mm044",
+    "slug": "light-go-highlighter-stick-rose-gold-mm044",
+    "name": "Light & Go Highlighter Stick — Rose Gold MM044",
+    "category": "maquillage",
+    "shortDescription": "Stick illuminateur qui sublime le visage et le décolleté, enrichi en huile d'argan, vitamine E et extrait de ginseng.",
+    "longDescription": [
+      "Stick illuminateur qui sublime le visage et le décolleté, enrichi en huile d'argan, vitamine E et extrait de ginseng."
+    ],
+    "regularPrice": 19.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-light-go-highlighter-stick-bronze-mm045",
+    "slug": "light-go-highlighter-stick-bronze-mm045",
+    "name": "Light & Go Highlighter Stick — Bronze MM045",
+    "category": "maquillage",
+    "shortDescription": "Stick illuminateur qui sublime le visage et le décolleté, enrichi en huile d'argan, vitamine E et extrait de ginseng.",
+    "longDescription": [
+      "Stick illuminateur qui sublime le visage et le décolleté, enrichi en huile d'argan, vitamine E et extrait de ginseng."
+    ],
+    "regularPrice": 19.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  }
+]

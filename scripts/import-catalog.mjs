@@ -22,6 +22,7 @@ const outputPath = path.join(root, "src", "data", "official-catalog.json");
 const VALID_CATEGORIES = new Set([
   "parfum-femme",
   "parfum-homme",
+  "parfum-unisexe",
   "aurodhea",
   "lolum",
   "maquillage",

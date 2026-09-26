@@ -18,6 +18,14 @@ export const categories: Category[] = [
     accent: "navy",
   },
   {
+    slug: "parfum-unisexe",
+    navLabel: "JAMAAL Unisexe",
+    label: "Parfum JAMAAL Unisexe",
+    description:
+      "Des fragrances unisexes, entre bois précieux, ambre et notes minérales, à porter sans distinction.",
+    accent: "navy",
+  },
+  {
     slug: "aurodhea",
     label: "Soins Aurodhea",
     navLabel: "Aurodhea",
