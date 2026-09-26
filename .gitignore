@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# import source : données personnelles/officielles du revendeur, à ne pas
+# committer telles quelles (voir import/README.md) — seul le résultat traité
+# (src/data/official-catalog.json + public/produits/) est versionné.
+/import/products.csv
+/import/photos/*
+!/import/photos/.gitkeep

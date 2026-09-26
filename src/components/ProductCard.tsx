@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Product } from "@/data/types";
-import { ProductBottle } from "./ProductBottle";
+import { ProductVisual } from "./ProductVisual";
 import { StarRating } from "./StarRating";
 
 function formatPrice(n: number) {
@@ -19,11 +19,8 @@ export function ProductCard({ product }: { product: Product }) {
       className="group flex flex-col gap-3 rounded-2xl border border-line bg-white p-4 transition hover:-translate-y-1 hover:shadow-lg hover:shadow-navy/5"
     >
       <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-cream">
-        <ProductBottle
-          colorFrom={product.colorFrom}
-          colorTo={product.colorTo}
-          category={product.category}
-          number={product.number}
+        <ProductVisual
+          product={product}
           className="h-full w-full transition group-hover:scale-105"
         />
         {product.badge && (

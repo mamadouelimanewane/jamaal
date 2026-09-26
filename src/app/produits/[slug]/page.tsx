@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getProductBySlug, products, getProductsByCategory } from "@/data/products";
 import { getCategory } from "@/data/categories";
-import { ProductBottle } from "@/components/ProductBottle";
+import { ProductVisual } from "@/components/ProductVisual";
 import { StarRating } from "@/components/StarRating";
 import { ProductPurchasePanel } from "@/components/ProductPurchasePanel";
 import { ProductCard } from "@/components/ProductCard";
@@ -33,14 +33,8 @@ export default async function ProductPage({
       </p>
 
       <div className="grid gap-10 lg:grid-cols-2">
-        <div className="aspect-square w-full overflow-hidden rounded-3xl bg-cream">
-          <ProductBottle
-            colorFrom={product.colorFrom}
-            colorTo={product.colorTo}
-            category={product.category}
-            number={product.number}
-            className="h-full w-full"
-          />
+        <div className="relative aspect-square w-full overflow-hidden rounded-3xl bg-cream">
+          <ProductVisual product={product} className="h-full w-full" sizes="(max-width: 1024px) 100vw, 50vw" />
         </div>
 
         <div>

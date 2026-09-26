@@ -43,4 +43,8 @@ export interface Product {
   badge?: "bestseller" | "nouveau" | "epuise";
   colorFrom: string;
   colorTo: string;
+  /** Chemin d'une vraie photo produit (ex: "/produits/n42.jpg"), fournie via import/. Si absent, on affiche le flacon SVG placeholder. */
+  photo?: string;
+  /** true si ce produit vient de l'import officiel (import/products.csv) plutôt que du catalogue de démonstration. */
+  isOfficial?: boolean;
 }
