@@ -4616,54 +4616,6 @@
     "isOfficial": true
   },
   {
-    "id": "official-eau-de-soin-jamaal-bambino",
-    "slug": "eau-de-soin-jamaal-bambino",
-    "name": "Eau de Soin JAMAAL Bambino",
-    "category": "autres-produits",
-    "shortDescription": "Une eau de soin hypoallergénique 30 ml, formulée pour la peau délicate des petits garçons.",
-    "longDescription": [
-      "Une eau de soin hypoallergénique 30 ml, formulée pour la peau délicate des petits garçons."
-    ],
-    "regularPrice": 29,
-    "reviewCount": 0,
-    "rating": 4.5,
-    "colorFrom": "#1b2a41",
-    "colorTo": "#d9b08c",
-    "isOfficial": true
-  },
-  {
-    "id": "official-eau-de-soin-jamaal-bambina",
-    "slug": "eau-de-soin-jamaal-bambina",
-    "name": "Eau de Soin JAMAAL Bambina",
-    "category": "autres-produits",
-    "shortDescription": "Une eau de soin hypoallergénique 30 ml, formulée pour la peau délicate des petites filles.",
-    "longDescription": [
-      "Une eau de soin hypoallergénique 30 ml, formulée pour la peau délicate des petites filles."
-    ],
-    "regularPrice": 29,
-    "reviewCount": 0,
-    "rating": 4.5,
-    "colorFrom": "#3a2c22",
-    "colorTo": "#c9997a",
-    "isOfficial": true
-  },
-  {
-    "id": "official-eau-de-soin-jamaal-neonatal",
-    "slug": "eau-de-soin-jamaal-neonatal",
-    "name": "Eau de Soin JAMAAL Néonatal",
-    "category": "autres-produits",
-    "shortDescription": "Une eau de soin hypoallergénique 30 ml, conçue pour les tout-petits dès la naissance.",
-    "longDescription": [
-      "Une eau de soin hypoallergénique 30 ml, conçue pour les tout-petits dès la naissance."
-    ],
-    "regularPrice": 29,
-    "reviewCount": 0,
-    "rating": 4.5,
-    "colorFrom": "#16233a",
-    "colorTo": "#c9997a",
-    "isOfficial": true
-  },
-  {
     "id": "official-brilgrease-bh0210",
     "slug": "brilgrease-bh0210",
     "name": "Brilgrease BH0210",
@@ -4675,8 +4627,8 @@
     "regularPrice": 15.9,
     "reviewCount": 0,
     "rating": 4.5,
-    "colorFrom": "#24374f",
-    "colorTo": "#e4c4ab",
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
     "isOfficial": true
   },
   {
@@ -4691,8 +4643,8 @@
     "regularPrice": 16.9,
     "reviewCount": 0,
     "rating": 4.5,
-    "colorFrom": "#a97557",
-    "colorTo": "#16233a",
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
     "isOfficial": true
   },
   {
@@ -4707,8 +4659,8 @@
     "regularPrice": 13.9,
     "reviewCount": 0,
     "rating": 4.5,
-    "colorFrom": "#c9997a",
-    "colorTo": "#16233a",
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
     "isOfficial": true
   },
   {
@@ -4723,8 +4675,8 @@
     "regularPrice": 15.9,
     "reviewCount": 0,
     "rating": 4.5,
-    "colorFrom": "#1b2a41",
-    "colorTo": "#d9b08c",
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
     "isOfficial": true
   },
   {
@@ -4739,8 +4691,8 @@
     "regularPrice": 17.9,
     "reviewCount": 0,
     "rating": 4.5,
-    "colorFrom": "#3a2c22",
-    "colorTo": "#c9997a",
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
     "isOfficial": true
   },
   {
@@ -4755,8 +4707,8 @@
     "regularPrice": 16.9,
     "reviewCount": 0,
     "rating": 4.5,
-    "colorFrom": "#16233a",
-    "colorTo": "#c9997a",
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
     "isOfficial": true
   },
   {
@@ -4771,8 +4723,8 @@
     "regularPrice": 15.9,
     "reviewCount": 0,
     "rating": 4.5,
-    "colorFrom": "#24374f",
-    "colorTo": "#e4c4ab",
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
     "isOfficial": true
   },
   {
@@ -4787,8 +4739,8 @@
     "regularPrice": 12.9,
     "reviewCount": 0,
     "rating": 4.5,
-    "colorFrom": "#a97557",
-    "colorTo": "#16233a",
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
     "isOfficial": true
   },
   {
@@ -4803,8 +4755,8 @@
     "regularPrice": 18.9,
     "reviewCount": 0,
     "rating": 4.5,
-    "colorFrom": "#c9997a",
-    "colorTo": "#16233a",
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
     "isOfficial": true
   },
   {
@@ -4819,8 +4771,8 @@
     "regularPrice": 12.9,
     "reviewCount": 0,
     "rating": 4.5,
-    "colorFrom": "#1b2a41",
-    "colorTo": "#d9b08c",
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
     "isOfficial": true
   },
   {
@@ -4835,8 +4787,8 @@
     "regularPrice": 12.9,
     "reviewCount": 0,
     "rating": 4.5,
-    "colorFrom": "#3a2c22",
-    "colorTo": "#c9997a",
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
     "isOfficial": true
   },
   {
@@ -4851,8 +4803,8 @@
     "regularPrice": 13.9,
     "reviewCount": 0,
     "rating": 4.5,
-    "colorFrom": "#16233a",
-    "colorTo": "#c9997a",
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
     "isOfficial": true
   },
   {
@@ -4867,8 +4819,8 @@
     "regularPrice": 16.9,
     "reviewCount": 0,
     "rating": 4.5,
-    "colorFrom": "#24374f",
-    "colorTo": "#e4c4ab",
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
     "isOfficial": true
   },
   {
@@ -4883,8 +4835,8 @@
     "regularPrice": 22.9,
     "reviewCount": 0,
     "rating": 4.5,
-    "colorFrom": "#a97557",
-    "colorTo": "#16233a",
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
     "isOfficial": true
   },
   {
@@ -4899,8 +4851,8 @@
     "regularPrice": 19.9,
     "reviewCount": 0,
     "rating": 4.5,
-    "colorFrom": "#c9997a",
-    "colorTo": "#16233a",
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
     "isOfficial": true
   },
   {
@@ -4915,8 +4867,8 @@
     "regularPrice": 15.9,
     "reviewCount": 0,
     "rating": 4.5,
-    "colorFrom": "#1b2a41",
-    "colorTo": "#d9b08c",
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
     "isOfficial": true
   },
   {
@@ -4931,8 +4883,8 @@
     "regularPrice": 19.9,
     "reviewCount": 0,
     "rating": 4.5,
-    "colorFrom": "#3a2c22",
-    "colorTo": "#c9997a",
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
     "isOfficial": true
   },
   {
@@ -4947,8 +4899,8 @@
     "regularPrice": 4.9,
     "reviewCount": 0,
     "rating": 4.5,
-    "colorFrom": "#16233a",
-    "colorTo": "#c9997a",
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
     "isOfficial": true
   },
   {
@@ -4963,8 +4915,8 @@
     "regularPrice": 17.9,
     "reviewCount": 0,
     "rating": 4.5,
-    "colorFrom": "#24374f",
-    "colorTo": "#e4c4ab",
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
     "isOfficial": true
   },
   {
@@ -4979,8 +4931,8 @@
     "regularPrice": 15.9,
     "reviewCount": 0,
     "rating": 4.5,
-    "colorFrom": "#a97557",
-    "colorTo": "#16233a",
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
     "isOfficial": true
   },
   {
@@ -4995,8 +4947,8 @@
     "regularPrice": 15.9,
     "reviewCount": 0,
     "rating": 4.5,
-    "colorFrom": "#c9997a",
-    "colorTo": "#16233a",
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
     "isOfficial": true
   },
   {
@@ -5011,8 +4963,8 @@
     "regularPrice": 15.9,
     "reviewCount": 0,
     "rating": 4.5,
-    "colorFrom": "#1b2a41",
-    "colorTo": "#d9b08c",
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
     "isOfficial": true
   },
   {
@@ -5027,8 +4979,8 @@
     "regularPrice": 19.9,
     "reviewCount": 0,
     "rating": 4.5,
-    "colorFrom": "#3a2c22",
-    "colorTo": "#c9997a",
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
     "isOfficial": true
   },
   {
@@ -5043,8 +4995,8 @@
     "regularPrice": 19.9,
     "reviewCount": 0,
     "rating": 4.5,
-    "colorFrom": "#16233a",
-    "colorTo": "#c9997a",
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
     "isOfficial": true
   },
   {
@@ -5059,8 +5011,8 @@
     "regularPrice": 19.9,
     "reviewCount": 0,
     "rating": 4.5,
-    "colorFrom": "#24374f",
-    "colorTo": "#e4c4ab",
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
     "isOfficial": true
   },
   {
@@ -5075,8 +5027,8 @@
     "regularPrice": 19.9,
     "reviewCount": 0,
     "rating": 4.5,
-    "colorFrom": "#a97557",
-    "colorTo": "#16233a",
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
     "isOfficial": true
   },
   {
@@ -5091,8 +5043,8 @@
     "regularPrice": 19.9,
     "reviewCount": 0,
     "rating": 4.5,
-    "colorFrom": "#c9997a",
-    "colorTo": "#16233a",
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
     "isOfficial": true
   },
   {
@@ -5107,8 +5059,8 @@
     "regularPrice": 19.9,
     "reviewCount": 0,
     "rating": 4.5,
-    "colorFrom": "#1b2a41",
-    "colorTo": "#d9b08c",
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
     "isOfficial": true
   },
   {
@@ -5123,8 +5075,8 @@
     "regularPrice": 19.9,
     "reviewCount": 0,
     "rating": 4.5,
-    "colorFrom": "#3a2c22",
-    "colorTo": "#c9997a",
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
     "isOfficial": true
   },
   {
@@ -5139,8 +5091,8 @@
     "regularPrice": 19.9,
     "reviewCount": 0,
     "rating": 4.5,
-    "colorFrom": "#16233a",
-    "colorTo": "#c9997a",
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
     "isOfficial": true
   },
   {
@@ -5155,8 +5107,8 @@
     "regularPrice": 35.9,
     "reviewCount": 0,
     "rating": 4.5,
-    "colorFrom": "#24374f",
-    "colorTo": "#e4c4ab",
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
     "isOfficial": true
   },
   {
@@ -5171,8 +5123,8 @@
     "regularPrice": 19.9,
     "reviewCount": 0,
     "rating": 4.5,
-    "colorFrom": "#a97557",
-    "colorTo": "#16233a",
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
     "isOfficial": true
   },
   {
@@ -5187,8 +5139,8 @@
     "regularPrice": 19.9,
     "reviewCount": 0,
     "rating": 4.5,
-    "colorFrom": "#c9997a",
-    "colorTo": "#16233a",
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
     "isOfficial": true
   },
   {
@@ -5203,8 +5155,8 @@
     "regularPrice": 19.9,
     "reviewCount": 0,
     "rating": 4.5,
-    "colorFrom": "#1b2a41",
-    "colorTo": "#d9b08c",
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
     "isOfficial": true
   },
   {
@@ -5219,8 +5171,8 @@
     "regularPrice": 19.9,
     "reviewCount": 0,
     "rating": 4.5,
-    "colorFrom": "#3a2c22",
-    "colorTo": "#c9997a",
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
     "isOfficial": true
   },
   {
@@ -5235,8 +5187,8 @@
     "regularPrice": 19.9,
     "reviewCount": 0,
     "rating": 4.5,
-    "colorFrom": "#16233a",
-    "colorTo": "#c9997a",
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
     "isOfficial": true
   },
   {
@@ -5251,8 +5203,8 @@
     "regularPrice": 19.9,
     "reviewCount": 0,
     "rating": 4.5,
-    "colorFrom": "#24374f",
-    "colorTo": "#e4c4ab",
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
     "isOfficial": true
   },
   {
@@ -5267,8 +5219,8 @@
     "regularPrice": 19.9,
     "reviewCount": 0,
     "rating": 4.5,
-    "colorFrom": "#a97557",
-    "colorTo": "#16233a",
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
     "isOfficial": true
   },
   {
@@ -5283,8 +5235,8 @@
     "regularPrice": 19.9,
     "reviewCount": 0,
     "rating": 4.5,
-    "colorFrom": "#c9997a",
-    "colorTo": "#16233a",
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
     "isOfficial": true
   },
   {
@@ -5299,8 +5251,4135 @@
     "regularPrice": 19.9,
     "reviewCount": 0,
     "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-contour-des-yeux-aux-proteines-de-soie-15-ml",
+    "slug": "contour-des-yeux-aux-proteines-de-soie-15-ml",
+    "name": "Contour des Yeux aux Protéines de Soie — 15 ml",
+    "category": "aurodhea",
+    "family": "Ligne Aloe Vera",
+    "shortDescription": "Ligne Aloe Vera Aurodhea : hydratante, apaisante, anti-rougeurs et purifiante.",
+    "longDescription": [
+      "Ligne Aloe Vera Aurodhea : hydratante, apaisante, anti-rougeurs et purifiante."
+    ],
+    "regularPrice": 26.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-creme-visage-jour-hydratante-50-ml",
+    "slug": "creme-visage-jour-hydratante-50-ml",
+    "name": "Crème Visage Jour Hydratante — 50 ml",
+    "category": "aurodhea",
+    "family": "Ligne Aloe Vera",
+    "shortDescription": "Ligne Aloe Vera Aurodhea : hydratante, apaisante, anti-rougeurs et purifiante.",
+    "longDescription": [
+      "Ligne Aloe Vera Aurodhea : hydratante, apaisante, anti-rougeurs et purifiante."
+    ],
+    "regularPrice": 34.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-creme-mains-75-ml",
+    "slug": "creme-mains-75-ml",
+    "name": "Crème Mains — 75 ml",
+    "category": "aurodhea",
+    "family": "Ligne Aloe Vera",
+    "shortDescription": "Ligne Aloe Vera Aurodhea : hydratante, apaisante, anti-rougeurs et purifiante.",
+    "longDescription": [
+      "Ligne Aloe Vera Aurodhea : hydratante, apaisante, anti-rougeurs et purifiante."
+    ],
+    "regularPrice": 14.9,
+    "reviewCount": 0,
+    "rating": 4.5,
     "colorFrom": "#1b2a41",
     "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-gel-aloe-vera-bio-98-150-ml",
+    "slug": "gel-aloe-vera-bio-98-150-ml",
+    "name": "Gel Aloe Vera Bio 98% — 150 ml",
+    "category": "aurodhea",
+    "family": "Ligne Aloe Vera",
+    "shortDescription": "Ligne Aloe Vera Aurodhea : hydratante, apaisante, anti-rougeurs et purifiante.",
+    "longDescription": [
+      "Ligne Aloe Vera Aurodhea : hydratante, apaisante, anti-rougeurs et purifiante."
+    ],
+    "regularPrice": 13.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-spray-premiers-secours-98-aloe-vera-150-ml",
+    "slug": "spray-premiers-secours-98-aloe-vera-150-ml",
+    "name": "Spray Premiers Secours 98% Aloe Vera — 150 ml",
+    "category": "aurodhea",
+    "family": "Ligne Aloe Vera",
+    "shortDescription": "Ligne Aloe Vera Aurodhea : hydratante, apaisante, anti-rougeurs et purifiante.",
+    "longDescription": [
+      "Ligne Aloe Vera Aurodhea : hydratante, apaisante, anti-rougeurs et purifiante."
+    ],
+    "regularPrice": 16.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-creme-corps-tournesol-amande-et-argan-150-ml",
+    "slug": "creme-corps-tournesol-amande-et-argan-150-ml",
+    "name": "Crème Corps Tournesol, Amande et Argan — 150 ml",
+    "category": "aurodhea",
+    "family": "Ligne Aloe Vera",
+    "shortDescription": "Ligne Aloe Vera Aurodhea : hydratante, apaisante, anti-rougeurs et purifiante.",
+    "longDescription": [
+      "Ligne Aloe Vera Aurodhea : hydratante, apaisante, anti-rougeurs et purifiante."
+    ],
+    "regularPrice": 23.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-masque-cheveux-huile-de-lin-et-avocat-150-ml",
+    "slug": "masque-cheveux-huile-de-lin-et-avocat-150-ml",
+    "name": "Masque Cheveux Huile de Lin et Avocat — 150 ml",
+    "category": "aurodhea",
+    "family": "Ligne Aloe Vera",
+    "shortDescription": "Ligne Aloe Vera Aurodhea : hydratante, apaisante, anti-rougeurs et purifiante.",
+    "longDescription": [
+      "Ligne Aloe Vera Aurodhea : hydratante, apaisante, anti-rougeurs et purifiante."
+    ],
+    "regularPrice": 9.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-shampoing-lavages-frequents-250-ml",
+    "slug": "shampoing-lavages-frequents-250-ml",
+    "name": "Shampoing Lavages Fréquents — 250 ml",
+    "category": "aurodhea",
+    "family": "Ligne Aloe Vera",
+    "shortDescription": "Ligne Aloe Vera Aurodhea : hydratante, apaisante, anti-rougeurs et purifiante.",
+    "longDescription": [
+      "Ligne Aloe Vera Aurodhea : hydratante, apaisante, anti-rougeurs et purifiante."
+    ],
+    "regularPrice": 10.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-gel-douche-usage-quotidien-250-ml",
+    "slug": "gel-douche-usage-quotidien-250-ml",
+    "name": "Gel Douche Usage Quotidien — 250 ml",
+    "category": "aurodhea",
+    "family": "Ligne Aloe Vera",
+    "shortDescription": "Ligne Aloe Vera Aurodhea : hydratante, apaisante, anti-rougeurs et purifiante.",
+    "longDescription": [
+      "Ligne Aloe Vera Aurodhea : hydratante, apaisante, anti-rougeurs et purifiante."
+    ],
+    "regularPrice": 12.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-detergent-intime-mauve-et-camomille-260-ml",
+    "slug": "detergent-intime-mauve-et-camomille-260-ml",
+    "name": "Détergent Intime Mauve et Camomille — 260 ml",
+    "category": "aurodhea",
+    "family": "Ligne Aloe Vera",
+    "shortDescription": "Ligne Aloe Vera Aurodhea : hydratante, apaisante, anti-rougeurs et purifiante.",
+    "longDescription": [
+      "Ligne Aloe Vera Aurodhea : hydratante, apaisante, anti-rougeurs et purifiante."
+    ],
+    "regularPrice": 7.99,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-dentifrice-blanchissant-115-ml",
+    "slug": "dentifrice-blanchissant-115-ml",
+    "name": "Dentifrice Blanchissant — 115 ml",
+    "category": "aurodhea",
+    "family": "Ligne Aloe Vera",
+    "shortDescription": "Ligne Aloe Vera Aurodhea : hydratante, apaisante, anti-rougeurs et purifiante.",
+    "longDescription": [
+      "Ligne Aloe Vera Aurodhea : hydratante, apaisante, anti-rougeurs et purifiante."
+    ],
+    "regularPrice": 15.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-dentifrice-sensitive-115-ml",
+    "slug": "dentifrice-sensitive-115-ml",
+    "name": "Dentifrice Sensitive — 115 ml",
+    "category": "aurodhea",
+    "family": "Ligne Aloe Vera",
+    "shortDescription": "Ligne Aloe Vera Aurodhea : hydratante, apaisante, anti-rougeurs et purifiante.",
+    "longDescription": [
+      "Ligne Aloe Vera Aurodhea : hydratante, apaisante, anti-rougeurs et purifiante."
+    ],
+    "regularPrice": 17.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-contour-des-yeux-acide-hyaluronique-pepins-de-raisin-cacao-et-rose-musquee-15-ml",
+    "slug": "contour-des-yeux-acide-hyaluronique-pepins-de-raisin-cacao-et-rose-musquee-15-ml",
+    "name": "Contour des Yeux Acide Hyaluronique, Pépins de Raisin, Cacao et Rose Musquée — 15 ml",
+    "category": "aurodhea",
+    "family": "Ligne Bave d'Escargot",
+    "shortDescription": "Ligne Bave d'Escargot Aurodhea : hydratante, régénérante, antioxydante et anti-âge.",
+    "longDescription": [
+      "Ligne Bave d'Escargot Aurodhea : hydratante, régénérante, antioxydante et anti-âge."
+    ],
+    "regularPrice": 29.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-creme-visage-anti-age-acide-hyaluronique-argan-et-vitamine-e-50-ml",
+    "slug": "creme-visage-anti-age-acide-hyaluronique-argan-et-vitamine-e-50-ml",
+    "name": "Crème Visage Anti-Âge Acide Hyaluronique, Argan et Vitamine E — 50 ml",
+    "category": "aurodhea",
+    "family": "Ligne Bave d'Escargot",
+    "shortDescription": "Ligne Bave d'Escargot Aurodhea : hydratante, régénérante, antioxydante et anti-âge.",
+    "longDescription": [
+      "Ligne Bave d'Escargot Aurodhea : hydratante, régénérante, antioxydante et anti-âge."
+    ],
+    "regularPrice": 39.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-masque-visage-illuminateur-et-eclaircissant-vitamine-c-e-50-ml",
+    "slug": "masque-visage-illuminateur-et-eclaircissant-vitamine-c-e-50-ml",
+    "name": "Masque Visage Illuminateur et Éclaircissant, Vitamine C-E — 50 ml",
+    "category": "aurodhea",
+    "family": "Ligne Bave d'Escargot",
+    "shortDescription": "Ligne Bave d'Escargot Aurodhea : hydratante, régénérante, antioxydante et anti-âge.",
+    "longDescription": [
+      "Ligne Bave d'Escargot Aurodhea : hydratante, régénérante, antioxydante et anti-âge."
+    ],
+    "regularPrice": 13.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-deocreme-vitamine-e-et-romarin-50-ml",
+    "slug": "deocreme-vitamine-e-et-romarin-50-ml",
+    "name": "Déocrème Vitamine E et Romarin — 50 ml",
+    "category": "aurodhea",
+    "family": "Ligne Bave d'Escargot",
+    "shortDescription": "Ligne Bave d'Escargot Aurodhea : hydratante, régénérante, antioxydante et anti-âge.",
+    "longDescription": [
+      "Ligne Bave d'Escargot Aurodhea : hydratante, régénérante, antioxydante et anti-âge."
+    ],
+    "regularPrice": 10.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-creme-mains-karite-amande-douce-et-argan-75-ml",
+    "slug": "creme-mains-karite-amande-douce-et-argan-75-ml",
+    "name": "Crème Mains Karité, Amande Douce et Argan — 75 ml",
+    "category": "aurodhea",
+    "family": "Ligne Bave d'Escargot",
+    "shortDescription": "Ligne Bave d'Escargot Aurodhea : hydratante, régénérante, antioxydante et anti-âge.",
+    "longDescription": [
+      "Ligne Bave d'Escargot Aurodhea : hydratante, régénérante, antioxydante et anti-âge."
+    ],
+    "regularPrice": 17.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-creme-pieds-karite-avocat-olive-et-propolis-75-ml",
+    "slug": "creme-pieds-karite-avocat-olive-et-propolis-75-ml",
+    "name": "Crème Pieds Karité, Avocat, Olive et Propolis — 75 ml",
+    "category": "aurodhea",
+    "family": "Ligne Bave d'Escargot",
+    "shortDescription": "Ligne Bave d'Escargot Aurodhea : hydratante, régénérante, antioxydante et anti-âge.",
+    "longDescription": [
+      "Ligne Bave d'Escargot Aurodhea : hydratante, régénérante, antioxydante et anti-âge."
+    ],
+    "regularPrice": 11.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-masque-cheveux-coton-avocat-et-karite-150-ml",
+    "slug": "masque-cheveux-coton-avocat-et-karite-150-ml",
+    "name": "Masque Cheveux Coton, Avocat et Karité — 150 ml",
+    "category": "aurodhea",
+    "family": "Ligne Bave d'Escargot",
+    "shortDescription": "Ligne Bave d'Escargot Aurodhea : hydratante, régénérante, antioxydante et anti-âge.",
+    "longDescription": [
+      "Ligne Bave d'Escargot Aurodhea : hydratante, régénérante, antioxydante et anti-âge."
+    ],
+    "regularPrice": 12.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-masque-spray-cheveux-proteines-de-soie-et-panthenol-150-ml",
+    "slug": "masque-spray-cheveux-proteines-de-soie-et-panthenol-150-ml",
+    "name": "Masque Spray Cheveux Protéines de Soie et Panthénol — 150 ml",
+    "category": "aurodhea",
+    "family": "Ligne Bave d'Escargot",
+    "shortDescription": "Ligne Bave d'Escargot Aurodhea : hydratante, régénérante, antioxydante et anti-âge.",
+    "longDescription": [
+      "Ligne Bave d'Escargot Aurodhea : hydratante, régénérante, antioxydante et anti-âge."
+    ],
+    "regularPrice": 29.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-creme-corps-argan-amande-et-jojoba-150-ml",
+    "slug": "creme-corps-argan-amande-et-jojoba-150-ml",
+    "name": "Crème Corps Argan, Amande et Jojoba — 150 ml",
+    "category": "aurodhea",
+    "family": "Ligne Bave d'Escargot",
+    "shortDescription": "Ligne Bave d'Escargot Aurodhea : hydratante, régénérante, antioxydante et anti-âge.",
+    "longDescription": [
+      "Ligne Bave d'Escargot Aurodhea : hydratante, régénérante, antioxydante et anti-âge."
+    ],
+    "regularPrice": 25.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-gel-nettoyant-visage-aloe-vera-et-camomille-260-ml",
+    "slug": "gel-nettoyant-visage-aloe-vera-et-camomille-260-ml",
+    "name": "Gel Nettoyant Visage Aloe Vera et Camomille — 260 ml",
+    "category": "aurodhea",
+    "family": "Ligne Bave d'Escargot",
+    "shortDescription": "Ligne Bave d'Escargot Aurodhea : hydratante, régénérante, antioxydante et anti-âge.",
+    "longDescription": [
+      "Ligne Bave d'Escargot Aurodhea : hydratante, régénérante, antioxydante et anti-âge."
+    ],
+    "regularPrice": 24.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-gel-douche-aloe-vera-proteines-de-soie-et-pomme-250-ml",
+    "slug": "gel-douche-aloe-vera-proteines-de-soie-et-pomme-250-ml",
+    "name": "Gel Douche Aloe Vera, Protéines de Soie et Pomme — 250 ml",
+    "category": "aurodhea",
+    "family": "Ligne Bave d'Escargot",
+    "shortDescription": "Ligne Bave d'Escargot Aurodhea : hydratante, régénérante, antioxydante et anti-âge.",
+    "longDescription": [
+      "Ligne Bave d'Escargot Aurodhea : hydratante, régénérante, antioxydante et anti-âge."
+    ],
+    "regularPrice": 13.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-baume-amande-douce-argan-et-vitamine-e-250-ml",
+    "slug": "baume-amande-douce-argan-et-vitamine-e-250-ml",
+    "name": "Baume Amande Douce, Argan et Vitamine E — 250 ml",
+    "category": "aurodhea",
+    "family": "Ligne Bave d'Escargot",
+    "shortDescription": "Ligne Bave d'Escargot Aurodhea : hydratante, régénérante, antioxydante et anti-âge.",
+    "longDescription": [
+      "Ligne Bave d'Escargot Aurodhea : hydratante, régénérante, antioxydante et anti-âge."
+    ],
+    "regularPrice": 15.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-detergent-intime-aloe-vera-propolis-mauve-et-calendula-250-ml",
+    "slug": "detergent-intime-aloe-vera-propolis-mauve-et-calendula-250-ml",
+    "name": "Détergent Intime Aloe Vera, Propolis, Mauve et Calendula — 250 ml",
+    "category": "aurodhea",
+    "family": "Ligne Bave d'Escargot",
+    "shortDescription": "Ligne Bave d'Escargot Aurodhea : hydratante, régénérante, antioxydante et anti-âge.",
+    "longDescription": [
+      "Ligne Bave d'Escargot Aurodhea : hydratante, régénérante, antioxydante et anti-âge."
+    ],
+    "regularPrice": 15.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-lait-corps-aloe-vera-karite-calendula-et-avoine-150-ml",
+    "slug": "lait-corps-aloe-vera-karite-calendula-et-avoine-150-ml",
+    "name": "Lait Corps Aloe Vera, Karité, Calendula et Avoine — 150 ml",
+    "category": "aurodhea",
+    "family": "Ligne Baby",
+    "shortDescription": "Ligne Baby Aurodhea : formulée en douceur pour la peau délicate des tout-petits.",
+    "longDescription": [
+      "Ligne Baby Aurodhea : formulée en douceur pour la peau délicate des tout-petits."
+    ],
+    "regularPrice": 22.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-gel-douche-bio-aloe-vera-avoine-alchemille-et-echinacee-200-ml",
+    "slug": "gel-douche-bio-aloe-vera-avoine-alchemille-et-echinacee-200-ml",
+    "name": "Gel Douche Bio Aloe Vera, Avoine, Alchémille et Échinacée — 200 ml",
+    "category": "aurodhea",
+    "family": "Ligne Baby",
+    "shortDescription": "Ligne Baby Aurodhea : formulée en douceur pour la peau délicate des tout-petits.",
+    "longDescription": [
+      "Ligne Baby Aurodhea : formulée en douceur pour la peau délicate des tout-petits."
+    ],
+    "regularPrice": 19.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-shampoing-bio-macadamia-alchemille-et-aloe-vera-200-ml",
+    "slug": "shampoing-bio-macadamia-alchemille-et-aloe-vera-200-ml",
+    "name": "Shampoing Bio Macadamia, Alchémille et Aloe Vera — 200 ml",
+    "category": "aurodhea",
+    "family": "Ligne Baby",
+    "shortDescription": "Ligne Baby Aurodhea : formulée en douceur pour la peau délicate des tout-petits.",
+    "longDescription": [
+      "Ligne Baby Aurodhea : formulée en douceur pour la peau délicate des tout-petits."
+    ],
+    "regularPrice": 18.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-nettoyant-bebe-ultra-delicat-aloe-vera-mauve-calendula-et-camomille-260-ml",
+    "slug": "nettoyant-bebe-ultra-delicat-aloe-vera-mauve-calendula-et-camomille-260-ml",
+    "name": "Nettoyant Bébé Ultra-Délicat Aloe Vera, Mauve, Calendula et Camomille — 260 ml",
+    "category": "aurodhea",
+    "family": "Ligne Baby",
+    "shortDescription": "Ligne Baby Aurodhea : formulée en douceur pour la peau délicate des tout-petits.",
+    "longDescription": [
+      "Ligne Baby Aurodhea : formulée en douceur pour la peau délicate des tout-petits."
+    ],
+    "regularPrice": 21.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-huile-d-amande-douce-100-naturelle-100-ml",
+    "slug": "huile-d-amande-douce-100-naturelle-100-ml",
+    "name": "Huile d'Amande Douce 100% Naturelle — 100 ml",
+    "category": "aurodhea",
+    "family": "Ligne Baby",
+    "shortDescription": "Ligne Baby Aurodhea : formulée en douceur pour la peau délicate des tout-petits.",
+    "longDescription": [
+      "Ligne Baby Aurodhea : formulée en douceur pour la peau délicate des tout-petits."
+    ],
+    "regularPrice": 15.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-shampoing-bio-anti-poux-au-soufre-200-ml",
+    "slug": "shampoing-bio-anti-poux-au-soufre-200-ml",
+    "name": "Shampoing Bio Anti-Poux (au soufre) — 200 ml",
+    "category": "aurodhea",
+    "family": "Ligne Baby",
+    "shortDescription": "Ligne Baby Aurodhea : formulée en douceur pour la peau délicate des tout-petits.",
+    "longDescription": [
+      "Ligne Baby Aurodhea : formulée en douceur pour la peau délicate des tout-petits."
+    ],
+    "regularPrice": 21.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-lotion-repulsive-anti-moustiques-et-poux-150-ml",
+    "slug": "lotion-repulsive-anti-moustiques-et-poux-150-ml",
+    "name": "Lotion Répulsive Anti-Moustiques et Poux — 150 ml",
+    "category": "aurodhea",
+    "family": "Ligne Baby",
+    "shortDescription": "Ligne Baby Aurodhea : formulée en douceur pour la peau délicate des tout-petits.",
+    "longDescription": [
+      "Ligne Baby Aurodhea : formulée en douceur pour la peau délicate des tout-petits."
+    ],
+    "regularPrice": 23.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-beurre-de-karite-protecteur-150-ml",
+    "slug": "beurre-de-karite-protecteur-150-ml",
+    "name": "Beurre de Karité Protecteur — 150 ml",
+    "category": "aurodhea",
+    "family": "Ligne Baby",
+    "shortDescription": "Ligne Baby Aurodhea : formulée en douceur pour la peau délicate des tout-petits.",
+    "longDescription": [
+      "Ligne Baby Aurodhea : formulée en douceur pour la peau délicate des tout-petits."
+    ],
+    "regularPrice": 19.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-gel-douche-a-l-avoine-250-ml",
+    "slug": "gel-douche-a-l-avoine-250-ml",
+    "name": "Gel Douche à l'Avoine — 250 ml",
+    "category": "aurodhea",
+    "family": "Ligne Baby",
+    "shortDescription": "Ligne Baby Aurodhea : formulée en douceur pour la peau délicate des tout-petits.",
+    "longDescription": [
+      "Ligne Baby Aurodhea : formulée en douceur pour la peau délicate des tout-petits."
+    ],
+    "regularPrice": 17.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-creme-visage-nourrissante-acide-hyaluronique-vitamine-e-et-jojoba-50-ml",
+    "slug": "creme-visage-nourrissante-acide-hyaluronique-vitamine-e-et-jojoba-50-ml",
+    "name": "Crème Visage Nourrissante Acide Hyaluronique, Vitamine E et Jojoba — 50 ml",
+    "category": "aurodhea",
+    "family": "Ligne Argan",
+    "shortDescription": "Ligne Argan Aurodhea : nourrissante, réparatrice et protectrice, pour la peau et les cheveux.",
+    "longDescription": [
+      "Ligne Argan Aurodhea : nourrissante, réparatrice et protectrice, pour la peau et les cheveux."
+    ],
+    "regularPrice": 39.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-masque-visage-anti-age-jojoba-pepins-de-raisin-et-karite-50-ml",
+    "slug": "masque-visage-anti-age-jojoba-pepins-de-raisin-et-karite-50-ml",
+    "name": "Masque Visage Anti-Âge Jojoba, Pépins de Raisin et Karité — 50 ml",
+    "category": "aurodhea",
+    "family": "Ligne Argan",
+    "shortDescription": "Ligne Argan Aurodhea : nourrissante, réparatrice et protectrice, pour la peau et les cheveux.",
+    "longDescription": [
+      "Ligne Argan Aurodhea : nourrissante, réparatrice et protectrice, pour la peau et les cheveux."
+    ],
+    "regularPrice": 19.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-creme-pieds-karite-avocat-et-aloe-vera-75-ml",
+    "slug": "creme-pieds-karite-avocat-et-aloe-vera-75-ml",
+    "name": "Crème Pieds Karité, Avocat et Aloe Vera — 75 ml",
+    "category": "aurodhea",
+    "family": "Ligne Argan",
+    "shortDescription": "Ligne Argan Aurodhea : nourrissante, réparatrice et protectrice, pour la peau et les cheveux.",
+    "longDescription": [
+      "Ligne Argan Aurodhea : nourrissante, réparatrice et protectrice, pour la peau et les cheveux."
+    ],
+    "regularPrice": 15.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-creme-mains-proteines-de-soie-et-glycerine-75-ml",
+    "slug": "creme-mains-proteines-de-soie-et-glycerine-75-ml",
+    "name": "Crème Mains Protéines de Soie et Glycérine — 75 ml",
+    "category": "aurodhea",
+    "family": "Ligne Argan",
+    "shortDescription": "Ligne Argan Aurodhea : nourrissante, réparatrice et protectrice, pour la peau et les cheveux.",
+    "longDescription": [
+      "Ligne Argan Aurodhea : nourrissante, réparatrice et protectrice, pour la peau et les cheveux."
+    ],
+    "regularPrice": 16.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-creme-corps-jojoba-karite-camomille-et-vitamine-e-50-ml",
+    "slug": "creme-corps-jojoba-karite-camomille-et-vitamine-e-50-ml",
+    "name": "Crème Corps Jojoba, Karité, Camomille et Vitamine E — 50 ml",
+    "category": "aurodhea",
+    "family": "Ligne Argan",
+    "shortDescription": "Ligne Argan Aurodhea : nourrissante, réparatrice et protectrice, pour la peau et les cheveux.",
+    "longDescription": [
+      "Ligne Argan Aurodhea : nourrissante, réparatrice et protectrice, pour la peau et les cheveux."
+    ],
+    "regularPrice": 19.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-masque-cheveux-nourrissant-amande-avocat-panthenol-et-vitamine-e-150-ml",
+    "slug": "masque-cheveux-nourrissant-amande-avocat-panthenol-et-vitamine-e-150-ml",
+    "name": "Masque Cheveux Nourrissant Amande, Avocat, Panthénol et Vitamine E — 150 ml",
+    "category": "aurodhea",
+    "family": "Ligne Argan",
+    "shortDescription": "Ligne Argan Aurodhea : nourrissante, réparatrice et protectrice, pour la peau et les cheveux.",
+    "longDescription": [
+      "Ligne Argan Aurodhea : nourrissante, réparatrice et protectrice, pour la peau et les cheveux."
+    ],
+    "regularPrice": 16.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-masque-cheveux-demelant-keratine-et-proteines-de-soie-30-ml",
+    "slug": "masque-cheveux-demelant-keratine-et-proteines-de-soie-30-ml",
+    "name": "Masque Cheveux Démêlant Kératine et Protéines de Soie — 30 ml",
+    "category": "aurodhea",
+    "family": "Ligne Argan",
+    "shortDescription": "Ligne Argan Aurodhea : nourrissante, réparatrice et protectrice, pour la peau et les cheveux.",
+    "longDescription": [
+      "Ligne Argan Aurodhea : nourrissante, réparatrice et protectrice, pour la peau et les cheveux."
+    ],
+    "regularPrice": 3.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-masque-cheveux-demelant-keratine-et-proteines-de-soie-150-ml",
+    "slug": "masque-cheveux-demelant-keratine-et-proteines-de-soie-150-ml",
+    "name": "Masque Cheveux Démêlant Kératine et Protéines de Soie — 150 ml",
+    "category": "aurodhea",
+    "family": "Ligne Argan",
+    "shortDescription": "Ligne Argan Aurodhea : nourrissante, réparatrice et protectrice, pour la peau et les cheveux.",
+    "longDescription": [
+      "Ligne Argan Aurodhea : nourrissante, réparatrice et protectrice, pour la peau et les cheveux."
+    ],
+    "regularPrice": 10.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-masque-cheveux-demelant-keratine-et-proteines-de-soie-500-ml",
+    "slug": "masque-cheveux-demelant-keratine-et-proteines-de-soie-500-ml",
+    "name": "Masque Cheveux Démêlant Kératine et Protéines de Soie — 500 ml",
+    "category": "aurodhea",
+    "family": "Ligne Argan",
+    "shortDescription": "Ligne Argan Aurodhea : nourrissante, réparatrice et protectrice, pour la peau et les cheveux.",
+    "longDescription": [
+      "Ligne Argan Aurodhea : nourrissante, réparatrice et protectrice, pour la peau et les cheveux."
+    ],
+    "regularPrice": 29.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-shampoing-restructurant-aloe-vera-et-proteines-de-soie-250-ml",
+    "slug": "shampoing-restructurant-aloe-vera-et-proteines-de-soie-250-ml",
+    "name": "Shampoing Restructurant Aloe Vera et Protéines de Soie — 250 ml",
+    "category": "aurodhea",
+    "family": "Ligne Argan",
+    "shortDescription": "Ligne Argan Aurodhea : nourrissante, réparatrice et protectrice, pour la peau et les cheveux.",
+    "longDescription": [
+      "Ligne Argan Aurodhea : nourrissante, réparatrice et protectrice, pour la peau et les cheveux."
+    ],
+    "regularPrice": 16.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-baume-pepins-de-raisin-tournesol-et-vitamine-e-250-ml",
+    "slug": "baume-pepins-de-raisin-tournesol-et-vitamine-e-250-ml",
+    "name": "Baume Pépins de Raisin, Tournesol et Vitamine E — 250 ml",
+    "category": "aurodhea",
+    "family": "Ligne Argan",
+    "shortDescription": "Ligne Argan Aurodhea : nourrissante, réparatrice et protectrice, pour la peau et les cheveux.",
+    "longDescription": [
+      "Ligne Argan Aurodhea : nourrissante, réparatrice et protectrice, pour la peau et les cheveux."
+    ],
+    "regularPrice": 17.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-gel-douche-250-ml",
+    "slug": "gel-douche-250-ml",
+    "name": "Gel Douche — 250 ml",
+    "category": "aurodhea",
+    "family": "Ligne Argan",
+    "shortDescription": "Ligne Argan Aurodhea : nourrissante, réparatrice et protectrice, pour la peau et les cheveux.",
+    "longDescription": [
+      "Ligne Argan Aurodhea : nourrissante, réparatrice et protectrice, pour la peau et les cheveux."
+    ],
+    "regularPrice": 12.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-savon-liquide-amande-aloe-vera-et-vitamine-e-260-ml",
+    "slug": "savon-liquide-amande-aloe-vera-et-vitamine-e-260-ml",
+    "name": "Savon Liquide Amande, Aloe Vera et Vitamine E — 260 ml",
+    "category": "aurodhea",
+    "family": "Ligne Argan",
+    "shortDescription": "Ligne Argan Aurodhea : nourrissante, réparatrice et protectrice, pour la peau et les cheveux.",
+    "longDescription": [
+      "Ligne Argan Aurodhea : nourrissante, réparatrice et protectrice, pour la peau et les cheveux."
+    ],
+    "regularPrice": 3.99,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-recharge-savon-liquide-amande-aloe-vera-et-vitamine-e-1-l",
+    "slug": "recharge-savon-liquide-amande-aloe-vera-et-vitamine-e-1-l",
+    "name": "Recharge Savon Liquide Amande, Aloe Vera et Vitamine E — 1 L",
+    "category": "aurodhea",
+    "family": "Ligne Argan",
+    "shortDescription": "Ligne Argan Aurodhea : nourrissante, réparatrice et protectrice, pour la peau et les cheveux.",
+    "longDescription": [
+      "Ligne Argan Aurodhea : nourrissante, réparatrice et protectrice, pour la peau et les cheveux."
+    ],
+    "regularPrice": 6.99,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-detergent-intime-amande-douce-mauve-et-calendula-260-ml",
+    "slug": "detergent-intime-amande-douce-mauve-et-calendula-260-ml",
+    "name": "Détergent Intime Amande Douce, Mauve et Calendula — 260 ml",
+    "category": "aurodhea",
+    "family": "Ligne Argan",
+    "shortDescription": "Ligne Argan Aurodhea : nourrissante, réparatrice et protectrice, pour la peau et les cheveux.",
+    "longDescription": [
+      "Ligne Argan Aurodhea : nourrissante, réparatrice et protectrice, pour la peau et les cheveux."
+    ],
+    "regularPrice": 7.99,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-creme-visage-aloe-vera-acide-hyaluronique-bardane-et-amande-douce-50-ml",
+    "slug": "creme-visage-aloe-vera-acide-hyaluronique-bardane-et-amande-douce-50-ml",
+    "name": "Crème Visage Aloe Vera, Acide Hyaluronique, Bardane et Amande Douce — 50 ml",
+    "category": "aurodhea",
+    "family": "Ligne Neem",
+    "shortDescription": "Ligne Neem Aurodhea : purifiante et assainissante, idéale pour peaux et cheveux gras ou à pellicules.",
+    "longDescription": [
+      "Ligne Neem Aurodhea : purifiante et assainissante, idéale pour peaux et cheveux gras ou à pellicules."
+    ],
+    "regularPrice": 34.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-masque-visage-ortie-et-argile-verte-50-ml",
+    "slug": "masque-visage-ortie-et-argile-verte-50-ml",
+    "name": "Masque Visage Ortie et Argile Verte — 50 ml",
+    "category": "aurodhea",
+    "family": "Ligne Neem",
+    "shortDescription": "Ligne Neem Aurodhea : purifiante et assainissante, idéale pour peaux et cheveux gras ou à pellicules.",
+    "longDescription": [
+      "Ligne Neem Aurodhea : purifiante et assainissante, idéale pour peaux et cheveux gras ou à pellicules."
+    ],
+    "regularPrice": 14.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-creme-mains-et-ongles-amande-karite-et-camomille-75-ml",
+    "slug": "creme-mains-et-ongles-amande-karite-et-camomille-75-ml",
+    "name": "Crème Mains et Ongles Amande, Karité et Camomille — 75 ml",
+    "category": "aurodhea",
+    "family": "Ligne Neem",
+    "shortDescription": "Ligne Neem Aurodhea : purifiante et assainissante, idéale pour peaux et cheveux gras ou à pellicules.",
+    "longDescription": [
+      "Ligne Neem Aurodhea : purifiante et assainissante, idéale pour peaux et cheveux gras ou à pellicules."
+    ],
+    "regularPrice": 12.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-creme-pieds-aloe-vera-et-amande-75-ml",
+    "slug": "creme-pieds-aloe-vera-et-amande-75-ml",
+    "name": "Crème Pieds Aloe Vera et Amande — 75 ml",
+    "category": "aurodhea",
+    "family": "Ligne Neem",
+    "shortDescription": "Ligne Neem Aurodhea : purifiante et assainissante, idéale pour peaux et cheveux gras ou à pellicules.",
+    "longDescription": [
+      "Ligne Neem Aurodhea : purifiante et assainissante, idéale pour peaux et cheveux gras ou à pellicules."
+    ],
+    "regularPrice": 13.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-creme-corps-aloe-vera-et-jojoba-150-ml",
+    "slug": "creme-corps-aloe-vera-et-jojoba-150-ml",
+    "name": "Crème Corps Aloe Vera et Jojoba — 150 ml",
+    "category": "aurodhea",
+    "family": "Ligne Neem",
+    "shortDescription": "Ligne Neem Aurodhea : purifiante et assainissante, idéale pour peaux et cheveux gras ou à pellicules.",
+    "longDescription": [
+      "Ligne Neem Aurodhea : purifiante et assainissante, idéale pour peaux et cheveux gras ou à pellicules."
+    ],
+    "regularPrice": 24.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-shampoing-enrichi-a-l-ortie-250-ml",
+    "slug": "shampoing-enrichi-a-l-ortie-250-ml",
+    "name": "Shampoing Enrichi à l'Ortie — 250 ml",
+    "category": "aurodhea",
+    "family": "Ligne Neem",
+    "shortDescription": "Ligne Neem Aurodhea : purifiante et assainissante, idéale pour peaux et cheveux gras ou à pellicules.",
+    "longDescription": [
+      "Ligne Neem Aurodhea : purifiante et assainissante, idéale pour peaux et cheveux gras ou à pellicules."
+    ],
+    "regularPrice": 19.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-gel-douche-proteines-de-soie-et-aloe-vera-250-ml",
+    "slug": "gel-douche-proteines-de-soie-et-aloe-vera-250-ml",
+    "name": "Gel Douche Protéines de Soie et Aloe Vera — 250 ml",
+    "category": "aurodhea",
+    "family": "Ligne Neem",
+    "shortDescription": "Ligne Neem Aurodhea : purifiante et assainissante, idéale pour peaux et cheveux gras ou à pellicules.",
+    "longDescription": [
+      "Ligne Neem Aurodhea : purifiante et assainissante, idéale pour peaux et cheveux gras ou à pellicules."
+    ],
+    "regularPrice": 19.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-savon-mains-amande-aloe-vera-et-vitamine-e-260-ml",
+    "slug": "savon-mains-amande-aloe-vera-et-vitamine-e-260-ml",
+    "name": "Savon Mains Amande, Aloe Vera et Vitamine E — 260 ml",
+    "category": "aurodhea",
+    "family": "Ligne Neem",
+    "shortDescription": "Ligne Neem Aurodhea : purifiante et assainissante, idéale pour peaux et cheveux gras ou à pellicules.",
+    "longDescription": [
+      "Ligne Neem Aurodhea : purifiante et assainissante, idéale pour peaux et cheveux gras ou à pellicules."
+    ],
+    "regularPrice": 3.99,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-recharge-savon-mains-amande-aloe-vera-et-vitamine-e-1-l",
+    "slug": "recharge-savon-mains-amande-aloe-vera-et-vitamine-e-1-l",
+    "name": "Recharge Savon Mains Amande, Aloe Vera et Vitamine E — 1 L",
+    "category": "aurodhea",
+    "family": "Ligne Neem",
+    "shortDescription": "Ligne Neem Aurodhea : purifiante et assainissante, idéale pour peaux et cheveux gras ou à pellicules.",
+    "longDescription": [
+      "Ligne Neem Aurodhea : purifiante et assainissante, idéale pour peaux et cheveux gras ou à pellicules."
+    ],
+    "regularPrice": 6.99,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-detergent-intime-a-la-camomille-260-ml",
+    "slug": "detergent-intime-a-la-camomille-260-ml",
+    "name": "Détergent Intime à la Camomille — 260 ml",
+    "category": "aurodhea",
+    "family": "Ligne Neem",
+    "shortDescription": "Ligne Neem Aurodhea : purifiante et assainissante, idéale pour peaux et cheveux gras ou à pellicules.",
+    "longDescription": [
+      "Ligne Neem Aurodhea : purifiante et assainissante, idéale pour peaux et cheveux gras ou à pellicules."
+    ],
+    "regularPrice": 7.99,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-creme-visage-jour-vitamine-e-acide-hyaluronique-pomme-et-concombre-50-ml",
+    "slug": "creme-visage-jour-vitamine-e-acide-hyaluronique-pomme-et-concombre-50-ml",
+    "name": "Crème Visage Jour Vitamine E, Acide Hyaluronique, Pomme et Concombre — 50 ml",
+    "category": "aurodhea",
+    "family": "Ligne Lait d'Ânesse",
+    "shortDescription": "Ligne Lait d'Ânesse Aurodhea : nourrissante et apaisante, idéale même pour les peaux sensibles.",
+    "longDescription": [
+      "Ligne Lait d'Ânesse Aurodhea : nourrissante et apaisante, idéale même pour les peaux sensibles."
+    ],
+    "regularPrice": 49.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-creme-visage-nuit-amande-proteines-de-soie-et-acide-hyaluronique-50-ml",
+    "slug": "creme-visage-nuit-amande-proteines-de-soie-et-acide-hyaluronique-50-ml",
+    "name": "Crème Visage Nuit Amande, Protéines de Soie et Acide Hyaluronique — 50 ml",
+    "category": "aurodhea",
+    "family": "Ligne Lait d'Ânesse",
+    "shortDescription": "Ligne Lait d'Ânesse Aurodhea : nourrissante et apaisante, idéale même pour les peaux sensibles.",
+    "longDescription": [
+      "Ligne Lait d'Ânesse Aurodhea : nourrissante et apaisante, idéale même pour les peaux sensibles."
+    ],
+    "regularPrice": 59.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-lait-corps-jojoba-vitamine-e-karite-aloe-vera-et-calendula-150-ml",
+    "slug": "lait-corps-jojoba-vitamine-e-karite-aloe-vera-et-calendula-150-ml",
+    "name": "Lait Corps Jojoba, Vitamine E, Karité, Aloe Vera et Calendula — 150 ml",
+    "category": "aurodhea",
+    "family": "Ligne Lait d'Ânesse",
+    "shortDescription": "Ligne Lait d'Ânesse Aurodhea : nourrissante et apaisante, idéale même pour les peaux sensibles.",
+    "longDescription": [
+      "Ligne Lait d'Ânesse Aurodhea : nourrissante et apaisante, idéale même pour les peaux sensibles."
+    ],
+    "regularPrice": 49.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-gel-douche-karite-macadamia-aloe-vera-et-vitamine-e-250-ml",
+    "slug": "gel-douche-karite-macadamia-aloe-vera-et-vitamine-e-250-ml",
+    "name": "Gel Douche Karité, Macadamia, Aloe Vera et Vitamine E — 250 ml",
+    "category": "aurodhea",
+    "family": "Ligne Lait d'Ânesse",
+    "shortDescription": "Ligne Lait d'Ânesse Aurodhea : nourrissante et apaisante, idéale même pour les peaux sensibles.",
+    "longDescription": [
+      "Ligne Lait d'Ânesse Aurodhea : nourrissante et apaisante, idéale même pour les peaux sensibles."
+    ],
+    "regularPrice": 19.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-shampoing-vitamine-e-camelia-camomille-karite-amande-et-panthenol-250-ml",
+    "slug": "shampoing-vitamine-e-camelia-camomille-karite-amande-et-panthenol-250-ml",
+    "name": "Shampoing Vitamine E, Camélia, Camomille, Karité, Amande et Panthénol — 250 ml",
+    "category": "aurodhea",
+    "family": "Ligne Lait d'Ânesse",
+    "shortDescription": "Ligne Lait d'Ânesse Aurodhea : nourrissante et apaisante, idéale même pour les peaux sensibles.",
+    "longDescription": [
+      "Ligne Lait d'Ânesse Aurodhea : nourrissante et apaisante, idéale même pour les peaux sensibles."
+    ],
+    "regularPrice": 19.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-detergent-intime-karite-panthenol-sauge-mauve-et-romarin-260-ml",
+    "slug": "detergent-intime-karite-panthenol-sauge-mauve-et-romarin-260-ml",
+    "name": "Détergent Intime Karité, Panthénol, Sauge, Mauve et Romarin — 260 ml",
+    "category": "aurodhea",
+    "family": "Ligne Lait d'Ânesse",
+    "shortDescription": "Ligne Lait d'Ânesse Aurodhea : nourrissante et apaisante, idéale même pour les peaux sensibles.",
+    "longDescription": [
+      "Ligne Lait d'Ânesse Aurodhea : nourrissante et apaisante, idéale même pour les peaux sensibles."
+    ],
+    "regularPrice": 9.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-detergent-intime-ultra-delicat-menthol-et-aloe-vera-260-ml",
+    "slug": "detergent-intime-ultra-delicat-menthol-et-aloe-vera-260-ml",
+    "name": "Détergent Intime Ultra-Délicat Menthol et Aloe Vera — 260 ml",
+    "category": "aurodhea",
+    "family": "Ligne Intime",
+    "shortDescription": "Soin d'hygiène intime Aurodhea, doux et respectueux de l'équilibre naturel.",
+    "longDescription": [
+      "Soin d'hygiène intime Aurodhea, doux et respectueux de l'équilibre naturel."
+    ],
+    "regularPrice": 7.99,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-detergent-intime-ultra-delicat-mauve-et-camomille-260-ml",
+    "slug": "detergent-intime-ultra-delicat-mauve-et-camomille-260-ml",
+    "name": "Détergent Intime Ultra-Délicat Mauve et Camomille — 260 ml",
+    "category": "aurodhea",
+    "family": "Ligne Intime",
+    "shortDescription": "Soin d'hygiène intime Aurodhea, doux et respectueux de l'équilibre naturel.",
+    "longDescription": [
+      "Soin d'hygiène intime Aurodhea, doux et respectueux de l'équilibre naturel."
+    ],
+    "regularPrice": 7.99,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-masque-visage-purifiant-a-l-acide-salicylique-sauge-et-citron-50-ml",
+    "slug": "masque-visage-purifiant-a-l-acide-salicylique-sauge-et-citron-50-ml",
+    "name": "Masque Visage Purifiant à l'Acide Salicylique, Sauge et Citron — 50 ml",
+    "category": "aurodhea",
+    "family": "Ligne Purifiante",
+    "shortDescription": "Ligne Purifiante Aurodhea à l'acide salicylique : purifie les pores et lutte contre les imperfections.",
+    "longDescription": [
+      "Ligne Purifiante Aurodhea à l'acide salicylique : purifie les pores et lutte contre les imperfections."
+    ],
+    "regularPrice": 14.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-gel-visage-purifiant-a-l-acide-salicylique-peaux-a-imperfections-100-ml",
+    "slug": "gel-visage-purifiant-a-l-acide-salicylique-peaux-a-imperfections-100-ml",
+    "name": "Gel Visage Purifiant à l'Acide Salicylique (peaux à imperfections) — 100 ml",
+    "category": "aurodhea",
+    "family": "Ligne Purifiante",
+    "shortDescription": "Ligne Purifiante Aurodhea à l'acide salicylique : purifie les pores et lutte contre les imperfections.",
+    "longDescription": [
+      "Ligne Purifiante Aurodhea à l'acide salicylique : purifie les pores et lutte contre les imperfections."
+    ],
+    "regularPrice": 22,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-detergent-dermopurifiant-anti-acne-a-l-acide-salicylique-vitamine-e-et-ortie-250-ml",
+    "slug": "detergent-dermopurifiant-anti-acne-a-l-acide-salicylique-vitamine-e-et-ortie-250-ml",
+    "name": "Détergent Dermopurifiant Anti-Acné à l'Acide Salicylique, Vitamine E et Ortie — 250 ml",
+    "category": "aurodhea",
+    "family": "Ligne Purifiante",
+    "shortDescription": "Ligne Purifiante Aurodhea à l'acide salicylique : purifie les pores et lutte contre les imperfections.",
+    "longDescription": [
+      "Ligne Purifiante Aurodhea à l'acide salicylique : purifie les pores et lutte contre les imperfections."
+    ],
+    "regularPrice": 19.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-shampoing-antipelliculaire-panthenol-menthol-et-acide-salicylique-250-ml",
+    "slug": "shampoing-antipelliculaire-panthenol-menthol-et-acide-salicylique-250-ml",
+    "name": "Shampoing Antipelliculaire Panthénol, Menthol et Acide Salicylique — 250 ml",
+    "category": "aurodhea",
+    "family": "Ligne Purifiante",
+    "shortDescription": "Ligne Purifiante Aurodhea à l'acide salicylique : purifie les pores et lutte contre les imperfections.",
+    "longDescription": [
+      "Ligne Purifiante Aurodhea à l'acide salicylique : purifie les pores et lutte contre les imperfections."
+    ],
+    "regularPrice": 12.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-creme-visage-au-collagene-et-acide-hyaluronique-50-ml",
+    "slug": "creme-visage-au-collagene-et-acide-hyaluronique-50-ml",
+    "name": "Crème Visage au Collagène et Acide Hyaluronique — 50 ml",
+    "category": "aurodhea",
+    "family": "Ligne Acide Hyaluronique",
+    "shortDescription": "Ligne Acide Hyaluronique Aurodhea : hydrate en profondeur et lisse les rides.",
+    "longDescription": [
+      "Ligne Acide Hyaluronique Aurodhea : hydrate en profondeur et lisse les rides."
+    ],
+    "regularPrice": 26.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-serum-gel-tenseur-collagene-acmella-et-centella-asiatica-50-ml",
+    "slug": "serum-gel-tenseur-collagene-acmella-et-centella-asiatica-50-ml",
+    "name": "Sérum Gel Tenseur Collagène, Acmella et Centella Asiatica — 50 ml",
+    "category": "aurodhea",
+    "family": "Ligne Acide Hyaluronique",
+    "shortDescription": "Ligne Acide Hyaluronique Aurodhea : hydrate en profondeur et lisse les rides.",
+    "longDescription": [
+      "Ligne Acide Hyaluronique Aurodhea : hydrate en profondeur et lisse les rides."
+    ],
+    "regularPrice": 39.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-masque-visage-peel-off-acide-hyaluronique-et-proteines-de-soie-peaux-matures-75-ml",
+    "slug": "masque-visage-peel-off-acide-hyaluronique-et-proteines-de-soie-peaux-matures-75-ml",
+    "name": "Masque Visage Peel Off Acide Hyaluronique et Protéines de Soie (peaux matures) — 75 ml",
+    "category": "aurodhea",
+    "family": "Ligne Acide Hyaluronique",
+    "shortDescription": "Ligne Acide Hyaluronique Aurodhea : hydrate en profondeur et lisse les rides.",
+    "longDescription": [
+      "Ligne Acide Hyaluronique Aurodhea : hydrate en profondeur et lisse les rides."
+    ],
+    "regularPrice": 21.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-creme-corps-thermogene-chaud-soft-cypres-capsicum-et-cannelle-150-ml",
+    "slug": "creme-corps-thermogene-chaud-soft-cypres-capsicum-et-cannelle-150-ml",
+    "name": "Crème Corps Thermogène « Chaud Soft » Cyprès, Capsicum et Cannelle — 150 ml",
+    "category": "aurodhea",
+    "family": "Ligne Minceur",
+    "shortDescription": "Ligne Minceur Aurodhea : soins corps ciblés, effet chaud ou froid, pour raffermir et affiner.",
+    "longDescription": [
+      "Ligne Minceur Aurodhea : soins corps ciblés, effet chaud ou froid, pour raffermir et affiner."
+    ],
+    "regularPrice": 13.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-creme-corps-anticellulite-a-l-huile-d-argan-centella-et-marronnier-150-ml",
+    "slug": "creme-corps-anticellulite-a-l-huile-d-argan-centella-et-marronnier-150-ml",
+    "name": "Crème Corps Anticellulite à l'Huile d'Argan, Centella et Marronnier — 150 ml",
+    "category": "aurodhea",
+    "family": "Ligne Minceur",
+    "shortDescription": "Ligne Minceur Aurodhea : soins corps ciblés, effet chaud ou froid, pour raffermir et affiner.",
+    "longDescription": [
+      "Ligne Minceur Aurodhea : soins corps ciblés, effet chaud ou froid, pour raffermir et affiner."
+    ],
+    "regularPrice": 21.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-creme-corps-raffermissante-effet-froid-lierre-et-cafeine-150-ml",
+    "slug": "creme-corps-raffermissante-effet-froid-lierre-et-cafeine-150-ml",
+    "name": "Crème Corps Raffermissante Effet « Froid » Lierre et Caféine — 150 ml",
+    "category": "aurodhea",
+    "family": "Ligne Minceur",
+    "shortDescription": "Ligne Minceur Aurodhea : soins corps ciblés, effet chaud ou froid, pour raffermir et affiner.",
+    "longDescription": [
+      "Ligne Minceur Aurodhea : soins corps ciblés, effet chaud ou froid, pour raffermir et affiner."
+    ],
+    "regularPrice": 17.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-creme-corps-thermogene-chaud-fort-capsicum-cannelle-et-camphre-150-ml",
+    "slug": "creme-corps-thermogene-chaud-fort-capsicum-cannelle-et-camphre-150-ml",
+    "name": "Crème Corps Thermogène « Chaud Fort » Capsicum, Cannelle et Camphre — 150 ml",
+    "category": "aurodhea",
+    "family": "Ligne Minceur",
+    "shortDescription": "Ligne Minceur Aurodhea : soins corps ciblés, effet chaud ou froid, pour raffermir et affiner.",
+    "longDescription": [
+      "Ligne Minceur Aurodhea : soins corps ciblés, effet chaud ou froid, pour raffermir et affiner."
+    ],
+    "regularPrice": 16.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-eau-micellaire-3-en-1-250-ml",
+    "slug": "eau-micellaire-3-en-1-250-ml",
+    "name": "Eau Micellaire 3 en 1 — 250 ml",
+    "category": "aurodhea",
+    "family": "Ligne Démaquillage",
+    "shortDescription": "Ligne Démaquillage Aurodhea : nettoie et prépare la peau en douceur.",
+    "longDescription": [
+      "Ligne Démaquillage Aurodhea : nettoie et prépare la peau en douceur."
+    ],
+    "regularPrice": 14.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-gel-scrub-visage-50-ml",
+    "slug": "gel-scrub-visage-50-ml",
+    "name": "Gel Scrub Visage — 50 ml",
+    "category": "aurodhea",
+    "family": "Ligne Démaquillage",
+    "shortDescription": "Ligne Démaquillage Aurodhea : nettoie et prépare la peau en douceur.",
+    "longDescription": [
+      "Ligne Démaquillage Aurodhea : nettoie et prépare la peau en douceur."
+    ],
+    "regularPrice": 21.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-demaquillant-biphase-yeux-et-levres-200-ml",
+    "slug": "demaquillant-biphase-yeux-et-levres-200-ml",
+    "name": "Démaquillant Biphasé Yeux et Lèvres — 200 ml",
+    "category": "aurodhea",
+    "family": "Ligne Démaquillage",
+    "shortDescription": "Ligne Démaquillage Aurodhea : nettoie et prépare la peau en douceur.",
+    "longDescription": [
+      "Ligne Démaquillage Aurodhea : nettoie et prépare la peau en douceur."
+    ],
+    "regularPrice": 24.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-tonique-visage-peaux-delicates-et-sensibles-150-ml",
+    "slug": "tonique-visage-peaux-delicates-et-sensibles-150-ml",
+    "name": "Tonique Visage Peaux Délicates et Sensibles — 150 ml",
+    "category": "aurodhea",
+    "family": "Ligne Démaquillage",
+    "shortDescription": "Ligne Démaquillage Aurodhea : nettoie et prépare la peau en douceur.",
+    "longDescription": [
+      "Ligne Démaquillage Aurodhea : nettoie et prépare la peau en douceur."
+    ],
+    "regularPrice": 15.5,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-tonique-visage-peaux-a-imperfections-et-acneiques-150-ml",
+    "slug": "tonique-visage-peaux-a-imperfections-et-acneiques-150-ml",
+    "name": "Tonique Visage Peaux à Imperfections et Acnéiques — 150 ml",
+    "category": "aurodhea",
+    "family": "Ligne Démaquillage",
+    "shortDescription": "Ligne Démaquillage Aurodhea : nettoie et prépare la peau en douceur.",
+    "longDescription": [
+      "Ligne Démaquillage Aurodhea : nettoie et prépare la peau en douceur."
+    ],
+    "regularPrice": 18,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-lait-demaquillant-tous-types-de-peau-150-ml",
+    "slug": "lait-demaquillant-tous-types-de-peau-150-ml",
+    "name": "Lait Démaquillant Tous Types de Peau — 150 ml",
+    "category": "aurodhea",
+    "family": "Ligne Démaquillage",
+    "shortDescription": "Ligne Démaquillage Aurodhea : nettoie et prépare la peau en douceur.",
+    "longDescription": [
+      "Ligne Démaquillage Aurodhea : nettoie et prépare la peau en douceur."
+    ],
+    "regularPrice": 15.5,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-primer-visage-lissant-squalane-vegetal-et-rose-musquee-15-ml",
+    "slug": "primer-visage-lissant-squalane-vegetal-et-rose-musquee-15-ml",
+    "name": "Primer Visage Lissant Squalane Végétal et Rose Musquée — 15 ml",
+    "category": "aurodhea",
+    "family": "Ligne Démaquillage",
+    "shortDescription": "Ligne Démaquillage Aurodhea : nettoie et prépare la peau en douceur.",
+    "longDescription": [
+      "Ligne Démaquillage Aurodhea : nettoie et prépare la peau en douceur."
+    ],
+    "regularPrice": 39.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-dentifrice-au-charbon-actif-et-huile-essentielle-d-eucalyptus-75-ml",
+    "slug": "dentifrice-au-charbon-actif-et-huile-essentielle-d-eucalyptus-75-ml",
+    "name": "Dentifrice au Charbon Actif et Huile Essentielle d'Eucalyptus — 75 ml",
+    "category": "aurodhea",
+    "family": "Ligne Black",
+    "shortDescription": "Ligne Black au charbon actif Aurodhea : purifie et assainit en profondeur.",
+    "longDescription": [
+      "Ligne Black au charbon actif Aurodhea : purifie et assainit en profondeur."
+    ],
+    "regularPrice": 12.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-dentifrice-au-charbon-actif-et-huile-essentielle-d-eucalyptus-115-ml",
+    "slug": "dentifrice-au-charbon-actif-et-huile-essentielle-d-eucalyptus-115-ml",
+    "name": "Dentifrice au Charbon Actif et Huile Essentielle d'Eucalyptus — 115 ml",
+    "category": "aurodhea",
+    "family": "Ligne Black",
+    "shortDescription": "Ligne Black au charbon actif Aurodhea : purifie et assainit en profondeur.",
+    "longDescription": [
+      "Ligne Black au charbon actif Aurodhea : purifie et assainit en profondeur."
+    ],
+    "regularPrice": 16.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-shampoing-au-charbon-actif-250-ml",
+    "slug": "shampoing-au-charbon-actif-250-ml",
+    "name": "Shampoing au Charbon Actif — 250 ml",
+    "category": "aurodhea",
+    "family": "Ligne Black",
+    "shortDescription": "Ligne Black au charbon actif Aurodhea : purifie et assainit en profondeur.",
+    "longDescription": [
+      "Ligne Black au charbon actif Aurodhea : purifie et assainit en profondeur."
+    ],
+    "regularPrice": 10.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-bain-de-bouche-au-charbon-actif-80-ml",
+    "slug": "bain-de-bouche-au-charbon-actif-80-ml",
+    "name": "Bain de Bouche au Charbon Actif — 80 ml",
+    "category": "aurodhea",
+    "family": "Ligne Black",
+    "shortDescription": "Ligne Black au charbon actif Aurodhea : purifie et assainit en profondeur.",
+    "longDescription": [
+      "Ligne Black au charbon actif Aurodhea : purifie et assainit en profondeur."
+    ],
+    "regularPrice": 8.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-bain-de-bouche-au-charbon-actif-250-ml",
+    "slug": "bain-de-bouche-au-charbon-actif-250-ml",
+    "name": "Bain de Bouche au Charbon Actif — 250 ml",
+    "category": "aurodhea",
+    "family": "Ligne Black",
+    "shortDescription": "Ligne Black au charbon actif Aurodhea : purifie et assainit en profondeur.",
+    "longDescription": [
+      "Ligne Black au charbon actif Aurodhea : purifie et assainit en profondeur."
+    ],
+    "regularPrice": 18.5,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-creme-contour-des-yeux-anti-poches-rides-et-cernes-20-ml",
+    "slug": "creme-contour-des-yeux-anti-poches-rides-et-cernes-20-ml",
+    "name": "Crème Contour des Yeux Anti-Poches, Rides et Cernes — 20 ml",
+    "category": "aurodhea",
+    "family": "Ligne Luxury",
+    "shortDescription": "Ligne Luxury Aurodhea : des soins haut de gamme à l'efficacité ciblée.",
+    "longDescription": [
+      "Ligne Luxury Aurodhea : des soins haut de gamme à l'efficacité ciblée."
+    ],
+    "regularPrice": 99.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-huile-serum-volumisant-poitrine-75-ml",
+    "slug": "huile-serum-volumisant-poitrine-75-ml",
+    "name": "Huile Sérum Volumisant Poitrine — 75 ml",
+    "category": "aurodhea",
+    "family": "Ligne Luxury",
+    "shortDescription": "Ligne Luxury Aurodhea : des soins haut de gamme à l'efficacité ciblée.",
+    "longDescription": [
+      "Ligne Luxury Aurodhea : des soins haut de gamme à l'efficacité ciblée."
+    ],
+    "regularPrice": 134,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-onguent-griffe-du-diable-arnica-romarin-et-karite-50-ml",
+    "slug": "onguent-griffe-du-diable-arnica-romarin-et-karite-50-ml",
+    "name": "Onguent Griffe du Diable Arnica, Romarin et Karité — 50 ml",
+    "category": "aurodhea",
+    "family": "Ligne Remedy Complex",
+    "shortDescription": "Ligne Remedy Complex Aurodhea : des soins ciblés pour apaiser et soulager au quotidien.",
+    "longDescription": [
+      "Ligne Remedy Complex Aurodhea : des soins ciblés pour apaiser et soulager au quotidien."
+    ],
+    "regularPrice": 23.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-onguent-griffe-du-diable-arnica-romarin-et-karite-150-ml",
+    "slug": "onguent-griffe-du-diable-arnica-romarin-et-karite-150-ml",
+    "name": "Onguent Griffe du Diable Arnica, Romarin et Karité — 150 ml",
+    "category": "aurodhea",
+    "family": "Ligne Remedy Complex",
+    "shortDescription": "Ligne Remedy Complex Aurodhea : des soins ciblés pour apaiser et soulager au quotidien.",
+    "longDescription": [
+      "Ligne Remedy Complex Aurodhea : des soins ciblés pour apaiser et soulager au quotidien."
+    ],
+    "regularPrice": 45.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-gel-apaisant-apres-brulures-neem-aloe-vera-et-camomille-50-ml",
+    "slug": "gel-apaisant-apres-brulures-neem-aloe-vera-et-camomille-50-ml",
+    "name": "Gel Apaisant Après-Brûlures Neem, Aloe Vera et Camomille — 50 ml",
+    "category": "aurodhea",
+    "family": "Ligne Remedy Complex",
+    "shortDescription": "Ligne Remedy Complex Aurodhea : des soins ciblés pour apaiser et soulager au quotidien.",
+    "longDescription": [
+      "Ligne Remedy Complex Aurodhea : des soins ciblés pour apaiser et soulager au quotidien."
+    ],
+    "regularPrice": 13.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-onguent-balsamique-eucalyptus-romarin-et-tea-tree-50-ml",
+    "slug": "onguent-balsamique-eucalyptus-romarin-et-tea-tree-50-ml",
+    "name": "Onguent Balsamique Eucalyptus, Romarin et Tea Tree — 50 ml",
+    "category": "aurodhea",
+    "family": "Ligne Remedy Complex",
+    "shortDescription": "Ligne Remedy Complex Aurodhea : des soins ciblés pour apaiser et soulager au quotidien.",
+    "longDescription": [
+      "Ligne Remedy Complex Aurodhea : des soins ciblés pour apaiser et soulager au quotidien."
+    ],
+    "regularPrice": 20.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-gel-pour-engelures-arnica-et-escine-50-ml",
+    "slug": "gel-pour-engelures-arnica-et-escine-50-ml",
+    "name": "Gel pour Engelures Arnica et Escine — 50 ml",
+    "category": "aurodhea",
+    "family": "Ligne Remedy Complex",
+    "shortDescription": "Ligne Remedy Complex Aurodhea : des soins ciblés pour apaiser et soulager au quotidien.",
+    "longDescription": [
+      "Ligne Remedy Complex Aurodhea : des soins ciblés pour apaiser et soulager au quotidien."
+    ],
+    "regularPrice": 12.5,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-gel-apaisant-anti-demangeaisons-panthenol-aloe-vera-et-tea-tree-75-ml",
+    "slug": "gel-apaisant-anti-demangeaisons-panthenol-aloe-vera-et-tea-tree-75-ml",
+    "name": "Gel Apaisant Anti-Démangeaisons Panthénol, Aloe Vera et Tea Tree — 75 ml",
+    "category": "aurodhea",
+    "family": "Ligne Remedy Complex",
+    "shortDescription": "Ligne Remedy Complex Aurodhea : des soins ciblés pour apaiser et soulager au quotidien.",
+    "longDescription": [
+      "Ligne Remedy Complex Aurodhea : des soins ciblés pour apaiser et soulager au quotidien."
+    ],
+    "regularPrice": 13.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-spray-anti-moustiques-150-ml",
+    "slug": "spray-anti-moustiques-150-ml",
+    "name": "Spray Anti-Moustiques — 150 ml",
+    "category": "aurodhea",
+    "family": "Ligne Remedy Complex",
+    "shortDescription": "Ligne Remedy Complex Aurodhea : des soins ciblés pour apaiser et soulager au quotidien.",
+    "longDescription": [
+      "Ligne Remedy Complex Aurodhea : des soins ciblés pour apaiser et soulager au quotidien."
+    ],
+    "regularPrice": 14,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-deocreme-longue-duree-50-ml",
+    "slug": "deocreme-longue-duree-50-ml",
+    "name": "Déocrème Longue Durée — 50 ml",
+    "category": "aurodhea",
+    "family": "Ligne Déodorants",
+    "shortDescription": "Déodorants Aurodhea, efficaces et respectueux de la peau.",
+    "longDescription": [
+      "Déodorants Aurodhea, efficaces et respectueux de la peau."
+    ],
+    "regularPrice": 10,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-deocreme-naturelle-parfumee-50-ml",
+    "slug": "deocreme-naturelle-parfumee-50-ml",
+    "name": "Déocrème Naturelle Parfumée — 50 ml",
+    "category": "aurodhea",
+    "family": "Ligne Déodorants",
+    "shortDescription": "Déodorants Aurodhea, efficaces et respectueux de la peau.",
+    "longDescription": [
+      "Déodorants Aurodhea, efficaces et respectueux de la peau."
+    ],
+    "regularPrice": 13,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-deocreme-naturelle-50-ml",
+    "slug": "deocreme-naturelle-50-ml",
+    "name": "Déocrème Naturelle — 50 ml",
+    "category": "aurodhea",
+    "family": "Ligne Déodorants",
+    "shortDescription": "Déodorants Aurodhea, efficaces et respectueux de la peau.",
+    "longDescription": [
+      "Déodorants Aurodhea, efficaces et respectueux de la peau."
+    ],
+    "regularPrice": 16.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-deodorant-spray-naturel-60-ml",
+    "slug": "deodorant-spray-naturel-60-ml",
+    "name": "Déodorant Spray Naturel — 60 ml",
+    "category": "aurodhea",
+    "family": "Ligne Déodorants",
+    "shortDescription": "Déodorants Aurodhea, efficaces et respectueux de la peau.",
+    "longDescription": [
+      "Déodorants Aurodhea, efficaces et respectueux de la peau."
+    ],
+    "regularPrice": 11,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-deodorant-spray-longue-duree-60-ml",
+    "slug": "deodorant-spray-longue-duree-60-ml",
+    "name": "Déodorant Spray Longue Durée — 60 ml",
+    "category": "aurodhea",
+    "family": "Ligne Déodorants",
+    "shortDescription": "Déodorants Aurodhea, efficaces et respectueux de la peau.",
+    "longDescription": [
+      "Déodorants Aurodhea, efficaces et respectueux de la peau."
+    ],
+    "regularPrice": 13.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-deodorant-spray-pieds-sauge-romarin-et-aloe-vera-150-ml",
+    "slug": "deodorant-spray-pieds-sauge-romarin-et-aloe-vera-150-ml",
+    "name": "Déodorant Spray Pieds Sauge, Romarin et Aloe Vera — 150 ml",
+    "category": "aurodhea",
+    "family": "Ligne Déodorants",
+    "shortDescription": "Déodorants Aurodhea, efficaces et respectueux de la peau.",
+    "longDescription": [
+      "Déodorants Aurodhea, efficaces et respectueux de la peau."
+    ],
+    "regularPrice": 15.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-gel-douche-epice-agrumes-et-patchouli-250-ml",
+    "slug": "gel-douche-epice-agrumes-et-patchouli-250-ml",
+    "name": "Gel Douche Épicé Agrumes et Patchouli — 250 ml",
+    "category": "aurodhea",
+    "family": "Ligne Gel Douche Épicés",
+    "shortDescription": "Gels douche épicés Aurodhea, aux fragrances gourmandes et enveloppantes.",
+    "longDescription": [
+      "Gels douche épicés Aurodhea, aux fragrances gourmandes et enveloppantes."
+    ],
+    "regularPrice": 12.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-gel-douche-epice-vanille-et-gingembre-250-ml",
+    "slug": "gel-douche-epice-vanille-et-gingembre-250-ml",
+    "name": "Gel Douche Épicé Vanille et Gingembre — 250 ml",
+    "category": "aurodhea",
+    "family": "Ligne Gel Douche Épicés",
+    "shortDescription": "Gels douche épicés Aurodhea, aux fragrances gourmandes et enveloppantes.",
+    "longDescription": [
+      "Gels douche épicés Aurodhea, aux fragrances gourmandes et enveloppantes."
+    ],
+    "regularPrice": 12.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-gel-douche-epice-coriandre-et-ambre-250-ml",
+    "slug": "gel-douche-epice-coriandre-et-ambre-250-ml",
+    "name": "Gel Douche Épicé Coriandre et Ambre — 250 ml",
+    "category": "aurodhea",
+    "family": "Ligne Gel Douche Épicés",
+    "shortDescription": "Gels douche épicés Aurodhea, aux fragrances gourmandes et enveloppantes.",
+    "longDescription": [
+      "Gels douche épicés Aurodhea, aux fragrances gourmandes et enveloppantes."
+    ],
+    "regularPrice": 12.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-gel-douche-epice-myrrhe-250-ml",
+    "slug": "gel-douche-epice-myrrhe-250-ml",
+    "name": "Gel Douche Épicé Myrrhe — 250 ml",
+    "category": "aurodhea",
+    "family": "Ligne Gel Douche Épicés",
+    "shortDescription": "Gels douche épicés Aurodhea, aux fragrances gourmandes et enveloppantes.",
+    "longDescription": [
+      "Gels douche épicés Aurodhea, aux fragrances gourmandes et enveloppantes."
+    ],
+    "regularPrice": 12.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-gel-douche-epice-rose-et-cafe-250-ml",
+    "slug": "gel-douche-epice-rose-et-cafe-250-ml",
+    "name": "Gel Douche Épicé Rose et Café — 250 ml",
+    "category": "aurodhea",
+    "family": "Ligne Gel Douche Épicés",
+    "shortDescription": "Gels douche épicés Aurodhea, aux fragrances gourmandes et enveloppantes.",
+    "longDescription": [
+      "Gels douche épicés Aurodhea, aux fragrances gourmandes et enveloppantes."
+    ],
+    "regularPrice": 12.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-gel-douche-epice-ambre-et-argan-250-ml",
+    "slug": "gel-douche-epice-ambre-et-argan-250-ml",
+    "name": "Gel Douche Épicé Ambre et Argan — 250 ml",
+    "category": "aurodhea",
+    "family": "Ligne Gel Douche Épicés",
+    "shortDescription": "Gels douche épicés Aurodhea, aux fragrances gourmandes et enveloppantes.",
+    "longDescription": [
+      "Gels douche épicés Aurodhea, aux fragrances gourmandes et enveloppantes."
+    ],
+    "regularPrice": 12.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-savon-creme-the-vert-260-ml",
+    "slug": "savon-creme-the-vert-260-ml",
+    "name": "Savon Crème Thé Vert — 260 ml",
+    "category": "aurodhea",
+    "family": "Ligne Mains et Pieds",
+    "shortDescription": "Soins mains et pieds Aurodhea, pour une hygiène et un confort quotidien.",
+    "longDescription": [
+      "Soins mains et pieds Aurodhea, pour une hygiène et un confort quotidien."
+    ],
+    "regularPrice": 3.99,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-savon-creme-grenade-260-ml",
+    "slug": "savon-creme-grenade-260-ml",
+    "name": "Savon Crème Grenade — 260 ml",
+    "category": "aurodhea",
+    "family": "Ligne Mains et Pieds",
+    "shortDescription": "Soins mains et pieds Aurodhea, pour une hygiène et un confort quotidien.",
+    "longDescription": [
+      "Soins mains et pieds Aurodhea, pour une hygiène et un confort quotidien."
+    ],
+    "regularPrice": 3.99,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-savon-creme-peche-260-ml",
+    "slug": "savon-creme-peche-260-ml",
+    "name": "Savon Crème Pêche — 260 ml",
+    "category": "aurodhea",
+    "family": "Ligne Mains et Pieds",
+    "shortDescription": "Soins mains et pieds Aurodhea, pour une hygiène et un confort quotidien.",
+    "longDescription": [
+      "Soins mains et pieds Aurodhea, pour une hygiène et un confort quotidien."
+    ],
+    "regularPrice": 3.99,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-savon-creme-pomme-verte-260-ml",
+    "slug": "savon-creme-pomme-verte-260-ml",
+    "name": "Savon Crème Pomme Verte — 260 ml",
+    "category": "aurodhea",
+    "family": "Ligne Mains et Pieds",
+    "shortDescription": "Soins mains et pieds Aurodhea, pour une hygiène et un confort quotidien.",
+    "longDescription": [
+      "Soins mains et pieds Aurodhea, pour une hygiène et un confort quotidien."
+    ],
+    "regularPrice": 3.99,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-recharge-savon-creme-1-l",
+    "slug": "recharge-savon-creme-1-l",
+    "name": "Recharge Savon Crème — 1 L",
+    "category": "aurodhea",
+    "family": "Ligne Mains et Pieds",
+    "shortDescription": "Soins mains et pieds Aurodhea, pour une hygiène et un confort quotidien.",
+    "longDescription": [
+      "Soins mains et pieds Aurodhea, pour une hygiène et un confort quotidien."
+    ],
+    "regularPrice": 6.99,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-creme-mains-a-la-calendula-75-ml",
+    "slug": "creme-mains-a-la-calendula-75-ml",
+    "name": "Crème Mains à la Calendula — 75 ml",
+    "category": "aurodhea",
+    "family": "Ligne Mains et Pieds",
+    "shortDescription": "Soins mains et pieds Aurodhea, pour une hygiène et un confort quotidien.",
+    "longDescription": [
+      "Soins mains et pieds Aurodhea, pour une hygiène et un confort quotidien."
+    ],
+    "regularPrice": 9.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-creme-mains-a-la-camomille-75-ml",
+    "slug": "creme-mains-a-la-camomille-75-ml",
+    "name": "Crème Mains à la Camomille — 75 ml",
+    "category": "aurodhea",
+    "family": "Ligne Mains et Pieds",
+    "shortDescription": "Soins mains et pieds Aurodhea, pour une hygiène et un confort quotidien.",
+    "longDescription": [
+      "Soins mains et pieds Aurodhea, pour une hygiène et un confort quotidien."
+    ],
+    "regularPrice": 12.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-creme-gel-hygienisante-75-alcool-120-ml",
+    "slug": "creme-gel-hygienisante-75-alcool-120-ml",
+    "name": "Crème Gel Hygiénisante 75% Alcool — 120 ml",
+    "category": "aurodhea",
+    "family": "Ligne Mains et Pieds",
+    "shortDescription": "Soins mains et pieds Aurodhea, pour une hygiène et un confort quotidien.",
+    "longDescription": [
+      "Soins mains et pieds Aurodhea, pour une hygiène et un confort quotidien."
+    ],
+    "regularPrice": 5.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-gel-mains-hygienisant-parfume-90-ml",
+    "slug": "gel-mains-hygienisant-parfume-90-ml",
+    "name": "Gel Mains Hygiénisant Parfumé — 90 ml",
+    "category": "aurodhea",
+    "family": "Ligne Mains et Pieds",
+    "shortDescription": "Soins mains et pieds Aurodhea, pour une hygiène et un confort quotidien.",
+    "longDescription": [
+      "Soins mains et pieds Aurodhea, pour une hygiène et un confort quotidien."
+    ],
+    "regularPrice": 10,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-creme-pieds-au-menthol-75-ml",
+    "slug": "creme-pieds-au-menthol-75-ml",
+    "name": "Crème Pieds au Menthol — 75 ml",
+    "category": "aurodhea",
+    "family": "Ligne Mains et Pieds",
+    "shortDescription": "Soins mains et pieds Aurodhea, pour une hygiène et un confort quotidien.",
+    "longDescription": [
+      "Soins mains et pieds Aurodhea, pour une hygiène et un confort quotidien."
+    ],
+    "regularPrice": 10.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-creme-pieds-a-la-calendula-75-ml",
+    "slug": "creme-pieds-a-la-calendula-75-ml",
+    "name": "Crème Pieds à la Calendula — 75 ml",
+    "category": "aurodhea",
+    "family": "Ligne Mains et Pieds",
+    "shortDescription": "Soins mains et pieds Aurodhea, pour une hygiène et un confort quotidien.",
+    "longDescription": [
+      "Soins mains et pieds Aurodhea, pour une hygiène et un confort quotidien."
+    ],
+    "regularPrice": 8.5,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-huile-nourrissante-cuticules-et-ongles-6-huiles-precieuses-8-ml",
+    "slug": "huile-nourrissante-cuticules-et-ongles-6-huiles-precieuses-8-ml",
+    "name": "Huile Nourrissante Cuticules et Ongles (6 huiles précieuses) — 8 ml",
+    "category": "aurodhea",
+    "family": "Ligne Mains et Pieds",
+    "shortDescription": "Soins mains et pieds Aurodhea, pour une hygiène et un confort quotidien.",
+    "longDescription": [
+      "Soins mains et pieds Aurodhea, pour une hygiène et un confort quotidien."
+    ],
+    "regularPrice": 11.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-fiole-anti-chute-action-choc-50-ml",
+    "slug": "fiole-anti-chute-action-choc-50-ml",
+    "name": "Fiole Anti-Chute Action Choc — 50 ml",
+    "category": "aurodhea",
+    "family": "Ligne Cheveux",
+    "shortDescription": "Soins capillaires ciblés Aurodhea, contre la chute et pour restructurer la fibre.",
+    "longDescription": [
+      "Soins capillaires ciblés Aurodhea, contre la chute et pour restructurer la fibre."
+    ],
+    "regularPrice": 48,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-serum-cheveux-restructurant-a-l-argan-30-ml",
+    "slug": "serum-cheveux-restructurant-a-l-argan-30-ml",
+    "name": "Sérum Cheveux Restructurant à l'Argan — 30 ml",
+    "category": "aurodhea",
+    "family": "Ligne Cheveux",
+    "shortDescription": "Soins capillaires ciblés Aurodhea, contre la chute et pour restructurer la fibre.",
+    "longDescription": [
+      "Soins capillaires ciblés Aurodhea, contre la chute et pour restructurer la fibre."
+    ],
+    "regularPrice": 29,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-lotion-anti-chute-a-l-undaria-pinnatifida-50-ml",
+    "slug": "lotion-anti-chute-a-l-undaria-pinnatifida-50-ml",
+    "name": "Lotion Anti-Chute à l'Undaria Pinnatifida — 50 ml",
+    "category": "aurodhea",
+    "family": "Ligne Cheveux",
+    "shortDescription": "Soins capillaires ciblés Aurodhea, contre la chute et pour restructurer la fibre.",
+    "longDescription": [
+      "Soins capillaires ciblés Aurodhea, contre la chute et pour restructurer la fibre."
+    ],
+    "regularPrice": 50,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-lotion-cheveux-rafraichissante-menthol-et-camphre-100-ml",
+    "slug": "lotion-cheveux-rafraichissante-menthol-et-camphre-100-ml",
+    "name": "Lotion Cheveux Rafraîchissante Menthol et Camphre — 100 ml",
+    "category": "aurodhea",
+    "family": "Ligne Cheveux",
+    "shortDescription": "Soins capillaires ciblés Aurodhea, contre la chute et pour restructurer la fibre.",
+    "longDescription": [
+      "Soins capillaires ciblés Aurodhea, contre la chute et pour restructurer la fibre."
+    ],
+    "regularPrice": 24.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-shampoing-anti-chute-250-ml",
+    "slug": "shampoing-anti-chute-250-ml",
+    "name": "Shampoing Anti-Chute — 250 ml",
+    "category": "aurodhea",
+    "family": "Ligne Cheveux",
+    "shortDescription": "Soins capillaires ciblés Aurodhea, contre la chute et pour restructurer la fibre.",
+    "longDescription": [
+      "Soins capillaires ciblés Aurodhea, contre la chute et pour restructurer la fibre."
+    ],
+    "regularPrice": 19.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-parfum-pour-cheveux-30-ml",
+    "slug": "parfum-pour-cheveux-30-ml",
+    "name": "Parfum pour Cheveux — 30 ml",
+    "category": "aurodhea",
+    "family": "Ligne Cheveux",
+    "shortDescription": "Soins capillaires ciblés Aurodhea, contre la chute et pour restructurer la fibre.",
+    "longDescription": [
+      "Soins capillaires ciblés Aurodhea, contre la chute et pour restructurer la fibre."
+    ],
+    "regularPrice": 9.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-light-drops-cristaux-liquides-pour-cheveux-50-ml",
+    "slug": "light-drops-cristaux-liquides-pour-cheveux-50-ml",
+    "name": "Light Drops — Cristaux Liquides pour Cheveux — 50 ml",
+    "category": "aurodhea",
+    "family": "Ligne Cheveux",
+    "shortDescription": "Soins capillaires ciblés Aurodhea, contre la chute et pour restructurer la fibre.",
+    "longDescription": [
+      "Soins capillaires ciblés Aurodhea, contre la chute et pour restructurer la fibre."
+    ],
+    "regularPrice": 29.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-creme-protectrice-pour-teintures-a-l-huile-de-lin-100-ml",
+    "slug": "creme-protectrice-pour-teintures-a-l-huile-de-lin-100-ml",
+    "name": "Crème Protectrice pour Teintures à l'Huile de Lin — 100 ml",
+    "category": "aurodhea",
+    "family": "Ligne Cheveux",
+    "shortDescription": "Soins capillaires ciblés Aurodhea, contre la chute et pour restructurer la fibre.",
+    "longDescription": [
+      "Soins capillaires ciblés Aurodhea, contre la chute et pour restructurer la fibre."
+    ],
+    "regularPrice": 19.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-shampoing-pour-chiens-250-ml",
+    "slug": "shampoing-pour-chiens-250-ml",
+    "name": "Shampoing pour Chiens — 250 ml",
+    "category": "aurodhea",
+    "family": "Ligne Animaux",
+    "shortDescription": "Ligne Animaux Aurodhea, pour l'hygiène et le bien-être de vos compagnons.",
+    "longDescription": [
+      "Ligne Animaux Aurodhea, pour l'hygiène et le bien-être de vos compagnons."
+    ],
+    "regularPrice": 13.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-repulsif-spray-anti-tiques-pour-chiens-150-ml",
+    "slug": "repulsif-spray-anti-tiques-pour-chiens-150-ml",
+    "name": "Répulsif Spray Anti-Tiques pour Chiens — 150 ml",
+    "category": "aurodhea",
+    "family": "Ligne Animaux",
+    "shortDescription": "Ligne Animaux Aurodhea, pour l'hygiène et le bien-être de vos compagnons.",
+    "longDescription": [
+      "Ligne Animaux Aurodhea, pour l'hygiène et le bien-être de vos compagnons."
+    ],
+    "regularPrice": 14.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-lotion-nettoyage-oreilles-chiens-et-chats-100-ml",
+    "slug": "lotion-nettoyage-oreilles-chiens-et-chats-100-ml",
+    "name": "Lotion Nettoyage Oreilles Chiens et Chats — 100 ml",
+    "category": "aurodhea",
+    "family": "Ligne Animaux",
+    "shortDescription": "Ligne Animaux Aurodhea, pour l'hygiène et le bien-être de vos compagnons.",
+    "longDescription": [
+      "Ligne Animaux Aurodhea, pour l'hygiène et le bien-être de vos compagnons."
+    ],
+    "regularPrice": 12.99,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-parfum-chiens-et-chats-talc-150-ml",
+    "slug": "parfum-chiens-et-chats-talc-150-ml",
+    "name": "Parfum Chiens et Chats — Talc — 150 ml",
+    "category": "aurodhea",
+    "family": "Ligne Animaux",
+    "shortDescription": "Ligne Animaux Aurodhea, pour l'hygiène et le bien-être de vos compagnons.",
+    "longDescription": [
+      "Ligne Animaux Aurodhea, pour l'hygiène et le bien-être de vos compagnons."
+    ],
+    "regularPrice": 19.99,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-parfum-chiens-et-chats-kiwi-et-mangue-150-ml",
+    "slug": "parfum-chiens-et-chats-kiwi-et-mangue-150-ml",
+    "name": "Parfum Chiens et Chats — Kiwi et Mangue — 150 ml",
+    "category": "aurodhea",
+    "family": "Ligne Animaux",
+    "shortDescription": "Ligne Animaux Aurodhea, pour l'hygiène et le bien-être de vos compagnons.",
+    "longDescription": [
+      "Ligne Animaux Aurodhea, pour l'hygiène et le bien-être de vos compagnons."
+    ],
+    "regularPrice": 19.99,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-creme-apres-rasage-aloe-vera-panthenol-et-amamelis-50-ml",
+    "slug": "creme-apres-rasage-aloe-vera-panthenol-et-amamelis-50-ml",
+    "name": "Crème Après-Rasage Aloe Vera, Panthénol et Amamélis — 50 ml",
+    "category": "aurodhea",
+    "family": "Ligne Homme",
+    "shortDescription": "Ligne Homme Aurodhea, soins de rasage apaisants et protecteurs.",
+    "longDescription": [
+      "Ligne Homme Aurodhea, soins de rasage apaisants et protecteurs."
+    ],
+    "regularPrice": 13.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-creme-apres-rasage-anti-age-panthenol-menthol-et-aloe-vera-75-ml",
+    "slug": "creme-apres-rasage-anti-age-panthenol-menthol-et-aloe-vera-75-ml",
+    "name": "Crème Après-Rasage Anti-Âge Panthénol, Menthol et Aloe Vera — 75 ml",
+    "category": "aurodhea",
+    "family": "Ligne Homme",
+    "shortDescription": "Ligne Homme Aurodhea, soins de rasage apaisants et protecteurs.",
+    "longDescription": [
+      "Ligne Homme Aurodhea, soins de rasage apaisants et protecteurs."
+    ],
+    "regularPrice": 15.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-creme-pour-rasage-velobarba-aloe-vera-et-glycerine-260-ml",
+    "slug": "creme-pour-rasage-velobarba-aloe-vera-et-glycerine-260-ml",
+    "name": "Crème pour Rasage Velobarba Aloe Vera et Glycérine — 260 ml",
+    "category": "aurodhea",
+    "family": "Ligne Homme",
+    "shortDescription": "Ligne Homme Aurodhea, soins de rasage apaisants et protecteurs.",
+    "longDescription": [
+      "Ligne Homme Aurodhea, soins de rasage apaisants et protecteurs."
+    ],
+    "regularPrice": 15.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-protection-solaire-spray-spf-15-aloe-vera-vitamine-e-et-panthenol-150-ml",
+    "slug": "protection-solaire-spray-spf-15-aloe-vera-vitamine-e-et-panthenol-150-ml",
+    "name": "Protection Solaire Spray SPF 15 Aloe Vera, Vitamine E et Panthénol — 150 ml",
+    "category": "aurodhea",
+    "family": "Ligne Solaire",
+    "shortDescription": "Ligne Solaire Aurodhea : protection UV et soins après-soleil pour peau et cheveux.",
+    "longDescription": [
+      "Ligne Solaire Aurodhea : protection UV et soins après-soleil pour peau et cheveux."
+    ],
+    "regularPrice": 29.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-protection-solaire-spray-spf-30-aloe-vera-vitamine-e-et-panthenol-150-ml",
+    "slug": "protection-solaire-spray-spf-30-aloe-vera-vitamine-e-et-panthenol-150-ml",
+    "name": "Protection Solaire Spray SPF 30 Aloe Vera, Vitamine E et Panthénol — 150 ml",
+    "category": "aurodhea",
+    "family": "Ligne Solaire",
+    "shortDescription": "Ligne Solaire Aurodhea : protection UV et soins après-soleil pour peau et cheveux.",
+    "longDescription": [
+      "Ligne Solaire Aurodhea : protection UV et soins après-soleil pour peau et cheveux."
+    ],
+    "regularPrice": 29.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-protection-solaire-spray-spf-50-aloe-vera-vitamine-e-et-panthenol-150-ml",
+    "slug": "protection-solaire-spray-spf-50-aloe-vera-vitamine-e-et-panthenol-150-ml",
+    "name": "Protection Solaire Spray SPF 50 Aloe Vera, Vitamine E et Panthénol — 150 ml",
+    "category": "aurodhea",
+    "family": "Ligne Solaire",
+    "shortDescription": "Ligne Solaire Aurodhea : protection UV et soins après-soleil pour peau et cheveux.",
+    "longDescription": [
+      "Ligne Solaire Aurodhea : protection UV et soins après-soleil pour peau et cheveux."
+    ],
+    "regularPrice": 32.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-gel-apres-soleil-ice-effect-eucalyptus-aloe-vera-et-menthol-150-ml",
+    "slug": "gel-apres-soleil-ice-effect-eucalyptus-aloe-vera-et-menthol-150-ml",
+    "name": "Gel Après-Soleil Ice Effect Eucalyptus, Aloe Vera et Menthol — 150 ml",
+    "category": "aurodhea",
+    "family": "Ligne Solaire",
+    "shortDescription": "Ligne Solaire Aurodhea : protection UV et soins après-soleil pour peau et cheveux.",
+    "longDescription": [
+      "Ligne Solaire Aurodhea : protection UV et soins après-soleil pour peau et cheveux."
+    ],
+    "regularPrice": 19.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-huile-solaire-super-bronzante-argan-vitamine-e-et-millepertuis-150-ml",
+    "slug": "huile-solaire-super-bronzante-argan-vitamine-e-et-millepertuis-150-ml",
+    "name": "Huile Solaire Super Bronzante Argan, Vitamine E et Millepertuis — 150 ml",
+    "category": "aurodhea",
+    "family": "Ligne Solaire",
+    "shortDescription": "Ligne Solaire Aurodhea : protection UV et soins après-soleil pour peau et cheveux.",
+    "longDescription": [
+      "Ligne Solaire Aurodhea : protection UV et soins après-soleil pour peau et cheveux."
+    ],
+    "regularPrice": 15.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-spray-apaisant-apres-soleil-complexe-sunrelief-150-ml",
+    "slug": "spray-apaisant-apres-soleil-complexe-sunrelief-150-ml",
+    "name": "Spray Apaisant Après-Soleil (complexe SunRelief) — 150 ml",
+    "category": "aurodhea",
+    "family": "Ligne Solaire",
+    "shortDescription": "Ligne Solaire Aurodhea : protection UV et soins après-soleil pour peau et cheveux.",
+    "longDescription": [
+      "Ligne Solaire Aurodhea : protection UV et soins après-soleil pour peau et cheveux."
+    ],
+    "regularPrice": 19.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-glitterain-shimmer-body-spray-monoi-et-lait-150-ml",
+    "slug": "glitterain-shimmer-body-spray-monoi-et-lait-150-ml",
+    "name": "Glitterain Shimmer Body Spray Monoï et Lait — 150 ml",
+    "category": "aurodhea",
+    "family": "Ligne Solaire",
+    "shortDescription": "Ligne Solaire Aurodhea : protection UV et soins après-soleil pour peau et cheveux.",
+    "longDescription": [
+      "Ligne Solaire Aurodhea : protection UV et soins après-soleil pour peau et cheveux."
+    ],
+    "regularPrice": 24.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-glitterain-shimmer-body-spray-coco-150-ml",
+    "slug": "glitterain-shimmer-body-spray-coco-150-ml",
+    "name": "Glitterain Shimmer Body Spray Coco — 150 ml",
+    "category": "aurodhea",
+    "family": "Ligne Solaire",
+    "shortDescription": "Ligne Solaire Aurodhea : protection UV et soins après-soleil pour peau et cheveux.",
+    "longDescription": [
+      "Ligne Solaire Aurodhea : protection UV et soins après-soleil pour peau et cheveux."
+    ],
+    "regularPrice": 24.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-spray-rafraichissant-bronzant-ice-effect-150-ml",
+    "slug": "spray-rafraichissant-bronzant-ice-effect-150-ml",
+    "name": "Spray Rafraîchissant Bronzant Ice Effect — 150 ml",
+    "category": "aurodhea",
+    "family": "Ligne Solaire",
+    "shortDescription": "Ligne Solaire Aurodhea : protection UV et soins après-soleil pour peau et cheveux.",
+    "longDescription": [
+      "Ligne Solaire Aurodhea : protection UV et soins après-soleil pour peau et cheveux."
+    ],
+    "regularPrice": 19.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-spray-protecteur-cheveux-complexe-shinejuice-150-ml",
+    "slug": "spray-protecteur-cheveux-complexe-shinejuice-150-ml",
+    "name": "Spray Protecteur Cheveux (complexe ShineJuice) — 150 ml",
+    "category": "aurodhea",
+    "family": "Ligne Solaire",
+    "shortDescription": "Ligne Solaire Aurodhea : protection UV et soins après-soleil pour peau et cheveux.",
+    "longDescription": [
+      "Ligne Solaire Aurodhea : protection UV et soins après-soleil pour peau et cheveux."
+    ],
+    "regularPrice": 25.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-spray-biphase-regenerant-cheveux-complexe-glossydeep-100-ml",
+    "slug": "spray-biphase-regenerant-cheveux-complexe-glossydeep-100-ml",
+    "name": "Spray Biphasé Régénérant Cheveux (complexe GlossyDeep) — 100 ml",
+    "category": "aurodhea",
+    "family": "Ligne Solaire",
+    "shortDescription": "Ligne Solaire Aurodhea : protection UV et soins après-soleil pour peau et cheveux.",
+    "longDescription": [
+      "Ligne Solaire Aurodhea : protection UV et soins après-soleil pour peau et cheveux."
+    ],
+    "regularPrice": 29.9,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-parfum-jamaal-pour-bebe-garcon",
+    "slug": "parfum-jamaal-pour-bebe-garcon",
+    "name": "Parfum JAMAAL pour Bébé Garçon",
+    "category": "autres-produits",
+    "family": "Ligne Baby",
+    "shortDescription": "Un mélange de notes fraîches et de notes boisées douces, unique et agréable, adapté aux enfants comme aux mamans. Hypoallergénique, sans paraben ni colorants artificiels, formule longue tenue.",
+    "longDescription": [
+      "Un mélange de notes fraîches et de notes boisées douces, unique et agréable, adapté aux enfants comme aux mamans. Hypoallergénique, sans paraben ni colorants artificiels, formule longue tenue."
+    ],
+    "regularPrice": 29,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-parfum-jamaal-pour-bebe-fille",
+    "slug": "parfum-jamaal-pour-bebe-fille",
+    "name": "Parfum JAMAAL pour Bébé Fille",
+    "category": "autres-produits",
+    "family": "Ligne Baby",
+    "shortDescription": "Un parfum qui allie notes florales et fruitées fraîches, pour un charme unique, adapté aux petites filles comme aux mamans. Hypoallergénique, sans paraben ni colorants artificiels.",
+    "longDescription": [
+      "Un parfum qui allie notes florales et fruitées fraîches, pour un charme unique, adapté aux petites filles comme aux mamans. Hypoallergénique, sans paraben ni colorants artificiels."
+    ],
+    "regularPrice": 29,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-parfum-jamaal-pour-nouveau-ne",
+    "slug": "parfum-jamaal-pour-nouveau-ne",
+    "name": "Parfum JAMAAL pour Nouveau-Né",
+    "category": "autres-produits",
+    "family": "Ligne Baby",
+    "shortDescription": "Un bouquet floral légèrement citronné, léger et frais, conçu pour évoquer le calme et la tranquillité des nouveau-nés. Hypoallergénique, sans paraben ni colorants artificiels.",
+    "longDescription": [
+      "Un bouquet floral légèrement citronné, léger et frais, conçu pour évoquer le calme et la tranquillité des nouveau-nés. Hypoallergénique, sans paraben ni colorants artificiels."
+    ],
+    "regularPrice": 29,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-complement-alimentaire-skinail-collagene",
+    "slug": "complement-alimentaire-skinail-collagene",
+    "name": "Complément Alimentaire SKINAIL Collagène",
+    "category": "complement-alimentaire",
+    "family": "Supplefit",
+    "shortDescription": "Complément alimentaire à base de collagène hydrolysé (12,4 g par dose), enrichi en vitamines (B12, B3, B4, B6, H, B2, C), en extraits de myrtille, grenade, cerise et açaï, et en zinc picolinate. Conçu pour nourrir et raffermir la peau, restructurer les cheveux et renforcer os, muscles, tendons et ongles.",
+    "longDescription": [
+      "Complément alimentaire à base de collagène hydrolysé (12,4 g par dose), enrichi en vitamines (B12, B3, B4, B6, H, B2, C), en extraits de myrtille, grenade, cerise et açaï, et en zinc picolinate. Conçu pour nourrir et raffermir la peau, restructurer les cheveux et renforcer os, muscles, tendons et ongles.",
+      "Boîte de 30 sachets individuels, à diluer dans 250 ml d'eau, le matin ou le soir."
+    ],
+    "regularPrice": 139,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-jardin-de-fleurs-100-ml",
+    "slug": "diffuseur-jamaal-jardin-de-fleurs-100-ml",
+    "name": "Diffuseur JAMAAL « Jardin de Fleurs » — 100 ml",
+    "category": "parfum-ambiance",
+    "family": "Jardin de Fleurs",
+    "topNotes": [
+      "Citron, Poire, Poivre rose"
+    ],
+    "heartNotes": [
+      "Rose turque, Jasmin indien, Cassis, Framboise"
+    ],
+    "baseNotes": [
+      "Patchouli, Musc blanc"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 24,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-jardin-de-fleurs-200-ml",
+    "slug": "diffuseur-jamaal-jardin-de-fleurs-200-ml",
+    "name": "Diffuseur JAMAAL « Jardin de Fleurs » — 200 ml",
+    "category": "parfum-ambiance",
+    "family": "Jardin de Fleurs",
+    "topNotes": [
+      "Citron, Poire, Poivre rose"
+    ],
+    "heartNotes": [
+      "Rose turque, Jasmin indien, Cassis, Framboise"
+    ],
+    "baseNotes": [
+      "Patchouli, Musc blanc"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 35,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-jardin-de-fleurs-500-ml",
+    "slug": "diffuseur-jamaal-jardin-de-fleurs-500-ml",
+    "name": "Diffuseur JAMAAL « Jardin de Fleurs » — 500 ml",
+    "category": "parfum-ambiance",
+    "family": "Jardin de Fleurs",
+    "topNotes": [
+      "Citron, Poire, Poivre rose"
+    ],
+    "heartNotes": [
+      "Rose turque, Jasmin indien, Cassis, Framboise"
+    ],
+    "baseNotes": [
+      "Patchouli, Musc blanc"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 70,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-jardin-de-fleurs-1-5-l",
+    "slug": "diffuseur-jamaal-jardin-de-fleurs-1-5-l",
+    "name": "Diffuseur JAMAAL « Jardin de Fleurs » — 1,5 L",
+    "category": "parfum-ambiance",
+    "family": "Jardin de Fleurs",
+    "topNotes": [
+      "Citron, Poire, Poivre rose"
+    ],
+    "heartNotes": [
+      "Rose turque, Jasmin indien, Cassis, Framboise"
+    ],
+    "baseNotes": [
+      "Patchouli, Musc blanc"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 190,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-jardin-de-fleurs-3-l",
+    "slug": "diffuseur-jamaal-jardin-de-fleurs-3-l",
+    "name": "Diffuseur JAMAAL « Jardin de Fleurs » — 3 L",
+    "category": "parfum-ambiance",
+    "family": "Jardin de Fleurs",
+    "topNotes": [
+      "Citron, Poire, Poivre rose"
+    ],
+    "heartNotes": [
+      "Rose turque, Jasmin indien, Cassis, Framboise"
+    ],
+    "baseNotes": [
+      "Patchouli, Musc blanc"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 350,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-melange-de-fruits-100-ml",
+    "slug": "diffuseur-jamaal-melange-de-fruits-100-ml",
+    "name": "Diffuseur JAMAAL « Mélange de Fruits » — 100 ml",
+    "category": "parfum-ambiance",
+    "family": "Mélange de Fruits",
+    "topNotes": [
+      "Cerise noire, Cognac"
+    ],
+    "heartNotes": [
+      "Sirop de cerise, Jasmin, Rose de Turquie"
+    ],
+    "baseNotes": [
+      "Musc, Fève tonka, Vanille"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Oriental Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Oriental Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 24,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-melange-de-fruits-200-ml",
+    "slug": "diffuseur-jamaal-melange-de-fruits-200-ml",
+    "name": "Diffuseur JAMAAL « Mélange de Fruits » — 200 ml",
+    "category": "parfum-ambiance",
+    "family": "Mélange de Fruits",
+    "topNotes": [
+      "Cerise noire, Cognac"
+    ],
+    "heartNotes": [
+      "Sirop de cerise, Jasmin, Rose de Turquie"
+    ],
+    "baseNotes": [
+      "Musc, Fève tonka, Vanille"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Oriental Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Oriental Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 35,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-melange-de-fruits-500-ml",
+    "slug": "diffuseur-jamaal-melange-de-fruits-500-ml",
+    "name": "Diffuseur JAMAAL « Mélange de Fruits » — 500 ml",
+    "category": "parfum-ambiance",
+    "family": "Mélange de Fruits",
+    "topNotes": [
+      "Cerise noire, Cognac"
+    ],
+    "heartNotes": [
+      "Sirop de cerise, Jasmin, Rose de Turquie"
+    ],
+    "baseNotes": [
+      "Musc, Fève tonka, Vanille"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Oriental Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Oriental Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 70,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-melange-de-fruits-1-5-l",
+    "slug": "diffuseur-jamaal-melange-de-fruits-1-5-l",
+    "name": "Diffuseur JAMAAL « Mélange de Fruits » — 1,5 L",
+    "category": "parfum-ambiance",
+    "family": "Mélange de Fruits",
+    "topNotes": [
+      "Cerise noire, Cognac"
+    ],
+    "heartNotes": [
+      "Sirop de cerise, Jasmin, Rose de Turquie"
+    ],
+    "baseNotes": [
+      "Musc, Fève tonka, Vanille"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Oriental Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Oriental Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 190,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-melange-de-fruits-3-l",
+    "slug": "diffuseur-jamaal-melange-de-fruits-3-l",
+    "name": "Diffuseur JAMAAL « Mélange de Fruits » — 3 L",
+    "category": "parfum-ambiance",
+    "family": "Mélange de Fruits",
+    "topNotes": [
+      "Cerise noire, Cognac"
+    ],
+    "heartNotes": [
+      "Sirop de cerise, Jasmin, Rose de Turquie"
+    ],
+    "baseNotes": [
+      "Musc, Fève tonka, Vanille"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Oriental Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Oriental Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 350,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-grenade-mediterraneenne-100-ml",
+    "slug": "diffuseur-jamaal-grenade-mediterraneenne-100-ml",
+    "name": "Diffuseur JAMAAL « Grenade Méditerranéenne » — 100 ml",
+    "category": "parfum-ambiance",
+    "family": "Grenade Méditerranéenne",
+    "topNotes": [
+      "Cassis"
+    ],
+    "heartNotes": [
+      "Rose, Grenade"
+    ],
+    "baseNotes": [
+      "Musc blanc"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 24,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-grenade-mediterraneenne-200-ml",
+    "slug": "diffuseur-jamaal-grenade-mediterraneenne-200-ml",
+    "name": "Diffuseur JAMAAL « Grenade Méditerranéenne » — 200 ml",
+    "category": "parfum-ambiance",
+    "family": "Grenade Méditerranéenne",
+    "topNotes": [
+      "Cassis"
+    ],
+    "heartNotes": [
+      "Rose, Grenade"
+    ],
+    "baseNotes": [
+      "Musc blanc"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 35,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-grenade-mediterraneenne-500-ml",
+    "slug": "diffuseur-jamaal-grenade-mediterraneenne-500-ml",
+    "name": "Diffuseur JAMAAL « Grenade Méditerranéenne » — 500 ml",
+    "category": "parfum-ambiance",
+    "family": "Grenade Méditerranéenne",
+    "topNotes": [
+      "Cassis"
+    ],
+    "heartNotes": [
+      "Rose, Grenade"
+    ],
+    "baseNotes": [
+      "Musc blanc"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 70,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-grenade-mediterraneenne-1-5-l",
+    "slug": "diffuseur-jamaal-grenade-mediterraneenne-1-5-l",
+    "name": "Diffuseur JAMAAL « Grenade Méditerranéenne » — 1,5 L",
+    "category": "parfum-ambiance",
+    "family": "Grenade Méditerranéenne",
+    "topNotes": [
+      "Cassis"
+    ],
+    "heartNotes": [
+      "Rose, Grenade"
+    ],
+    "baseNotes": [
+      "Musc blanc"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 190,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-grenade-mediterraneenne-3-l",
+    "slug": "diffuseur-jamaal-grenade-mediterraneenne-3-l",
+    "name": "Diffuseur JAMAAL « Grenade Méditerranéenne » — 3 L",
+    "category": "parfum-ambiance",
+    "family": "Grenade Méditerranéenne",
+    "topNotes": [
+      "Cassis"
+    ],
+    "heartNotes": [
+      "Rose, Grenade"
+    ],
+    "baseNotes": [
+      "Musc blanc"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 350,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-symphonies-de-bacchus-100-ml",
+    "slug": "diffuseur-jamaal-symphonies-de-bacchus-100-ml",
+    "name": "Diffuseur JAMAAL « Symphonies de Bacchus » — 100 ml",
+    "category": "parfum-ambiance",
+    "family": "Symphonies de Bacchus",
+    "topNotes": [
+      "Cassis, Fraise, Raisin"
+    ],
+    "heartNotes": [
+      "Pêche, Fleur d'oranger"
+    ],
+    "baseNotes": [
+      "Fruits rouges, Framboise, Vanille, Caramel, Notes fumées"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 24,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-symphonies-de-bacchus-200-ml",
+    "slug": "diffuseur-jamaal-symphonies-de-bacchus-200-ml",
+    "name": "Diffuseur JAMAAL « Symphonies de Bacchus » — 200 ml",
+    "category": "parfum-ambiance",
+    "family": "Symphonies de Bacchus",
+    "topNotes": [
+      "Cassis, Fraise, Raisin"
+    ],
+    "heartNotes": [
+      "Pêche, Fleur d'oranger"
+    ],
+    "baseNotes": [
+      "Fruits rouges, Framboise, Vanille, Caramel, Notes fumées"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 35,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-symphonies-de-bacchus-500-ml",
+    "slug": "diffuseur-jamaal-symphonies-de-bacchus-500-ml",
+    "name": "Diffuseur JAMAAL « Symphonies de Bacchus » — 500 ml",
+    "category": "parfum-ambiance",
+    "family": "Symphonies de Bacchus",
+    "topNotes": [
+      "Cassis, Fraise, Raisin"
+    ],
+    "heartNotes": [
+      "Pêche, Fleur d'oranger"
+    ],
+    "baseNotes": [
+      "Fruits rouges, Framboise, Vanille, Caramel, Notes fumées"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 70,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-symphonies-de-bacchus-1-5-l",
+    "slug": "diffuseur-jamaal-symphonies-de-bacchus-1-5-l",
+    "name": "Diffuseur JAMAAL « Symphonies de Bacchus » — 1,5 L",
+    "category": "parfum-ambiance",
+    "family": "Symphonies de Bacchus",
+    "topNotes": [
+      "Cassis, Fraise, Raisin"
+    ],
+    "heartNotes": [
+      "Pêche, Fleur d'oranger"
+    ],
+    "baseNotes": [
+      "Fruits rouges, Framboise, Vanille, Caramel, Notes fumées"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 190,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-symphonies-de-bacchus-3-l",
+    "slug": "diffuseur-jamaal-symphonies-de-bacchus-3-l",
+    "name": "Diffuseur JAMAAL « Symphonies de Bacchus » — 3 L",
+    "category": "parfum-ambiance",
+    "family": "Symphonies de Bacchus",
+    "topNotes": [
+      "Cassis, Fraise, Raisin"
+    ],
+    "heartNotes": [
+      "Pêche, Fleur d'oranger"
+    ],
+    "baseNotes": [
+      "Fruits rouges, Framboise, Vanille, Caramel, Notes fumées"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 350,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-c-ur-de-fruits-rouges-100-ml",
+    "slug": "diffuseur-jamaal-c-ur-de-fruits-rouges-100-ml",
+    "name": "Diffuseur JAMAAL « Cœur de Fruits Rouges » — 100 ml",
+    "category": "parfum-ambiance",
+    "family": "Cœur de Fruits Rouges",
+    "topNotes": [
+      "Cassis, Fraise, Pamplemousse"
+    ],
+    "heartNotes": [
+      "Pêche, Fleur d'oranger"
+    ],
+    "baseNotes": [
+      "Vanille, Caramel, Notes fumées, Fruits rouges, Framboise"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 24,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-c-ur-de-fruits-rouges-200-ml",
+    "slug": "diffuseur-jamaal-c-ur-de-fruits-rouges-200-ml",
+    "name": "Diffuseur JAMAAL « Cœur de Fruits Rouges » — 200 ml",
+    "category": "parfum-ambiance",
+    "family": "Cœur de Fruits Rouges",
+    "topNotes": [
+      "Cassis, Fraise, Pamplemousse"
+    ],
+    "heartNotes": [
+      "Pêche, Fleur d'oranger"
+    ],
+    "baseNotes": [
+      "Vanille, Caramel, Notes fumées, Fruits rouges, Framboise"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 35,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-c-ur-de-fruits-rouges-500-ml",
+    "slug": "diffuseur-jamaal-c-ur-de-fruits-rouges-500-ml",
+    "name": "Diffuseur JAMAAL « Cœur de Fruits Rouges » — 500 ml",
+    "category": "parfum-ambiance",
+    "family": "Cœur de Fruits Rouges",
+    "topNotes": [
+      "Cassis, Fraise, Pamplemousse"
+    ],
+    "heartNotes": [
+      "Pêche, Fleur d'oranger"
+    ],
+    "baseNotes": [
+      "Vanille, Caramel, Notes fumées, Fruits rouges, Framboise"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 70,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-c-ur-de-fruits-rouges-1-5-l",
+    "slug": "diffuseur-jamaal-c-ur-de-fruits-rouges-1-5-l",
+    "name": "Diffuseur JAMAAL « Cœur de Fruits Rouges » — 1,5 L",
+    "category": "parfum-ambiance",
+    "family": "Cœur de Fruits Rouges",
+    "topNotes": [
+      "Cassis, Fraise, Pamplemousse"
+    ],
+    "heartNotes": [
+      "Pêche, Fleur d'oranger"
+    ],
+    "baseNotes": [
+      "Vanille, Caramel, Notes fumées, Fruits rouges, Framboise"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 190,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-c-ur-de-fruits-rouges-3-l",
+    "slug": "diffuseur-jamaal-c-ur-de-fruits-rouges-3-l",
+    "name": "Diffuseur JAMAAL « Cœur de Fruits Rouges » — 3 L",
+    "category": "parfum-ambiance",
+    "family": "Cœur de Fruits Rouges",
+    "topNotes": [
+      "Cassis, Fraise, Pamplemousse"
+    ],
+    "heartNotes": [
+      "Pêche, Fleur d'oranger"
+    ],
+    "baseNotes": [
+      "Vanille, Caramel, Notes fumées, Fruits rouges, Framboise"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 350,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-bouquet-de-magnolia-100-ml",
+    "slug": "diffuseur-jamaal-bouquet-de-magnolia-100-ml",
+    "name": "Diffuseur JAMAAL « Bouquet de Magnolia » — 100 ml",
+    "category": "parfum-ambiance",
+    "family": "Bouquet de Magnolia",
+    "topNotes": [
+      "Poire, Pomme, Citron"
+    ],
+    "heartNotes": [
+      "Notes aquatiques, Notes ozoniques, Rose, Magnolia, Jasmin, Fleur d'oranger"
+    ],
+    "baseNotes": [
+      "Notes poudrées, Ambre, Santal, Cèdre, Vétiver"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 24,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-bouquet-de-magnolia-200-ml",
+    "slug": "diffuseur-jamaal-bouquet-de-magnolia-200-ml",
+    "name": "Diffuseur JAMAAL « Bouquet de Magnolia » — 200 ml",
+    "category": "parfum-ambiance",
+    "family": "Bouquet de Magnolia",
+    "topNotes": [
+      "Poire, Pomme, Citron"
+    ],
+    "heartNotes": [
+      "Notes aquatiques, Notes ozoniques, Rose, Magnolia, Jasmin, Fleur d'oranger"
+    ],
+    "baseNotes": [
+      "Notes poudrées, Ambre, Santal, Cèdre, Vétiver"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 35,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-bouquet-de-magnolia-500-ml",
+    "slug": "diffuseur-jamaal-bouquet-de-magnolia-500-ml",
+    "name": "Diffuseur JAMAAL « Bouquet de Magnolia » — 500 ml",
+    "category": "parfum-ambiance",
+    "family": "Bouquet de Magnolia",
+    "topNotes": [
+      "Poire, Pomme, Citron"
+    ],
+    "heartNotes": [
+      "Notes aquatiques, Notes ozoniques, Rose, Magnolia, Jasmin, Fleur d'oranger"
+    ],
+    "baseNotes": [
+      "Notes poudrées, Ambre, Santal, Cèdre, Vétiver"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 70,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-bouquet-de-magnolia-1-5-l",
+    "slug": "diffuseur-jamaal-bouquet-de-magnolia-1-5-l",
+    "name": "Diffuseur JAMAAL « Bouquet de Magnolia » — 1,5 L",
+    "category": "parfum-ambiance",
+    "family": "Bouquet de Magnolia",
+    "topNotes": [
+      "Poire, Pomme, Citron"
+    ],
+    "heartNotes": [
+      "Notes aquatiques, Notes ozoniques, Rose, Magnolia, Jasmin, Fleur d'oranger"
+    ],
+    "baseNotes": [
+      "Notes poudrées, Ambre, Santal, Cèdre, Vétiver"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 190,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-bouquet-de-magnolia-3-l",
+    "slug": "diffuseur-jamaal-bouquet-de-magnolia-3-l",
+    "name": "Diffuseur JAMAAL « Bouquet de Magnolia » — 3 L",
+    "category": "parfum-ambiance",
+    "family": "Bouquet de Magnolia",
+    "topNotes": [
+      "Poire, Pomme, Citron"
+    ],
+    "heartNotes": [
+      "Notes aquatiques, Notes ozoniques, Rose, Magnolia, Jasmin, Fleur d'oranger"
+    ],
+    "baseNotes": [
+      "Notes poudrées, Ambre, Santal, Cèdre, Vétiver"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 350,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-symphonie-epicee-100-ml",
+    "slug": "diffuseur-jamaal-symphonie-epicee-100-ml",
+    "name": "Diffuseur JAMAAL « Symphonie Épicée » — 100 ml",
+    "category": "parfum-ambiance",
+    "family": "Symphonie Épicée",
+    "topNotes": [
+      "Agrumes, Pêche, Camphrée, Amande"
+    ],
+    "heartNotes": [
+      "Orchidée, Jasmin, Rose, Violette, Girofle"
+    ],
+    "baseNotes": [
+      "Cèdre, Fève tonka, Vanille, Musc, Patchouli, Gaïac, Vétiver"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Oriental Boisé. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Oriental Boisé. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 24,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-symphonie-epicee-200-ml",
+    "slug": "diffuseur-jamaal-symphonie-epicee-200-ml",
+    "name": "Diffuseur JAMAAL « Symphonie Épicée » — 200 ml",
+    "category": "parfum-ambiance",
+    "family": "Symphonie Épicée",
+    "topNotes": [
+      "Agrumes, Pêche, Camphrée, Amande"
+    ],
+    "heartNotes": [
+      "Orchidée, Jasmin, Rose, Violette, Girofle"
+    ],
+    "baseNotes": [
+      "Cèdre, Fève tonka, Vanille, Musc, Patchouli, Gaïac, Vétiver"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Oriental Boisé. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Oriental Boisé. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 35,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-symphonie-epicee-500-ml",
+    "slug": "diffuseur-jamaal-symphonie-epicee-500-ml",
+    "name": "Diffuseur JAMAAL « Symphonie Épicée » — 500 ml",
+    "category": "parfum-ambiance",
+    "family": "Symphonie Épicée",
+    "topNotes": [
+      "Agrumes, Pêche, Camphrée, Amande"
+    ],
+    "heartNotes": [
+      "Orchidée, Jasmin, Rose, Violette, Girofle"
+    ],
+    "baseNotes": [
+      "Cèdre, Fève tonka, Vanille, Musc, Patchouli, Gaïac, Vétiver"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Oriental Boisé. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Oriental Boisé. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 70,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-mystic-ylang-100-ml",
+    "slug": "diffuseur-jamaal-mystic-ylang-100-ml",
+    "name": "Diffuseur JAMAAL « Mystic Ylang » — 100 ml",
+    "category": "parfum-ambiance",
+    "family": "Mystic Ylang",
+    "topNotes": [
+      "Bergamote, Notes ozoniques"
+    ],
+    "heartNotes": [
+      "Orchidée, Lavande, Jasmin, Rose, Girofle, Fève tonka, Ylang Ylang"
+    ],
+    "baseNotes": [
+      "Musc, Vanille"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Oriental. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Oriental. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 24,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-mystic-ylang-200-ml",
+    "slug": "diffuseur-jamaal-mystic-ylang-200-ml",
+    "name": "Diffuseur JAMAAL « Mystic Ylang » — 200 ml",
+    "category": "parfum-ambiance",
+    "family": "Mystic Ylang",
+    "topNotes": [
+      "Bergamote, Notes ozoniques"
+    ],
+    "heartNotes": [
+      "Orchidée, Lavande, Jasmin, Rose, Girofle, Fève tonka, Ylang Ylang"
+    ],
+    "baseNotes": [
+      "Musc, Vanille"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Oriental. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Oriental. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 35,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-mystic-ylang-500-ml",
+    "slug": "diffuseur-jamaal-mystic-ylang-500-ml",
+    "name": "Diffuseur JAMAAL « Mystic Ylang » — 500 ml",
+    "category": "parfum-ambiance",
+    "family": "Mystic Ylang",
+    "topNotes": [
+      "Bergamote, Notes ozoniques"
+    ],
+    "heartNotes": [
+      "Orchidée, Lavande, Jasmin, Rose, Girofle, Fève tonka, Ylang Ylang"
+    ],
+    "baseNotes": [
+      "Musc, Vanille"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Oriental. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Oriental. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 70,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-oasis-luxuriant-100-ml",
+    "slug": "diffuseur-jamaal-oasis-luxuriant-100-ml",
+    "name": "Diffuseur JAMAAL « Oasis Luxuriant » — 100 ml",
+    "category": "parfum-ambiance",
+    "family": "Oasis Luxuriant",
+    "topNotes": [
+      "Grenade, Raisin, Orange, Bergamote, Coco, Notes vertes"
+    ],
+    "heartNotes": [
+      "Jasmin, Lavande, Girofle"
+    ],
+    "baseNotes": [
+      "Vanille"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Fruité Floral. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Fruité Floral. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 24,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-oasis-luxuriant-200-ml",
+    "slug": "diffuseur-jamaal-oasis-luxuriant-200-ml",
+    "name": "Diffuseur JAMAAL « Oasis Luxuriant » — 200 ml",
+    "category": "parfum-ambiance",
+    "family": "Oasis Luxuriant",
+    "topNotes": [
+      "Grenade, Raisin, Orange, Bergamote, Coco, Notes vertes"
+    ],
+    "heartNotes": [
+      "Jasmin, Lavande, Girofle"
+    ],
+    "baseNotes": [
+      "Vanille"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Fruité Floral. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Fruité Floral. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 35,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-oasis-luxuriant-500-ml",
+    "slug": "diffuseur-jamaal-oasis-luxuriant-500-ml",
+    "name": "Diffuseur JAMAAL « Oasis Luxuriant » — 500 ml",
+    "category": "parfum-ambiance",
+    "family": "Oasis Luxuriant",
+    "topNotes": [
+      "Grenade, Raisin, Orange, Bergamote, Coco, Notes vertes"
+    ],
+    "heartNotes": [
+      "Jasmin, Lavande, Girofle"
+    ],
+    "baseNotes": [
+      "Vanille"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Fruité Floral. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Fruité Floral. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 70,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-vanille-doree-100-ml",
+    "slug": "diffuseur-jamaal-vanille-doree-100-ml",
+    "name": "Diffuseur JAMAAL « Vanille Dorée » — 100 ml",
+    "category": "parfum-ambiance",
+    "family": "Vanille Dorée",
+    "topNotes": [
+      "Pêche, Coco, Raisin"
+    ],
+    "heartNotes": [
+      "Jasmin, Aubépine, Héliotrope"
+    ],
+    "baseNotes": [
+      "Notes boisées, Ambre, Musc, Vanille"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Fruité Oriental. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Fruité Oriental. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 24,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-vanille-doree-200-ml",
+    "slug": "diffuseur-jamaal-vanille-doree-200-ml",
+    "name": "Diffuseur JAMAAL « Vanille Dorée » — 200 ml",
+    "category": "parfum-ambiance",
+    "family": "Vanille Dorée",
+    "topNotes": [
+      "Pêche, Coco, Raisin"
+    ],
+    "heartNotes": [
+      "Jasmin, Aubépine, Héliotrope"
+    ],
+    "baseNotes": [
+      "Notes boisées, Ambre, Musc, Vanille"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Fruité Oriental. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Fruité Oriental. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 35,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-vanille-doree-500-ml",
+    "slug": "diffuseur-jamaal-vanille-doree-500-ml",
+    "name": "Diffuseur JAMAAL « Vanille Dorée » — 500 ml",
+    "category": "parfum-ambiance",
+    "family": "Vanille Dorée",
+    "topNotes": [
+      "Pêche, Coco, Raisin"
+    ],
+    "heartNotes": [
+      "Jasmin, Aubépine, Héliotrope"
+    ],
+    "baseNotes": [
+      "Notes boisées, Ambre, Musc, Vanille"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Fruité Oriental. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Fruité Oriental. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 70,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-bois-du-desert-100-ml",
+    "slug": "diffuseur-jamaal-bois-du-desert-100-ml",
+    "name": "Diffuseur JAMAAL « Bois du Désert » — 100 ml",
+    "category": "parfum-ambiance",
+    "family": "Bois du Désert",
+    "topNotes": [
+      "Safran"
+    ],
+    "heartNotes": [
+      "Jasmin, Papyrus, Caramel"
+    ],
+    "baseNotes": [
+      "Musc, Vanille, Notes boisées"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Boisé Gourmand. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Boisé Gourmand. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 24,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-bois-du-desert-200-ml",
+    "slug": "diffuseur-jamaal-bois-du-desert-200-ml",
+    "name": "Diffuseur JAMAAL « Bois du Désert » — 200 ml",
+    "category": "parfum-ambiance",
+    "family": "Bois du Désert",
+    "topNotes": [
+      "Safran"
+    ],
+    "heartNotes": [
+      "Jasmin, Papyrus, Caramel"
+    ],
+    "baseNotes": [
+      "Musc, Vanille, Notes boisées"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Boisé Gourmand. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Boisé Gourmand. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 35,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-bois-du-desert-500-ml",
+    "slug": "diffuseur-jamaal-bois-du-desert-500-ml",
+    "name": "Diffuseur JAMAAL « Bois du Désert » — 500 ml",
+    "category": "parfum-ambiance",
+    "family": "Bois du Désert",
+    "topNotes": [
+      "Safran"
+    ],
+    "heartNotes": [
+      "Jasmin, Papyrus, Caramel"
+    ],
+    "baseNotes": [
+      "Musc, Vanille, Notes boisées"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Boisé Gourmand. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Boisé Gourmand. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 70,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-tentation-ecarlate-100-ml",
+    "slug": "diffuseur-jamaal-tentation-ecarlate-100-ml",
+    "name": "Diffuseur JAMAAL « Tentation Écarlate » — 100 ml",
+    "category": "parfum-ambiance",
+    "family": "Tentation Écarlate",
+    "topNotes": [
+      "Amande amère, Girofle, Prune"
+    ],
+    "heartNotes": [
+      "Cerise, Héliotrope, Rose"
+    ],
+    "baseNotes": [
+      "Fève tonka, Santal, Vétiver, Benjoin"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 24,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-tentation-ecarlate-200-ml",
+    "slug": "diffuseur-jamaal-tentation-ecarlate-200-ml",
+    "name": "Diffuseur JAMAAL « Tentation Écarlate » — 200 ml",
+    "category": "parfum-ambiance",
+    "family": "Tentation Écarlate",
+    "topNotes": [
+      "Amande amère, Girofle, Prune"
+    ],
+    "heartNotes": [
+      "Cerise, Héliotrope, Rose"
+    ],
+    "baseNotes": [
+      "Fève tonka, Santal, Vétiver, Benjoin"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 35,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-diffuseur-jamaal-tentation-ecarlate-500-ml",
+    "slug": "diffuseur-jamaal-tentation-ecarlate-500-ml",
+    "name": "Diffuseur JAMAAL « Tentation Écarlate » — 500 ml",
+    "category": "parfum-ambiance",
+    "family": "Tentation Écarlate",
+    "topNotes": [
+      "Amande amère, Girofle, Prune"
+    ],
+    "heartNotes": [
+      "Cerise, Héliotrope, Rose"
+    ],
+    "baseNotes": [
+      "Fève tonka, Santal, Vétiver, Benjoin"
+    ],
+    "shortDescription": "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur.",
+    "longDescription": [
+      "Diffuseur à bâtonnets JAMAAL, famille olfactive Floral Fruité. Une diffusion continue et raffinée pour sublimer votre intérieur."
+    ],
+    "regularPrice": 70,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-spray-d-ambiance-jamaal-mirage-solaire-500-ml",
+    "slug": "spray-d-ambiance-jamaal-mirage-solaire-500-ml",
+    "name": "Spray d'Ambiance JAMAAL « Mirage Solaire » — 500 ml",
+    "category": "parfum-ambiance",
+    "family": "Mirage Solaire",
+    "topNotes": [
+      "Mangue, Mandarine, Fruit de la passion"
+    ],
+    "heartNotes": [
+      "Goyave, Ananas, Fruit du dragon"
+    ],
+    "baseNotes": [
+      "Vanille, Caramel, Bois clairs"
+    ],
+    "shortDescription": "Spray d'ambiance JAMAAL, famille olfactive Fruité Gourmand. Rafraîchit instantanément intérieurs, textiles et tissus.",
+    "longDescription": [
+      "Spray d'ambiance JAMAAL, famille olfactive Fruité Gourmand. Rafraîchit instantanément intérieurs, textiles et tissus."
+    ],
+    "regularPrice": 35,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-spray-d-ambiance-jamaal-voile-de-coton-500-ml",
+    "slug": "spray-d-ambiance-jamaal-voile-de-coton-500-ml",
+    "name": "Spray d'Ambiance JAMAAL « Voile de Coton » — 500 ml",
+    "category": "parfum-ambiance",
+    "family": "Voile de Coton",
+    "topNotes": [
+      "Feuille de figuier, Lait de coco"
+    ],
+    "heartNotes": [
+      "Iris, Rose, Lavandin, Fibre de coton"
+    ],
+    "baseNotes": [
+      "Cèdre, Fève tonka, Bois ambrés"
+    ],
+    "shortDescription": "Spray d'ambiance JAMAAL, famille olfactive Floral Boisé. Rafraîchit instantanément intérieurs, textiles et tissus.",
+    "longDescription": [
+      "Spray d'ambiance JAMAAL, famille olfactive Floral Boisé. Rafraîchit instantanément intérieurs, textiles et tissus."
+    ],
+    "regularPrice": 35,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-spray-d-ambiance-jamaal-esprit-des-pres-500-ml",
+    "slug": "spray-d-ambiance-jamaal-esprit-des-pres-500-ml",
+    "name": "Spray d'Ambiance JAMAAL « Esprit des Prés » — 500 ml",
+    "category": "parfum-ambiance",
+    "family": "Esprit des Prés",
+    "topNotes": [
+      "Orange, Bergamote, Pomme, Fruits verts"
+    ],
+    "heartNotes": [
+      "Muguet, Fleurs blanches, Rose"
+    ],
+    "baseNotes": [
+      "Musc, Bois clairs"
+    ],
+    "shortDescription": "Spray d'ambiance JAMAAL, famille olfactive Floral Fruité. Rafraîchit instantanément intérieurs, textiles et tissus.",
+    "longDescription": [
+      "Spray d'ambiance JAMAAL, famille olfactive Floral Fruité. Rafraîchit instantanément intérieurs, textiles et tissus."
+    ],
+    "regularPrice": 35,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-spray-d-ambiance-jamaal-infusion-de-petales-500-ml",
+    "slug": "spray-d-ambiance-jamaal-infusion-de-petales-500-ml",
+    "name": "Spray d'Ambiance JAMAAL « Infusion de Pétales » — 500 ml",
+    "category": "parfum-ambiance",
+    "family": "Infusion de Pétales",
+    "topNotes": [
+      "Bergamote, Fruits verts, Aldéhydes"
+    ],
+    "heartNotes": [
+      "Lavande, Rose, Fleurs blanches, Fleur d'oranger"
+    ],
+    "baseNotes": [
+      "Fève tonka, Vanille, Musc, Bois ambrés"
+    ],
+    "shortDescription": "Spray d'ambiance JAMAAL, famille olfactive Floral. Rafraîchit instantanément intérieurs, textiles et tissus.",
+    "longDescription": [
+      "Spray d'ambiance JAMAAL, famille olfactive Floral. Rafraîchit instantanément intérieurs, textiles et tissus."
+    ],
+    "regularPrice": 35,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-spray-d-ambiance-jamaal-agrumes-velours-500-ml",
+    "slug": "spray-d-ambiance-jamaal-agrumes-velours-500-ml",
+    "name": "Spray d'Ambiance JAMAAL « Agrumes Velours » — 500 ml",
+    "category": "parfum-ambiance",
+    "family": "Agrumes Velours",
+    "topNotes": [
+      "Orange, Mandarine"
+    ],
+    "heartNotes": [
+      "Cannelle, Fleurs blanches"
+    ],
+    "baseNotes": [
+      "Vanille, Bois clairs"
+    ],
+    "shortDescription": "Spray d'ambiance JAMAAL, famille olfactive Agrumes Vanillé. Rafraîchit instantanément intérieurs, textiles et tissus.",
+    "longDescription": [
+      "Spray d'ambiance JAMAAL, famille olfactive Agrumes Vanillé. Rafraîchit instantanément intérieurs, textiles et tissus."
+    ],
+    "regularPrice": 35,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#1b2a41",
+    "colorTo": "#d9b08c",
+    "isOfficial": true
+  },
+  {
+    "id": "official-spray-d-ambiance-jamaal-delice-fruite-500-ml",
+    "slug": "spray-d-ambiance-jamaal-delice-fruite-500-ml",
+    "name": "Spray d'Ambiance JAMAAL « Délice Fruité » — 500 ml",
+    "category": "parfum-ambiance",
+    "family": "Délice Fruité",
+    "topNotes": [
+      "Bergamote, Fruits verts, Pêche, Mandarine"
+    ],
+    "heartNotes": [
+      "Jasmin, Violette, Muguet"
+    ],
+    "baseNotes": [
+      "Vanille, Musc, Bois ambrés, Santal"
+    ],
+    "shortDescription": "Spray d'ambiance JAMAAL, famille olfactive Floral Fruité. Rafraîchit instantanément intérieurs, textiles et tissus.",
+    "longDescription": [
+      "Spray d'ambiance JAMAAL, famille olfactive Floral Fruité. Rafraîchit instantanément intérieurs, textiles et tissus."
+    ],
+    "regularPrice": 35,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#3a2c22",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-spray-d-ambiance-jamaal-douce-hypnose-500-ml",
+    "slug": "spray-d-ambiance-jamaal-douce-hypnose-500-ml",
+    "name": "Spray d'Ambiance JAMAAL « Douce Hypnose » — 500 ml",
+    "category": "parfum-ambiance",
+    "family": "Douce Hypnose",
+    "topNotes": [
+      "Anis, Pêche, Coco"
+    ],
+    "heartNotes": [
+      "Muguet, Jasmin"
+    ],
+    "baseNotes": [
+      "Crème, Musc blanc, Miel, Benjoin, Bois sucrés"
+    ],
+    "shortDescription": "Spray d'ambiance JAMAAL, famille olfactive Floral Fruité. Rafraîchit instantanément intérieurs, textiles et tissus.",
+    "longDescription": [
+      "Spray d'ambiance JAMAAL, famille olfactive Floral Fruité. Rafraîchit instantanément intérieurs, textiles et tissus."
+    ],
+    "regularPrice": 35,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#16233a",
+    "colorTo": "#c9997a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-spray-d-ambiance-jamaal-rituel-musque-500-ml",
+    "slug": "spray-d-ambiance-jamaal-rituel-musque-500-ml",
+    "name": "Spray d'Ambiance JAMAAL « Rituel Musqué » — 500 ml",
+    "category": "parfum-ambiance",
+    "family": "Rituel Musqué",
+    "topNotes": [
+      "Bergamote, Citron"
+    ],
+    "heartNotes": [
+      "Jasmin, Pin, Cassis"
+    ],
+    "baseNotes": [
+      "Musc, Bois secs, Patchouli, Muscs blancs"
+    ],
+    "shortDescription": "Spray d'ambiance JAMAAL, famille olfactive Boisé Musqué. Rafraîchit instantanément intérieurs, textiles et tissus.",
+    "longDescription": [
+      "Spray d'ambiance JAMAAL, famille olfactive Boisé Musqué. Rafraîchit instantanément intérieurs, textiles et tissus."
+    ],
+    "regularPrice": 35,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#24374f",
+    "colorTo": "#e4c4ab",
+    "isOfficial": true
+  },
+  {
+    "id": "official-spray-d-ambiance-jamaal-douces-symphonies-500-ml",
+    "slug": "spray-d-ambiance-jamaal-douces-symphonies-500-ml",
+    "name": "Spray d'Ambiance JAMAAL « Douces Symphonies » — 500 ml",
+    "category": "parfum-ambiance",
+    "family": "Douces Symphonies",
+    "topNotes": [
+      "Citron, Pomme, Pêche"
+    ],
+    "heartNotes": [
+      "Framboise, Fleurs blanches, Poire"
+    ],
+    "baseNotes": [
+      "Vanille, Patchouli"
+    ],
+    "shortDescription": "Spray d'ambiance JAMAAL, famille olfactive Fruité. Rafraîchit instantanément intérieurs, textiles et tissus.",
+    "longDescription": [
+      "Spray d'ambiance JAMAAL, famille olfactive Fruité. Rafraîchit instantanément intérieurs, textiles et tissus."
+    ],
+    "regularPrice": 35,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#a97557",
+    "colorTo": "#16233a",
+    "isOfficial": true
+  },
+  {
+    "id": "official-spray-d-ambiance-jamaal-bois-murmurants-500-ml",
+    "slug": "spray-d-ambiance-jamaal-bois-murmurants-500-ml",
+    "name": "Spray d'Ambiance JAMAAL « Bois Murmurants » — 500 ml",
+    "category": "parfum-ambiance",
+    "family": "Bois Murmurants",
+    "topNotes": [
+      "Bergamote"
+    ],
+    "heartNotes": [
+      "Patchouli"
+    ],
+    "baseNotes": [
+      "Bois d'oud, Ambre, Musc"
+    ],
+    "shortDescription": "Spray d'ambiance JAMAAL, famille olfactive Agrumes Boisé. Rafraîchit instantanément intérieurs, textiles et tissus.",
+    "longDescription": [
+      "Spray d'ambiance JAMAAL, famille olfactive Agrumes Boisé. Rafraîchit instantanément intérieurs, textiles et tissus."
+    ],
+    "regularPrice": 35,
+    "reviewCount": 0,
+    "rating": 4.5,
+    "colorFrom": "#c9997a",
+    "colorTo": "#16233a",
     "isOfficial": true
   }
 ]
