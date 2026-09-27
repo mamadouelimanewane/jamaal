@@ -125,8 +125,14 @@ model Consultant {
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
 
+  sponsorId String?
+  sponsor   Consultant?  @relation("ConsultantSponsor", fields: [sponsorId], references: [id], onDelete: SetNull)
+  sponsored Consultant[] @relation("ConsultantSponsor")
+
   user      User?
   orders    Order[]
+
+  @@index([sponsorId])
 }
 
 model Livreur {

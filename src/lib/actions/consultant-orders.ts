@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireConsultantProfile } from "./auth-guard";
 import { upsertCustomerFromOrder } from "./customers";
+import { notifySponsorOnFirstSale } from "@/lib/sponsor-notifications";
 
 export interface ConsultantOrderItem {
   productId: string;
@@ -54,6 +55,8 @@ export async function createConsultantOrder(formData: FormData) {
       },
     },
   });
+
+  await notifySponsorOnFirstSale(consultant.id);
 
   revalidatePath("/admin/mes-commandes");
   revalidatePath("/admin/commandes");

@@ -2,16 +2,34 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/currency";
 import { deleteConsultant } from "@/lib/actions/consultants";
+import { getConsultantRankings } from "@/lib/ranking";
+import { RankBadge } from "@/components/admin/RankBadge";
 
 export const dynamic = "force-dynamic";
 
+const rankOrder = { GOLD: 0, SILVER: 1, BRONZE: 2 } as const;
+
 export default async function AdminConsultantsPage() {
-  const consultants = await prisma.consultant.findMany({
-    orderBy: { name: "asc" },
-    include: {
-      user: true,
-      orders: { select: { total: true, status: true } },
-    },
+  const [consultants, rankings] = await Promise.all([
+    prisma.consultant.findMany({
+      include: {
+        user: true,
+        sponsor: { select: { name: true } },
+        orders: { select: { total: true, status: true } },
+      },
+    }),
+    getConsultantRankings(),
+  ]);
+
+  const rankById = new Map(rankings.map((r) => [r.consultantId, r]));
+
+  const sorted = [...consultants].sort((a, b) => {
+    const ra = rankById.get(a.id)?.rank ?? null;
+    const rb = rankById.get(b.id)?.rank ?? null;
+    const oa = ra ? rankOrder[ra] : 3;
+    const ob = rb ? rankOrder[rb] : 3;
+    if (oa !== ob) return oa - ob;
+    return a.name.localeCompare(b.name);
   });
 
   return (
@@ -27,13 +45,18 @@ export default async function AdminConsultantsPage() {
           + Nouveau
         </Link>
       </div>
+      <p className="mt-1 text-sm text-navy/60">
+        Classement du mois en cours — Gold, Silver puis Bronze selon le CA généré et les filleuls actifs.
+      </p>
 
       <div className="mt-6 overflow-hidden rounded-2xl border border-line bg-white">
         <table className="w-full text-sm">
           <thead className="bg-cream text-left text-xs uppercase text-navy/50">
             <tr>
+              <th className="px-4 py-3">Rang</th>
               <th className="px-4 py-3">Nom</th>
               <th className="px-4 py-3">Ville</th>
+              <th className="px-4 py-3">Parrain</th>
               <th className="px-4 py-3">Ventes</th>
               <th className="px-4 py-3">Compte portail</th>
               <th className="px-4 py-3">Statut</th>
@@ -41,12 +64,16 @@ export default async function AdminConsultantsPage() {
             </tr>
           </thead>
           <tbody>
-            {consultants.map((c) => {
+            {sorted.map((c) => {
               const revenue = c.orders
                 .filter((o) => o.status !== "ANNULEE")
                 .reduce((sum, o) => sum + o.total, 0);
+              const info = rankById.get(c.id);
               return (
                 <tr key={c.id} className="border-t border-line">
+                  <td className="px-4 py-3">
+                    <RankBadge rank={info?.rank ?? null} />
+                  </td>
                   <td className="px-4 py-3 font-medium text-navy">
                     <a
                       href={c.whatsapp}
@@ -58,8 +85,14 @@ export default async function AdminConsultantsPage() {
                     </a>
                   </td>
                   <td className="px-4 py-3 text-navy/70">{c.city}</td>
+                  <td className="px-4 py-3 text-navy/70">{c.sponsor?.name ?? "—"}</td>
                   <td className="px-4 py-3 text-navy/70">
                     {c.orders.length} commande(s) — {formatPrice(revenue)}
+                    {info && info.activeSponsoredCount > 0 && (
+                      <span className="ml-1 text-xs text-navy/50">
+                        · {info.activeSponsoredCount} filleul(s) actif(s)
+                      </span>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     {c.user ? (

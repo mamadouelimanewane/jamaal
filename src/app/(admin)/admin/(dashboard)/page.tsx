@@ -15,6 +15,8 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/currency";
 import { StatCard } from "@/components/admin/StatCard";
+import { RankBadge } from "@/components/admin/RankBadge";
+import { getConsultantRank, getConsultantRankings } from "@/lib/ranking";
 
 export const dynamic = "force-dynamic";
 
@@ -123,25 +125,72 @@ async function ConsultantOverview({ userId }: { userId: string }) {
   }
   const consultantId = user.consultant.id;
 
-  const [orderCount, pending, delivered, unread] = await Promise.all([
+  const [orderCount, pending, delivered, unread, rankInfo, team, allRankings] = await Promise.all([
     prisma.order.count({ where: { consultantId } }),
     prisma.order.count({ where: { consultantId, status: { in: ["EN_ATTENTE", "CONFIRMEE", "EXPEDIEE"] } } }),
     prisma.order.count({ where: { consultantId, status: "LIVREE" } }),
     prisma.notification.count({ where: { userId, read: false } }),
+    getConsultantRank(consultantId),
+    prisma.consultant.findMany({ where: { sponsorId: consultantId }, orderBy: { name: "asc" } }),
+    getConsultantRankings(),
   ]);
+
+  const rankById = new Map(allRankings.map((r) => [r.consultantId, r]));
 
   return (
     <div>
-      <h1 className="font-serif-display text-2xl font-semibold text-navy">
-        Bonjour {user.consultant.name}
-      </h1>
-      <p className="mt-1 text-sm text-navy/60">Votre espace revendeur JAMAAL.</p>
+      <div className="flex items-center gap-3">
+        <h1 className="font-serif-display text-2xl font-semibold text-navy">
+          Bonjour {user.consultant.name}
+        </h1>
+        <RankBadge rank={rankInfo.rank} />
+      </div>
+      <p className="mt-1 text-sm text-navy/60">
+        Votre espace revendeur JAMAAL — CA de ce mois-ci : {formatPrice(rankInfo.monthlyRevenue)}.
+      </p>
 
       <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard label="Mes commandes" value={orderCount} icon={ShoppingCart} color="navy" href="/admin/mes-commandes" />
         <StatCard label="En cours" value={pending} icon={Truck} color="amber" href="/admin/mes-commandes" />
         <StatCard label="Livrées" value={delivered} icon={CheckCircle2} color="emerald" href="/admin/mes-commandes" />
         <StatCard label="Notifications" value={unread} icon={Users} color="rose" href="/admin/notifications" />
+      </div>
+
+      <div className="mt-10">
+        <h2 className="mb-1 font-serif-display text-lg font-semibold text-navy">Mon équipe</h2>
+        <p className="mb-4 text-sm text-navy/60">
+          Les revendeurs que vous avez parrainés. Un filleul actif ce mois-ci vous fait progresser dans le classement.
+        </p>
+        {team.length === 0 ? (
+          <p className="text-sm text-navy/50">
+            Vous n&apos;avez pas encore de filleul. Parlez de JAMAAL autour de vous sur WhatsApp !
+          </p>
+        ) : (
+          <ul className="flex flex-col gap-2">
+            {team.map((member) => {
+              const info = rankById.get(member.id);
+              return (
+                <li
+                  key={member.id}
+                  className="flex items-center justify-between rounded-xl border border-line bg-white p-3"
+                >
+                  <div>
+                    <p className="text-sm font-medium text-navy">{member.name}</p>
+                    <p className="text-xs text-navy/50">{member.city}</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    {info && info.monthlyRevenue > 0 ? (
+                      <span className="text-xs text-emerald-700">Actif ce mois-ci</span>
+                    ) : (
+                      <span className="text-xs text-navy/40">Pas encore de vente ce mois-ci</span>
+                    )}
+                    <RankBadge rank={info?.rank ?? null} />
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
       </div>
     </div>
   );

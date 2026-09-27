@@ -6,6 +6,7 @@ import { requireAdmin, requireLivreurProfile } from "./auth-guard";
 import { OrderStatus } from "@prisma/client";
 import { upsertCustomerFromOrder } from "./customers";
 import { notifyConsultantOfDelivery } from "@/lib/notifications";
+import { notifySponsorOnFirstSale } from "@/lib/sponsor-notifications";
 
 export interface CheckoutItem {
   productId: string;
@@ -59,6 +60,10 @@ export async function createOrder(
       },
     },
   });
+
+  if (consultantId) {
+    await notifySponsorOnFirstSale(consultantId);
+  }
 
   revalidatePath("/admin/commandes");
   return order.id;

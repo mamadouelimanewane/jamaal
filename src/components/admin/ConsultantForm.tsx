@@ -7,9 +7,11 @@ const labelClass = "text-xs font-medium text-navy/70";
 export function ConsultantForm({
   action,
   consultant,
+  sponsorOptions,
 }: {
   action: (formData: FormData) => void;
   consultant?: Consultant;
+  sponsorOptions: { id: string; name: string; city: string }[];
 }) {
   return (
     <form action={action} className="mt-6 grid max-w-lg gap-4">
@@ -28,6 +30,19 @@ export function ConsultantForm({
       <div>
         <label className={labelClass}>E-mail (optionnel)</label>
         <input type="email" name="email" defaultValue={consultant?.email ?? ""} className={inputClass} />
+      </div>
+      <div>
+        <label className={labelClass}>Parrain (qui l&apos;a sponsorisé)</label>
+        <select name="sponsorId" defaultValue={consultant?.sponsorId ?? ""} className={inputClass}>
+          <option value="">— Aucun —</option>
+          {sponsorOptions
+            .filter((s) => s.id !== consultant?.id)
+            .map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.name} ({s.city})
+              </option>
+            ))}
+        </select>
       </div>
       <label className="flex items-center gap-2 text-sm text-navy/70">
         <input type="checkbox" name="active" defaultChecked={consultant?.active ?? true} />

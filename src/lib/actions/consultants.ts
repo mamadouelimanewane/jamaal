@@ -12,6 +12,7 @@ function consultantDataFromForm(formData: FormData) {
     whatsapp: String(formData.get("whatsapp") ?? "").trim(),
     email: String(formData.get("email") ?? "").trim() || null,
     active: formData.get("active") === "on",
+    sponsorId: String(formData.get("sponsorId") ?? "") || null,
   };
 }
 
