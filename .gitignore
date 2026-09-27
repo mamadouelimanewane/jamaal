@@ -49,3 +49,5 @@ next-env.d.ts
 
 # référence privée marque/équivalence (usage interne uniquement, jamais publiée)
 /import/equivalence-interne.json
+
+.env*

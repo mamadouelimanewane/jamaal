@@ -1,7 +1,9 @@
 import Link from "next/link";
-import { blogPosts } from "@/data/blog";
+import { getBlogPosts } from "@/lib/db-content";
 
-export function BlogSection() {
+export async function BlogSection() {
+  const blogPosts = await getBlogPosts(3);
+
   return (
     <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
       <div className="mb-5 flex items-center justify-between">

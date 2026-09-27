@@ -1,0 +1,102 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  CONSULTANT
+}
+
+enum OrderStatus {
+  EN_ATTENTE
+  CONFIRMEE
+  EXPEDIEE
+  LIVREE
+  ANNULEE
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         Role     @default(CONSULTANT)
+  createdAt    DateTime @default(now())
+}
+
+model Product {
+  id               String   @id @default(cuid())
+  number           Int?
+  slug             String   @unique
+  name             String
+  category         String
+  family           String?
+  topNotes         String[]
+  heartNotes       String[]
+  baseNotes        String[]
+  shortDescription String
+  longDescription  String[]
+  testerPrice      Int?
+  volumes          Json?
+  regularPrice     Int?
+  reviewCount      Int      @default(0)
+  rating           Float    @default(4.5)
+  badge            String?
+  colorFrom        String   @default("#16233a")
+  colorTo          String   @default("#c9997a")
+  photo            String?
+  isOfficial       Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  orderItems       OrderItem[]
+
+  @@index([category])
+}
+
+model Order {
+  id            String      @id @default(cuid())
+  customerName  String
+  customerEmail String?
+  customerPhone String?
+  address       String?
+  status        OrderStatus @default(EN_ATTENTE)
+  total         Int
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  items         OrderItem[]
+}
+
+model OrderItem {
+  id          String   @id @default(cuid())
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String?
+  product     Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  productName String
+  volumeLabel String
+  price       Int
+  quantity    Int
+}
+
+model Consultant {
+  id        String   @id @default(cuid())
+  name      String
+  city      String
+  whatsapp  String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model BlogPost {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  title     String
+  excerpt   String
+  content   String[]
+  published Boolean  @default(true)
+  date      DateTime @default(now())
+}
