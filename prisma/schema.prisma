@@ -25,6 +25,13 @@ enum DeliveryMode {
   LIVRAISON_JAMAAL
 }
 
+enum ReturnStatus {
+  EN_ATTENTE
+  APPROUVE
+  REMBOURSE
+  REJETE
+}
+
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
@@ -98,6 +105,7 @@ model Order {
   deliveryLng   Float?
 
   notifications Notification[]
+  returns       Return[]
 
   @@index([consultantId])
   @@index([livreurId])
@@ -194,6 +202,24 @@ model Category {
   accent    String   @default("navy")
   position  Int      @default(0)
   createdAt DateTime @default(now())
+}
+
+model Return {
+  id          String       @id @default(cuid())
+  orderId     String
+  order       Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  reason      String
+  amount      Int
+  status      ReturnStatus @default(EN_ATTENTE)
+  createdAt   DateTime     @default(now())
+  processedAt DateTime?
+
+  @@index([orderId])
+}
+
+model Setting {
+  key   String @id
+  value String
 }
 
 model BlogPost {

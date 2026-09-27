@@ -14,6 +14,7 @@ import {
   Contact,
   Bell,
   Truck,
+  Undo2,
 } from "lucide-react";
 import { auth, signOut } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -34,6 +35,7 @@ const adminGroups = [
     title: "Ventes",
     links: [
       { href: "/admin/commandes", label: "Commandes", icon: ShoppingCart },
+      { href: "/admin/retours", label: "Retours & remboursements", icon: Undo2 },
       { href: "/admin/clients", label: "Clients (CRM)", icon: Contact },
     ],
   },
@@ -120,6 +122,18 @@ export default async function DashboardLayout({ children }: { children: React.Re
               <p className="mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-wider text-navy/40">
                 Système
               </p>
+              <Link
+                href="/admin/notifications"
+                className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-navy/70 transition hover:bg-cream hover:text-navy"
+              >
+                <Bell size={16} />
+                Notifications
+                {unreadCount > 0 && (
+                  <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-dark px-1 text-[10px] font-semibold text-white">
+                    {unreadCount}
+                  </span>
+                )}
+              </Link>
               <Link
                 href="/admin/utilisateurs"
                 className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-navy/70 transition hover:bg-cream hover:text-navy"

@@ -28,6 +28,12 @@ export default async function AdminProductsPage({
           Produits ({filtered.length})
         </h1>
         <div className="flex gap-2">
+          <a
+            href="/api/export/produits"
+            className="rounded-full border border-line px-4 py-2 text-sm font-semibold text-navy hover:bg-cream"
+          >
+            Exporter CSV ↓
+          </a>
           <Link
             href="/admin/categories"
             className="rounded-full border border-line px-4 py-2 text-sm font-semibold text-navy hover:bg-cream"

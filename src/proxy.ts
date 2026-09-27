@@ -12,6 +12,7 @@ const ADMIN_ONLY_PREFIXES = [
   "/admin/comptabilite",
   "/admin/statistiques",
   "/admin/blog",
+  "/admin/retours",
 ];
 
 const handler = auth((req) => {

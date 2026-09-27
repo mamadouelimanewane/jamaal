@@ -7,6 +7,7 @@ import { OrderStatus } from "@prisma/client";
 import { upsertCustomerFromOrder } from "./customers";
 import { notifyConsultantOfDelivery } from "@/lib/notifications";
 import { notifySponsorOnFirstSale } from "@/lib/sponsor-notifications";
+import { decrementStockAndAlert } from "@/lib/stock";
 
 export interface CheckoutItem {
   productId: string;
@@ -64,8 +65,10 @@ export async function createOrder(
   if (consultantId) {
     await notifySponsorOnFirstSale(consultantId);
   }
+  await decrementStockAndAlert(items);
 
   revalidatePath("/admin/commandes");
+  revalidatePath("/admin/produits");
   return order.id;
 }
 
