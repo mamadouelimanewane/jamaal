@@ -19,6 +19,7 @@ import {
 import { auth, signOut } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ResponsiveSidebar } from "@/components/admin/ResponsiveSidebar";
+import { SidebarNavLink } from "@/components/admin/SidebarNavLink";
 
 const adminGroups = [
   {
@@ -63,7 +64,6 @@ const adminGroups = [
 const consultantLinks = [
   { href: "/admin", label: "Tableau de bord", icon: LayoutDashboard },
   { href: "/admin/mes-commandes", label: "Mes commandes", icon: ShoppingCart },
-  { href: "/admin/notifications", label: "Notifications", icon: Bell },
 ];
 
 const livreurLinks = [
@@ -88,120 +88,71 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const sidebarContent = (
     <>
       <Link href="/admin" className="px-2">
-          <p className="font-serif-display text-lg font-semibold text-navy">JAMAAL</p>
-          <p className="text-xs text-navy/50">Back-office</p>
-        </Link>
+        <p className="font-serif-display text-lg font-semibold tracking-wide text-white">JAMAAL</p>
+        <p className="text-xs text-white/40">Back-office</p>
+      </Link>
 
-        <nav className="mt-6 flex flex-1 flex-col gap-5 overflow-y-auto">
-          {role === "ADMIN" &&
-            adminGroups.map((group) => (
-              <div key={group.title}>
-                <p className="mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-wider text-navy/40">
-                  {group.title}
-                </p>
-                <div className="flex flex-col gap-0.5">
-                  {group.links.map((l) => {
-                    const Icon = l.icon;
-                    return (
-                      <Link
-                        key={l.href}
-                        href={l.href}
-                        className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-navy/70 transition hover:bg-cream hover:text-navy"
-                      >
-                        <Icon size={16} />
-                        {l.label}
-                      </Link>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
-
-          {role === "ADMIN" && (
-            <div>
-              <p className="mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-wider text-navy/40">
-                Système
+      <nav className="mt-6 flex flex-1 flex-col gap-5 overflow-y-auto">
+        {role === "ADMIN" &&
+          adminGroups.map((group) => (
+            <div key={group.title}>
+              <p className="mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-wider text-white/30">
+                {group.title}
               </p>
-              <Link
-                href="/admin/notifications"
-                className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-navy/70 transition hover:bg-cream hover:text-navy"
-              >
-                <Bell size={16} />
-                Notifications
-                {unreadCount > 0 && (
-                  <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-dark px-1 text-[10px] font-semibold text-white">
-                    {unreadCount}
-                  </span>
-                )}
-              </Link>
-              <Link
-                href="/admin/utilisateurs"
-                className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-navy/70 transition hover:bg-cream hover:text-navy"
-              >
-                <UserCog size={16} />
-                Utilisateurs
-              </Link>
+              <div className="flex flex-col gap-0.5">
+                {group.links.map((l) => (
+                  <SidebarNavLink key={l.href} href={l.href} label={l.label} icon={<l.icon size={16} />} />
+                ))}
+              </div>
             </div>
-          )}
+          ))}
 
-          {role === "CONSULTANT" && (
+        {role === "ADMIN" && (
+          <div>
+            <p className="mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-wider text-white/30">
+              Système
+            </p>
             <div className="flex flex-col gap-0.5">
-              {consultantLinks.map((l) => {
-                const Icon = l.icon;
-                return (
-                  <Link
-                    key={l.href}
-                    href={l.href}
-                    className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-navy/70 transition hover:bg-cream hover:text-navy"
-                  >
-                    <Icon size={16} />
-                    {l.label}
-                    {l.href === "/admin/notifications" && unreadCount > 0 && (
-                      <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-dark px-1 text-[10px] font-semibold text-white">
-                        {unreadCount}
-                      </span>
-                    )}
-                  </Link>
-                );
-              })}
+              <SidebarNavLink href="/admin/notifications" label="Notifications" icon={<Bell size={16} />} badge={unreadCount} />
+              <SidebarNavLink href="/admin/utilisateurs" label="Utilisateurs" icon={<UserCog size={16} />} />
             </div>
-          )}
+          </div>
+        )}
 
-          {role === "LIVREUR" && (
-            <div className="flex flex-col gap-0.5">
-              {livreurLinks.map((l) => {
-                const Icon = l.icon;
-                return (
-                  <Link
-                    key={l.href}
-                    href={l.href}
-                    className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-navy/70 transition hover:bg-cream hover:text-navy"
-                  >
-                    <Icon size={16} />
-                    {l.label}
-                  </Link>
-                );
-              })}
-            </div>
-          )}
-        </nav>
+        {role === "CONSULTANT" && (
+          <div className="flex flex-col gap-0.5">
+            {consultantLinks.map((l) => (
+              <SidebarNavLink key={l.href} href={l.href} label={l.label} icon={<l.icon size={16} />} />
+            ))}
+            <SidebarNavLink href="/admin/notifications" label="Notifications" icon={<Bell size={16} />} badge={unreadCount} />
+          </div>
+        )}
 
-        <div className="mt-auto border-t border-line pt-4">
-          <p className="px-2 text-xs font-medium text-navy/70">{session.user?.name}</p>
-          <p className="px-2 text-xs text-navy/40">{session.user?.email}</p>
-          <p className="px-2 text-[10px] uppercase tracking-wide text-rose-dark">{role}</p>
-          <form action={logoutAction}>
-            <button className="mt-3 w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-rose-dark transition hover:bg-cream">
-              Se déconnecter
-            </button>
-          </form>
-          <Link
-            href="/"
-            className="mt-1 block rounded-lg px-3 py-2 text-sm font-medium text-navy/50 transition hover:bg-cream"
-          >
-            ← Retour au site
-          </Link>
-        </div>
+        {role === "LIVREUR" && (
+          <div className="flex flex-col gap-0.5">
+            {livreurLinks.map((l) => (
+              <SidebarNavLink key={l.href} href={l.href} label={l.label} icon={<l.icon size={16} />} />
+            ))}
+          </div>
+        )}
+      </nav>
+
+      <div className="mt-auto border-t border-white/10 pt-4">
+        <p className="px-2 text-xs font-medium text-white/80">{session.user?.name}</p>
+        <p className="px-2 text-xs text-white/40">{session.user?.email}</p>
+        <p className="px-2 text-[10px] uppercase tracking-wide text-rose">{role}</p>
+        <form action={logoutAction}>
+          <button className="mt-3 w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-rose-light transition hover:bg-white/5">
+            Se déconnecter
+          </button>
+        </form>
+        <Link
+          href="/"
+          className="mt-1 block rounded-lg px-3 py-2 text-sm font-medium text-white/40 transition hover:bg-white/5 hover:text-white/70"
+        >
+          ← Retour au site
+        </Link>
+      </div>
     </>
   );
 
