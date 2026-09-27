@@ -70,7 +70,7 @@ export default async function AdminClientDetailPage({
 
       <div className="mt-6">
         <h2 className="mb-3 font-serif-display text-lg font-semibold text-navy">Historique des commandes</h2>
-        <div className="overflow-hidden rounded-2xl border border-line bg-white">
+        <div className="overflow-x-auto rounded-2xl border border-line bg-white">
           <table className="w-full text-sm">
             <thead className="bg-cream text-left text-xs uppercase text-navy/50">
               <tr>

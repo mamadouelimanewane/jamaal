@@ -24,7 +24,9 @@ export function ReceiptCard({ data }: { data: ReceiptData }) {
   return (
     <div
       style={{
-        width: 480,
+        width: "100%",
+        maxWidth: 480,
+        boxSizing: "border-box",
         background: "linear-gradient(160deg, #16233a 0%, #24374f 100%)",
         color: "white",
         padding: 28,

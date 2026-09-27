@@ -17,7 +17,7 @@ export default async function NotificationsPage() {
 
   return (
     <div className="max-w-2xl">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="font-serif-display text-2xl font-semibold text-navy">Notifications</h1>
         {notifications.some((n) => !n.read) && (
           <form action={markAllNotificationsRead}>

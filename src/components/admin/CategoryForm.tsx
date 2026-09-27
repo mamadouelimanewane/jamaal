@@ -13,7 +13,7 @@ export function CategoryForm({
 }) {
   return (
     <form action={action} className="mt-6 grid max-w-xl gap-4">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label className={labelClass}>Label (titre affiché)</label>
           <input name="label" required defaultValue={category?.label} className={inputClass} />
@@ -31,7 +31,7 @@ export function CategoryForm({
         <label className={labelClass}>Description</label>
         <textarea name="description" required rows={3} defaultValue={category?.description} className={inputClass} />
       </div>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label className={labelClass}>Accent</label>
           <select name="accent" defaultValue={category?.accent ?? "navy"} className={inputClass}>

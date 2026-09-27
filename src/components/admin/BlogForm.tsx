@@ -18,7 +18,7 @@ export function BlogForm({
 }) {
   return (
     <form action={action} className="mt-6 grid max-w-2xl gap-4">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label className={labelClass}>Titre</label>
           <input name="title" required defaultValue={post?.title} className={inputClass} />
@@ -42,7 +42,7 @@ export function BlogForm({
           className={inputClass}
         />
       </div>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label className={labelClass}>Date de publication</label>
           <input type="date" name="date" defaultValue={toDateInputValue(post?.date)} className={inputClass} />

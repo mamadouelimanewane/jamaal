@@ -29,7 +29,7 @@ export default async function MesLivraisonsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="font-serif-display text-2xl font-semibold text-navy">Mes livraisons</h1>
         <LiveTrackingToggle />
       </div>

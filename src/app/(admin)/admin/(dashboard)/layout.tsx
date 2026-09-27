@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { auth, signOut } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { ResponsiveSidebar } from "@/components/admin/ResponsiveSidebar";
 
 const adminGroups = [
   {
@@ -84,10 +85,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
     ? await prisma.notification.count({ where: { userId: session.user.id, read: false } })
     : 0;
 
-  return (
-    <div className="flex min-h-screen bg-cream">
-      <aside className="flex w-64 shrink-0 flex-col border-r border-line bg-white px-4 py-6">
-        <Link href="/admin" className="px-2">
+  const sidebarContent = (
+    <>
+      <Link href="/admin" className="px-2">
           <p className="font-serif-display text-lg font-semibold text-navy">JAMAAL</p>
           <p className="text-xs text-navy/50">Back-office</p>
         </Link>
@@ -202,9 +202,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
             ← Retour au site
           </Link>
         </div>
-      </aside>
-
-      <main className="flex-1 overflow-x-auto px-8 py-8">{children}</main>
-    </div>
+    </>
   );
+
+  return <ResponsiveSidebar sidebar={sidebarContent}>{children}</ResponsiveSidebar>;
 }

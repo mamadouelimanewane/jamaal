@@ -18,7 +18,7 @@ export default async function AdminReturnsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="font-serif-display text-2xl font-semibold text-navy">
           Retours & remboursements ({returns.length})
         </h1>
@@ -66,7 +66,7 @@ export default async function AdminReturnsPage() {
 
         <div>
           <h2 className="mb-3 text-sm font-semibold text-navy">Historique</h2>
-          <div className="overflow-hidden rounded-2xl border border-line bg-white">
+          <div className="overflow-x-auto rounded-2xl border border-line bg-white">
             <table className="w-full text-sm">
               <thead className="bg-cream text-left text-xs uppercase text-navy/50">
                 <tr>

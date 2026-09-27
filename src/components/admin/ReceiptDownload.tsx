@@ -92,7 +92,7 @@ export function ReceiptDownload({
         l&apos;image est téléchargée puis WhatsApp Web s&apos;ouvre pour que vous l&apos;joigniez.
       </p>
 
-      <div className="mt-6 overflow-hidden rounded-2xl" style={{ width: 480 }}>
+      <div className="mt-6 w-full max-w-[480px] overflow-hidden rounded-2xl">
         <div ref={ref}>
           <ReceiptCard data={data} />
         </div>

@@ -25,7 +25,7 @@ export default async function AdminUsersPage() {
         Utilisateurs ({users.length})
       </h1>
 
-      <div className="mt-6 overflow-hidden rounded-2xl border border-line bg-white">
+      <div className="mt-6 overflow-x-auto rounded-2xl border border-line bg-white">
         <table className="w-full text-sm">
           <thead className="bg-cream text-left text-xs uppercase text-navy/50">
             <tr>

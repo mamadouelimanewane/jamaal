@@ -23,7 +23,7 @@ export async function ProductForm({
   const categories = await getCategories();
   return (
     <form action={action} className="mt-6 grid max-w-3xl gap-4">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label className={labelClass}>Nom</label>
           <input name="name" required defaultValue={product?.name} className={inputClass} />
@@ -34,7 +34,7 @@ export async function ProductForm({
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div>
           <label className={labelClass}>Catégorie</label>
           <select name="category" required defaultValue={product?.category} className={inputClass}>
@@ -81,7 +81,7 @@ export async function ProductForm({
         />
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div>
           <label className={labelClass}>Notes de tête (séparées par virgule)</label>
           <input name="topNotes" defaultValue={product?.topNotes.join(", ")} className={inputClass} />
@@ -96,7 +96,7 @@ export async function ProductForm({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label className={labelClass}>Prix testeur (FCFA)</label>
           <input
@@ -117,7 +117,7 @@ export async function ProductForm({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label className={labelClass}>Stock disponible</label>
           <input
@@ -152,7 +152,7 @@ export async function ProductForm({
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label className={labelClass}>Badge</label>
           <select name="badge" defaultValue={product?.badge ?? ""} className={inputClass}>
@@ -168,7 +168,7 @@ export async function ProductForm({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label className={labelClass}>Couleur dégradé — début</label>
           <input

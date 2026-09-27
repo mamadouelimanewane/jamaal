@@ -86,7 +86,7 @@ export default async function AdminOrderDetailPage({
         </div>
       </div>
 
-      <form action={changeStatus} className="mt-6 flex items-center gap-3 rounded-2xl border border-line bg-white p-5">
+      <form action={changeStatus} className="mt-6 flex flex-wrap items-center gap-3 rounded-2xl border border-line bg-white p-5">
         <label className="text-sm font-medium text-navy/70">Statut</label>
         <select name="status" defaultValue={order.status} className="rounded-lg border border-line px-3 py-2 text-sm">
           {statuses.map((s) => (
@@ -95,7 +95,7 @@ export default async function AdminOrderDetailPage({
             </option>
           ))}
         </select>
-        <button className="ml-auto rounded-full bg-navy px-5 py-2 text-sm font-semibold text-white hover:bg-navy-light">
+        <button className="w-full rounded-full bg-navy px-5 py-2 text-sm font-semibold text-white hover:bg-navy-light sm:ml-auto sm:w-fit">
           Mettre à jour
         </button>
       </form>
@@ -147,7 +147,7 @@ export default async function AdminOrderDetailPage({
             </select>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <label className="text-xs font-medium text-navy/70">Latitude livraison</label>
               <input

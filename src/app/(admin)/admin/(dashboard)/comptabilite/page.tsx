@@ -40,7 +40,7 @@ export default async function AdminComptabilitePage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="font-serif-display text-2xl font-semibold text-navy">Comptabilité</h1>
         <a
           href="/api/export/tout"
@@ -64,7 +64,7 @@ export default async function AdminComptabilitePage() {
 
       <div className="mt-8 max-w-sm">
         <h2 className="mb-3 text-sm font-semibold text-navy">Taux de commission des revendeurs</h2>
-        <form action={updateCommissionRate} className="flex items-center gap-3 rounded-2xl border border-line bg-white p-4">
+        <form action={updateCommissionRate} className="flex flex-wrap items-center gap-3 rounded-2xl border border-line bg-white p-4">
           <input
             type="number"
             name="rate"
@@ -75,7 +75,7 @@ export default async function AdminComptabilitePage() {
             className="w-24 rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-navy"
           />
           <span className="text-sm text-navy/60">% du CA généré par chaque revendeur</span>
-          <button className="ml-auto rounded-full bg-navy px-4 py-2 text-xs font-semibold text-white hover:bg-navy-light">
+          <button className="w-full rounded-full bg-navy px-4 py-2 text-xs font-semibold text-white hover:bg-navy-light sm:ml-auto sm:w-fit">
             Enregistrer
           </button>
         </form>
@@ -127,7 +127,7 @@ export default async function AdminComptabilitePage() {
               Exporter Excel ↓
             </a>
           </div>
-          <div className="overflow-hidden rounded-2xl border border-line bg-white">
+          <div className="overflow-x-auto rounded-2xl border border-line bg-white">
             <table className="w-full text-sm">
               <thead className="bg-cream text-left text-xs uppercase text-navy/50">
                 <tr>
