@@ -1,8 +1,10 @@
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/currency";
 import { updateOrderStatus, assignOrderLogistics } from "@/lib/actions/orders";
 import { OrderStatus } from "@prisma/client";
+import { CopyTrackingLink } from "@/components/admin/CopyTrackingLink";
 
 const statuses: OrderStatus[] = ["EN_ATTENTE", "CONFIRMEE", "EXPEDIEE", "LIVREE", "ANNULEE"];
 const statusLabels: Record<string, string> = {
@@ -25,6 +27,11 @@ export default async function AdminOrderDetailPage({
     prisma.livreur.findMany({ where: { active: true }, orderBy: { name: "asc" } }),
   ]);
   if (!order) notFound();
+
+  const headersList = await headers();
+  const host = headersList.get("host");
+  const protocol = host?.startsWith("localhost") ? "http" : "https";
+  const trackingUrl = `${protocol}://${host}/suivi/${order.id}`;
 
   async function changeStatus(formData: FormData) {
     "use server";
@@ -56,6 +63,9 @@ export default async function AdminOrderDetailPage({
             Contacter sur WhatsApp →
           </a>
         )}
+        <div className="mt-3">
+          <CopyTrackingLink url={trackingUrl} />
+        </div>
       </div>
 
       <div className="mt-6 rounded-2xl border border-line bg-white p-5">

@@ -5,7 +5,15 @@ import { toPng } from "html-to-image";
 import { Download, Share2 } from "lucide-react";
 import { ReceiptCard, type ReceiptData } from "./ReceiptCard";
 
-export function ReceiptDownload({ data, clientWhatsapp }: { data: ReceiptData; clientWhatsapp?: string | null }) {
+export function ReceiptDownload({
+  data,
+  clientWhatsapp,
+  trackingUrl,
+}: {
+  data: ReceiptData;
+  clientWhatsapp?: string | null;
+  trackingUrl?: string;
+}) {
   const ref = useRef<HTMLDivElement>(null);
   const [busy, setBusy] = useState(false);
 
@@ -37,10 +45,11 @@ export function ReceiptDownload({ data, clientWhatsapp }: { data: ReceiptData; c
     const file = new File([blob], `commande-jamaal-${data.orderId}.png`, { type: "image/png" });
 
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      const shareTrackingLine = trackingUrl ? ` Suivez votre livraison : ${trackingUrl}` : "";
       await navigator.share({
         files: [file],
         title: "Votre commande JAMAAL",
-        text: `Voici le récapitulatif de votre commande JAMAAL, ${data.customerName} !`,
+        text: `Voici le récapitulatif de votre commande JAMAAL, ${data.customerName} !${shareTrackingLine}`,
       });
       return;
     }
@@ -51,8 +60,9 @@ export function ReceiptDownload({ data, clientWhatsapp }: { data: ReceiptData; c
     link.click();
 
     const phone = clientWhatsapp?.replace(/\D/g, "");
+    const trackingLine = trackingUrl ? `\nSuivez votre livraison en direct : ${trackingUrl}` : "";
     const text = encodeURIComponent(
-      `Bonjour ${data.customerName}, voici le récapitulatif de votre commande JAMAAL (image téléchargée, à joindre ici) 🌸`
+      `Bonjour ${data.customerName}, voici le récapitulatif de votre commande JAMAAL (image téléchargée, à joindre ici) 🌸${trackingLine}`
     );
     window.open(phone ? `https://wa.me/${phone}?text=${text}` : `https://wa.me/?text=${text}`, "_blank");
   }

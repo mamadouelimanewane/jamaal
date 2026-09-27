@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { SharePositionButton } from "@/components/admin/SharePositionButton";
+import { LiveTrackingToggle } from "@/components/admin/LiveTrackingToggle";
 import { LivreurOrderRow } from "@/components/admin/LivreurOrderRow";
 
 export const dynamic = "force-dynamic";
@@ -31,7 +31,7 @@ export default async function MesLivraisonsPage() {
     <div>
       <div className="flex items-center justify-between">
         <h1 className="font-serif-display text-2xl font-semibold text-navy">Mes livraisons</h1>
-        <SharePositionButton />
+        <LiveTrackingToggle />
       </div>
       {user.livreur.lastSeenAt && (
         <p className="mt-1 text-xs text-navy/50">

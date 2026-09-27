@@ -11,6 +11,7 @@ import { getActiveConsultantsForCheckout } from "@/lib/actions/public-data";
 export default function CartPage() {
   const { items, removeItem, updateQuantity, total, clear } = useCartStore();
   const [ordered, setOrdered] = useState(false);
+  const [orderId, setOrderId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [customer, setCustomer] = useState({ name: "", phone: "", email: "", address: "" });
@@ -30,7 +31,7 @@ export default function CartPage() {
     setSubmitting(true);
     setError(null);
     try {
-      await createOrder(
+      const id = await createOrder(
         { name: customer.name, phone: customer.phone, email: customer.email, address: customer.address },
         items.map((i) => ({
           productId: i.productId,
@@ -41,6 +42,7 @@ export default function CartPage() {
         })),
         consultantId || null
       );
+      setOrderId(id);
       setOrdered(true);
       clear();
     } catch {
@@ -58,9 +60,17 @@ export default function CartPage() {
           Votre commande a bien été enregistrée. Notre équipe vous contactera très vite au numéro
           indiqué pour confirmer la livraison et le règlement.
         </p>
+        {orderId && (
+          <Link
+            href={`/suivi/${orderId}`}
+            className="mt-6 inline-block rounded-full bg-navy px-6 py-3 text-sm font-semibold text-white"
+          >
+            Suivre ma commande →
+          </Link>
+        )}
         <Link
           href="/"
-          className="mt-6 inline-block rounded-full bg-navy px-6 py-3 text-sm font-semibold text-white"
+          className="mt-3 block text-sm font-semibold text-rose-dark"
         >
           Retour à l&apos;accueil
         </Link>

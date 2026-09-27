@@ -1,8 +1,10 @@
 import { notFound, redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/currency";
 import { ReceiptDownload } from "@/components/admin/ReceiptDownload";
+import { CopyTrackingLink } from "@/components/admin/CopyTrackingLink";
 
 export const dynamic = "force-dynamic";
 
@@ -32,6 +34,11 @@ export default async function MesCommandeDetailPage({
   const order = await prisma.order.findUnique({ where: { id }, include: { items: true } });
   if (!order || order.consultantId !== user.consultant.id) notFound();
 
+  const headersList = await headers();
+  const host = headersList.get("host");
+  const protocol = host?.startsWith("localhost") ? "http" : "https";
+  const trackingUrl = `${protocol}://${host}/suivi/${order.id}`;
+
   return (
     <div className="max-w-3xl">
       <h1 className="font-serif-display text-2xl font-semibold text-navy">
@@ -59,12 +66,23 @@ export default async function MesCommandeDetailPage({
         </div>
       </div>
 
+      <div className="mt-6 flex items-center justify-between rounded-2xl border border-line bg-white p-4">
+        <div>
+          <p className="text-sm font-semibold text-navy">Lien de suivi client</p>
+          <p className="text-xs text-navy/50">
+            Votre client peut suivre sa commande en direct, sans compte, avec ce lien.
+          </p>
+        </div>
+        <CopyTrackingLink url={trackingUrl} />
+      </div>
+
       <div className="mt-8">
         <h2 className="mb-3 font-serif-display text-lg font-semibold text-navy">
           Envoyer le récapitulatif à mon client
         </h2>
         <ReceiptDownload
           clientWhatsapp={order.customerPhone}
+          trackingUrl={trackingUrl}
           data={{
             orderId: order.id.slice(-8).toUpperCase(),
             customerName: order.customerName,
