@@ -5,7 +5,7 @@ import { updateCommissionRate } from "@/lib/actions/settings";
 import { getCommissionRate } from "@/lib/settings";
 import { getRefundedTotal } from "@/lib/revenue";
 import { StatCard } from "@/components/admin/StatCard";
-import { TrendingUp, TrendingDown, Wallet, Percent, Undo2 } from "lucide-react";
+import { TrendingUp, TrendingDown, Wallet, Percent, Undo2, FileSpreadsheet } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -40,7 +40,16 @@ export default async function AdminComptabilitePage() {
 
   return (
     <div>
-      <h1 className="font-serif-display text-2xl font-semibold text-navy">Comptabilité</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="font-serif-display text-2xl font-semibold text-navy">Comptabilité</h1>
+        <a
+          href="/api/export/tout"
+          className="flex items-center gap-2 rounded-full bg-navy px-4 py-2 text-sm font-semibold text-white hover:bg-navy-light"
+        >
+          <FileSpreadsheet size={16} />
+          Export complet (Excel)
+        </a>
+      </div>
       <p className="mt-1 text-sm text-navy/60">
         Suivi des revenus (nets des remboursements), des dépenses, des commissions et de la marge.
       </p>
@@ -115,7 +124,7 @@ export default async function AdminComptabilitePage() {
               href="/api/export/depenses"
               className="text-xs font-semibold text-navy hover:underline"
             >
-              Exporter en CSV ↓
+              Exporter Excel ↓
             </a>
           </div>
           <div className="overflow-hidden rounded-2xl border border-line bg-white">

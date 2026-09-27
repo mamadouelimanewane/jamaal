@@ -32,7 +32,7 @@ export default async function AdminProductsPage({
             href="/api/export/produits"
             className="rounded-full border border-line px-4 py-2 text-sm font-semibold text-navy hover:bg-cream"
           >
-            Exporter CSV ↓
+            Exporter Excel ↓
           </a>
           <Link
             href="/admin/categories"

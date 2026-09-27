@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { requireAdminForApi } from "@/lib/api-guard";
-import { toCsv, csvResponse } from "@/lib/csv";
+import { excelResponse } from "@/lib/excel";
 
 export async function GET() {
   const forbidden = await requireAdminForApi();
@@ -11,19 +11,31 @@ export async function GET() {
     include: { consultant: true, livreur: true, items: true },
   });
 
-  const csv = toCsv(
-    ["Date", "Client", "Téléphone", "Total (FCFA)", "Statut", "Revendeur", "Livreur", "Mode de livraison", "Articles"],
-    orders.map((o) => [
-      o.createdAt.toLocaleDateString("fr-FR"),
-      o.customerName,
-      o.customerPhone ?? "",
-      o.total,
-      o.status,
-      o.consultant?.name ?? "",
-      o.livreur?.name ?? "",
-      o.deliveryMode,
-      o.items.map((i) => `${i.productName} (${i.volumeLabel} x${i.quantity})`).join(" | "),
-    ])
-  );
-  return csvResponse("commandes-jamaal.csv", csv);
+  return excelResponse("commandes-jamaal.xlsx", [
+    {
+      name: "Commandes",
+      columns: [
+        { header: "Date", key: "date", width: 14 },
+        { header: "Client", key: "client", width: 24 },
+        { header: "Téléphone", key: "phone", width: 16 },
+        { header: "Total (FCFA)", key: "total", width: 16 },
+        { header: "Statut", key: "status", width: 14 },
+        { header: "Revendeur", key: "consultant", width: 20 },
+        { header: "Livreur", key: "livreur", width: 18 },
+        { header: "Mode de livraison", key: "deliveryMode", width: 20 },
+        { header: "Articles", key: "items", width: 50 },
+      ],
+      rows: orders.map((o) => ({
+        date: o.createdAt.toLocaleDateString("fr-FR"),
+        client: o.customerName,
+        phone: o.customerPhone ?? "",
+        total: o.total,
+        status: o.status,
+        consultant: o.consultant?.name ?? "",
+        livreur: o.livreur?.name ?? "",
+        deliveryMode: o.deliveryMode,
+        items: o.items.map((i) => `${i.productName} (${i.volumeLabel} x${i.quantity})`).join(" | "),
+      })),
+    },
+  ]);
 }

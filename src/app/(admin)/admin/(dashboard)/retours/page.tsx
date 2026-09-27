@@ -18,9 +18,17 @@ export default async function AdminReturnsPage() {
 
   return (
     <div>
-      <h1 className="font-serif-display text-2xl font-semibold text-navy">
-        Retours & remboursements ({returns.length})
-      </h1>
+      <div className="flex items-center justify-between">
+        <h1 className="font-serif-display text-2xl font-semibold text-navy">
+          Retours & remboursements ({returns.length})
+        </h1>
+        <a
+          href="/api/export/retours"
+          className="rounded-full border border-line px-4 py-2 text-sm font-semibold text-navy hover:bg-cream"
+        >
+          Exporter Excel ↓
+        </a>
+      </div>
       <p className="mt-1 text-sm text-navy/60">
         Un remboursement validé est automatiquement déduit du chiffre d&apos;affaires et du classement des revendeurs.
       </p>

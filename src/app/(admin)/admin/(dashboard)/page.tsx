@@ -28,7 +28,7 @@ import {
 } from "@/lib/ranking";
 import { getConsultantCommission } from "@/lib/commission";
 import { getRefundedTotal } from "@/lib/revenue";
-import { Undo2 } from "lucide-react";
+import { Undo2, FileSpreadsheet } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -91,7 +91,16 @@ async function AdminOverview() {
 
   return (
     <div>
-      <h1 className="font-serif-display text-2xl font-semibold text-navy">Tableau de bord</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="font-serif-display text-2xl font-semibold text-navy">Tableau de bord</h1>
+        <a
+          href="/api/export/tout"
+          className="flex items-center gap-2 rounded-full border border-line px-4 py-2 text-sm font-semibold text-navy hover:bg-cream"
+        >
+          <FileSpreadsheet size={16} />
+          Export complet (Excel)
+        </a>
+      </div>
       <p className="mt-1 text-sm text-navy/60">Vue d&apos;ensemble de l&apos;activité JAMAAL.</p>
 
       <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-3">

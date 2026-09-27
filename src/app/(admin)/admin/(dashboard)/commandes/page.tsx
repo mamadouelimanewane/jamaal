@@ -36,7 +36,7 @@ export default async function AdminOrdersPage() {
           href="/api/export/commandes"
           className="rounded-full border border-line px-4 py-2 text-sm font-semibold text-navy hover:bg-cream"
         >
-          Exporter CSV ↓
+          Exporter Excel ↓
         </a>
       </div>
 

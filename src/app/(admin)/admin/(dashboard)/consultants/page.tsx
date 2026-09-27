@@ -38,12 +38,20 @@ export default async function AdminConsultantsPage() {
         <h1 className="font-serif-display text-2xl font-semibold text-navy">
           Revendeurs / Consultants ({consultants.length})
         </h1>
-        <Link
-          href="/admin/consultants/nouveau"
-          className="rounded-full bg-navy px-4 py-2 text-sm font-semibold text-white hover:bg-navy-light"
-        >
-          + Nouveau
-        </Link>
+        <div className="flex gap-2">
+          <a
+            href="/api/export/revendeurs"
+            className="rounded-full border border-line px-4 py-2 text-sm font-semibold text-navy hover:bg-cream"
+          >
+            Exporter Excel ↓
+          </a>
+          <Link
+            href="/admin/consultants/nouveau"
+            className="rounded-full bg-navy px-4 py-2 text-sm font-semibold text-white hover:bg-navy-light"
+          >
+            + Nouveau
+          </Link>
+        </div>
       </div>
       <p className="mt-1 text-sm text-navy/60">
         Classement du mois en cours — Gold, Silver puis Bronze selon le CA généré et les filleuls actifs.
