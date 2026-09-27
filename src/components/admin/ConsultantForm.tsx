@@ -25,6 +25,10 @@ export function ConsultantForm({
         <label className={labelClass}>Lien WhatsApp (https://wa.me/…)</label>
         <input name="whatsapp" required defaultValue={consultant?.whatsapp} className={inputClass} />
       </div>
+      <div>
+        <label className={labelClass}>E-mail (optionnel)</label>
+        <input type="email" name="email" defaultValue={consultant?.email ?? ""} className={inputClass} />
+      </div>
       <label className="flex items-center gap-2 text-sm text-navy/70">
         <input type="checkbox" name="active" defaultChecked={consultant?.active ?? true} />
         Actif (visible sur le site)

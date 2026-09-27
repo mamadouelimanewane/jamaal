@@ -13,9 +13,20 @@ export async function createUser(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   const password = String(formData.get("password") ?? "");
   const role = (String(formData.get("role") ?? "CONSULTANT") as Role) ?? Role.CONSULTANT;
+  const consultantId = String(formData.get("consultantId") ?? "") || null;
+  const livreurId = String(formData.get("livreurId") ?? "") || null;
 
   const passwordHash = await bcrypt.hash(password, 10);
-  await prisma.user.create({ data: { email, name, passwordHash, role } });
+  await prisma.user.create({
+    data: {
+      email,
+      name,
+      passwordHash,
+      role,
+      consultantId: role === "CONSULTANT" ? consultantId : null,
+      livreurId: role === "LIVREUR" ? livreurId : null,
+    },
+  });
   revalidatePath("/admin/utilisateurs");
   redirect("/admin/utilisateurs");
 }

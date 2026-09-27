@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getProductBySlug, getProductsByCategory } from "@/lib/db-products";
-import { getCategory } from "@/data/categories";
+import { getCategory } from "@/lib/db-categories";
 import { ProductVisual } from "@/components/ProductVisual";
 import { StarRating } from "@/components/StarRating";
 import { ProductPurchasePanel } from "@/components/ProductPurchasePanel";
@@ -18,7 +18,7 @@ export default async function ProductPage({
   const product = await getProductBySlug(slug);
   if (!product) notFound();
 
-  const category = getCategory(product.category);
+  const category = await getCategory(product.category);
   const related = (await getProductsByCategory(product.category))
     .filter((p) => p.id !== product.id)
     .slice(0, 4);

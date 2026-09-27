@@ -9,6 +9,7 @@ datasource db {
 enum Role {
   ADMIN
   CONSULTANT
+  LIVREUR
 }
 
 enum OrderStatus {
@@ -19,6 +20,11 @@ enum OrderStatus {
   ANNULEE
 }
 
+enum DeliveryMode {
+  RETRAIT_CONSULTANT
+  LIVRAISON_JAMAAL
+}
+
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
@@ -26,48 +32,76 @@ model User {
   name         String
   role         Role     @default(CONSULTANT)
   createdAt    DateTime @default(now())
+
+  consultantId String?  @unique
+  consultant   Consultant? @relation(fields: [consultantId], references: [id], onDelete: SetNull)
+
+  livreurId    String?  @unique
+  livreur      Livreur? @relation(fields: [livreurId], references: [id], onDelete: SetNull)
+
+  notifications Notification[]
 }
 
 model Product {
-  id               String   @id @default(cuid())
-  number           Int?
-  slug             String   @unique
-  name             String
-  category         String
-  family           String?
-  topNotes         String[]
-  heartNotes       String[]
-  baseNotes        String[]
-  shortDescription String
-  longDescription  String[]
-  testerPrice      Int?
-  volumes          Json?
-  regularPrice     Int?
-  reviewCount      Int      @default(0)
-  rating           Float    @default(4.5)
-  badge            String?
-  colorFrom        String   @default("#16233a")
-  colorTo          String   @default("#c9997a")
-  photo            String?
-  isOfficial       Boolean  @default(true)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  orderItems       OrderItem[]
+  id                String   @id @default(cuid())
+  number            Int?
+  slug              String   @unique
+  name              String
+  category          String
+  family            String?
+  topNotes          String[]
+  heartNotes        String[]
+  baseNotes         String[]
+  shortDescription  String
+  longDescription   String[]
+  testerPrice       Int?
+  volumes           Json?
+  regularPrice      Int?
+  reviewCount       Int      @default(0)
+  rating            Float    @default(4.5)
+  badge             String?
+  colorFrom         String   @default("#16233a")
+  colorTo           String   @default("#c9997a")
+  photo             String?
+  isOfficial        Boolean  @default(true)
+  stock             Int      @default(0)
+  lowStockThreshold Int      @default(5)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  orderItems        OrderItem[]
 
   @@index([category])
 }
 
 model Order {
-  id            String      @id @default(cuid())
+  id            String       @id @default(cuid())
   customerName  String
   customerEmail String?
   customerPhone String?
   address       String?
-  status        OrderStatus @default(EN_ATTENTE)
+  status        OrderStatus  @default(EN_ATTENTE)
   total         Int
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
   items         OrderItem[]
+
+  customerId    String?
+  customer      Customer?    @relation(fields: [customerId], references: [id], onDelete: SetNull)
+
+  consultantId  String?
+  consultant    Consultant?  @relation(fields: [consultantId], references: [id], onDelete: SetNull)
+
+  deliveryMode  DeliveryMode @default(RETRAIT_CONSULTANT)
+  livreurId     String?
+  livreur       Livreur?     @relation(fields: [livreurId], references: [id], onDelete: SetNull)
+  deliveryLat   Float?
+  deliveryLng   Float?
+
+  notifications Notification[]
+
+  @@index([consultantId])
+  @@index([livreurId])
+  @@index([customerId])
 }
 
 model OrderItem {
@@ -87,7 +121,72 @@ model Consultant {
   name      String
   city      String
   whatsapp  String
+  email     String?
   active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  user      User?
+  orders    Order[]
+}
+
+model Livreur {
+  id         String    @id @default(cuid())
+  name       String
+  phone      String
+  active     Boolean   @default(true)
+  lastLat    Float?
+  lastLng    Float?
+  lastSeenAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  user       User?
+  orders     Order[]
+}
+
+model Customer {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String   @unique
+  email     String?
+  address   String?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders    Order[]
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orderId   String?
+  order     Order?   @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Expense {
+  id        String   @id @default(cuid())
+  label     String
+  amount    Int
+  category  String
+  date      DateTime @default(now())
+  createdAt DateTime @default(now())
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  label     String
+  navLabel  String
+  description String
+  accent    String   @default("navy")
+  position  Int      @default(0)
   createdAt DateTime @default(now())
 }
 

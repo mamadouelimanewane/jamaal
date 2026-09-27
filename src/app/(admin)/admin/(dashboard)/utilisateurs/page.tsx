@@ -13,7 +13,11 @@ export default async function AdminUsersPage() {
   const session = await auth();
   if (session?.user?.role !== "ADMIN") redirect("/admin");
 
-  const users = await prisma.user.findMany({ orderBy: { createdAt: "asc" } });
+  const [users, consultants, livreurs] = await Promise.all([
+    prisma.user.findMany({ orderBy: { createdAt: "asc" }, include: { consultant: true, livreur: true } }),
+    prisma.consultant.findMany({ where: { user: null }, orderBy: { name: "asc" } }),
+    prisma.livreur.findMany({ where: { user: null }, orderBy: { name: "asc" } }),
+  ]);
 
   return (
     <div>
@@ -28,6 +32,7 @@ export default async function AdminUsersPage() {
               <th className="px-4 py-3">Nom</th>
               <th className="px-4 py-3">E-mail</th>
               <th className="px-4 py-3">Rôle</th>
+              <th className="px-4 py-3">Rattachement</th>
               <th className="px-4 py-3"></th>
             </tr>
           </thead>
@@ -37,6 +42,9 @@ export default async function AdminUsersPage() {
                 <td className="px-4 py-3 font-medium text-navy">{u.name}</td>
                 <td className="px-4 py-3 text-navy/70">{u.email}</td>
                 <td className="px-4 py-3 text-navy/70">{u.role}</td>
+                <td className="px-4 py-3 text-navy/70">
+                  {u.consultant?.name ?? u.livreur?.name ?? "—"}
+                </td>
                 <td className="px-4 py-3 text-right">
                   {u.id !== session.user.id && (
                     <form action={deleteUser.bind(null, u.id)} className="inline">
@@ -72,8 +80,31 @@ export default async function AdminUsersPage() {
           <div>
             <label className={labelClass}>Rôle</label>
             <select name="role" defaultValue="CONSULTANT" className={inputClass}>
-              <option value="CONSULTANT">Consultant</option>
+              <option value="CONSULTANT">Consultant / Revendeur</option>
+              <option value="LIVREUR">Livreur</option>
               <option value="ADMIN">Administrateur</option>
+            </select>
+          </div>
+          <div>
+            <label className={labelClass}>Fiche revendeur à rattacher (si rôle Consultant)</label>
+            <select name="consultantId" defaultValue="" className={inputClass}>
+              <option value="">— Aucune —</option>
+              {consultants.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name} ({c.city})
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className={labelClass}>Fiche livreur à rattacher (si rôle Livreur)</label>
+            <select name="livreurId" defaultValue="" className={inputClass}>
+              <option value="">— Aucune —</option>
+              {livreurs.map((l) => (
+                <option key={l.id} value={l.id}>
+                  {l.name}
+                </option>
+              ))}
             </select>
           </div>
           <button

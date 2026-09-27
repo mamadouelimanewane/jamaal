@@ -1,4 +1,4 @@
-import { categories } from "@/data/categories";
+import { getCategories } from "@/lib/db-categories";
 import type { Product } from "@prisma/client";
 
 const inputClass =
@@ -13,13 +13,14 @@ function volumesToText(volumes: unknown): string {
     .join("\n");
 }
 
-export function ProductForm({
+export async function ProductForm({
   action,
   product,
 }: {
   action: (formData: FormData) => void;
   product?: Product;
 }) {
+  const categories = await getCategories();
   return (
     <form action={action} className="mt-6 grid max-w-3xl gap-4">
       <div className="grid grid-cols-2 gap-4">
@@ -111,6 +112,29 @@ export function ProductForm({
             type="number"
             name="regularPrice"
             defaultValue={product?.regularPrice ?? undefined}
+            className={inputClass}
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className={labelClass}>Stock disponible</label>
+          <input
+            type="number"
+            name="stock"
+            min={0}
+            defaultValue={product?.stock ?? 0}
+            className={inputClass}
+          />
+        </div>
+        <div>
+          <label className={labelClass}>Seuil d&apos;alerte stock bas</label>
+          <input
+            type="number"
+            name="lowStockThreshold"
+            min={0}
+            defaultValue={product?.lowStockThreshold ?? 5}
             className={inputClass}
           />
         </div>

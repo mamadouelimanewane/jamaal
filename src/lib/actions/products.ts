@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { requireStaff } from "./auth-guard";
+import { requireAdmin } from "./auth-guard";
 
 function splitList(value: FormDataEntryValue | null): string[] {
   return String(value ?? "")
@@ -57,11 +57,13 @@ function productDataFromForm(formData: FormData) {
     colorTo: String(formData.get("colorTo") ?? "#c9997a"),
     photo: String(formData.get("photo") ?? "").trim() || null,
     isOfficial: formData.get("isOfficial") === "on",
+    stock: Number(formData.get("stock") ?? 0) || 0,
+    lowStockThreshold: Number(formData.get("lowStockThreshold") ?? 5) || 5,
   };
 }
 
 export async function createProduct(formData: FormData) {
-  await requireStaff();
+  await requireAdmin();
   const data = productDataFromForm(formData);
   await prisma.product.create({ data });
   revalidatePath("/admin/produits");
@@ -70,7 +72,7 @@ export async function createProduct(formData: FormData) {
 }
 
 export async function updateProduct(id: string, formData: FormData) {
-  await requireStaff();
+  await requireAdmin();
   const data = productDataFromForm(formData);
   const previous = await prisma.product.findUnique({ where: { id } });
   await prisma.product.update({ where: { id }, data });
@@ -84,7 +86,7 @@ export async function updateProduct(id: string, formData: FormData) {
 }
 
 export async function deleteProduct(id: string) {
-  await requireStaff();
+  await requireAdmin();
   const product = await prisma.product.delete({ where: { id } });
   revalidatePath("/admin/produits");
   revalidatePath(`/collections/${product.category}`);

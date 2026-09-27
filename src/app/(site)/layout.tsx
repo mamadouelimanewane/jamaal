@@ -6,6 +6,7 @@ import { Footer } from "@/components/Footer";
 import { CartDrawer } from "@/components/CartDrawer";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { AnnouncementBar } from "@/components/AnnouncementBar";
+import { getCategories } from "@/lib/db-categories";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -25,14 +26,15 @@ export const metadata: Metadata = {
     "JAMAAL Luxury Cosmetics — parfums, soins et cosmétiques inspirés des plus grandes maisons de parfumerie, à prix juste.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const categories = await getCategories();
   return (
     <html lang="fr" className={`${playfair.variable} ${poppins.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col bg-background text-foreground">
         <AnnouncementBar />
-        <Header />
+        <Header categories={categories} />
         <main className="flex-1">{children}</main>
-        <Footer />
+        <Footer categories={categories} />
         <CartDrawer />
         <WhatsAppButton />
       </body>

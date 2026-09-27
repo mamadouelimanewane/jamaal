@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { useCartStore } from "@/lib/cart-store";
 import { formatPrice } from "@/lib/currency";
 import { createOrder } from "@/lib/actions/orders";
+import { getActiveConsultantsForCheckout } from "@/lib/actions/public-data";
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, total, clear } = useCartStore();
@@ -13,6 +14,12 @@ export default function CartPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [customer, setCustomer] = useState({ name: "", phone: "", email: "", address: "" });
+  const [consultantId, setConsultantId] = useState("");
+  const [consultants, setConsultants] = useState<{ id: string; name: string; city: string }[]>([]);
+
+  useEffect(() => {
+    getActiveConsultantsForCheckout().then(setConsultants);
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -31,7 +38,8 @@ export default function CartPage() {
           volumeLabel: i.volumeLabel,
           price: i.price,
           quantity: i.quantity,
-        }))
+        })),
+        consultantId || null
       );
       setOrdered(true);
       clear();
@@ -157,6 +165,20 @@ export default function CartPage() {
                 onChange={(e) => setCustomer((c) => ({ ...c, address: e.target.value }))}
                 className="rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-navy"
               />
+              {consultants.length > 0 && (
+                <select
+                  value={consultantId}
+                  onChange={(e) => setConsultantId(e.target.value)}
+                  className="rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-navy"
+                >
+                  <option value="">Consultant·e qui vous a recommandé JAMAAL (optionnel)</option>
+                  {consultants.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name} ({c.city})
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
 
             {error && <p className="mt-3 text-xs text-rose-dark">{error}</p>}

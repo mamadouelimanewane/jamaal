@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { categories } from "@/data/categories";
+import type { Category } from "@/data/types";
 import { NewsletterForm } from "./NewsletterForm";
 
-export function Footer() {
+export function Footer({ categories }: { categories: Category[] }) {
   return (
     <footer className="mt-20 bg-navy text-white/80">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">

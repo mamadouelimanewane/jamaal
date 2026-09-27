@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/currency";
-import { updateOrderStatus } from "@/lib/actions/orders";
+import { updateOrderStatus, assignOrderLogistics } from "@/lib/actions/orders";
 import { OrderStatus } from "@prisma/client";
 
 const statuses: OrderStatus[] = ["EN_ATTENTE", "CONFIRMEE", "EXPEDIEE", "LIVREE", "ANNULEE"];
@@ -19,7 +19,11 @@ export default async function AdminOrderDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const order = await prisma.order.findUnique({ where: { id }, include: { items: true } });
+  const [order, consultants, livreurs] = await Promise.all([
+    prisma.order.findUnique({ where: { id }, include: { items: true } }),
+    prisma.consultant.findMany({ where: { active: true }, orderBy: { name: "asc" } }),
+    prisma.livreur.findMany({ where: { active: true }, orderBy: { name: "asc" } }),
+  ]);
   if (!order) notFound();
 
   async function changeStatus(formData: FormData) {
@@ -42,6 +46,16 @@ export default async function AdminOrderDetailPage({
         <p className="text-sm text-navy/70">Téléphone : {order.customerPhone ?? "—"}</p>
         <p className="text-sm text-navy/70">E-mail : {order.customerEmail ?? "—"}</p>
         <p className="text-sm text-navy/70">Adresse : {order.address ?? "—"}</p>
+        {order.customerPhone && (
+          <a
+            href={`https://wa.me/${order.customerPhone.replace(/\D/g, "")}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2 inline-block text-xs font-semibold text-emerald-700 hover:underline"
+          >
+            Contacter sur WhatsApp →
+          </a>
+        )}
       </div>
 
       <div className="mt-6 rounded-2xl border border-line bg-white p-5">
@@ -74,6 +88,93 @@ export default async function AdminOrderDetailPage({
         <button className="ml-auto rounded-full bg-navy px-5 py-2 text-sm font-semibold text-white hover:bg-navy-light">
           Mettre à jour
         </button>
+      </form>
+
+      <form action={assignOrderLogistics.bind(null, id)} className="mt-6 rounded-2xl border border-line bg-white p-5">
+        <h2 className="mb-3 text-sm font-semibold text-navy">Logistique & revendeur</h2>
+        <div className="grid gap-3">
+          <div>
+            <label className="text-xs font-medium text-navy/70">Revendeur / consultant à l&apos;origine de la vente</label>
+            <select
+              name="consultantId"
+              defaultValue={order.consultantId ?? ""}
+              className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm"
+            >
+              <option value="">— Aucun —</option>
+              {consultants.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name} ({c.city})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="text-xs font-medium text-navy/70">Mode de livraison</label>
+            <select
+              name="deliveryMode"
+              defaultValue={order.deliveryMode}
+              className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm"
+            >
+              <option value="RETRAIT_CONSULTANT">Retrait / livraison par le consultant</option>
+              <option value="LIVRAISON_JAMAAL">Livraison directe par JAMAAL (le consultant sera notifié)</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="text-xs font-medium text-navy/70">Livreur assigné</label>
+            <select
+              name="livreurId"
+              defaultValue={order.livreurId ?? ""}
+              className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm"
+            >
+              <option value="">— Aucun —</option>
+              {livreurs.map((l) => (
+                <option key={l.id} value={l.id}>
+                  {l.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs font-medium text-navy/70">Latitude livraison</label>
+              <input
+                name="deliveryLat"
+                type="number"
+                step="any"
+                defaultValue={order.deliveryLat ?? undefined}
+                className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-navy/70">Longitude livraison</label>
+              <input
+                name="deliveryLng"
+                type="number"
+                step="any"
+                defaultValue={order.deliveryLng ?? undefined}
+                className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm"
+              />
+            </div>
+          </div>
+
+          {order.deliveryLat && order.deliveryLng && (
+            <a
+              href={`https://www.google.com/maps?q=${order.deliveryLat},${order.deliveryLng}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs font-semibold text-navy hover:underline"
+            >
+              Voir l&apos;adresse sur la carte →
+            </a>
+          )}
+
+          <button className="mt-1 w-fit rounded-full bg-navy px-5 py-2 text-sm font-semibold text-white hover:bg-navy-light">
+            Enregistrer la logistique
+          </button>
+        </div>
       </form>
     </div>
   );

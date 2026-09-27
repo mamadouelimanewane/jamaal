@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { requireStaff } from "./auth-guard";
+import { requireAdmin } from "./auth-guard";
 
 function blogDataFromForm(formData: FormData) {
   const dateVal = String(formData.get("date") ?? "");
@@ -21,7 +21,7 @@ function blogDataFromForm(formData: FormData) {
 }
 
 export async function createBlogPost(formData: FormData) {
-  await requireStaff();
+  await requireAdmin();
   const data = blogDataFromForm(formData);
   await prisma.blogPost.create({ data });
   revalidatePath("/admin/blog");
@@ -30,7 +30,7 @@ export async function createBlogPost(formData: FormData) {
 }
 
 export async function updateBlogPost(id: string, formData: FormData) {
-  await requireStaff();
+  await requireAdmin();
   const previous = await prisma.blogPost.findUnique({ where: { id } });
   const data = blogDataFromForm(formData);
   await prisma.blogPost.update({ where: { id }, data });
@@ -42,7 +42,7 @@ export async function updateBlogPost(id: string, formData: FormData) {
 }
 
 export async function deleteBlogPost(id: string) {
-  await requireStaff();
+  await requireAdmin();
   await prisma.blogPost.delete({ where: { id } });
   revalidatePath("/admin/blog");
   revalidatePath("/blog");

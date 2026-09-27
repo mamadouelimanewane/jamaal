@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getCategory } from "@/data/categories";
+import { getCategory } from "@/lib/db-categories";
 import { getProductsByCategory } from "@/lib/db-products";
 import { CollectionGrid } from "@/components/CollectionGrid";
 
@@ -12,7 +12,7 @@ export default async function CollectionPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const category = getCategory(slug);
+  const category = await getCategory(slug);
   if (!category) notFound();
 
   const products = await getProductsByCategory(slug);

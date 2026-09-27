@@ -12,10 +12,18 @@ const statusLabels: Record<string, string> = {
   ANNULEE: "Annulée",
 };
 
+const statusColors: Record<string, string> = {
+  EN_ATTENTE: "bg-amber-100 text-amber-700",
+  CONFIRMEE: "bg-blue-100 text-blue-700",
+  EXPEDIEE: "bg-purple-100 text-purple-700",
+  LIVREE: "bg-emerald-100 text-emerald-700",
+  ANNULEE: "bg-red-100 text-red-700",
+};
+
 export default async function AdminOrdersPage() {
   const orders = await prisma.order.findMany({
     orderBy: { createdAt: "desc" },
-    include: { items: true },
+    include: { items: true, consultant: true, livreur: true },
   });
 
   return (
@@ -31,6 +39,8 @@ export default async function AdminOrdersPage() {
               <th className="px-4 py-3">Client</th>
               <th className="px-4 py-3">Articles</th>
               <th className="px-4 py-3">Total</th>
+              <th className="px-4 py-3">Revendeur</th>
+              <th className="px-4 py-3">Livraison</th>
               <th className="px-4 py-3">Statut</th>
               <th className="px-4 py-3">Date</th>
             </tr>
@@ -46,8 +56,16 @@ export default async function AdminOrdersPage() {
                 </td>
                 <td className="px-4 py-3 text-navy/70">{o.items.length}</td>
                 <td className="px-4 py-3 text-navy/70">{formatPrice(o.total)}</td>
+                <td className="px-4 py-3 text-navy/70">{o.consultant?.name ?? "—"}</td>
+                <td className="px-4 py-3 text-navy/70">
+                  {o.deliveryMode === "LIVRAISON_JAMAAL" ? (
+                    <span>JAMAAL{o.livreur ? ` · ${o.livreur.name}` : ""}</span>
+                  ) : (
+                    "Retrait consultant"
+                  )}
+                </td>
                 <td className="px-4 py-3">
-                  <span className="rounded-full bg-cream px-3 py-1 text-xs font-semibold text-navy">
+                  <span className={`rounded-full px-3 py-1 text-xs font-semibold ${statusColors[o.status] ?? "bg-cream text-navy"}`}>
                     {statusLabels[o.status] ?? o.status}
                   </span>
                 </td>
@@ -56,7 +74,7 @@ export default async function AdminOrdersPage() {
             ))}
             {orders.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-navy/50">
+                <td colSpan={7} className="px-4 py-6 text-center text-navy/50">
                   Aucune commande pour le moment.
                 </td>
               </tr>
