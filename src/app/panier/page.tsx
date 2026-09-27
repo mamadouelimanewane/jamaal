@@ -4,10 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { useCartStore } from "@/lib/cart-store";
-
-function formatPrice(n: number) {
-  return n.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
-}
+import { formatPrice } from "@/lib/currency";
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, total, clear } = useCartStore();

@@ -2,10 +2,7 @@ import Link from "next/link";
 import { Product } from "@/data/types";
 import { ProductVisual } from "./ProductVisual";
 import { StarRating } from "./StarRating";
-
-function formatPrice(n: number) {
-  return n.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
-}
+import { formatPrice } from "@/lib/currency";
 
 export function ProductCard({ product }: { product: Product }) {
   const displayPrice = product.testerPrice ?? product.regularPrice ?? 0;

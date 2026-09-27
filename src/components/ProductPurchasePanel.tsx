@@ -4,10 +4,7 @@ import { useState } from "react";
 import { Minus, Plus, ShieldCheck } from "lucide-react";
 import { Product } from "@/data/types";
 import { useCartStore } from "@/lib/cart-store";
-
-function formatPrice(n: number) {
-  return n.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
-}
+import { formatPrice } from "@/lib/currency";
 
 export function ProductPurchasePanel({ product }: { product: Product }) {
   const volumes = product.volumes ?? [
