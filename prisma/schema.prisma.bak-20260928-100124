@@ -1,0 +1,381 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  CONSULTANT
+  LIVREUR
+}
+
+enum OrderStatus {
+  EN_ATTENTE
+  CONFIRMEE
+  EXPEDIEE
+  LIVREE
+  ANNULEE
+}
+
+enum DeliveryMode {
+  RETRAIT_CONSULTANT
+  LIVRAISON_JAMAAL
+}
+
+enum ReturnStatus {
+  EN_ATTENTE
+  APPROUVE
+  REMBOURSE
+  REJETE
+}
+
+enum PaymentMethod {
+  A_LA_LIVRAISON
+  WAVE
+  ORANGE_MONEY
+}
+
+enum PaymentStatus {
+  EN_ATTENTE
+  PAYE
+  ECHOUE
+}
+
+enum CouponType {
+  POURCENTAGE
+  MONTANT_FIXE
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         Role     @default(CONSULTANT)
+  createdAt    DateTime @default(now())
+
+  consultantId String?  @unique
+  consultant   Consultant? @relation(fields: [consultantId], references: [id], onDelete: SetNull)
+
+  livreurId    String?  @unique
+  livreur      Livreur? @relation(fields: [livreurId], references: [id], onDelete: SetNull)
+
+  notifications Notification[]
+}
+
+model Product {
+  id                String   @id @default(cuid())
+  number            Int?
+  slug              String   @unique
+  name              String
+  category          String
+  family            String?
+  topNotes          String[]
+  heartNotes        String[]
+  baseNotes         String[]
+  shortDescription  String
+  longDescription   String[]
+  testerPrice       Int?
+  volumes           Json?
+  regularPrice      Int?
+  reviewCount       Int      @default(0)
+  rating            Float    @default(4.5)
+  badge             String?
+  colorFrom         String   @default("#16233a")
+  colorTo           String   @default("#c9997a")
+  photo             String?
+  isOfficial        Boolean  @default(true)
+  stock             Int      @default(0)
+  lowStockThreshold Int      @default(5)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  orderItems        OrderItem[]
+  variants          ProductVariant[]
+  reviews           Review[]
+
+  @@index([category])
+}
+
+/// Suivi du stock par variante (volume) d'un produit, en complément du champ
+/// `volumes` (JSON, label+prix) déjà utilisé pour l'affichage. Une ligne par
+/// couple (produit, libellé de volume) — les produits à format unique n'en
+/// ont pas besoin et continuent d'utiliser Product.stock.
+model ProductVariant {
+  id                String      @id @default(cuid())
+  productId         String
+  product           Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  volumeLabel       String
+  stock             Int         @default(0)
+  lowStockThreshold Int         @default(5)
+  orderItems        OrderItem[]
+
+  @@unique([productId, volumeLabel])
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  orderId    String?
+  authorName String
+  rating     Int
+  comment    String
+  approved   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@index([productId])
+}
+
+model Coupon {
+  id         String     @id @default(cuid())
+  code       String     @unique
+  type       CouponType
+  value      Int
+  active     Boolean    @default(true)
+  expiresAt  DateTime?
+  usageLimit Int?
+  usedCount  Int        @default(0)
+  createdAt  DateTime   @default(now())
+
+  orders     Order[]
+}
+
+model Order {
+  id            String       @id @default(cuid())
+  customerName  String
+  customerEmail String?
+  customerPhone String?
+  address       String?
+  status        OrderStatus  @default(EN_ATTENTE)
+  total         Int
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  items         OrderItem[]
+
+  customerId    String?
+  customer      Customer?    @relation(fields: [customerId], references: [id], onDelete: SetNull)
+
+  consultantId  String?
+  consultant    Consultant?  @relation(fields: [consultantId], references: [id], onDelete: SetNull)
+
+  deliveryMode  DeliveryMode @default(RETRAIT_CONSULTANT)
+  livreurId     String?
+  livreur       Livreur?     @relation(fields: [livreurId], references: [id], onDelete: SetNull)
+  deliveryLat   Float?
+  deliveryLng   Float?
+
+  deliveryZoneId String?
+  deliveryZone   DeliveryZone? @relation(fields: [deliveryZoneId], references: [id], onDelete: SetNull)
+  deliveryFee    Int           @default(0)
+
+  couponId       String?
+  coupon         Coupon?       @relation(fields: [couponId], references: [id], onDelete: SetNull)
+  discountAmount Int           @default(0)
+
+  paymentMethod  PaymentMethod @default(A_LA_LIVRAISON)
+  paymentStatus  PaymentStatus @default(EN_ATTENTE)
+
+  notifications  Notification[]
+  returns        Return[]
+  statusHistory  OrderStatusHistory[]
+
+  @@index([consultantId])
+  @@index([livreurId])
+  @@index([customerId])
+  @@index([deliveryZoneId])
+  @@index([couponId])
+}
+
+model OrderItem {
+  id          String          @id @default(cuid())
+  orderId     String
+  order       Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String?
+  product     Product?        @relation(fields: [productId], references: [id], onDelete: SetNull)
+  variantId   String?
+  variant     ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+  productName String
+  volumeLabel String
+  price       Int
+  quantity    Int
+}
+
+model OrderStatusHistory {
+  id        String      @id @default(cuid())
+  orderId   String
+  order     Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status    OrderStatus
+  createdAt DateTime    @default(now())
+
+  @@index([orderId])
+}
+
+model DeliveryZone {
+  id     String  @id @default(cuid())
+  name   String
+  fee    Int
+  active Boolean @default(true)
+
+  orders Order[]
+}
+
+model Consultant {
+  id        String   @id @default(cuid())
+  name      String
+  city      String
+  whatsapp  String
+  email     String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  sponsorId String?
+  sponsor   Consultant?  @relation("ConsultantSponsor", fields: [sponsorId], references: [id], onDelete: SetNull)
+  sponsored Consultant[] @relation("ConsultantSponsor")
+
+  user      User?
+  orders    Order[]
+
+  commissionPayments CommissionPayment[]
+  targets            MonthlyTarget[]
+
+  @@index([sponsorId])
+}
+
+model CommissionPayment {
+  id           String     @id @default(cuid())
+  consultantId String
+  consultant   Consultant @relation(fields: [consultantId], references: [id], onDelete: Cascade)
+  amount       Int
+  periodLabel  String
+  note         String?
+  paidAt       DateTime   @default(now())
+
+  @@index([consultantId])
+}
+
+/// Objectif de CA mensuel. consultantId nul = objectif global (comptabilité).
+model MonthlyTarget {
+  id            String      @id @default(cuid())
+  consultantId  String?
+  consultant    Consultant? @relation(fields: [consultantId], references: [id], onDelete: Cascade)
+  year          Int
+  month         Int
+  targetRevenue Int
+  createdAt     DateTime    @default(now())
+
+  @@unique([consultantId, year, month])
+}
+
+model Livreur {
+  id         String    @id @default(cuid())
+  name       String
+  phone      String
+  active     Boolean   @default(true)
+  lastLat    Float?
+  lastLng    Float?
+  lastSeenAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  user       User?
+  orders     Order[]
+}
+
+model Customer {
+  id            String   @id @default(cuid())
+  name          String
+  phone         String   @unique
+  email         String?
+  address       String?
+  notes         String?
+  loyaltyPoints Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  orders    Order[]
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orderId   String?
+  order     Order?   @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Expense {
+  id        String   @id @default(cuid())
+  label     String
+  amount    Int
+  category  String
+  date      DateTime @default(now())
+  createdAt DateTime @default(now())
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  label     String
+  navLabel  String
+  description String
+  accent    String   @default("navy")
+  position  Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+model Return {
+  id          String       @id @default(cuid())
+  orderId     String
+  order       Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  reason      String
+  amount      Int
+  status      ReturnStatus @default(EN_ATTENTE)
+  createdAt   DateTime     @default(now())
+  processedAt DateTime?
+
+  @@index([orderId])
+}
+
+model Setting {
+  key   String @id
+  value String
+}
+
+/// Journal d'activité des actions admin sensibles (créer/modifier/supprimer).
+model ActivityLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  userName  String
+  action    String
+  entity    String
+  entityId  String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+model MarketingAsset {
+  id        String   @id @default(cuid())
+  title     String
+  fileUrl   String
+  category  String   @default("Général")
+  createdAt DateTime @default(now())
+}
+
+model BlogPost {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  title     String
+  excerpt   String
+  content   String[]
+  published Boolean  @default(true)
+  date      DateTime @default(now())
+}

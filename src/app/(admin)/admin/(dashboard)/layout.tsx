@@ -15,11 +15,14 @@ import {
   Bell,
   Truck,
   Undo2,
+  Settings,
 } from "lucide-react";
 import { auth, signOut } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ResponsiveSidebar } from "@/components/admin/ResponsiveSidebar";
 import { SidebarNavLink } from "@/components/admin/SidebarNavLink";
+
+import { GlobalSearch } from "@/components/admin/GlobalSearch";
 
 const adminGroups = [
   {
@@ -92,6 +95,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
         <p className="text-xs text-white/40">Back-office</p>
       </Link>
 
+      <div className="mt-4 px-1">
+        <GlobalSearch />
+      </div>
+
       <nav className="mt-6 flex flex-1 flex-col gap-5 overflow-y-auto">
         {role === "ADMIN" &&
           adminGroups.map((group) => (
@@ -115,6 +122,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <div className="flex flex-col gap-0.5">
               <SidebarNavLink href="/admin/notifications" label="Notifications" icon={<Bell size={16} />} badge={unreadCount} />
               <SidebarNavLink href="/admin/utilisateurs" label="Utilisateurs" icon={<UserCog size={16} />} />
+              <SidebarNavLink href="/admin/reglages" label="Réglages & Fidélité" icon={<Settings size={16} />} />
             </div>
           </div>
         )}

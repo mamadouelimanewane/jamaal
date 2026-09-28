@@ -1,4 +1,5 @@
 import { getCategories } from "@/lib/db-categories";
+import { prisma } from "@/lib/prisma";
 import type { Product } from "@prisma/client";
 
 const inputClass =

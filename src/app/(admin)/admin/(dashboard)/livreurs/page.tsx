@@ -16,12 +16,20 @@ export default async function AdminLivreursPage() {
         <h1 className="font-serif-display text-2xl font-semibold text-navy">
           Livreurs ({livreurs.length})
         </h1>
-        <Link
-          href="/admin/livreurs/nouveau"
-          className="rounded-full bg-navy px-4 py-2 text-sm font-semibold text-white hover:bg-navy-light"
-        >
-          + Nouveau livreur
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/admin/livreurs/carte"
+            className="flex items-center gap-1.5 rounded-full border border-line bg-white px-4 py-2 text-sm font-semibold text-navy hover:bg-cream"
+          >
+            🗺️ Carte flotte GPS
+          </Link>
+          <Link
+            href="/admin/livreurs/nouveau"
+            className="rounded-full bg-navy px-4 py-2 text-sm font-semibold text-white hover:bg-navy-light"
+          >
+            + Nouveau livreur
+          </Link>
+        </div>
       </div>
 
       <div className="mt-6 overflow-x-auto rounded-2xl border border-line bg-white">

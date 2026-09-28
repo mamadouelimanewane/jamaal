@@ -10,7 +10,7 @@ export function ConsultantForm({
   sponsorOptions,
 }: {
   action: (formData: FormData) => void;
-  consultant?: Consultant;
+  consultant?: Consultant & { slug?: string | null };
   sponsorOptions: { id: string; name: string; city: string }[];
 }) {
   return (
@@ -22,6 +22,23 @@ export function ConsultantForm({
       <div>
         <label className={labelClass}>Ville</label>
         <input name="city" required defaultValue={consultant?.city} className={inputClass} />
+      </div>
+      <div>
+        <label className={labelClass}>Slug du lien personnel</label>
+        <div className="mt-1 flex items-center gap-2">
+          <span className="shrink-0 text-xs text-navy/50">/c/</span>
+          <input
+            name="slug"
+            defaultValue={consultant?.slug ?? ""}
+            placeholder="aminata-dakar"
+            pattern="[a-z0-9-]{2,48}"
+            title="Minuscules, chiffres et tirets uniquement (2 à 48 caractères)"
+            className={inputClass + " mt-0"}
+          />
+        </div>
+        <p className="mt-1 text-[11px] text-navy/40">
+          Lien partageable : jamaal…/c/<strong>slug</strong>. Laissez vide pour générer automatiquement.
+        </p>
       </div>
       <div>
         <label className={labelClass}>Lien WhatsApp (https://wa.me/…)</label>

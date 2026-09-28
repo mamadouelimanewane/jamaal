@@ -25,12 +25,20 @@ export default async function AdminClientsPage({
         <h1 className="font-serif-display text-2xl font-semibold text-navy">
           Clients ({clients.length})
         </h1>
-        <a
-          href="/api/export/clients"
-          className="rounded-full border border-line px-4 py-2 text-sm font-semibold text-navy hover:bg-cream"
-        >
-          Exporter Excel ↓
-        </a>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/admin/clients/inactifs"
+            className="rounded-full border border-rose/30 bg-rose-light/20 px-4 py-2 text-sm font-semibold text-rose-dark hover:bg-rose-light/40"
+          >
+            📢 Relance CRM Clients
+          </Link>
+          <a
+            href="/api/export/clients"
+            className="rounded-full border border-line px-4 py-2 text-sm font-semibold text-navy hover:bg-cream"
+          >
+            Exporter Excel ↓
+          </a>
+        </div>
       </div>
       <p className="mt-1 text-sm text-navy/60">
         Fiches créées automatiquement à chaque commande, pour suivre l&apos;historique de vos clients.

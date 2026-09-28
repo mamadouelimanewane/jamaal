@@ -1,13 +1,16 @@
 "use server";
 
+import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin, requireLivreurProfile } from "./auth-guard";
 import { OrderStatus } from "@prisma/client";
 import { upsertCustomerFromOrder } from "./customers";
 import { notifyConsultantOfDelivery } from "@/lib/notifications";
-import { notifySponsorOnFirstSale } from "@/lib/sponsor-notifications";
+import { notifySponsorOnSale } from "@/lib/sponsor-notifications";
 import { decrementStockAndAlert } from "@/lib/stock";
+import { createOrderSchema } from "@/lib/validations/order";
+import { rateLimit, clientIpFromHeaders } from "@/lib/rate-limit";
 
 export interface CheckoutItem {
   productId: string;
@@ -24,34 +27,151 @@ export interface CheckoutCustomer {
   address?: string;
 }
 
+/**
+ * Crée une commande publique (checkout client).
+ * - Rate limit (5 commandes / min / IP)
+ * - Valide les données avec Zod
+ * - Recalcule les prix et le total côté serveur
+ * - Vérifie le stock avant création
+ * - Attache le consultant (ref cookie ou choix manuel)
+ */
 export async function createOrder(
   customer: CheckoutCustomer,
   items: CheckoutItem[],
-  consultantId?: string | null
+  consultantId?: string | null,
+  acceptCgv: boolean = false
 ) {
-  if (items.length === 0) throw new Error("Panier vide");
-  const total = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  // 0. Rate limiting
+  const h = await headers();
+  const ip = clientIpFromHeaders(h);
+  const limited = rateLimit(`order:${ip}`, { limit: 5, windowMs: 60_000 });
+  if (!limited.ok) {
+    throw new Error(
+      `Trop de tentatives. Réessayez dans ${limited.retryAfterSec} seconde(s).`
+    );
+  }
 
-  const customerId = customer.phone
+  // 1. Validation structurelle
+  const parsed = createOrderSchema.safeParse({
+    customer: {
+      name: customer.name ?? "",
+      phone: customer.phone ?? "",
+      email: customer.email ?? "",
+      address: customer.address ?? "",
+    },
+    items,
+    consultantId: consultantId || null,
+    acceptCgv: acceptCgv === true ? true : false,
+  });
+
+  if (!parsed.success) {
+    const first = parsed.error.errors[0];
+    throw new Error(first?.message ?? "Données de commande invalides");
+  }
+
+  const data = parsed.data;
+
+  // 2. Charger les produits réels et vérifier le stock
+  const productIds = [...new Set(data.items.map((i) => i.productId))];
+  const products = await prisma.product.findMany({
+    where: { id: { in: productIds } },
+    select: {
+      id: true,
+      name: true,
+      stock: true,
+      volumes: true,
+      regularPrice: true,
+      testerPrice: true,
+    },
+  });
+
+  if (products.length !== productIds.length) {
+    throw new Error("Un ou plusieurs produits n'existent plus. Merci de rafraîchir votre panier.");
+  }
+
+  const productMap = new Map(products.map((p) => [p.id, p]));
+
+  // 3. Recalculer prix + vérifier stock (jamais faire confiance au client)
+  const serverItems: CheckoutItem[] = [];
+  let total = 0;
+
+  for (const item of data.items) {
+    const product = productMap.get(item.productId)!;
+
+    if (product.stock < item.quantity) {
+      throw new Error(
+        `Stock insuffisant pour « ${product.name} » (disponible : ${product.stock}).`
+      );
+    }
+
+    // Prix serveur : on accepte le prix client s'il correspond à un volume connu,
+    // sinon on refuse (évite la manipulation).
+    const volumes = (product.volumes as { label: string; price: number }[] | null) ?? [];
+    const matchedVolume = volumes.find(
+      (v) => v.label === item.volumeLabel && v.price === item.price
+    );
+    const isTester =
+      product.testerPrice != null &&
+      item.volumeLabel.toLowerCase().includes("échantillon") &&
+      item.price === product.testerPrice;
+    const isRegular =
+      product.regularPrice != null &&
+      item.price === product.regularPrice &&
+      (!volumes.length || volumes.some((v) => v.label === item.volumeLabel));
+
+    if (!matchedVolume && !isTester && !isRegular) {
+      throw new Error(
+        `Prix incohérent pour « ${product.name} » (${item.volumeLabel}). Merci de rafraîchir votre panier.`
+      );
+    }
+
+    const lineTotal = item.price * item.quantity;
+    total += lineTotal;
+
+    serverItems.push({
+      productId: item.productId,
+      productName: product.name, // nom serveur (source de vérité)
+      volumeLabel: item.volumeLabel,
+      price: item.price,
+      quantity: item.quantity,
+    });
+  }
+
+  // 4. Vérifier le consultant s'il est fourni
+  let validConsultantId: string | null = null;
+  if (data.consultantId) {
+    const consultant = await prisma.consultant.findFirst({
+      where: { id: data.consultantId, active: true },
+      select: { id: true },
+    });
+    if (!consultant) {
+      throw new Error("Le consultant sélectionné n'est plus disponible.");
+    }
+    validConsultantId = consultant.id;
+  }
+
+  // 5. Upsert client
+  const customerId = data.customer.phone
     ? await upsertCustomerFromOrder({
-        name: customer.name,
-        phone: customer.phone,
-        email: customer.email,
-        address: customer.address,
+        name: data.customer.name,
+        phone: data.customer.phone,
+        email: data.customer.email || null,
+        address: data.customer.address || null,
       })
     : null;
 
+  // 6. Création atomique de la commande
   const order = await prisma.order.create({
     data: {
-      customerName: customer.name,
-      customerEmail: customer.email || null,
-      customerPhone: customer.phone || null,
-      address: customer.address || null,
+      customerName: data.customer.name,
+      customerEmail: data.customer.email || null,
+      customerPhone: data.customer.phone || null,
+      address: data.customer.address || null,
       total,
       customerId,
-      consultantId: consultantId || null,
+      consultantId: validConsultantId,
       items: {
-        create: items.map((i) => ({
+        create: serverItems.map((i) => ({
           productId: i.productId,
           productName: i.productName,
           volumeLabel: i.volumeLabel,
@@ -62,13 +182,50 @@ export async function createOrder(
     },
   });
 
-  if (consultantId) {
-    await notifySponsorOnFirstSale(consultantId);
+  // 7. Effets de bord
+  if (validConsultantId) {
+    await notifySponsorOnSale(validConsultantId, total);
   }
-  await decrementStockAndAlert(items);
+  await decrementStockAndAlert(serverItems);
+
+  // Notification admin (nouvelle commande)
+  const admins = await prisma.user.findMany({
+    where: { role: "ADMIN" },
+    select: { id: true },
+  });
+  if (admins.length > 0) {
+    await prisma.notification.createMany({
+      data: admins.map((a) => ({
+        userId: a.id,
+        orderId: order.id,
+        title: "Nouvelle commande",
+        message: `${data.customer.name} — ${total.toLocaleString("fr-FR")} FCFA`,
+      })),
+    });
+  }
+
+  // Notification consultant
+  if (validConsultantId) {
+    const consultantUser = await prisma.user.findFirst({
+      where: { consultantId: validConsultantId },
+      select: { id: true },
+    });
+    if (consultantUser) {
+      await prisma.notification.create({
+        data: {
+          userId: consultantUser.id,
+          orderId: order.id,
+          title: "Nouvelle commande client",
+          message: `${data.customer.name} a passé une commande de ${total.toLocaleString("fr-FR")} FCFA.`,
+        },
+      });
+    }
+  }
 
   revalidatePath("/admin/commandes");
   revalidatePath("/admin/produits");
+  revalidatePath("/admin/mes-commandes");
+
   return order.id;
 }
 
@@ -118,4 +275,33 @@ export async function livreurUpdateOrderStatus(id: string, status: OrderStatus) 
     await notifyConsultantOfDelivery(id);
   }
   revalidatePath("/admin/mes-livraisons");
+}
+
+/** Récupère une commande pour la page de confirmation (données publiques limitées). */
+export async function getOrderConfirmation(id: string) {
+  const order = await prisma.order.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      customerName: true,
+      customerPhone: true,
+      total: true,
+      status: true,
+      createdAt: true,
+      address: true,
+      paymentMethod: true,
+      paymentStatus: true,
+      paidAt: true,
+      consultant: { select: { name: true, city: true, whatsapp: true } },
+      items: {
+        select: {
+          productName: true,
+          volumeLabel: true,
+          price: true,
+          quantity: true,
+        },
+      },
+    },
+  });
+  return order;
 }

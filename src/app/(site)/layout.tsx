@@ -20,6 +20,8 @@ const poppins = Poppins({
   weight: ["300", "400", "500", "600", "700"],
 });
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "JAMAAL Luxury Cosmetics | Parfums inspirés des grandes maisons",
   description:

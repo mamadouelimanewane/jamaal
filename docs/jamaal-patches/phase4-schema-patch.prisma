@@ -1,0 +1,54 @@
+// === Phase 4 — Fidélité, wishlist serveur (optionnel), analytics ===
+// À fusionner dans prisma/schema.prisma
+
+model LoyaltyAccount {
+  id        String   @id @default(cuid())
+  phone     String   @unique
+  name      String?
+  points    Int      @default(0)
+  lifetime  Int      @default(0) // points gagnés cumulés
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  events    LoyaltyEvent[]
+}
+
+model LoyaltyEvent {
+  id        String   @id @default(cuid())
+  accountId String
+  account   LoyaltyAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  type      String   // EARN_ORDER | REDEEM | ADJUST
+  points    Int      // positif = gain, négatif = utilisation
+  orderId   String?
+  note      String?
+  createdAt DateTime @default(now())
+
+  @@index([accountId])
+}
+
+model WishlistItem {
+  id        String   @id @default(cuid())
+  phone     String   // clé client (pas de compte obligatoire)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([phone, productId])
+  @@index([phone])
+}
+
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  name      String   // page_view | add_to_cart | purchase | quiz_complete | ...
+  path      String?
+  productId String?
+  orderId   String?
+  meta      Json?
+  sessionId String?
+  createdAt DateTime @default(now())
+
+  @@index([name, createdAt])
+  @@index([createdAt])
+}
+
+// Sur model Product, ajouter la relation inverse :
+//   wishlistItems WishlistItem[]

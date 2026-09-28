@@ -1,0 +1,24 @@
+// À fusionner dans prisma/schema.prisma — model Consultant
+
+model Consultant {
+  id        String   @id @default(cuid())
+  name      String
+  city      String
+  whatsapp  String
+  email     String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  // NOUVEAU — lien personnel du type /c/aminata
+  slug      String?  @unique
+
+  sponsorId String?
+  sponsor   Consultant?  @relation("ConsultantSponsor", fields: [sponsorId], references: [id], onDelete: SetNull)
+  sponsored Consultant[] @relation("ConsultantSponsor")
+
+  user      User?
+  orders    Order[]
+
+  @@index([sponsorId])
+  @@index([slug])
+}

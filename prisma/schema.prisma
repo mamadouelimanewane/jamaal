@@ -32,6 +32,23 @@ enum ReturnStatus {
   REJETE
 }
 
+enum PaymentMethod {
+  A_LA_LIVRAISON
+  WAVE
+  ORANGE_MONEY
+}
+
+enum PaymentStatus {
+  EN_ATTENTE
+  PAYE
+  ECHOUE
+}
+
+enum CouponType {
+  POURCENTAGE
+  MONTANT_FIXE
+}
+
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
@@ -76,8 +93,55 @@ model Product {
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
   orderItems        OrderItem[]
+  wishlistItems     WishlistItem[]
+  variants          ProductVariant[]
+  reviews           Review[]
 
   @@index([category])
+}
+
+/// Suivi du stock par variante (volume) d'un produit, en complément du champ
+/// `volumes` (JSON, label+prix) déjà utilisé pour l'affichage. Une ligne par
+/// couple (produit, libellé de volume) — les produits à format unique n'en
+/// ont pas besoin et continuent d'utiliser Product.stock.
+model ProductVariant {
+  id                String      @id @default(cuid())
+  productId         String
+  product           Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  volumeLabel       String
+  stock             Int         @default(0)
+  lowStockThreshold Int         @default(5)
+  orderItems        OrderItem[]
+
+  @@unique([productId, volumeLabel])
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  orderId    String?
+  authorName String
+  rating     Int
+  comment    String
+  approved   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@index([productId])
+}
+
+model Coupon {
+  id         String     @id @default(cuid())
+  code       String     @unique
+  type       CouponType
+  value      Int
+  active     Boolean    @default(true)
+  expiresAt  DateTime?
+  usageLimit Int?
+  usedCount  Int        @default(0)
+  createdAt  DateTime   @default(now())
+
+  orders     Order[]
 }
 
 model Order {
@@ -104,24 +168,59 @@ model Order {
   deliveryLat   Float?
   deliveryLng   Float?
 
-  notifications Notification[]
-  returns       Return[]
+  deliveryZoneId String?
+  deliveryZone   DeliveryZone? @relation(fields: [deliveryZoneId], references: [id], onDelete: SetNull)
+  deliveryFee    Int           @default(0)
+
+  couponId       String?
+  coupon         Coupon?       @relation(fields: [couponId], references: [id], onDelete: SetNull)
+  discountAmount Int           @default(0)
+
+  paymentMethod  PaymentMethod @default(A_LA_LIVRAISON)
+  paymentStatus  PaymentStatus @default(EN_ATTENTE)
+
+  notifications  Notification[]
+  returns        Return[]
+  statusHistory  OrderStatusHistory[]
 
   @@index([consultantId])
   @@index([livreurId])
   @@index([customerId])
+  @@index([deliveryZoneId])
+  @@index([couponId])
 }
 
 model OrderItem {
-  id          String   @id @default(cuid())
+  id          String          @id @default(cuid())
   orderId     String
-  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  order       Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
   productId   String?
-  product     Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  product     Product?        @relation(fields: [productId], references: [id], onDelete: SetNull)
+  variantId   String?
+  variant     ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
   productName String
   volumeLabel String
   price       Int
   quantity    Int
+}
+
+model OrderStatusHistory {
+  id        String      @id @default(cuid())
+  orderId   String
+  order     Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status    OrderStatus
+  createdAt DateTime    @default(now())
+
+  @@index([orderId])
+}
+
+model DeliveryZone {
+  id     String  @id @default(cuid())
+  name   String
+  fee    Int
+  active Boolean @default(true)
+
+  orders Order[]
 }
 
 model Consultant {
@@ -131,6 +230,7 @@ model Consultant {
   whatsapp  String
   email     String?
   active    Boolean  @default(true)
+  slug      String?  @unique
   createdAt DateTime @default(now())
 
   sponsorId String?
@@ -140,7 +240,36 @@ model Consultant {
   user      User?
   orders    Order[]
 
+  commissionPayments CommissionPayment[]
+  targets            MonthlyTarget[]
+
   @@index([sponsorId])
+  @@index([slug])
+}
+
+model CommissionPayment {
+  id           String     @id @default(cuid())
+  consultantId String
+  consultant   Consultant @relation(fields: [consultantId], references: [id], onDelete: Cascade)
+  amount       Int
+  periodLabel  String
+  note         String?
+  paidAt       DateTime   @default(now())
+
+  @@index([consultantId])
+}
+
+/// Objectif de CA mensuel. consultantId nul = objectif global (comptabilité).
+model MonthlyTarget {
+  id            String      @id @default(cuid())
+  consultantId  String?
+  consultant    Consultant? @relation(fields: [consultantId], references: [id], onDelete: Cascade)
+  year          Int
+  month         Int
+  targetRevenue Int
+  createdAt     DateTime    @default(now())
+
+  @@unique([consultantId, year, month])
 }
 
 model Livreur {
@@ -158,14 +287,15 @@ model Livreur {
 }
 
 model Customer {
-  id        String   @id @default(cuid())
-  name      String
-  phone     String   @unique
-  email     String?
-  address   String?
-  notes     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String   @id @default(cuid())
+  name          String
+  phone         String   @unique
+  email         String?
+  address       String?
+  notes         String?
+  loyaltyPoints Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   orders    Order[]
 }
@@ -222,6 +352,27 @@ model Setting {
   value String
 }
 
+/// Journal d'activité des actions admin sensibles (créer/modifier/supprimer).
+model ActivityLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  userName  String
+  action    String
+  entity    String
+  entityId  String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+model MarketingAsset {
+  id        String   @id @default(cuid())
+  title     String
+  fileUrl   String
+  category  String   @default("Général")
+  createdAt DateTime @default(now())
+}
+
 model BlogPost {
   id        String   @id @default(cuid())
   slug      String   @unique
@@ -230,4 +381,53 @@ model BlogPost {
   content   String[]
   published Boolean  @default(true)
   date      DateTime @default(now())
+}
+
+model LoyaltyAccount {
+  id        String         @id @default(cuid())
+  phone     String         @unique
+  name      String?
+  points    Int            @default(0)
+  lifetime  Int            @default(0)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  events    LoyaltyEvent[]
+}
+
+model LoyaltyEvent {
+  id        String         @id @default(cuid())
+  accountId String
+  account   LoyaltyAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  type      String
+  points    Int
+  orderId   String?
+  note      String?
+  createdAt DateTime       @default(now())
+
+  @@index([accountId])
+}
+
+model WishlistItem {
+  id        String   @id @default(cuid())
+  phone     String
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([phone, productId])
+  @@index([phone])
+}
+
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  name      String
+  path      String?
+  productId String?
+  orderId   String?
+  meta      Json?
+  sessionId String?
+  createdAt DateTime @default(now())
+
+  @@index([name, createdAt])
+  @@index([createdAt])
 }

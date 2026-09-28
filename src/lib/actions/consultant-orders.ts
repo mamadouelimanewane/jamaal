@@ -8,6 +8,8 @@ import { upsertCustomerFromOrder } from "./customers";
 import { notifySponsorOnFirstSale } from "@/lib/sponsor-notifications";
 import { decrementStockAndAlert } from "@/lib/stock";
 
+import { getLoyaltySettings } from "@/lib/settings";
+
 export interface ConsultantOrderItem {
   productId: string;
   productName: string;
@@ -29,11 +31,30 @@ export async function createConsultantOrder(formData: FormData) {
   const deliveryMode = String(formData.get("deliveryMode") ?? "RETRAIT_CONSULTANT") as
     | "RETRAIT_CONSULTANT"
     | "LIVRAISON_JAMAAL";
+  const useLoyaltyPoints = formData.get("useLoyaltyPoints") === "on";
 
-  const total = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  let total = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  let discountAmount = 0;
+
   const customerId = customerPhone
     ? await upsertCustomerFromOrder({ name: customerName, phone: customerPhone, address })
     : null;
+
+  if (customerId && useLoyaltyPoints) {
+    const cust = await prisma.customer.findUnique({ where: { id: customerId } });
+    if (cust && cust.loyaltyPoints > 0) {
+      const { redemptionValue } = await getLoyaltySettings();
+      const pointsValue = cust.loyaltyPoints * redemptionValue;
+      discountAmount = Math.min(total, pointsValue);
+      total -= discountAmount;
+      
+      const pointsToDeduct = Math.ceil(discountAmount / redemptionValue);
+      await prisma.customer.update({
+        where: { id: customerId },
+        data: { loyaltyPoints: { decrement: pointsToDeduct } }
+      });
+    }
+  }
 
   const order = await prisma.order.create({
     data: {
@@ -41,10 +62,14 @@ export async function createConsultantOrder(formData: FormData) {
       customerPhone: customerPhone || null,
       address,
       total,
+      discountAmount,
       customerId,
       consultantId: consultant.id,
       deliveryMode,
       status: "CONFIRMEE",
+      statusHistory: {
+        create: { status: "CONFIRMEE" }
+      },
       items: {
         create: items.map((i) => ({
           productId: i.productId,
@@ -65,3 +90,4 @@ export async function createConsultantOrder(formData: FormData) {
   revalidatePath("/admin/produits");
   redirect(`/admin/mes-commandes/${order.id}`);
 }
+

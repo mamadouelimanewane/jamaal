@@ -22,7 +22,13 @@ export default async function AdminOrderDetailPage({
 }) {
   const { id } = await params;
   const [order, consultants, livreurs] = await Promise.all([
-    prisma.order.findUnique({ where: { id }, include: { items: true } }),
+    prisma.order.findUnique({
+      where: { id },
+      include: {
+        items: true,
+        statusHistory: { orderBy: { createdAt: "asc" } },
+      },
+    }),
     prisma.consultant.findMany({ where: { active: true }, orderBy: { name: "asc" } }),
     prisma.livreur.findMany({ where: { active: true }, orderBy: { name: "asc" } }),
   ]);
@@ -40,13 +46,26 @@ export default async function AdminOrderDetailPage({
 
   return (
     <div className="max-w-2xl">
-      <h1 className="font-serif-display text-2xl font-semibold text-navy">
-        Commande de {order.customerName}
-      </h1>
-      <p className="mt-1 text-sm text-navy/60">
-        Passée le {order.createdAt.toLocaleDateString("fr-FR")} à{" "}
-        {order.createdAt.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
-      </p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="font-serif-display text-2xl font-semibold text-navy">
+            Commande de {order.customerName}
+          </h1>
+          <p className="mt-1 text-sm text-navy/60">
+            Passée le {order.createdAt.toLocaleDateString("fr-FR")} à{" "}
+            {order.createdAt.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
+          </p>
+        </div>
+
+        <a
+          href={`/admin/commandes/${order.id}/facture?print=true`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1.5 rounded-full border border-line bg-white px-4 py-2 text-sm font-semibold text-navy hover:bg-cream"
+        >
+          📄 Facture (PDF)
+        </a>
+      </div>
 
       <div className="mt-6 rounded-2xl border border-line bg-white p-5">
         <h2 className="mb-3 text-sm font-semibold text-navy">Coordonnées client</h2>
@@ -99,6 +118,28 @@ export default async function AdminOrderDetailPage({
           Mettre à jour
         </button>
       </form>
+
+      {/* Historique horodaté des statuts */}
+      <div className="mt-6 rounded-2xl border border-line bg-white p-5">
+        <h2 className="mb-3 text-sm font-semibold text-navy">Historique horodaté des statuts</h2>
+        {order.statusHistory.length === 0 ? (
+          <p className="text-xs text-navy/50">Aucun historique d&apos;étape enregistré pour l&apos;instant.</p>
+        ) : (
+          <div className="relative border-l-2 border-line pl-4 space-y-3">
+            {order.statusHistory.map((h) => (
+              <div key={h.id} className="relative text-xs">
+                <div className="absolute -left-[21px] top-1 h-2.5 w-2.5 rounded-full border-2 border-white bg-navy" />
+                <span className="font-semibold text-navy">
+                  {statusLabels[h.status] ?? h.status}
+                </span>
+                <span className="ml-2 text-navy/50">
+                  {h.createdAt.toLocaleDateString("fr-FR")} à {h.createdAt.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       <form action={assignOrderLogistics.bind(null, id)} className="mt-6 rounded-2xl border border-line bg-white p-5">
         <h2 className="mb-3 text-sm font-semibold text-navy">Logistique & revendeur</h2>

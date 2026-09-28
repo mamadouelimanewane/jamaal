@@ -1,0 +1,23 @@
+// À fusionner dans prisma/schema.prisma
+
+enum PaymentMethod {
+  COD                 // Paiement à la livraison / chez le consultant
+  WAVE
+  ORANGE_MONEY
+  STRIPE
+}
+
+enum PaymentStatus {
+  NONE                // Pas de paiement en ligne initié
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+// Ajouter sur model Order :
+//
+//   paymentMethod   PaymentMethod  @default(COD)
+//   paymentStatus   PaymentStatus  @default(NONE)
+//   paymentRef      String?        // ID session Wave / OM / Stripe
+//   paidAt          DateTime?

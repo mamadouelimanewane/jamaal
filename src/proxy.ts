@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 import { auth } from "@/lib/auth";
+
+const REF_COOKIE = "jamaal_ref";
+const REF_MAX_AGE = 60 * 60 * 24 * 30; // 30 jours
 
 const ADMIN_ONLY_PREFIXES = [
   "/admin/utilisateurs",
@@ -15,9 +19,28 @@ const ADMIN_ONLY_PREFIXES = [
   "/admin/retours",
 ];
 
+/**
+ * Proxy Next.js 16 :
+ * 1. Pose le cookie jamaal_ref si ?ref=slug est présent
+ * 2. Protège les routes /admin (logique existante)
+ */
 const handler = auth((req) => {
-  const { pathname } = req.nextUrl;
-  if (!pathname.startsWith("/admin")) return NextResponse.next();
+  const { pathname, searchParams } = req.nextUrl;
+  const response = NextResponse.next();
+
+  // ——— Attribution consultant via ?ref= ———
+  const ref = searchParams.get("ref");
+  if (ref && /^[a-z0-9-]{2,48}$/i.test(ref)) {
+    response.cookies.set(REF_COOKIE, ref.toLowerCase(), {
+      path: "/",
+      maxAge: REF_MAX_AGE,
+      sameSite: "lax",
+      httpOnly: false, // lisible côté client pour préremplir le select
+    });
+  }
+
+  // ——— Protection admin (inchangée) ———
+  if (!pathname.startsWith("/admin")) return response;
 
   const isLoggedIn = !!req.auth;
   const isLoginPage = pathname === "/admin/login";
@@ -32,11 +55,13 @@ const handler = auth((req) => {
   if (isAdminOnlyPath && req.auth?.user?.role !== "ADMIN") {
     return NextResponse.redirect(new URL("/admin", req.nextUrl));
   }
-  return NextResponse.next();
+
+  return response;
 });
 
 export { handler as proxy };
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  // On élargit le matcher pour capturer aussi ?ref= sur le site public
+  matcher: ["/admin/:path*", "/((?!_next/static|_next/image|favicon.ico|.*\\..*).*)"],
 };

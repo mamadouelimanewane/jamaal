@@ -118,8 +118,14 @@ export default async function AdminConsultantsPage() {
                   </td>
                   <td className="px-4 py-3 text-right">
                     <Link
-                      href={`/admin/consultants/${c.id}/modifier`}
+                      href={`/admin/consultants/${c.id}`}
                       className="mr-3 text-xs font-semibold text-navy hover:underline"
+                    >
+                      Voir fiche
+                    </Link>
+                    <Link
+                      href={`/admin/consultants/${c.id}/modifier`}
+                      className="mr-3 text-xs font-semibold text-navy/60 hover:underline"
                     >
                       Modifier
                     </Link>
