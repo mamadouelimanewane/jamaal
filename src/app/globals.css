@@ -2,14 +2,18 @@
 
 :root {
   --background: #fdfbf8;
-  --foreground: #1b2a41;
+  --foreground: #16233a;
   --navy: #16233a;
   --navy-light: #24374f;
   --rose: #c9997a;
   --rose-light: #e4c4ab;
   --rose-dark: #a97557;
-  --cream: #fdfbf8;
+  --cream: #faf7f2;
   --line: #e7ded4;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 @theme inline {

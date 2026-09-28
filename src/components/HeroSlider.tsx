@@ -43,20 +43,25 @@ export function HeroSlider() {
 
   return (
     <section
-      className="relative flex min-h-[420px] items-center overflow-hidden sm:min-h-[500px]"
+      className="relative flex min-h-[420px] items-center overflow-hidden sm:min-h-[500px] transition-colors duration-1000 ease-in-out"
       style={{ background: `linear-gradient(135deg, ${slide.colorFrom}, ${slide.colorTo})` }}
     >
-      <div className="mx-auto flex max-w-7xl flex-col items-start gap-5 px-6 py-16 sm:px-10">
-        <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-medium uppercase tracking-widest text-white">
+      <div
+        key={index}
+        className="mx-auto flex w-full max-w-7xl flex-col items-start gap-5 px-6 py-16 sm:px-10 animate-fade-in"
+      >
+        <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-medium uppercase tracking-widest text-white backdrop-blur-sm">
           JAMAAL Luxury Cosmetics
         </span>
-        <h1 className="max-w-xl font-serif-display text-4xl font-semibold leading-tight text-white sm:text-5xl">
+        <h1 className="max-w-xl font-serif-display text-4xl font-semibold leading-tight text-white drop-shadow-md sm:text-5xl">
           {slide.title}
         </h1>
-        <p className="max-w-md text-base text-white/85 sm:text-lg">{slide.subtitle}</p>
+        <p className="max-w-md text-base text-white/90 drop-shadow-sm sm:text-lg">
+          {slide.subtitle}
+        </p>
         <Link
           href={slide.href}
-          className="mt-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-navy transition hover:bg-rose-light"
+          className="mt-4 rounded-full bg-white px-8 py-3.5 text-sm font-bold text-navy shadow-lg transition-transform duration-300 hover:scale-105 hover:bg-cream hover:shadow-xl"
         >
           {slide.cta} →
         </Link>
@@ -65,26 +70,26 @@ export function HeroSlider() {
       <button
         aria-label="Précédent"
         onClick={() => setIndex((i) => (i - 1 + slides.length) % slides.length)}
-        className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/20 p-2 text-white hover:bg-white/30"
+        className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/20 p-2 text-white backdrop-blur-md transition-all hover:scale-110 hover:bg-white/30 sm:left-6"
       >
-        <ChevronLeft size={20} />
+        <ChevronLeft size={24} />
       </button>
       <button
         aria-label="Suivant"
         onClick={() => setIndex((i) => (i + 1) % slides.length)}
-        className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/20 p-2 text-white hover:bg-white/30"
+        className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/20 p-2 text-white backdrop-blur-md transition-all hover:scale-110 hover:bg-white/30 sm:right-6"
       >
-        <ChevronRight size={20} />
+        <ChevronRight size={24} />
       </button>
 
-      <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-2">
+      <div className="absolute bottom-6 left-1/2 flex -translate-x-1/2 gap-2">
         {slides.map((_, i) => (
           <button
             key={i}
             aria-label={`Diapositive ${i + 1}`}
             onClick={() => setIndex(i)}
-            className={`h-1.5 rounded-full transition-all ${
-              i === index ? "w-6 bg-white" : "w-1.5 bg-white/40"
+            className={`h-1.5 rounded-full transition-all duration-500 ease-out ${
+              i === index ? "w-8 bg-white shadow-sm" : "w-2 bg-white/40 hover:bg-white/60"
             }`}
           />
         ))}
