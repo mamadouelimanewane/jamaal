@@ -67,6 +67,7 @@ const adminGroups = [
 const consultantLinks = [
   { href: "/admin", label: "Tableau de bord", icon: LayoutDashboard },
   { href: "/admin/mes-commandes", label: "Mes commandes", icon: ShoppingCart },
+  { href: "/admin/mon-kit-marketing", label: "Mon Kit Marketing", icon: Newspaper },
 ];
 
 const livreurLinks = [
