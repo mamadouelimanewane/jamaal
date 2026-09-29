@@ -33,7 +33,8 @@ const adminGroups = [
   {
     title: "Catalogue",
     links: [
-      { href: "/admin/produits", label: "Produits & stocks", icon: Package },
+      { href: "/admin/produits", label: "Produits", icon: Package },
+      { href: "/admin/stocks", label: "Stocks & mouvements", icon: Package },
       { href: "/admin/categories", label: "Catégories", icon: Tags },
     ],
   },
@@ -42,6 +43,7 @@ const adminGroups = [
     links: [
       { href: "/admin/commandes", label: "Commandes", icon: ShoppingCart },
       { href: "/admin/retours", label: "Retours & remboursements", icon: Undo2 },
+      { href: "/admin/coupons", label: "Codes promo", icon: Tags },
       { href: "/admin/clients", label: "Clients (CRM)", icon: Contact },
     ],
   },

@@ -46,23 +46,28 @@ function parseVariantStock(value: FormDataEntryValue | null) {
     .filter((v): v is { label: string; stock: number; threshold: number } => v !== null);
 }
 
-async function syncVariantStock(productId: string, formData: FormData) {
+async function syncVariantStock(productId: string, formData: FormData, userId: string | null) {
   const variants = parseVariantStock(formData.get("variantStock"));
   const labels = variants.map((v) => v.label);
+  const removed = await prisma.productVariant.findMany({ where: { productId, volumeLabel: { notIn: labels.length ? labels : ["__none__"] } } });
+  for (const variant of removed) {
+    if (variant.stock > 0) await prisma.stockMovement.create({ data: { productId, variantId: variant.id, userId, delta: -variant.stock, previousStock: variant.stock, nextStock: 0, reason: "Retrait du format depuis la fiche produit" } });
+  }
+  await prisma.productVariant.deleteMany({ where: { productId, volumeLabel: { notIn: labels.length ? labels : ["__none__"] } } });
 
-  await prisma.productVariant.deleteMany({
-    where: { productId, volumeLabel: { notIn: labels.length ? labels : ["__none__"] } },
-  });
-
-  for (const v of variants) {
+  for (const variant of variants) {
+    const existing = await prisma.productVariant.findUnique({ where: { productId_volumeLabel: { productId, volumeLabel: variant.label } } });
     await prisma.productVariant.upsert({
-      where: { productId_volumeLabel: { productId, volumeLabel: v.label } },
-      update: { stock: v.stock, lowStockThreshold: v.threshold },
-      create: { productId, volumeLabel: v.label, stock: v.stock, lowStockThreshold: v.threshold },
+      where: { productId_volumeLabel: { productId, volumeLabel: variant.label } },
+      update: { stock: variant.stock, lowStockThreshold: variant.threshold },
+      create: { productId, volumeLabel: variant.label, stock: variant.stock, lowStockThreshold: variant.threshold },
+    });
+    const previousStock = existing?.stock ?? 0;
+    if (variant.stock !== previousStock) await prisma.stockMovement.create({
+      data: { productId, variantId: existing?.id ?? (await prisma.productVariant.findUniqueOrThrow({ where: { productId_volumeLabel: { productId, volumeLabel: variant.label } }, select: { id: true } })).id, userId, delta: variant.stock - previousStock, previousStock, nextStock: variant.stock, reason: existing ? "Ajustement depuis la fiche produit" : "Stock initial du format" },
     });
   }
 }
-
 async function productDataFromForm(formData: FormData) {
   const testerPrice = formData.get("testerPrice");
   const regularPrice = formData.get("regularPrice");
@@ -103,7 +108,8 @@ export async function createProduct(formData: FormData) {
   const session = await requireAdmin();
   const data = await productDataFromForm(formData);
   const product = await prisma.product.create({ data });
-  await syncVariantStock(product.id, formData);
+  await syncVariantStock(product.id, formData, session.user?.id ?? null);
+  if (data.stock > 0) await prisma.stockMovement.create({ data: { productId: product.id, userId: session.user?.id ?? null, delta: data.stock, previousStock: 0, nextStock: data.stock, reason: "Stock initial du produit" } });
   await logActivity(session, "Création produit", "Product", product.id);
   revalidatePath("/admin/produits");
   revalidatePath(`/collections/${data.category}`);
@@ -115,7 +121,8 @@ export async function updateProduct(id: string, formData: FormData) {
   const data = await productDataFromForm(formData);
   const previous = await prisma.product.findUnique({ where: { id } });
   await prisma.product.update({ where: { id }, data });
-  await syncVariantStock(id, formData);
+  await syncVariantStock(id, formData, session.user?.id ?? null);
+  if (previous && data.stock !== previous.stock) await prisma.stockMovement.create({ data: { productId: id, userId: session.user?.id ?? null, delta: data.stock - previous.stock, previousStock: previous.stock, nextStock: data.stock, reason: "Ajustement depuis la fiche produit" } });
   await logActivity(session, "Modification produit", "Product", id);
   revalidatePath("/admin/produits");
   revalidatePath(`/collections/${data.category}`);

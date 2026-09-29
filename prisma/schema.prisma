@@ -58,23 +58,23 @@ model User {
   role         Role     @default(CONSULTANT)
   createdAt    DateTime @default(now())
 
-  consultantId String?  @unique
+  consultantId String?     @unique
   consultant   Consultant? @relation(fields: [consultantId], references: [id], onDelete: SetNull)
 
-  livreurId    String?  @unique
-  livreur      Livreur? @relation(fields: [livreurId], references: [id], onDelete: SetNull)
+  livreurId String?  @unique
+  livreur   Livreur? @relation(fields: [livreurId], references: [id], onDelete: SetNull)
 
-  notifications Notification[]
+  notifications       Notification[]
   passwordResetTokens PasswordResetToken[]
-
+  stockMovements      StockMovement[]
 }
 
 model LoginAttempt {
-  email       String   @id
-  count       Int      @default(0)
-  windowStart DateTime @default(now())
+  email       String    @id
+  count       Int       @default(0)
+  windowStart DateTime  @default(now())
   lockedUntil DateTime?
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime  @updatedAt
 }
 
 model PasswordResetToken {
@@ -88,10 +88,11 @@ model PasswordResetToken {
   @@index([userId])
   @@index([expiresAt])
 }
+
 model Product {
-  id                String   @id @default(cuid())
+  id                String           @id @default(cuid())
   number            Int?
-  slug              String   @unique
+  slug              String           @unique
   name              String
   category          String
   family            String?
@@ -103,20 +104,21 @@ model Product {
   testerPrice       Int?
   volumes           Json?
   regularPrice      Int?
-  reviewCount       Int      @default(0)
-  rating            Float    @default(4.5)
+  reviewCount       Int              @default(0)
+  rating            Float            @default(4.5)
   badge             String?
-  colorFrom         String   @default("#16233a")
-  colorTo           String   @default("#c9997a")
+  colorFrom         String           @default("#16233a")
+  colorTo           String           @default("#c9997a")
   photo             String?
-  isOfficial        Boolean  @default(true)
-  stock             Int      @default(0)
-  lowStockThreshold Int      @default(5)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  isOfficial        Boolean          @default(true)
+  stock             Int              @default(0)
+  lowStockThreshold Int              @default(5)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
   orderItems        OrderItem[]
   wishlistItems     WishlistItem[]
   variants          ProductVariant[]
+  stockMovements    StockMovement[]
   reviews           Review[]
 
   @@index([category])
@@ -127,15 +129,34 @@ model Product {
 /// couple (produit, libellé de volume) — les produits à format unique n'en
 /// ont pas besoin et continuent d'utiliser Product.stock.
 model ProductVariant {
-  id                String      @id @default(cuid())
+  id                String          @id @default(cuid())
   productId         String
-  product           Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product           Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
   volumeLabel       String
-  stock             Int         @default(0)
-  lowStockThreshold Int         @default(5)
+  stock             Int             @default(0)
+  lowStockThreshold Int             @default(5)
   orderItems        OrderItem[]
+  stockMovements    StockMovement[]
 
   @@unique([productId, volumeLabel])
+}
+
+model StockMovement {
+  id            String          @id @default(cuid())
+  productId     String
+  product       Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variantId     String?
+  variant       ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+  userId        String?
+  user          User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
+  delta         Int
+  previousStock Int
+  nextStock     Int
+  reason        String
+  createdAt     DateTime        @default(now())
+
+  @@index([productId, createdAt])
+  @@index([variantId, createdAt])
 }
 
 model Review {
@@ -163,7 +184,7 @@ model Coupon {
   usedCount  Int        @default(0)
   createdAt  DateTime   @default(now())
 
-  orders     Order[]
+  orders Order[]
 }
 
 model Referral {
@@ -211,47 +232,47 @@ model FastStartBonus {
 }
 
 model Order {
-  id            String       @id @default(cuid())
+  id            String      @id @default(cuid())
   customerName  String
   customerEmail String?
   customerPhone String?
   address       String?
-  status        OrderStatus  @default(EN_ATTENTE)
+  status        OrderStatus @default(EN_ATTENTE)
   total         Int
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
   items         OrderItem[]
-  giftWrap      Boolean      @default(false)
+  giftWrap      Boolean     @default(false)
   giftMessage   String?
 
-  customerId    String?
-  customer      Customer?    @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
 
-  consultantId  String?
-  consultant    Consultant?  @relation(fields: [consultantId], references: [id], onDelete: SetNull)
+  consultantId String?
+  consultant   Consultant? @relation(fields: [consultantId], references: [id], onDelete: SetNull)
 
-  deliveryMode  DeliveryMode @default(RETRAIT_CONSULTANT)
-  livreurId     String?
-  livreur       Livreur?     @relation(fields: [livreurId], references: [id], onDelete: SetNull)
-  deliveryLat   Float?
-  deliveryLng   Float?
+  deliveryMode DeliveryMode @default(RETRAIT_CONSULTANT)
+  livreurId    String?
+  livreur      Livreur?     @relation(fields: [livreurId], references: [id], onDelete: SetNull)
+  deliveryLat  Float?
+  deliveryLng  Float?
 
   deliveryZoneId String?
   deliveryZone   DeliveryZone? @relation(fields: [deliveryZoneId], references: [id], onDelete: SetNull)
   deliveryFee    Int           @default(0)
 
   couponId       String?
-  coupon         Coupon?       @relation(fields: [couponId], references: [id], onDelete: SetNull)
-  discountAmount Int           @default(0)
+  coupon         Coupon? @relation(fields: [couponId], references: [id], onDelete: SetNull)
+  discountAmount Int     @default(0)
 
-  paymentMethod  PaymentMethod @default(A_LA_LIVRAISON)
-  paymentStatus  PaymentStatus @default(EN_ATTENTE)
+  paymentMethod PaymentMethod @default(A_LA_LIVRAISON)
+  paymentStatus PaymentStatus @default(EN_ATTENTE)
   paidAt        DateTime?
   paymentRef    String?
 
-  notifications  Notification[]
-  returns        Return[]
-  statusHistory  OrderStatusHistory[]
+  notifications Notification[]
+  returns       Return[]
+  statusHistory OrderStatusHistory[]
 
   @@index([consultantId])
   @@index([livreurId])
@@ -307,17 +328,17 @@ model Consultant {
   sponsor   Consultant?  @relation("ConsultantSponsor", fields: [sponsorId], references: [id], onDelete: SetNull)
   sponsored Consultant[] @relation("ConsultantSponsor")
 
-  user      User?
-  orders    Order[]
+  user   User?
+  orders Order[]
 
   commissionPayments CommissionPayment[]
   targets            MonthlyTarget[]
 
   // Parrainage & codes promo
-  referrals          Referral[]       @relation("ConsultantReferrals")
-  promoCodes         PromoCode[]      @relation("ConsultantPromoCodes")
-  fastStartBonuses   FastStartBonus[] @relation("FastStartSponsor")
-  fastStartReceived  FastStartBonus[] @relation("FastStartSponsoree")
+  referrals         Referral[]       @relation("ConsultantReferrals")
+  promoCodes        PromoCode[]      @relation("ConsultantPromoCodes")
+  fastStartBonuses  FastStartBonus[] @relation("FastStartSponsor")
+  fastStartReceived FastStartBonus[] @relation("FastStartSponsoree")
 
   @@index([sponsorId])
   @@index([slug])
@@ -358,8 +379,8 @@ model Livreur {
   lastSeenAt DateTime?
   createdAt  DateTime  @default(now())
 
-  user       User?
-  orders     Order[]
+  user   User?
+  orders Order[]
 }
 
 model Customer {
@@ -401,14 +422,14 @@ model Expense {
 }
 
 model Category {
-  id        String   @id @default(cuid())
-  slug      String   @unique
-  label     String
-  navLabel  String
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  label       String
+  navLabel    String
   description String
-  accent    String   @default("navy")
-  position  Int      @default(0)
-  createdAt DateTime @default(now())
+  accent      String   @default("navy")
+  position    Int      @default(0)
+  createdAt   DateTime @default(now())
 }
 
 model Return {
