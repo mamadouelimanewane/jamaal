@@ -65,7 +65,7 @@ export async function createOrder(
   });
 
   if (!parsed.success) {
-    const first = parsed.error.errors[0];
+    const first = parsed.error.issues[0];
     throw new Error(first?.message ?? "Données de commande invalides");
   }
 

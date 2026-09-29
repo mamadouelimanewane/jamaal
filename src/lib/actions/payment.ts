@@ -35,7 +35,7 @@ export async function initiatePayment(
   });
 
   if (!order) throw new Error("Commande introuvable.");
-  if ((order as { paymentStatus?: string }).paymentStatus === "PAID") {
+  if ((order as { paymentStatus?: string }).paymentStatus === "PAYE") {
     throw new Error("Cette commande est déjà payée.");
   }
 
@@ -63,7 +63,7 @@ export async function initiatePayment(
   // Persister méthode + ref
   const methodEnum =
     method === "cod"
-      ? "COD"
+      ? "A_LA_LIVRAISON"
       : method === "wave"
         ? "WAVE"
         : method === "orange_money"
@@ -74,7 +74,7 @@ export async function initiatePayment(
     where: { id: order.id },
     data: {
       paymentMethod: methodEnum as never,
-      paymentStatus: method === "cod" ? ("NONE" as never) : ("PENDING" as never),
+      paymentStatus: "EN_ATTENTE",
       paymentRef: result.externalRef ?? null,
     },
   });
@@ -90,12 +90,12 @@ export async function markOrderPaid(orderId: string, externalRef?: string) {
   const order = await prisma.order.findUnique({ where: { id: orderId } });
   if (!order) return false;
 
-  if ((order as { paymentStatus?: string }).paymentStatus === "PAID") return true;
+  if ((order as { paymentStatus?: string }).paymentStatus === "PAYE") return true;
 
   await prisma.order.update({
     where: { id: orderId },
     data: {
-      paymentStatus: "PAID" as never,
+      paymentStatus: "PAYE",
       paidAt: new Date(),
       ...(externalRef ? { paymentRef: externalRef } : {}),
       status: order.status === "EN_ATTENTE" ? "CONFIRMEE" : order.status,

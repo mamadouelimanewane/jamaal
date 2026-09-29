@@ -22,6 +22,8 @@ import {
   Star,
   Users,
   Award,
+  Tag,
+  Zap,
 } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -193,6 +195,20 @@ export default async function ConsultantProfilePage({
           >
             <Star size={13} />
             Objectif
+          </Link>
+          <Link
+            href={`/admin/consultants/${id}/codes`}
+            className="flex items-center gap-1.5 rounded-full border border-line bg-white px-3 py-1.5 text-xs font-semibold text-navy hover:bg-cream"
+          >
+            <Tag size={13} />
+            Codes promo
+          </Link>
+          <Link
+            href={`/admin/consultants/${id}/fast-start`}
+            className="flex items-center gap-1.5 rounded-full border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-700 hover:bg-amber-100"
+          >
+            <Zap size={13} />
+            Fast-Start
           </Link>
           <Link
             href={`/admin/consultants/${id}/paiement`}

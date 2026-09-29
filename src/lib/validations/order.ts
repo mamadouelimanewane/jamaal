@@ -34,7 +34,7 @@ export const createOrderSchema = z.object({
   items: z.array(checkoutItemSchema).min(1, "Le panier est vide"),
   consultantId: z.string().min(1).nullable().optional(),
   acceptCgv: z.literal(true, {
-    errorMap: () => ({ message: "Vous devez accepter les Conditions Générales de Vente" }),
+    message: "Vous devez accepter les Conditions Générales de Vente",
   }),
 });
 

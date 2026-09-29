@@ -1,5 +1,6 @@
 "use server";
 
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
 /**
@@ -22,7 +23,7 @@ export async function trackEvent(input: {
         productId: input.productId,
         orderId: input.orderId,
         sessionId: input.sessionId?.slice(0, 64),
-        meta: input.meta ?? undefined,
+        meta: input.meta ? (JSON.parse(JSON.stringify(input.meta)) as Prisma.InputJsonValue) : undefined,
       },
     });
   } catch (err) {

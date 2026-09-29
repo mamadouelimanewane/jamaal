@@ -9,18 +9,16 @@ type Props = {
 };
 
 const paymentMethodLabels: Record<string, string> = {
-  COD: "À la livraison",
+  A_LA_LIVRAISON: "À la livraison",
   WAVE: "Wave",
   ORANGE_MONEY: "Orange Money",
   STRIPE: "Carte bancaire",
 };
 
 const paymentStatusLabels: Record<string, string> = {
-  NONE: "Paiement à la livraison",
-  PENDING: "Paiement en cours…",
-  PAID: "Payé",
-  FAILED: "Échec du paiement",
-  REFUNDED: "Remboursé",
+  EN_ATTENTE: "Paiement en attente",
+  PAYE: "Payé",
+  ECHOUE: "Échec du paiement",
 };
 
 export default async function OrderConfirmationPage({ params, searchParams }: Props) {
@@ -31,9 +29,9 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
 
   const paymentStatus = (order as { paymentStatus?: string }).paymentStatus ?? "NONE";
   const paymentMethod = (order as { paymentMethod?: string }).paymentMethod ?? "COD";
-  const isPaid = paymentStatus === "PAID" || sp.paid === "1";
+  const isPaid = paymentStatus === "PAYE" || sp.paid === "1";
   const isCanceled = sp.canceled === "1" && !isPaid;
-  const isPending = paymentStatus === "PENDING" && !isPaid;
+  const isPending = paymentStatus === "EN_ATTENTE" && !isPaid;
 
   return (
     <div className="mx-auto max-w-lg px-4 py-16">

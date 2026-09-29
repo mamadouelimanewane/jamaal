@@ -8,7 +8,7 @@ import { upsertCustomerFromOrder } from "./customers";
 import { notifySponsorOnFirstSale } from "@/lib/sponsor-notifications";
 import { decrementStockAndAlert } from "@/lib/stock";
 
-import { getLoyaltySettings } from "@/lib/settings";
+import { LOYALTY_REDEEM_VALUE_FCFA } from "@/lib/loyalty";
 
 export interface ConsultantOrderItem {
   productId: string;
@@ -43,7 +43,7 @@ export async function createConsultantOrder(formData: FormData) {
   if (customerId && useLoyaltyPoints) {
     const cust = await prisma.customer.findUnique({ where: { id: customerId } });
     if (cust && cust.loyaltyPoints > 0) {
-      const { redemptionValue } = await getLoyaltySettings();
+      const redemptionValue = LOYALTY_REDEEM_VALUE_FCFA;
       const pointsValue = cust.loyaltyPoints * redemptionValue;
       discountAmount = Math.min(total, pointsValue);
       total -= discountAmount;

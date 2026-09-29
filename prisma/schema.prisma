@@ -36,6 +36,7 @@ enum PaymentMethod {
   A_LA_LIVRAISON
   WAVE
   ORANGE_MONEY
+  STRIPE
 }
 
 enum PaymentStatus {
@@ -144,6 +145,50 @@ model Coupon {
   orders     Order[]
 }
 
+model Referral {
+  id           String      @id @default(cuid())
+  code         String      @unique
+  referrerId   String?
+  referrer     Consultant? @relation("ConsultantReferrals", fields: [referrerId], references: [id])
+  createdAt    DateTime    @default(now())
+  expiresAt    DateTime?
+  usedAt       DateTime?
+  usedById     String?
+  usedBy       Customer?   @relation("CustomerReferrals", fields: [usedById], references: [id])
+  rewardPoints Int         @default(2000)
+
+  @@index([code])
+}
+
+model PromoCode {
+  id           String     @id @default(cuid())
+  code         String     @unique
+  consultantId String
+  consultant   Consultant @relation("ConsultantPromoCodes", fields: [consultantId], references: [id])
+  discountPct  Int        @default(5)
+  description  String?
+  usageLimit   Int        @default(0)
+  usedCount    Int        @default(0)
+  expiresAt    DateTime?
+  createdAt    DateTime   @default(now())
+
+  @@index([consultantId])
+}
+
+model FastStartBonus {
+  id          String     @id @default(cuid())
+  sponsorId   String
+  sponsor     Consultant @relation("FastStartSponsor", fields: [sponsorId], references: [id])
+  sponsoreeId String
+  sponsoree   Consultant @relation("FastStartSponsoree", fields: [sponsoreeId], references: [id])
+  amount      Int        @default(15000)
+  awardedAt   DateTime?
+  status      String     @default("PENDING")
+  createdAt   DateTime   @default(now())
+
+  @@unique([sponsorId, sponsoreeId])
+}
+
 model Order {
   id            String       @id @default(cuid())
   customerName  String
@@ -178,6 +223,8 @@ model Order {
 
   paymentMethod  PaymentMethod @default(A_LA_LIVRAISON)
   paymentStatus  PaymentStatus @default(EN_ATTENTE)
+  paidAt        DateTime?
+  paymentRef    String?
 
   notifications  Notification[]
   returns        Return[]
@@ -243,6 +290,12 @@ model Consultant {
   commissionPayments CommissionPayment[]
   targets            MonthlyTarget[]
 
+  // Parrainage & codes promo
+  referrals          Referral[]       @relation("ConsultantReferrals")
+  promoCodes         PromoCode[]      @relation("ConsultantPromoCodes")
+  fastStartBonuses   FastStartBonus[] @relation("FastStartSponsor")
+  fastStartReceived  FastStartBonus[] @relation("FastStartSponsoree")
+
   @@index([sponsorId])
   @@index([slug])
 }
@@ -298,6 +351,7 @@ model Customer {
   updatedAt     DateTime @updatedAt
 
   orders    Order[]
+  referrals Referral[] @relation("CustomerReferrals")
 }
 
 model Notification {
