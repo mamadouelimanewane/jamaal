@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { getProductBySlug, getProductsByCategory } from "@/lib/db-products";
 import { getCategory } from "@/lib/db-categories";
 import { ProductVisual } from "@/components/ProductVisual";
@@ -9,84 +10,40 @@ import { ProductCard } from "@/components/ProductCard";
 
 export const dynamic = "force-dynamic";
 
-export default async function ProductPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const product = await getProductBySlug(slug);
   if (!product) notFound();
-
   const category = await getCategory(product.category);
-  const related = (await getProductsByCategory(product.category))
-    .filter((p) => p.id !== product.id)
-    .slice(0, 4);
+  const related = (await getProductsByCategory(product.category)).filter((item) => item.id !== product.id).slice(0, 4);
 
-  return (
-    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-      <p className="mb-4 text-xs text-navy/50">
-        <Link href="/">Accueil</Link> /{" "}
-        <Link href={`/collections/${product.category}`}>{category?.label}</Link> / {product.name}
-      </p>
+  return <main className="mx-auto max-w-[1440px] px-5 pb-20 pt-6 sm:px-8 lg:px-12">
+    <nav aria-label="Fil d’Ariane" className="mb-7 flex items-center gap-2 text-[10px] uppercase tracking-[0.1em] text-navy/45"><Link href="/" className="transition hover:text-navy">Accueil</Link><span>/</span><Link href={`/collections/${product.category}`} className="transition hover:text-navy">{category?.label || "Parfums"}</Link><span>/</span><span className="max-w-48 truncate text-navy/75">{product.name}</span></nav>
 
-      <div className="grid gap-10 lg:grid-cols-2">
-        <div className="relative aspect-square w-full overflow-hidden rounded-3xl bg-cream">
-          <ProductVisual product={product} className="h-full w-full" sizes="(max-width: 1024px) 100vw, 50vw" />
-        </div>
-
-        <div>
-          <h1 className="font-serif-display text-3xl font-semibold text-navy">{product.name}</h1>
-          {product.family && (
-            <p className="mt-1 text-sm font-medium text-rose-dark">{product.family}</p>
-          )}
-          <div className="mt-2">
-            <StarRating rating={product.rating} count={product.reviewCount} />
-          </div>
-
-          <div className="mt-6">
-            <ProductPurchasePanel product={product} />
-          </div>
-
-          {(product.topNotes || product.heartNotes || product.baseNotes) && (
-            <div className="mt-8 grid grid-cols-3 gap-3 rounded-2xl border border-line bg-white p-4 text-center text-xs">
-              <div>
-                <p className="font-semibold uppercase tracking-wide text-navy/50">Tête</p>
-                <p className="mt-1 text-navy">{product.topNotes?.join(", ")}</p>
-              </div>
-              <div>
-                <p className="font-semibold uppercase tracking-wide text-navy/50">Cœur</p>
-                <p className="mt-1 text-navy">{product.heartNotes?.join(", ")}</p>
-              </div>
-              <div>
-                <p className="font-semibold uppercase tracking-wide text-navy/50">Fond</p>
-                <p className="mt-1 text-navy">{product.baseNotes?.join(", ")}</p>
-              </div>
-            </div>
-          )}
-        </div>
+    <div className="grid gap-9 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16 xl:gap-24">
+      <div className="relative self-start bg-[#f1ede6] lg:sticky lg:top-28">
+        <div className="relative aspect-[4/4.5] w-full overflow-hidden"><ProductVisual product={product} fit="contain" className="h-full w-full p-5 sm:p-10 lg:p-14" sizes="(max-width: 1024px) 100vw, 54vw"/></div>
+        <div className="absolute bottom-4 left-4 bg-[#fbf9f5]/90 px-3 py-2 text-[8px] uppercase tracking-[0.17em] text-navy/70 backdrop-blur sm:bottom-6 sm:left-6">JAMAAL · Extrait de parfum</div>
       </div>
 
-      <div className="mt-12 max-w-3xl">
-        {product.longDescription.map((p, i) => (
-          <p key={i} className="mb-4 text-sm leading-relaxed text-navy/80">
-            {p}
-          </p>
-        ))}
-      </div>
+      <div className="lg:py-6 xl:py-10">
+        <div className="max-w-xl">
+          <p className="luxury-eyebrow">{product.family || "La collection JAMAAL"}</p>
+          <h1 className="mt-3 font-serif-display text-3xl font-medium leading-tight tracking-[-0.02em] text-[#241915] sm:text-4xl xl:text-5xl">{product.name}</h1>
+          {product.reviewCount > 0 && <div className="mt-3"><StarRating rating={product.rating} count={product.reviewCount}/></div>}
+          <p className="mt-5 text-sm leading-7 text-navy/65">{product.shortDescription}</p>
+          <div className="my-7 border-t border-[#e8e0d7]"/>
+          <ProductPurchasePanel product={product}/>
+          <div className="mt-6 grid grid-cols-2 gap-3 border-y border-[#e8e0d7] py-4 text-[9px] uppercase tracking-[0.12em] text-navy/60"><span>Extrait concentré à 30 %</span><span className="text-right">Paiement à la livraison</span></div>
 
-      {related.length > 0 && (
-        <div className="mt-14">
-          <h2 className="mb-5 font-serif-display text-xl font-semibold text-navy">
-            Les clients ont également regardé
-          </h2>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-            {related.map((p) => (
-              <ProductCard key={p.id} product={p} />
-            ))}
-          </div>
+          {(product.topNotes?.length || product.heartNotes?.length || product.baseNotes?.length) ? <section className="mt-9"><p className="luxury-eyebrow">Pyramide olfactive</p><div className="mt-4 grid grid-cols-3 gap-2 sm:gap-4">{[{ label: "Tête", notes: product.topNotes }, { label: "Cœur", notes: product.heartNotes }, { label: "Fond", notes: product.baseNotes }].map((level) => <div key={level.label} className="border-t border-[#bca996] pt-3"><p className="text-[8px] uppercase tracking-[0.2em] text-[#9a755d]">{level.label}</p><p className="mt-2 text-[11px] leading-5 text-navy sm:text-xs">{level.notes?.join(", ") || "—"}</p></div>)}</div></section> : null}
+
+          <details className="group mt-8 border-y border-[#e8e0d7] py-4"><summary className="flex cursor-pointer list-none items-center justify-between font-serif-display text-base text-navy">L’histoire de cette fragrance <span className="text-xl transition group-open:rotate-45">+</span></summary><div className="pt-4 text-sm leading-7 text-navy/65">{product.longDescription.map((paragraph, index) => <p key={index} className="mb-3 last:mb-0">{paragraph}</p>)}</div></details>
         </div>
-      )}
+      </div>
     </div>
-  );
+
+    {related.length > 0 && <section className="mt-20 border-t border-[#e8e0d7] pt-10 sm:mt-28"><div className="mb-7 flex items-end justify-between gap-4"><div><p className="luxury-eyebrow">Continuer la découverte</p><h2 className="mt-2 font-serif-display text-2xl text-navy sm:text-3xl">Dans le même sillage</h2></div><Link href={`/collections/${product.category}`} className="editorial-link">Toute la collection <ArrowRight size={14}/></Link></div><div className="grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-6">{related.map((item) => <ProductCard key={item.id} product={item}/>)}</div></section>}
+    <Link href={`/collections/${product.category}`} className="mt-12 inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-navy/60 transition hover:text-navy"><ArrowLeft size={14}/> Retour à la collection</Link>
+  </main>;
 }

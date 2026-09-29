@@ -39,7 +39,9 @@ export async function createOrder(
   customer: CheckoutCustomer,
   items: CheckoutItem[],
   consultantId?: string | null,
-  acceptCgv: boolean = false
+  acceptCgv: boolean = false,
+  giftWrap: boolean = false,
+  giftMessage: string = ""
 ) {
   // 0. Rate limiting
   const h = await headers();
@@ -62,6 +64,8 @@ export async function createOrder(
     items,
     consultantId: consultantId || null,
     acceptCgv: acceptCgv === true ? true : false,
+    giftWrap: giftWrap === true,
+    giftMessage: giftMessage.trim(),
   });
 
   if (!parsed.success) {
@@ -168,6 +172,8 @@ export async function createOrder(
       customerPhone: data.customer.phone || null,
       address: data.customer.address || null,
       total,
+      giftWrap: data.giftWrap,
+      giftMessage: data.giftWrap ? (data.giftMessage || null) : null,
       customerId,
       consultantId: validConsultantId,
       items: {
@@ -291,6 +297,8 @@ export async function getOrderConfirmation(id: string) {
       address: true,
       paymentMethod: true,
       paymentStatus: true,
+      giftWrap: true,
+      giftMessage: true,
       paidAt: true,
       consultant: { select: { name: true, city: true, whatsapp: true } },
       items: {
@@ -304,4 +312,22 @@ export async function getOrderConfirmation(id: string) {
     },
   });
   return order;
+}
+
+/** Articles disponibles, avec les prix actuels, pour un nouvel ajout au panier. */
+export async function getOrderItemsForReorder(id: string) {
+  const order = await prisma.order.findUnique({ where: { id }, include: { items: { include: { product: true, variant: true } } } });
+  if (!order) return [];
+  return order.items.flatMap((item) => {
+    const product = item.product;
+    if (!product) return [];
+    const available = item.variant?.stock ?? product.stock;
+    if (available <= 0) return [];
+    const volumes = Array.isArray(product.volumes) ? product.volumes as { label: string; price: number }[] : [];
+    const volume = volumes.find((entry) => entry.label === item.volumeLabel);
+    const sample = item.volumeLabel.toLowerCase().includes("échantillon");
+    const price = volume?.price ?? (sample ? product.testerPrice : product.regularPrice);
+    if (!price || price <= 0) return [];
+    return [{ productId: product.id, slug: product.slug, name: product.name, volumeLabel: item.volumeLabel, price, quantity: Math.min(item.quantity, available), colorFrom: product.colorFrom, colorTo: product.colorTo }];
+  });
 }

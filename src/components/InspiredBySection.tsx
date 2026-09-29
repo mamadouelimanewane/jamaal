@@ -1,27 +1,9 @@
 export function InspiredBySection() {
-  return (
-    <section className="bg-navy">
-      <div className="mx-auto max-w-5xl px-6 py-16 text-center text-white sm:px-10">
-        <h2 className="font-serif-display text-2xl font-semibold sm:text-3xl">
-          Des parfums inspirés des grandes maisons
-        </h2>
-        <p className="mt-2 text-sm uppercase tracking-widest text-rose-light">
-          Pas de contrefaçon — Pas de copie
-        </p>
-        <p className="mx-auto mt-6 max-w-3xl text-sm leading-relaxed text-white/80 sm:text-base">
-          Les parfums JAMAAL sont élaborés en collaboration avec des parfumeurs spécialisés dans
-          les fragrances de haute concentration. Chaque composition s&apos;inspire des grandes
-          familles olfactives de la parfumerie de luxe, sans jamais reproduire ni contrefaire une
-          fragrance existante. C&apos;est cette approche qui permet de proposer un extrait de
-          parfum concentré à 30 %, gage d&apos;une tenue longue durée sur la peau, à un prix bien
-          plus accessible que les grandes marques.
-        </p>
-        <p className="mx-auto mt-4 max-w-3xl text-sm leading-relaxed text-white/80 sm:text-base">
-          Nos parfums sont fabriqués à partir d&apos;alcool alimentaire dénaturé de qualité, sans
-          fixateur chimique superflu. Plus besoin de payer l&apos;immense budget marketing des
-          grandes maisons : allez à l&apos;essentiel, avec JAMAAL.
-        </p>
-      </div>
-    </section>
-  );
+  return <section className="relative isolate overflow-hidden bg-[#241915] text-[#fbf7f0]">
+    <div aria-hidden="true" className="absolute -right-24 -top-32 -z-10 h-[32rem] w-[32rem] rounded-full border border-white/10"/><div aria-hidden="true" className="absolute -right-8 -top-16 -z-10 h-[25rem] w-[25rem] rounded-full border border-white/10"/>
+    <div className="mx-auto grid max-w-7xl gap-9 px-5 py-16 sm:px-8 md:grid-cols-[0.8fr_1.2fr] md:items-center lg:px-12 lg:py-24">
+      <div><p className="luxury-eyebrow text-[#d8b894]">La vision JAMAAL</p><p className="mt-4 font-serif-display text-6xl font-light text-[#d8b894] sm:text-7xl">30<span className="text-3xl">%</span></p><p className="mt-1 text-[9px] uppercase tracking-[0.2em] text-white/55">Concentration d’extrait</p></div>
+      <div><p className="font-serif-display text-2xl font-medium leading-snug sm:text-3xl">« Le luxe n’est pas un nom. C’est l’émotion que laisse un parfum. »</p><p className="mt-5 max-w-2xl text-sm leading-7 text-white/65">JAMAAL compose des fragrances autour de grandes familles olfactives, avec l’intensité d’un extrait et une signature qui vous appartient.</p><p className="mt-5 text-[9px] uppercase tracking-[0.18em] text-[#d8b894]">Des sillages originaux · Un conseil attentif</p></div>
+    </div>
+  </section>;
 }

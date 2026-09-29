@@ -17,15 +17,18 @@ export function ProductBottle({
   category,
   number,
   className,
+  id,
 }: {
   colorFrom: string;
   colorTo: string;
   category: string;
   number?: number;
   className?: string;
+  id?: string;
 }) {
   const shape = CATEGORY_SHAPE[category] ?? "perfume";
-  const gradId = `grad-${colorFrom.replace("#", "")}-${colorTo.replace("#", "")}`;
+  const safeId = (id || `${category}-${number ?? "item"}-${colorFrom}-${colorTo}`).replace(/[^a-zA-Z0-9_-]/g, "");
+  const gradId = `grad-${safeId}`;
 
   return (
     <svg
@@ -44,21 +47,20 @@ export function ProductBottle({
 
       {shape === "perfume" && (
         <g>
-          <rect x="82" y="30" width="36" height="24" rx="4" fill="#1b2a41" />
-          <rect x="92" y="18" width="16" height="16" rx="2" fill="#c9997a" />
-          <rect x="60" y="54" width="80" height="150" rx="10" fill={`url(#${gradId})`} stroke="#1b2a41" strokeWidth="2" />
-          <rect x="72" y="80" width="56" height="60" rx="4" fill="rgba(255,255,255,0.18)" />
-          {number !== undefined && (
-            <text x="100" y="150" textAnchor="middle" fontSize="22" fontWeight="700" fill="#fff" fontFamily="serif">
-              N°{number}
-            </text>
-          )}
-          <text x="100" y="230" textAnchor="middle" fontSize="13" letterSpacing="2" fill="#1b2a41" fontFamily="serif">
-            JAMAAL
-          </text>
+          <ellipse cx="100" cy="224" rx="62" ry="12" fill="#241915" opacity=".13" />
+          <rect x="78" y="67" width="44" height="30" rx="3" fill="#ae8c61" />
+          <rect x="72" y="48" width="56" height="22" rx="3" fill="#d5bd8f" />
+          <path d="M81 48v-8c0-4 3-7 7-7h24c4 0 7 3 7 7v8" fill="#9e7a4f" />
+          <path d="M65 100c0-8 7-14 15-14h40c8 0 15 6 15 14v92c0 10-8 18-18 18H83c-10 0-18-8-18-18z" fill={`url(#${gradId})`} stroke="#ac8e68" strokeWidth="2" />
+          <path d="M73 111c0-6 4-9 9-9h5v91c0 5 1 9 3 13h-7c-6 0-10-5-10-11z" fill="#fff" opacity=".3" />
+          <path d="M127 109v83c0 5-2 9-5 12" fill="none" stroke="#fff" strokeWidth="3" opacity=".38" />
+          <rect x="77" y="126" width="46" height="50" rx="1" fill="#f7f1e6" stroke="#d6c5ad" />
+          <text x="100" y="145" textAnchor="middle" fontSize="6" letterSpacing="1.5" fill="#9a755d" fontFamily="serif">EXTRAIT</text>
+          {number !== undefined && <text x="100" y="162" textAnchor="middle" fontSize="12" fontWeight="600" fill="#241915" fontFamily="serif">N°{number}</text>}
+          <text x="100" y="171" textAnchor="middle" fontSize="5" letterSpacing="1.4" fill="#241915" fontFamily="serif">JAMAAL</text>
+          <path d="M86 211h28" stroke="#c4a579" strokeWidth="1" />
         </g>
       )}
-
       {shape === "jar" && (
         <g>
           <rect x="55" y="70" width="90" height="90" rx="14" fill={`url(#${gradId})`} stroke="#1b2a41" strokeWidth="2" />

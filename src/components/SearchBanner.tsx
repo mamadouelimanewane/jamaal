@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Search } from "lucide-react";
+import { ArrowRight, Search } from "lucide-react";
 
 export function SearchBanner() {
   const [query, setQuery] = useState("");
@@ -14,30 +14,34 @@ export function SearchBanner() {
   }
 
   return (
-    <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
-      <div className="rounded-3xl bg-cream px-6 py-10 text-center sm:px-10">
-        <h2 className="font-serif-display text-2xl font-semibold text-navy sm:text-3xl">
-          LES PARFUMS JAMAAL
-        </h2>
-        <p className="mx-auto mt-3 max-w-2xl text-sm text-navy/70 sm:text-base">
-          Nous proposons une large sélection de parfums inspirés des plus grandes maisons de
-          parfumerie. Pour trouver votre parfum JAMAAL facilement, tapez son nom ou son numéro
-          dans la barre de recherche ci-dessous. Un doute ? Contactez-nous par WhatsApp, nous
-          serons ravis de vous conseiller.
-        </p>
-        <form onSubmit={handleSubmit} className="mx-auto mt-6 flex max-w-md items-center gap-2">
+    <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10">
+      <div className="grid items-center gap-6 border-y border-[#e8e0d7] bg-transparent px-0 py-7 sm:py-9 lg:grid-cols-[1fr_1.1fr]">
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-taupe">Un parfum en tête ?</p>
+          <h2 className="mt-2 font-serif-display text-xl font-semibold text-ink sm:text-2xl">
+            Retrouvez votre JAMAAL
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-ink/60">
+            Recherchez par nom, numéro ou famille olfactive.
+          </p>
+        </div>
+        <form onSubmit={handleSubmit} role="search" className="flex items-center gap-2 border-b border-[#bca996] bg-transparent py-1 pl-1 focus-within:border-wine">
+          <Search size={18} className="shrink-0 text-ink/45" aria-hidden="true" />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            type="text"
-            placeholder="Rechercher mon parfum JAMAAL (ex : N°42)"
-            className="w-full rounded-full border border-line bg-white px-4 py-3 text-sm outline-none focus:border-rose"
+            type="search"
+            aria-label="Rechercher un parfum"
+            placeholder="Nom, numéro, notes…"
+            className="min-w-0 flex-1 bg-transparent py-2 text-sm text-ink outline-none placeholder:text-ink/40"
           />
           <button
             type="submit"
-            className="flex shrink-0 items-center gap-2 rounded-full bg-navy px-5 py-3 text-sm font-semibold text-white transition hover:bg-navy-light"
+            aria-label="Lancer la recherche"
+            className="flex h-10 w-10 shrink-0 items-center justify-center bg-wine text-white transition hover:bg-[#4f1c26] sm:w-auto sm:px-5"
           >
-            <Search size={16} /> Rechercher
+            <span className="hidden sm:inline">Rechercher</span>
+            <ArrowRight size={16} className="sm:ml-2" />
           </button>
         </form>
       </div>

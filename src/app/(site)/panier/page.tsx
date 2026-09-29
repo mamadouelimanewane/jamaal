@@ -32,6 +32,8 @@ export default function CartPage() {
   const [customer, setCustomer] = useState({ name: "", phone: "", email: "", address: "" });
   const [consultantId, setConsultantId] = useState("");
   const [acceptCgv, setAcceptCgv] = useState(false);
+  const [giftWrap, setGiftWrap] = useState(false);
+  const [giftMessage, setGiftMessage] = useState("");
   const [consultants, setConsultants] = useState<
     { id: string; name: string; city: string; slug?: string | null }[]
   >([]);
@@ -98,7 +100,9 @@ export default function CartPage() {
           quantity: i.quantity,
         })),
         consultantId || null,
-        acceptCgv
+        acceptCgv,
+        giftWrap,
+        giftMessage
       );
       clear();
 
@@ -243,6 +247,11 @@ export default function CartPage() {
                   )}
                 </div>
               )}
+
+              <div className="rounded-xl border border-line bg-cream/50 p-3">
+                <label className="flex items-center gap-2 text-sm font-medium text-navy"><input type="checkbox" checked={giftWrap} onChange={(e) => setGiftWrap(e.target.checked)} />Préparer cette commande comme un cadeau</label>
+                {giftWrap && <textarea maxLength={300} placeholder="Message cadeau (facultatif, 300 caractères maximum)" value={giftMessage} onChange={(e) => setGiftMessage(e.target.value)} rows={3} className="mt-3 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm" />}
+              </div>
 
               <PaymentMethodSelector
                 options={paymentOptions}

@@ -105,6 +105,8 @@ export default async function AdminOrderDetailPage({
         </div>
       </div>
 
+      {order.giftWrap && <div className="mt-4 rounded-xl border border-rose/30 bg-rose/5 p-4"><p className="text-sm font-semibold text-navy">Préparation cadeau</p>{order.giftMessage && <p className="mt-1 text-sm text-navy/70">Message : {order.giftMessage}</p>}</div>}
+
       <form action={changeStatus} className="mt-6 flex flex-wrap items-center gap-3 rounded-2xl border border-line bg-white p-5">
         <label className="text-sm font-medium text-navy/70">Statut</label>
         <select name="status" defaultValue={order.status} className="rounded-lg border border-line px-3 py-2 text-sm">

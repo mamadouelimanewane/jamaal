@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getOrderConfirmation } from "@/lib/actions/orders";
 import { formatPrice } from "@/lib/currency";
+import { ReorderButton } from "@/components/ReorderButton";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -99,6 +100,8 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
           )}
         </div>
 
+        {order.giftWrap && <div className="mt-4 rounded-xl border border-rose/30 bg-rose/5 p-4 text-left text-sm"><p className="font-semibold text-navy">Commande cadeau</p>{order.giftMessage && <p className="mt-1 text-navy/70">« {order.giftMessage} »</p>}</div>}
+
         <ul className="mt-6 space-y-2 text-left text-sm">
           {order.items.map((item, i) => (
             <li key={i} className="flex justify-between border-b border-line/60 pb-2">
@@ -116,6 +119,7 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
         </ul>
 
         <div className="mt-8 flex flex-col gap-3">
+          <ReorderButton orderId={order.id} />
           <Link
             href={`/suivi/${order.id}`}
             className="rounded-full bg-navy px-6 py-3 text-sm font-semibold text-white transition hover:bg-navy-light"

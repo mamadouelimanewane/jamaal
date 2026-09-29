@@ -33,6 +33,8 @@ export const createOrderSchema = z.object({
   customer: checkoutCustomerSchema,
   items: z.array(checkoutItemSchema).min(1, "Le panier est vide"),
   consultantId: z.string().min(1).nullable().optional(),
+  giftWrap: z.boolean().default(false),
+  giftMessage: z.string().trim().max(300).optional().or(z.literal("")),
   acceptCgv: z.literal(true, {
     message: "Vous devez accepter les Conditions Générales de Vente",
   }),

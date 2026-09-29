@@ -16,6 +16,7 @@ import {
   Truck,
   Undo2,
   Settings,
+  ClipboardList,
 } from "lucide-react";
 import { auth, signOut } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -124,6 +125,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
               <SidebarNavLink href="/admin/notifications" label="Notifications" icon={<Bell size={16} />} badge={unreadCount} />
               <SidebarNavLink href="/admin/utilisateurs" label="Utilisateurs" icon={<UserCog size={16} />} />
               <SidebarNavLink href="/admin/reglages" label="Réglages & Fidélité" icon={<Settings size={16} />} />
+              <SidebarNavLink href="/admin/historique" label="Journal des actions" icon={<ClipboardList size={16} />} />
             </div>
           </div>
         )}

@@ -4,7 +4,7 @@ import { NewsletterForm } from "./NewsletterForm";
 
 export function Footer({ categories }: { categories: Category[] }) {
   return (
-    <footer className="mt-20 bg-navy text-white/80">
+    <footer className="mt-0 bg-[#241915] text-white/75">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div>
@@ -16,7 +16,7 @@ export function Footer({ categories }: { categories: Category[] }) {
           </div>
 
           <div>
-            <h4 className="mb-3 text-sm font-semibold uppercase tracking-wide text-rose-light">
+            <h4 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[#d8b894]">
               Nos collections
             </h4>
             <ul className="flex flex-col gap-2 text-sm">
@@ -31,7 +31,7 @@ export function Footer({ categories }: { categories: Category[] }) {
           </div>
 
           <div>
-            <h4 className="mb-3 text-sm font-semibold uppercase tracking-wide text-rose-light">
+            <h4 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[#d8b894]">
               JAMAAL
             </h4>
             <ul className="flex flex-col gap-2 text-sm">
@@ -64,11 +64,11 @@ export function Footer({ categories }: { categories: Category[] }) {
           </div>
 
           <div>
-            <h4 className="mb-3 text-sm font-semibold uppercase tracking-wide text-rose-light">
+            <h4 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[#d8b894]">
               Newsletter
             </h4>
             <p className="mb-3 text-sm">
-              Recevez nos meilleures offres et nos concours réservés aux abonné·es.
+              Une lettre ponctuelle autour du parfum, des nouveautés et des gestes qui font la différence.
             </p>
             <NewsletterForm />
           </div>

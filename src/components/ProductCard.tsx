@@ -1,47 +1,26 @@
 import Link from "next/link";
-import { Product } from "@/data/types";
+import { ArrowUpRight } from "lucide-react";
+import type { Product } from "@/data/types";
 import { ProductVisual } from "./ProductVisual";
 import { StarRating } from "./StarRating";
 import { formatPrice } from "@/lib/currency";
 
 export function ProductCard({ product }: { product: Product }) {
-  const displayPrice = product.testerPrice ?? product.regularPrice ?? 0;
   const priceLabel = product.testerPrice
-    ? `Échantillon dès ${formatPrice(product.testerPrice)}`
-    : `Prix régulier ${formatPrice(product.regularPrice ?? 0)}`;
-
-  return (
-    <Link
-      href={`/produits/${product.slug}`}
-      className="group flex flex-col gap-3 rounded-2xl border border-line bg-white p-4 transition hover:-translate-y-1 hover:shadow-lg hover:shadow-navy/5"
-    >
-      <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-cream">
-        <ProductVisual
-          product={product}
-          className="h-full w-full transition group-hover:scale-105"
-        />
-        {product.badge && (
-          <span
-            className={`absolute left-2 top-2 rounded-full px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-white ${
-              product.badge === "bestseller"
-                ? "bg-rose-dark"
-                : product.badge === "nouveau"
-                ? "bg-navy"
-                : "bg-zinc-400"
-            }`}
-          >
-            {product.badge === "bestseller" ? "Best-seller" : product.badge === "nouveau" ? "Nouveau" : "Épuisé"}
-          </span>
-        )}
-      </div>
-      <div className="flex flex-col gap-1">
-        <h3 className="font-serif-display text-sm font-semibold text-navy line-clamp-1">
-          {product.name}
-        </h3>
-        <p className="line-clamp-1 text-xs text-navy/60">{product.shortDescription}</p>
-        <StarRating rating={product.rating} count={product.reviewCount} />
-        <p className="mt-1 text-sm font-medium text-rose-dark">{priceLabel}</p>
-      </div>
-    </Link>
-  );
+    ? `Échantillon · ${formatPrice(product.testerPrice)}`
+    : `À partir de ${formatPrice(product.regularPrice ?? product.volumes?.[0]?.price ?? 0)}`;
+  return <Link href={`/produits/${product.slug}`} className="group block focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#8e634b]">
+    <div className="relative aspect-[4/5] overflow-hidden bg-[#f1ede6]">
+      <ProductVisual product={product} fit="contain" className="h-full w-full p-3 transition duration-700 ease-out group-hover:scale-[1.045] sm:p-5" sizes="(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 22vw"/>
+      {product.badge && <span className="absolute left-3 top-3 bg-[#fbf9f5]/90 px-2.5 py-1.5 text-[8px] font-semibold uppercase tracking-[0.15em] text-[#5b302a] backdrop-blur-sm">{product.badge === "bestseller" ? "La signature" : product.badge === "nouveau" ? "Nouveauté" : "Épuisé"}</span>}
+      <span aria-hidden="true" className="absolute bottom-3 right-3 flex h-9 w-9 translate-y-2 items-center justify-center rounded-full bg-[#fbf9f5] text-navy opacity-0 shadow-sm transition duration-300 group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-y-0 group-focus-visible:opacity-100"><ArrowUpRight size={17}/></span>
+    </div>
+    <div className="pt-3.5">
+      {product.family && <p className="text-[8px] uppercase tracking-[0.17em] text-[#9a755d]">{product.family}</p>}
+      <h3 className="mt-1 font-serif-display text-[15px] font-medium leading-snug text-[#241915] sm:text-lg">{product.name}</h3>
+      <p className="mt-1 line-clamp-2 text-[10px] leading-5 text-navy/55 sm:text-xs">{product.shortDescription}</p>
+      {product.reviewCount > 0 && <div className="mt-2"><StarRating rating={product.rating} count={product.reviewCount}/></div>}
+      <p className="mt-2.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-navy sm:text-[11px]">{priceLabel}</p>
+    </div>
+  </Link>;
 }

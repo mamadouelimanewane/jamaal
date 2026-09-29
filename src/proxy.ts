@@ -17,6 +17,7 @@ const ADMIN_ONLY_PREFIXES = [
   "/admin/statistiques",
   "/admin/blog",
   "/admin/retours",
+  "/admin/historique",
 ];
 
 /**
@@ -44,8 +45,9 @@ const handler = auth((req) => {
 
   const isLoggedIn = !!req.auth;
   const isLoginPage = pathname === "/admin/login";
+  const isRecoveryPage = pathname === "/admin/forgot-password" || pathname === "/admin/reset-password";
 
-  if (!isLoggedIn && !isLoginPage) {
+  if (!isLoggedIn && !isLoginPage && !isRecoveryPage) {
     return NextResponse.redirect(new URL("/admin/login", req.nextUrl));
   }
   if (isLoggedIn && isLoginPage) {

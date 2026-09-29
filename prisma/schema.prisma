@@ -65,8 +65,29 @@ model User {
   livreur      Livreur? @relation(fields: [livreurId], references: [id], onDelete: SetNull)
 
   notifications Notification[]
+  passwordResetTokens PasswordResetToken[]
+
 }
 
+model LoginAttempt {
+  email       String   @id
+  count       Int      @default(0)
+  windowStart DateTime @default(now())
+  lockedUntil DateTime?
+  updatedAt   DateTime @updatedAt
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}
 model Product {
   id                String   @id @default(cuid())
   number            Int?
@@ -200,6 +221,8 @@ model Order {
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
   items         OrderItem[]
+  giftWrap      Boolean      @default(false)
+  giftMessage   String?
 
   customerId    String?
   customer      Customer?    @relation(fields: [customerId], references: [id], onDelete: SetNull)

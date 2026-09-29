@@ -1,8 +1,14 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fdfbf8;
-  --foreground: #16233a;
+  --background: #fbf9f5;
+  --foreground: #241915;
+  --ink: #241915;
+  --wine: #6a2632;
+  --champagne: #d8b894;
+  --taupe: #806c5b;
+  --paper: #fbf9f5;
+  --rule: #e8e0d7;
   --navy: #16233a;
   --navy-light: #24374f;
   --rose: #c9997a;
@@ -19,6 +25,11 @@ html {
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-ink: var(--ink);
+  --color-wine: var(--wine);
+  --color-champagne: var(--champagne);
+  --color-taupe: var(--taupe);
+  --color-paper: var(--paper);
   --color-navy: var(--navy);
   --color-navy-light: var(--navy-light);
   --color-rose: var(--rose);
@@ -59,4 +70,60 @@ body {
 }
 .animate-fade-in {
   animation: fade-in 0.4s ease-out both;
+}
+
+.luxury-eyebrow {
+  color: var(--taupe);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .22em;
+  line-height: 1.5;
+  text-transform: uppercase;
+}
+
+.nav-luxury-link {
+  position: relative;
+  padding: 22px 0;
+  color: rgb(36 25 21 / .74);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  transition: color .2s ease;
+}
+
+.nav-luxury-link::after {
+  position: absolute;
+  right: 0;
+  bottom: 14px;
+  left: 0;
+  height: 1px;
+  background: var(--taupe);
+  content: "";
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .25s ease;
+}
+
+.nav-luxury-link:hover { color: #241915; }
+.nav-luxury-link:hover::after { transform: scaleX(1); }
+
+.editorial-link {
+  display: inline-flex;
+  align-items: center;
+  gap: .65rem;
+  border-bottom: 1px solid #c9b8a7;
+  padding-bottom: .5rem;
+  color: var(--ink);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  transition: color .2s ease, border-color .2s ease;
+}
+
+.editorial-link:hover { border-color: var(--wine); color: var(--wine); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }

@@ -1,99 +1,36 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowDownRight, ArrowRight } from "lucide-react";
+import type { Product } from "@/data/types";
 
-const slides = [
-  {
-    title: "Les Parfums JAMAAL",
-    subtitle: "Des fragrances inspirées des plus grandes maisons, à prix juste",
-    cta: "Découvrir les parfums femme",
-    href: "/collections/parfum-femme",
-    colorFrom: "#16233a",
-    colorTo: "#c9997a",
-  },
-  {
-    title: "JAMAAL Homme",
-    subtitle: "Des sillages boisés et intenses pour affirmer votre style",
-    cta: "Découvrir les parfums homme",
-    href: "/collections/parfum-homme",
-    colorFrom: "#24374f",
-    colorTo: "#e4c4ab",
-  },
-  {
-    title: "Aurodhea by JAMAAL",
-    subtitle: "Une routine de soins visage et cheveux haut de gamme",
-    cta: "Découvrir Aurodhea",
-    href: "/collections/aurodhea",
-    colorFrom: "#a97557",
-    colorTo: "#16233a",
-  },
-];
-
-export function HeroSlider() {
-  const [index, setIndex] = useState(0);
-
-  useEffect(() => {
-    const id = setInterval(() => setIndex((i) => (i + 1) % slides.length), 6000);
-    return () => clearInterval(id);
-  }, []);
-
-  const slide = slides[index];
-
-  return (
-    <section
-      className="relative flex min-h-[420px] items-center overflow-hidden sm:min-h-[500px] transition-colors duration-1000 ease-in-out"
-      style={{ background: `linear-gradient(135deg, ${slide.colorFrom}, ${slide.colorTo})` }}
-    >
-      <div
-        key={index}
-        className="mx-auto flex w-full max-w-7xl flex-col items-start gap-5 px-6 py-16 sm:px-10 animate-fade-in"
-      >
-        <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-medium uppercase tracking-widest text-white backdrop-blur-sm">
-          JAMAAL Luxury Cosmetics
-        </span>
-        <h1 className="max-w-xl font-serif-display text-4xl font-semibold leading-tight text-white drop-shadow-md sm:text-5xl">
-          {slide.title}
-        </h1>
-        <p className="max-w-md text-base text-white/90 drop-shadow-sm sm:text-lg">
-          {slide.subtitle}
-        </p>
-        <Link
-          href={slide.href}
-          className="mt-4 rounded-full bg-white px-8 py-3.5 text-sm font-bold text-navy shadow-lg transition-transform duration-300 hover:scale-105 hover:bg-cream hover:shadow-xl"
-        >
-          {slide.cta} →
-        </Link>
+export function HeroSlider({ featuredProduct }: { featuredProduct?: Product | null }) {
+  const image = featuredProduct?.photo || "/produits/jamaal-scented-love-25.jpg";
+  const productHref = featuredProduct ? `/produits/${featuredProduct.slug}` : "/collections/parfum-femme";
+  return <section className="relative isolate overflow-hidden bg-[#241915] text-[#fbf7f0]">
+    <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_15%_50%,rgba(152,101,72,0.22),transparent_52%),linear-gradient(120deg,#241915_0%,#30221d_55%,#46322a_100%)]"/>
+    <div className="mx-auto grid min-h-[650px] max-w-[1600px] lg:min-h-[700px] lg:grid-cols-[0.92fr_1.08fr]">
+      <div className="relative z-10 flex flex-col justify-center px-6 pb-10 pt-14 sm:px-10 lg:px-16 xl:px-24">
+        <p className="luxury-eyebrow text-[#d8b894]">La maison JAMAAL</p>
+        <h1 className="mt-6 max-w-2xl font-serif-display text-[3.25rem] font-normal leading-[1.04] tracking-[-0.035em] sm:text-6xl xl:text-[5.4rem]">Le parfum d’une <em className="font-normal text-[#d8b894]">présence.</em></h1>
+        <p className="mt-6 max-w-lg text-sm leading-7 text-white/70 sm:text-base sm:leading-8">Des extraits de parfum intenses, pensés pour celles et ceux qui laissent une empreinte. Découvrez le sillage qui vous ressemble.</p>
+        <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+          <Link href="/collections/parfum-femme" className="inline-flex min-h-12 items-center justify-center gap-3 bg-[#d8b894] px-7 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#241915] transition hover:bg-[#f6eee1]">Explorer les parfums <ArrowRight size={15}/></Link>
+          <Link href="/quiz" className="inline-flex min-h-12 items-center justify-center gap-2 border border-white/30 px-7 text-[11px] font-semibold uppercase tracking-[0.16em] text-white transition hover:border-white hover:bg-white/5">Trouver ma fragrance</Link>
+        </div>
+        <div className="mt-12 flex items-center gap-4 border-t border-white/15 pt-5">
+          <span className="font-serif-display text-3xl text-[#d8b894]">30%</span><span className="max-w-[220px] text-[10px] uppercase leading-5 tracking-[0.17em] text-white/55">Concentration d’extrait · une signature qui dure</span>
+        </div>
       </div>
-
-      <button
-        aria-label="Précédent"
-        onClick={() => setIndex((i) => (i - 1 + slides.length) % slides.length)}
-        className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/20 p-2 text-white backdrop-blur-md transition-all hover:scale-110 hover:bg-white/30 sm:left-6"
-      >
-        <ChevronLeft size={24} />
-      </button>
-      <button
-        aria-label="Suivant"
-        onClick={() => setIndex((i) => (i + 1) % slides.length)}
-        className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/20 p-2 text-white backdrop-blur-md transition-all hover:scale-110 hover:bg-white/30 sm:right-6"
-      >
-        <ChevronRight size={24} />
-      </button>
-
-      <div className="absolute bottom-6 left-1/2 flex -translate-x-1/2 gap-2">
-        {slides.map((_, i) => (
-          <button
-            key={i}
-            aria-label={`Diapositive ${i + 1}`}
-            onClick={() => setIndex(i)}
-            className={`h-1.5 rounded-full transition-all duration-500 ease-out ${
-              i === index ? "w-8 bg-white shadow-sm" : "w-2 bg-white/40 hover:bg-white/60"
-            }`}
-          />
-        ))}
-      </div>
-    </section>
-  );
+      <Link href={productHref} aria-label={featuredProduct ? `Découvrir ${featuredProduct.name}` : "Découvrir la collection JAMAAL"} className="group relative mx-4 mb-5 min-h-[340px] overflow-hidden sm:mx-8 lg:mx-0 lg:mb-0 lg:min-h-full">
+        <Image src={image} alt={featuredProduct?.name || "Flacon de parfum JAMAAL Scented Love"} fill priority sizes="(max-width: 1024px) 100vw, 55vw" className="object-cover object-center transition duration-1000 group-hover:scale-[1.025]"/>
+        <div className="absolute inset-0 bg-gradient-to-t from-[#1e1511]/55 via-transparent to-transparent"/>
+        <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-6 text-white sm:p-9">
+          <div><p className="text-[10px] uppercase tracking-[0.22em] text-white/75">La signature du moment</p><p className="mt-2 font-serif-display text-2xl sm:text-3xl">{featuredProduct?.name || "Scented Love N°25"}</p></div>
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/60 transition group-hover:bg-white group-hover:text-navy"><ArrowDownRight size={19}/></span>
+        </div>
+      </Link>
+    </div>
+  </section>;
 }

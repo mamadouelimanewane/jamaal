@@ -1,38 +1,62 @@
+import { ArrowRight, ShieldCheck, Sparkles, Truck } from "lucide-react";
+import Link from "next/link";
 import { HeroSlider } from "@/components/HeroSlider";
 import { SearchBanner } from "@/components/SearchBanner";
 import { CategorySection } from "@/components/CategorySection";
+import { FragranceCollections } from "@/components/FragranceCollections";
 import { InspiredBySection } from "@/components/InspiredBySection";
 import { BlogSection } from "@/components/BlogSection";
-import { getBestsellers } from "@/lib/db-products";
+import { getBestsellers, getProductBySlug } from "@/lib/db-products";
 
 export const dynamic = "force-dynamic";
 
+const otherUniverses = [
+  { title: "Soins & beauté", note: "Aurodhea · Moni Amori", href: "/collections/aurodhea" },
+  { title: "Huiles de soin", note: "Lolum", href: "/collections/lolum" },
+  { title: "Parfumer son intérieur", note: "JAMAAL Home", href: "/collections/parfum-ambiance" },
+];
+
 export default async function Home() {
-  const [femme, homme, aurodhea, maquillage, lolum, entretien] = await Promise.all([
+  const [femme, homme, unisexe, campaign] = await Promise.all([
     getBestsellers("parfum-femme", 4),
     getBestsellers("parfum-homme", 4),
-    getBestsellers("aurodhea", 4),
-    getBestsellers("maquillage", 4),
-    getBestsellers("lolum", 4),
-    getBestsellers("entretien-maison", 4),
+    getBestsellers("parfum-unisexe", 4),
+    getProductBySlug("jamaal-scented-love-25"),
   ]);
+  const featured = campaign ?? femme[0] ?? homme[0];
 
-  return (
-    <>
-      <HeroSlider />
-      <SearchBanner />
+  return <>
+    <HeroSlider featuredProduct={featured}/>
 
-      <CategorySection title="JAMAAL Parfum Femme" href="/collections/parfum-femme" products={femme} />
-      <CategorySection title="JAMAAL Parfum Homme" href="/collections/parfum-homme" products={homme} />
+    <section aria-label="Les attentions JAMAAL" className="border-b border-[#e8e0d7] bg-[#fbf9f5]">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 divide-y divide-[#e8e0d7] px-5 sm:grid-cols-3 sm:divide-x sm:divide-y-0 sm:px-8 lg:px-12">
+        <div className="flex items-center justify-center gap-3 py-4 sm:py-5"><Sparkles size={16} className="text-[#9a755d]"/><span className="text-[9px] uppercase tracking-[0.15em] text-navy/70">Extraits à 30 %</span></div>
+        <div className="flex items-center justify-center gap-3 py-4 sm:py-5"><ShieldCheck size={16} className="text-[#9a755d]"/><span className="text-[9px] uppercase tracking-[0.15em] text-navy/70">Conseil parfum personnalisé</span></div>
+        <div className="flex items-center justify-center gap-3 py-4 sm:py-5"><Truck size={16} className="text-[#9a755d]"/><span className="text-[9px] uppercase tracking-[0.15em] text-navy/70">Paiement à la livraison</span></div>
+      </div>
+    </section>
 
-      <InspiredBySection />
+    <SearchBanner/>
+    <FragranceCollections products={[femme[0], homme[0], unisexe[0]]}/>
 
-      <CategorySection title="Soins Aurodhea by JAMAAL" href="/collections/aurodhea" products={aurodhea} />
-      <CategorySection title="Maquillage JAMAAL" href="/collections/maquillage" products={maquillage} />
-      <CategorySection title="Huiles Lolum" href="/collections/lolum" products={lolum} />
-      <CategorySection title="Entretien Maison" href="/collections/entretien-maison" products={entretien} />
+    <CategorySection title="Les signatures féminines" href="/collections/parfum-femme" products={femme}/>
+    <CategorySection title="Les sillages masculins" href="/collections/parfum-homme" products={homme}/>
+    {unisexe.length > 0 && <CategorySection title="L’art du parfum sans frontières" href="/collections/parfum-unisexe" products={unisexe}/>}
 
-      <BlogSection />
-    </>
-  );
+    <section className="bg-[#f2ede6] px-5 py-16 sm:px-8 lg:px-12 lg:py-20">
+      <div className="mx-auto grid max-w-7xl gap-7 md:grid-cols-[1fr_auto] md:items-end">
+        <div><p className="luxury-eyebrow">Le plaisir d’offrir</p><h2 className="mt-3 max-w-xl font-serif-display text-3xl font-medium leading-tight text-navy sm:text-4xl">Le premier chapitre d’une belle histoire olfactive.</h2><p className="mt-4 max-w-xl text-sm leading-7 text-navy/65">Nos coffrets découverte réunissent des formats miniatures à offrir ou à garder près de soi.</p></div>
+        <Link href="/coffrets-decouverte" className="inline-flex min-h-12 items-center justify-center gap-3 border border-navy px-6 text-[10px] font-semibold uppercase tracking-[0.16em] text-navy transition hover:bg-navy hover:text-white">Découvrir les coffrets<ArrowRight size={15}/></Link>
+      </div>
+    </section>
+
+    <InspiredBySection/>
+
+    <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-12 lg:py-20">
+      <div className="mb-7"><p className="luxury-eyebrow">Au-delà du parfum</p><h2 className="mt-3 font-serif-display text-3xl font-medium text-navy">L’univers JAMAAL</h2></div>
+      <div className="grid gap-px bg-[#d9cbbd] sm:grid-cols-3">{otherUniverses.map((item, index) => <Link key={item.href} href={item.href} className="group flex min-h-36 flex-col justify-between bg-[#fbf9f5] p-6 transition hover:bg-white sm:p-8"><span className="text-[9px] uppercase tracking-[0.18em] text-[#9a755d]">0{index + 1} · JAMAAL</span><span className="mt-7 flex items-end justify-between gap-4"><span><span className="block font-serif-display text-xl text-navy">{item.title}</span><span className="mt-1 block text-xs text-navy/50">{item.note}</span></span><ArrowRight size={17} className="text-[#9a755d] transition-transform group-hover:translate-x-1"/></span></Link>)}</div>
+    </section>
+
+    <BlogSection/>
+  </>;
 }
