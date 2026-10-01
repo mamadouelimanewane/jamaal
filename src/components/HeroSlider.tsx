@@ -9,7 +9,7 @@ export function HeroSlider({ featuredProduct }: { featuredProduct?: Product | nu
   const image = featuredProduct?.photo || "/produits/jamaal-scented-love-25.jpg";
   const productHref = featuredProduct ? `/produits/${featuredProduct.slug}` : "/collections/parfum-femme";
   return <section className="relative isolate overflow-hidden bg-[#14213b] text-[#fbf7f0]">
-    <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_15%_50%,rgba(152,101,72,0.22),transparent_52%),linear-gradient(120deg,#14213b_0%,#30221d_55%,#46322a_100%)]"/>
+    <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_15%_50%,rgba(217,169,157,0.16),transparent_52%),linear-gradient(120deg,#14213b_0%,#1d2f4f_55%,#273b60_100%)]"/>
     <div className="mx-auto grid min-h-[650px] max-w-[1600px] lg:min-h-[700px] lg:grid-cols-[0.92fr_1.08fr]">
       <div className="relative z-10 flex flex-col justify-center px-6 pb-10 pt-14 sm:px-10 lg:px-16 xl:px-24">
         <p className="luxury-eyebrow text-[#d9a99d]">La maison JAMAAL</p>
@@ -25,7 +25,7 @@ export function HeroSlider({ featuredProduct }: { featuredProduct?: Product | nu
       </div>
       <Link href={productHref} aria-label={featuredProduct ? `Découvrir ${featuredProduct.name}` : "Découvrir la collection JAMAAL"} className="group relative mx-4 mb-5 min-h-[340px] overflow-hidden sm:mx-8 lg:mx-0 lg:mb-0 lg:min-h-full">
         <Image src={image} alt={featuredProduct?.name || "Flacon de parfum JAMAAL Scented Love"} fill priority sizes="(max-width: 1024px) 100vw, 55vw" className="object-cover object-center transition duration-1000 group-hover:scale-[1.025]"/>
-        <div className="absolute inset-0 bg-gradient-to-t from-[#1e1511]/55 via-transparent to-transparent"/>
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0f1a30]/55 via-transparent to-transparent"/>
         <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-6 text-white sm:p-9">
           <div><p className="text-[10px] uppercase tracking-[0.22em] text-white/75">La signature du moment</p><p className="mt-2 font-serif-display text-2xl sm:text-3xl">{featuredProduct?.name || "Scented Love N°25"}</p></div>
           <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/60 transition group-hover:bg-white group-hover:text-navy"><ArrowDownRight size={19}/></span>

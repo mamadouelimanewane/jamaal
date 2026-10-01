@@ -60,7 +60,7 @@ export function Header({ categories }: { categories: Category[] }) {
       <div className="col-start-3 row-start-1 flex items-center justify-self-end gap-1 sm:gap-2">
         <button type="button" onClick={() => setSearchOpen((open) => !open)} aria-label="Rechercher un parfum" aria-expanded={searchOpen} className="rounded-full p-2.5 text-navy/80 transition hover:bg-navy/5 hover:text-[#9c6254]"><Search size={18}/></button>
         <Link href="/compte" aria-label="Mon compte" className="hidden rounded-full p-2.5 text-navy/80 transition hover:bg-navy/5 hover:text-[#9c6254] sm:block"><UserRound size={18}/></Link>
-        <button type="button" onClick={openCart} aria-label={`Ouvrir le panier${mounted && count ? `, ${count} article(s)` : ""}`} className="relative rounded-full p-2.5 text-navy/80 transition hover:bg-navy/5 hover:text-[#9c6254]"><ShoppingBag size={18}/>{mounted && count > 0 && <span className="absolute right-0 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#7b2938] px-1 text-[9px] font-semibold text-white">{count}</span>}</button>
+        <button type="button" onClick={openCart} aria-label={`Ouvrir le panier${mounted && count ? `, ${count} article(s)` : ""}`} className="relative rounded-full p-2.5 text-navy/80 transition hover:bg-navy/5 hover:text-[#9c6254]"><ShoppingBag size={18}/>{mounted && count > 0 && <span className="absolute right-0 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#1d2f4f] px-1 text-[9px] font-semibold text-white">{count}</span>}</button>
       </div>
     </div>
 
