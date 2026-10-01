@@ -4,7 +4,7 @@ import { NewsletterForm } from "./NewsletterForm";
 
 export function Footer({ categories }: { categories: Category[] }) {
   return (
-    <footer className="mt-0 bg-[#241915] text-white/75">
+    <footer className="mt-0 bg-[#141f42] text-white/75">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div>
@@ -16,7 +16,7 @@ export function Footer({ categories }: { categories: Category[] }) {
           </div>
 
           <div>
-            <h4 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[#d8b894]">
+            <h4 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[#d9a99a]">
               Nos collections
             </h4>
             <ul className="flex flex-col gap-2 text-sm">
@@ -31,7 +31,7 @@ export function Footer({ categories }: { categories: Category[] }) {
           </div>
 
           <div>
-            <h4 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[#d8b894]">
+            <h4 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[#d9a99a]">
               JAMAAL
             </h4>
             <ul className="flex flex-col gap-2 text-sm">
@@ -64,7 +64,7 @@ export function Footer({ categories }: { categories: Category[] }) {
           </div>
 
           <div>
-            <h4 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[#d8b894]">
+            <h4 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[#d9a99a]">
               Newsletter
             </h4>
             <p className="mb-3 text-sm">

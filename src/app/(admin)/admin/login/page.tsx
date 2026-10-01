@@ -40,7 +40,7 @@ export default async function AdminLoginPage({
   if (session) redirect(redirectTo);
 
   return (
-    <main className="min-h-screen bg-[#f5f1eb] p-4 sm:p-8">
+    <main className="min-h-screen bg-[#f8f1ee] p-4 sm:p-8">
       <div className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-6xl overflow-hidden rounded-[2rem] border border-line bg-white shadow-2xl shadow-navy/10 lg:grid-cols-[1.05fr_.95fr]">
         <section className="relative hidden overflow-hidden bg-[#111b2b] p-10 text-white lg:flex lg:flex-col lg:justify-between xl:p-14">
           <div aria-hidden="true" className="absolute -right-24 top-16 h-96 w-96 rounded-full border border-white/10" />
@@ -57,7 +57,7 @@ export default async function AdminLoginPage({
             <span className="font-serif-display text-2xl font-semibold tracking-[0.16em]">JAMAAL</span>
           </Link>
           <div className="relative max-w-md">
-            <p className="text-[10px] uppercase tracking-[0.28em] text-[#e4c4ab]">Espace sécurisé</p>
+            <p className="text-[10px] uppercase tracking-[0.28em] text-[#ebcbbf]">Espace sécurisé</p>
             <h1 className="mt-4 font-serif-display text-4xl font-medium leading-tight xl:text-5xl">
               L’excellence JAMAAL, au quotidien.
             </h1>

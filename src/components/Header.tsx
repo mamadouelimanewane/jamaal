@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Menu, Search, ShoppingBag, UserRound, X } from "lucide-react";
@@ -32,12 +33,22 @@ export function Header({ categories }: { categories: Category[] }) {
     setMenuOpen(false);
   }
 
-  return <header className="sticky top-0 z-40 border-b border-[#e8e0d7] bg-[#fbf9f5]/95 backdrop-blur-md">
+  return <header className="sticky top-0 z-40 border-b border-[#eadfda] bg-[#fdfbfa]/95 backdrop-blur-md">
     <div className="mx-auto grid max-w-[1600px] grid-cols-[1fr_auto_1fr] items-center px-4 sm:px-8 lg:px-12">
       <button type="button" className="justify-self-start rounded-full p-2 text-navy transition hover:bg-navy/5 lg:hidden" onClick={() => setMenuOpen((open) => !open)} aria-label={menuOpen ? "Fermer le menu" : "Ouvrir le menu"} aria-expanded={menuOpen}>{menuOpen ? <X size={20}/> : <Menu size={20}/>}</button>
       <Link href="/" aria-label="JAMAAL — accueil" className="col-start-2 row-start-1 flex flex-col items-center py-3 lg:col-start-1 lg:items-start lg:py-2">
-        <span className="font-serif-display text-[22px] font-medium tracking-[0.26em] text-[#241915] sm:text-2xl">JAMAAL</span>
-        <span className="mt-0.5 text-[7px] font-medium uppercase tracking-[0.36em] text-[#9a755d] sm:text-[8px]">Maison de parfum</span>
+        {/* Logo JAMAAL recadré sur le monogramme + nom (le JPG source a de larges marges) */}
+        <span className="relative block aspect-[540/605] h-14 overflow-hidden sm:h-16">
+          <Image
+            src="/logo/jamaal-logo.jpg"
+            alt="JAMAAL Luxury Cosmetics"
+            width={720}
+            height={1080}
+            priority
+            sizes="80px"
+            className="absolute max-w-none h-[178%] w-auto -left-[19.5%] -top-[37%]"
+          />
+        </span>
       </Link>
 
       <nav aria-label="Navigation principale" className="hidden items-center justify-center gap-7 lg:col-span-1 lg:col-start-2 lg:row-start-1 lg:flex xl:gap-9">
@@ -47,14 +58,14 @@ export function Header({ categories }: { categories: Category[] }) {
       </nav>
 
       <div className="col-start-3 row-start-1 flex items-center justify-self-end gap-1 sm:gap-2">
-        <button type="button" onClick={() => setSearchOpen((open) => !open)} aria-label="Rechercher un parfum" aria-expanded={searchOpen} className="rounded-full p-2.5 text-navy/80 transition hover:bg-navy/5 hover:text-[#9a755d]"><Search size={18}/></button>
-        <Link href="/compte" aria-label="Mon compte" className="hidden rounded-full p-2.5 text-navy/80 transition hover:bg-navy/5 hover:text-[#9a755d] sm:block"><UserRound size={18}/></Link>
-        <button type="button" onClick={openCart} aria-label={`Ouvrir le panier${mounted && count ? `, ${count} article(s)` : ""}`} className="relative rounded-full p-2.5 text-navy/80 transition hover:bg-navy/5 hover:text-[#9a755d]"><ShoppingBag size={18}/>{mounted && count > 0 && <span className="absolute right-0 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#7b2938] px-1 text-[9px] font-semibold text-white">{count}</span>}</button>
+        <button type="button" onClick={() => setSearchOpen((open) => !open)} aria-label="Rechercher un parfum" aria-expanded={searchOpen} className="rounded-full p-2.5 text-navy/80 transition hover:bg-navy/5 hover:text-[#9c6254]"><Search size={18}/></button>
+        <Link href="/compte" aria-label="Mon compte" className="hidden rounded-full p-2.5 text-navy/80 transition hover:bg-navy/5 hover:text-[#9c6254] sm:block"><UserRound size={18}/></Link>
+        <button type="button" onClick={openCart} aria-label={`Ouvrir le panier${mounted && count ? `, ${count} article(s)` : ""}`} className="relative rounded-full p-2.5 text-navy/80 transition hover:bg-navy/5 hover:text-[#9c6254]"><ShoppingBag size={18}/>{mounted && count > 0 && <span className="absolute right-0 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#7b2938] px-1 text-[9px] font-semibold text-white">{count}</span>}</button>
       </div>
     </div>
 
-    {searchOpen && <form onSubmit={submitSearch} role="search" className="border-t border-[#e8e0d7] bg-[#f5f0e9] px-4 py-4 sm:px-8"><div className="mx-auto flex max-w-2xl items-center gap-3 border-b border-[#bca996] pb-2"><Search size={17} className="shrink-0 text-[#9a755d]"/><input autoFocus value={query} onChange={(event) => setQuery(event.target.value)} type="search" aria-label="Rechercher un parfum" placeholder="Nom, numéro ou note olfactive" className="w-full bg-transparent py-2 text-sm text-navy outline-none placeholder:text-navy/45"/><button type="submit" className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.15em] text-navy">Chercher<ArrowRight size={14}/></button></div></form>}
+    {searchOpen && <form onSubmit={submitSearch} role="search" className="border-t border-[#eadfda] bg-[#f5f0e9] px-4 py-4 sm:px-8"><div className="mx-auto flex max-w-2xl items-center gap-3 border-b border-[#c9a99e] pb-2"><Search size={17} className="shrink-0 text-[#9c6254]"/><input autoFocus value={query} onChange={(event) => setQuery(event.target.value)} type="search" aria-label="Rechercher un parfum" placeholder="Nom, numéro ou note olfactive" className="w-full bg-transparent py-2 text-sm text-navy outline-none placeholder:text-navy/45"/><button type="submit" className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.15em] text-navy">Chercher<ArrowRight size={14}/></button></div></form>}
 
-    {menuOpen && <nav aria-label="Menu mobile" className="border-t border-[#e8e0d7] bg-[#fbf9f5] px-5 py-4 lg:hidden"><div className="flex flex-col">{perfumeCategories.map((category) => <Link key={category.slug} href={`/collections/${category.slug}`} onClick={closeMenu} className="border-b border-[#e8e0d7] py-3 font-serif-display text-lg text-navy">{category.navLabel.replace("JAMAAL ", "")}</Link>)}<Link href="/coffrets-decouverte" onClick={closeMenu} className="border-b border-[#e8e0d7] py-3 font-serif-display text-lg text-navy">Coffrets découverte</Link><Link href="/quiz" onClick={closeMenu} className="border-b border-[#e8e0d7] py-3 font-serif-display text-lg text-navy">Trouver mon parfum</Link><Link href="/devenir-consultant" onClick={closeMenu} className="py-3 text-xs uppercase tracking-widest text-navy/60">Devenir consultant JAMAAL</Link></div></nav>}
+    {menuOpen && <nav aria-label="Menu mobile" className="border-t border-[#eadfda] bg-[#fdfbfa] px-5 py-4 lg:hidden"><div className="flex flex-col">{perfumeCategories.map((category) => <Link key={category.slug} href={`/collections/${category.slug}`} onClick={closeMenu} className="border-b border-[#eadfda] py-3 font-serif-display text-lg text-navy">{category.navLabel.replace("JAMAAL ", "")}</Link>)}<Link href="/coffrets-decouverte" onClick={closeMenu} className="border-b border-[#eadfda] py-3 font-serif-display text-lg text-navy">Coffrets découverte</Link><Link href="/quiz" onClick={closeMenu} className="border-b border-[#eadfda] py-3 font-serif-display text-lg text-navy">Trouver mon parfum</Link><Link href="/devenir-consultant" onClick={closeMenu} className="py-3 text-xs uppercase tracking-widest text-navy/60">Devenir consultant JAMAAL</Link></div></nav>}
   </header>;
 }

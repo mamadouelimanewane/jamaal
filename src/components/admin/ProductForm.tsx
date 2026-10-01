@@ -175,7 +175,7 @@ export async function ProductForm({
           <input
             type="color"
             name="colorFrom"
-            defaultValue={product?.colorFrom ?? "#16233a"}
+            defaultValue={product?.colorFrom ?? "#1f2c57"}
             className="mt-1 h-10 w-full rounded-lg border border-line"
           />
         </div>
@@ -184,7 +184,7 @@ export async function ProductForm({
           <input
             type="color"
             name="colorTo"
-            defaultValue={product?.colorTo ?? "#c9997a"}
+            defaultValue={product?.colorTo ?? "#cf9a8a"}
             className="mt-1 h-10 w-full rounded-lg border border-line"
           />
         </div>

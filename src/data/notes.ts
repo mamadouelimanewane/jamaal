@@ -109,10 +109,10 @@ export const hommeFamilies: ScentFamily[] = [
 ];
 
 export const bottleGradients: [string, string][] = [
-  ["#16233a", "#c9997a"],
-  ["#24374f", "#e4c4ab"],
-  ["#a97557", "#16233a"],
-  ["#c9997a", "#16233a"],
-  ["#1b2a41", "#d9b08c"],
-  ["#3a2c22", "#c9997a"],
+  ["#1f2c57", "#cf9a8a"],
+  ["#2e4075", "#ebcbbf"],
+  ["#b47a6c", "#1f2c57"],
+  ["#cf9a8a", "#1f2c57"],
+  ["#1f2c57", "#d9b08c"],
+  ["#3a2c22", "#cf9a8a"],
 ];
