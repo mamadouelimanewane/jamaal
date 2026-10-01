@@ -17,7 +17,7 @@ export function ProductCard({ product }: { product: Product }) {
     </div>
     <div className="pt-3.5">
       {product.family && <p className="text-[8px] uppercase tracking-[0.17em] text-[#9c6254]">{product.family}</p>}
-      <h3 className="mt-1 font-serif-display text-[15px] font-medium leading-snug text-[#141f42] sm:text-lg">{product.name}</h3>
+      <h3 className="mt-1 font-serif-display text-[15px] font-medium leading-snug text-[#14213b] sm:text-lg">{product.name}</h3>
       <p className="mt-1 line-clamp-2 text-[10px] leading-5 text-navy/55 sm:text-xs">{product.shortDescription}</p>
       {product.reviewCount > 0 && <div className="mt-2"><StarRating rating={product.rating} count={product.reviewCount}/></div>}
       <p className="mt-2.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-navy sm:text-[11px]">{priceLabel}</p>

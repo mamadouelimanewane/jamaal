@@ -57,7 +57,7 @@ export default async function AdminLoginPage({
             <span className="font-serif-display text-2xl font-semibold tracking-[0.16em]">JAMAAL</span>
           </Link>
           <div className="relative max-w-md">
-            <p className="text-[10px] uppercase tracking-[0.28em] text-[#ebcbbf]">Espace sécurisé</p>
+            <p className="text-[10px] uppercase tracking-[0.28em] text-[#eac2b6]">Espace sécurisé</p>
             <h1 className="mt-4 font-serif-display text-4xl font-medium leading-tight xl:text-5xl">
               L’excellence JAMAAL, au quotidien.
             </h1>

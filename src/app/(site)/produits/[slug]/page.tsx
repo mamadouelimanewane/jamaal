@@ -29,7 +29,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       <div className="lg:py-6 xl:py-10">
         <div className="max-w-xl">
           <p className="luxury-eyebrow">{product.family || "La collection JAMAAL"}</p>
-          <h1 className="mt-3 font-serif-display text-3xl font-medium leading-tight tracking-[-0.02em] text-[#141f42] sm:text-4xl xl:text-5xl">{product.name}</h1>
+          <h1 className="mt-3 font-serif-display text-3xl font-medium leading-tight tracking-[-0.02em] text-[#14213b] sm:text-4xl xl:text-5xl">{product.name}</h1>
           {product.reviewCount > 0 && <div className="mt-3"><StarRating rating={product.rating} count={product.reviewCount}/></div>}
           <p className="mt-5 text-sm leading-7 text-navy/65">{product.shortDescription}</p>
           <div className="my-7 border-t border-[#eadfda]"/>

@@ -27,10 +27,10 @@ function drawTree(
   const RANK_COLORS: Record<string, string> = {
     GOLD: "#f59e0b",
     SILVER: "#94a3b8",
-    BRONZE: "#cf9a8a",
-    STARTER: "#1f2c57",
+    BRONZE: "#d9a99d",
+    STARTER: "#1d2f4f",
   };
-  const color = RANK_COLORS[node.rank] ?? "#1f2c57";
+  const color = RANK_COLORS[node.rank] ?? "#1d2f4f";
 
   // Draw children first (lines behind nodes)
   if (node.children.length > 0) {
@@ -67,7 +67,7 @@ function drawTree(
   ctx.fillText(initials, x, y);
 
   // Name label
-  ctx.fillStyle = "#1f2c57";
+  ctx.fillStyle = "#1d2f4f";
   ctx.font = "10px sans-serif";
   ctx.textAlign = "center";
   ctx.textBaseline = "top";
@@ -100,8 +100,8 @@ export function TeamTree({ data }: TeamTreeProps) {
         {[
           { color: "#f59e0b", label: "Gold" },
           { color: "#94a3b8", label: "Silver" },
-          { color: "#cf9a8a", label: "Bronze" },
-          { color: "#1f2c57", label: "Starter" },
+          { color: "#d9a99d", label: "Bronze" },
+          { color: "#1d2f4f", label: "Starter" },
         ].map((l) => (
           <span key={l.label} className="flex items-center gap-1.5">
             <span className="inline-block h-3 w-3 rounded-full" style={{ background: l.color }} />

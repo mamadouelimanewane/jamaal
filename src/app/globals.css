@@ -2,17 +2,17 @@
 
 :root {
   --background: #fdfbfa;
-  --foreground: #141f42;
-  --ink: #141f42;
-  --wine: #1f2c57;
-  --champagne: #d9a99a;
+  --foreground: #14213b;
+  --ink: #14213b;
+  --wine: #1d2f4f;
+  --champagne: #d9a99d;
   --taupe: #6b7391;
   --paper: #fdfbfa;
   --rule: #eadfda;
-  --navy: #1f2c57;
-  --navy-light: #2e4075;
-  --rose: #cf9a8a;
-  --rose-light: #ebcbbf;
+  --navy: #1d2f4f;
+  --navy-light: #273b60;
+  --rose: #d9a99d;
+  --rose-light: #eac2b6;
   --rose-dark: #b47a6c;
   --cream: #fbf6f3;
   --line: #eadfda;
@@ -105,7 +105,7 @@ body {
   transition: transform .25s ease;
 }
 
-.nav-luxury-link:hover { color: #141f42; }
+.nav-luxury-link:hover { color: #14213b; }
 .nav-luxury-link:hover::after { transform: scaleX(1); }
 
 .editorial-link {

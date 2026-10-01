@@ -38,7 +38,7 @@ export function SearchBanner() {
           <button
             type="submit"
             aria-label="Lancer la recherche"
-            className="flex h-10 w-10 shrink-0 items-center justify-center bg-wine text-white transition hover:bg-[#141f42] sm:w-auto sm:px-5"
+            className="flex h-10 w-10 shrink-0 items-center justify-center bg-wine text-white transition hover:bg-[#14213b] sm:w-auto sm:px-5"
           >
             <span className="hidden sm:inline">Rechercher</span>
             <ArrowRight size={16} className="sm:ml-2" />
