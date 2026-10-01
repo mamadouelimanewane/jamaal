@@ -34,6 +34,8 @@ export async function trackEvent(input: {
 
 /** Stats simples pour le dashboard admin */
 export async function getAnalyticsSummary(days = 30) {
+  const { requireAdmin } = await import("@/lib/actions/auth-guard");
+  await requireAdmin();
   const since = new Date();
   since.setDate(since.getDate() - days);
 

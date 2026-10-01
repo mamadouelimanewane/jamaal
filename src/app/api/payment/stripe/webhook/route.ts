@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import type Stripe from "stripe";
-import { markOrderPaid } from "@/lib/actions/payment";
+import { markOrderPaid } from "@/lib/payment/mark-paid";
 
 /** Webhook Stripe vérifié à partir du corps brut et de la signature. */
 export async function POST(req: NextRequest) {
@@ -29,7 +29,11 @@ export async function POST(req: NextRequest) {
     const session = event.data.object;
     const orderId = session.client_reference_id || session.metadata?.orderId;
     if (orderId && session.payment_status === "paid") {
-      await markOrderPaid(orderId, session.id);
+      await markOrderPaid(orderId, {
+        method: "STRIPE",
+        externalRef: session.id,
+        amount: session.amount_total ?? undefined, // XOF = devise sans décimales
+      });
     }
   }
 

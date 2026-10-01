@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { markOrderPaid } from "@/lib/actions/payment";
+import { timingSafeEqual } from "crypto";
+import { markOrderPaid } from "@/lib/payment/mark-paid";
 
 /**
  * Webhook / notification Orange Money Web Payment
@@ -14,6 +15,18 @@ import { markOrderPaid } from "@/lib/actions/payment";
  * En production : valider la signature / token selon la doc fournie.
  */
 export async function POST(req: NextRequest) {
+  // Fail closed : secret partagé obligatoire (ajouté en ?token= à ORANGE_MONEY_NOTIF_URL).
+  const secret = process.env.ORANGE_MONEY_WEBHOOK_SECRET;
+  if (!secret) {
+    return NextResponse.json({ error: "webhook non configuré" }, { status: 503 });
+  }
+  const provided = req.nextUrl.searchParams.get("token") ?? "";
+  const a = Buffer.from(provided);
+  const b = Buffer.from(secret);
+  if (a.length !== b.length || !timingSafeEqual(a, b)) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
+
   const contentType = req.headers.get("content-type") || "";
 
   let orderId: string | undefined;
@@ -40,7 +53,7 @@ export async function POST(req: NextRequest) {
   }
 
   if (["SUCCESS", "SUCCESSFUL", "PAID", "0", "SUCCESSFULL"].includes(status || "")) {
-    await markOrderPaid(orderId);
+    await markOrderPaid(orderId, { method: "ORANGE_MONEY" });
   }
 
   return NextResponse.json({ received: true });

@@ -4,7 +4,6 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "./auth-guard";
 import {
-  pointsEarnedFromAmount,
   LOYALTY_REDEEM_MIN_POINTS,
   redeemValue,
 } from "@/lib/loyalty";
@@ -13,48 +12,9 @@ function normalizePhone(phone: string): string {
   return phone.replace(/\s+/g, "").trim();
 }
 
-/** Crédite des points après une commande payée / livrée. */
-export async function earnLoyaltyForOrder(orderId: string) {
-  const order = await prisma.order.findUnique({
-    where: { id: orderId },
-    select: { id: true, total: true, customerPhone: true, customerName: true },
-  });
-  if (!order?.customerPhone) return null;
-
-  const phone = normalizePhone(order.customerPhone);
-  const points = pointsEarnedFromAmount(order.total);
-  if (points <= 0) return null;
-
-  const account = await prisma.loyaltyAccount.upsert({
-    where: { phone },
-    create: {
-      phone,
-      name: order.customerName,
-      points,
-      lifetime: points,
-    },
-    update: {
-      points: { increment: points },
-      lifetime: { increment: points },
-      name: order.customerName,
-    },
-  });
-
-  await prisma.loyaltyEvent.create({
-    data: {
-      accountId: account.id,
-      type: "EARN_ORDER",
-      points,
-      orderId: order.id,
-      note: `Commande ${order.id.slice(-8).toUpperCase()}`,
-    },
-  });
-
-  return { phone, points, balance: account.points };
-}
-
 /** Consulter le solde par téléphone (page compte / suivi). */
 export async function getLoyaltyBalance(phone: string) {
+  await requireAdmin();
   const p = normalizePhone(phone);
   if (!p) return null;
   const account = await prisma.loyaltyAccount.findUnique({ where: { phone: p } });
@@ -80,10 +40,13 @@ export async function redeemLoyaltyPoints(phone: string, lots: number) {
   if (account.points < cost) throw new Error("Solde insuffisant");
 
   const value = redeemValue(lots);
-  const updated = await prisma.loyaltyAccount.update({
-    where: { id: account.id },
+  // Décrément conditionnel : pas de solde négatif en cas d'appels concurrents
+  const res = await prisma.loyaltyAccount.updateMany({
+    where: { id: account.id, points: { gte: cost } },
     data: { points: { decrement: cost } },
   });
+  if (res.count === 0) throw new Error("Solde insuffisant");
+  const updated = await prisma.loyaltyAccount.findUniqueOrThrow({ where: { id: account.id } });
 
   await prisma.loyaltyEvent.create({
     data: {
