@@ -1,5 +1,6 @@
 import { prisma } from "./prisma";
 import { Product, VolumeOption, CategorySlug } from "@/data/types";
+import photoFallback from "@/data/photo-fallback.json";
 import type { Product as DbProduct, Prisma } from "@prisma/client";
 
 function toUiProduct(p: DbProduct): Product {
@@ -23,7 +24,8 @@ function toUiProduct(p: DbProduct): Product {
     badge: (p.badge as Product["badge"]) ?? undefined,
     colorFrom: p.colorFrom,
     colorTo: p.colorTo,
-    photo: p.photo ?? undefined,
+    // Photo en base, sinon photo associée par nom (voir scripts/map-photos.mjs).
+    photo: p.photo ?? (photoFallback as Record<string, string>)[p.slug] ?? undefined,
     isOfficial: p.isOfficial,
   };
 }
