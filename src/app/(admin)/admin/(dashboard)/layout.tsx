@@ -17,6 +17,7 @@ import {
   Undo2,
   Settings,
   ClipboardList,
+  Mail,
 } from "lucide-react";
 import { auth, signOut } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -52,6 +53,7 @@ const adminGroups = [
     links: [
       { href: "/admin/consultants", label: "Revendeurs / Consultants", icon: Users },
       { href: "/admin/candidatures", label: "Candidatures", icon: Contact },
+      { href: "/admin/messages", label: "Messages de contact", icon: Mail },
       { href: "/admin/livreurs", label: "Livreurs", icon: Bike },
     ],
   },

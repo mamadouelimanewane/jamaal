@@ -1,11 +1,13 @@
-"use client";
-
-import { useState } from "react";
+import type { Metadata } from "next";
+import { ContactForm } from "@/components/ContactForm";
 import { WHATSAPP_CONTACTS, whatsappLink } from "@/lib/contact";
 
-export default function ContactPage() {
-  const [sent, setSent] = useState(false);
+export const metadata: Metadata = {
+  title: "Contact",
+  description: "Une question sur un produit, une commande ou notre réseau de revendeur·ses ? Écrivez-nous ou contactez-nous sur WhatsApp.",
+};
 
+export default function ContactPage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-14 sm:px-6">
       <h1 className="font-serif-display text-3xl font-semibold text-navy">Contactez-nous</h1>
@@ -28,43 +30,7 @@ export default function ContactPage() {
         ))}
       </div>
 
-      {sent ? (
-        <p className="mt-8 rounded-2xl border border-line bg-white p-6 text-sm text-navy">
-          Merci, votre message a bien été envoyé.
-        </p>
-      ) : (
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            setSent(true);
-          }}
-          className="mt-8 flex flex-col gap-4"
-        >
-          <input
-            required
-            placeholder="Votre nom"
-            className="rounded-xl border border-line px-4 py-3 text-sm outline-none focus:border-rose"
-          />
-          <input
-            required
-            type="email"
-            placeholder="Votre e-mail"
-            className="rounded-xl border border-line px-4 py-3 text-sm outline-none focus:border-rose"
-          />
-          <textarea
-            required
-            rows={5}
-            placeholder="Votre message"
-            className="rounded-xl border border-line px-4 py-3 text-sm outline-none focus:border-rose"
-          />
-          <button
-            type="submit"
-            className="rounded-full bg-navy py-3 text-sm font-semibold text-white transition hover:bg-navy-light"
-          >
-            Envoyer
-          </button>
-        </form>
-      )}
+      <ContactForm />
     </div>
   );
 }
