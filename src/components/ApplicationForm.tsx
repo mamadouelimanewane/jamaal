@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { submitApplication, type ApplicationState } from "@/lib/actions/applications";
+import { WHATSAPP_CONTACTS, whatsappLink } from "@/lib/contact";
 
 const initial: ApplicationState = { ok: false };
 
@@ -20,6 +21,27 @@ export function ApplicationForm({ sponsorCode = "" }: { sponsorCode?: string }) 
           Notre équipe étudie votre demande et vous contacte sur WhatsApp ou par e-mail très
           prochainement. Si elle est acceptée, vous recevrez un lien pour activer votre espace revendeur.
         </p>
+        {state.applicant && (
+          <div className="mt-6 border-t border-line pt-5">
+            <p className="text-sm font-semibold text-navy">Gagnez du temps : prévenez l&apos;équipe sur WhatsApp</p>
+            <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:justify-center">
+              {WHATSAPP_CONTACTS.map((c) => (
+                <a
+                  key={c.number}
+                  href={whatsappLink(
+                    c.number,
+                    `Bonjour JAMAAL, je viens de postuler pour devenir revendeur·se. Nom : ${state.applicant!.name} — Ville : ${state.applicant!.city} — Téléphone : ${state.applicant!.phone}.`
+                  )}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-full bg-[#25D366] px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
+                >
+                  WhatsApp {c.display}
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     );
   }

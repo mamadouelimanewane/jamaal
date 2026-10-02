@@ -11,7 +11,12 @@ import { uniqueConsultantSlug } from "@/lib/unique-slug";
 import { getSiteUrl } from "@/lib/site-url";
 import { requireAdmin } from "./auth-guard";
 
-export type ApplicationState = { ok: boolean; error?: string };
+export type ApplicationState = {
+  ok: boolean;
+  error?: string;
+  /** Résumé renvoyé au navigateur pour préremplir le message WhatsApp envoyé à l'équipe. */
+  applicant?: { name: string; city: string; phone: string };
+};
 
 /** Candidature publique (page /devenir-consultant). */
 export async function submitApplication(_prev: ApplicationState, formData: FormData): Promise<ApplicationState> {
@@ -41,7 +46,7 @@ export async function submitApplication(_prev: ApplicationState, formData: FormD
     where: { email: d.email, status: "NOUVELLE" },
     select: { id: true },
   });
-  if (pending) return { ok: true };
+  if (pending) return { ok: true, applicant: { name: d.name, city: d.city, phone: d.phone } };
 
   await prisma.consultantApplication.create({
     data: {
@@ -67,7 +72,7 @@ export async function submitApplication(_prev: ApplicationState, formData: FormD
     });
   }
   revalidatePath("/admin/candidatures");
-  return { ok: true };
+  return { ok: true, applicant: { name: d.name, city: d.city, phone: d.phone } };
 }
 
 const hashToken = (token: string) => createHash("sha256").update(token).digest("hex");
