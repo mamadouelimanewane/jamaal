@@ -4,7 +4,8 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "./auth-guard";
 
-export const VIEW_AS_COOKIE = "jamaal_viewas";
+// Pas d'export : un fichier "use server" ne peut exporter que des fonctions asynchrones.
+const VIEW_AS_COOKIE = "jamaal_viewas";
 
 /** L'admin consulte l'espace d'un revendeur (lecture de ses pages, sans connaître son mot de passe). */
 export async function startViewAsReseller(consultantId: string) {
