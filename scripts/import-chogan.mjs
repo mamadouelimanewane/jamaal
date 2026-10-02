@@ -3,7 +3,7 @@
  * Génère src/data/chogan-catalog.json à partir de import/chogan-raw.txt
  * (export du catalogue public Chogan : id|catégorie|prix €|format|image|nom).
  *
- * - Prix de vente en FCFA = prix public € × 655,957 × (1 + MARGE), arrondi à 100 FCFA.
+ * - Prix de vente en FCFA = prix public € × 655,957 × (1 + MARGE) × (1 − REMISE), arrondi à 100 FCFA.
  * - Les produits déjà présents dans src/data/official-catalog.json (même nom,
  *   ou nom cité dans leur description) ne sont pas dupliqués.
  * - Images : CDN Chogan (démo). À remplacer par vos propres fichiers pour la prod.
@@ -17,12 +17,14 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const EUR_XOF = 655.957;
 const MARGE = Number(process.env.MARGE ?? 0.2);
+// Remise appliquée ensuite sur le prix majoré (20 % par défaut).
+const REMISE = Number(process.env.REMISE ?? 0.2);
 const CDN = "https://cdn.chogangroupspa.com/images/prodotti/big/";
 
 const norm = (s) =>
   s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 const slugify = (s) => norm(s).replace(/\s+/g, "-").slice(0, 60).replace(/-$/, "");
-const priceXof = (eur) => Math.max(100, Math.round((eur * EUR_XOF * (1 + MARGE)) / 100) * 100);
+const priceXof = (eur) => Math.max(100, Math.round((eur * EUR_XOF * (1 + MARGE) * (1 - REMISE)) / 100) * 100);
 
 const existing = JSON.parse(readFileSync(path.join(root, "src/data/official-catalog.json"), "utf8"));
 const existingNames = new Set(existing.map((p) => norm(p.name)));
