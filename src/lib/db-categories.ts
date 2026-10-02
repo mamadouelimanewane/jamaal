@@ -19,6 +19,18 @@ export async function getCategories(): Promise<Category[]> {
   }
 }
 
+/** Catégories qui contiennent au moins un produit (pour la vitrine). */
+export async function getCategoriesWithProducts(): Promise<Category[]> {
+  const all = await getCategories();
+  try {
+    const counts = await prisma.product.groupBy({ by: ["category"], _count: { _all: true } });
+    const filled = new Set(counts.map((c) => c.category));
+    return all.filter((c) => filled.has(c.slug));
+  } catch {
+    return all;
+  }
+}
+
 export async function getCategory(slug: string): Promise<Category | undefined> {
   const c = await prisma.category.findUnique({ where: { slug } });
   if (!c) return undefined;

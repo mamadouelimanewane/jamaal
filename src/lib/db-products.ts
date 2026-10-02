@@ -1,6 +1,5 @@
 import { prisma } from "./prisma";
 import { Product, VolumeOption, CategorySlug } from "@/data/types";
-import photoFallback from "@/data/photo-fallback.json";
 import type { Product as DbProduct, Prisma } from "@prisma/client";
 
 function toUiProduct(p: DbProduct): Product {
@@ -24,8 +23,7 @@ function toUiProduct(p: DbProduct): Product {
     badge: (p.badge as Product["badge"]) ?? undefined,
     colorFrom: p.colorFrom,
     colorTo: p.colorTo,
-    // Photo en base, sinon photo associée par nom (voir scripts/map-photos.mjs).
-    photo: p.photo ?? (photoFallback as Record<string, string>)[p.slug] ?? undefined,
+    photo: p.photo ?? undefined,
     isOfficial: p.isOfficial,
   };
 }
@@ -41,6 +39,18 @@ export async function getProductsByCategory(category: string): Promise<Product[]
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   const row = await prisma.product.findUnique({ where: { slug } });
   return row ? toUiProduct(row) : null;
+}
+
+/** Coffrets, kits et sets du catalogue Chogan (pour la page Coffrets). */
+export async function getGiftSets(): Promise<Product[]> {
+  const rows = await prisma.product.findMany({
+    where: {
+      OR: ["coffret", "kit ", "set ", " set", "combo", "box", "bundle"].map((w) => ({ name: { contains: w, mode: "insensitive" as const } })),
+    },
+    orderBy: { name: "asc" },
+    take: 60,
+  });
+  return rows.map(toUiProduct);
 }
 
 export async function getBestsellers(category?: string, count = 3): Promise<Product[]> {

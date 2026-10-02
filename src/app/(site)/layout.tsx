@@ -6,7 +6,7 @@ import { Footer } from "@/components/Footer";
 import { CartDrawer } from "@/components/CartDrawer";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { AnnouncementBar } from "@/components/AnnouncementBar";
-import { getCategories } from "@/lib/db-categories";
+import { getCategoriesWithProducts } from "@/lib/db-categories";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
-  const categories = await getCategories();
+  const categories = await getCategoriesWithProducts();
   return (
     <html lang="fr" className={`${playfair.variable} ${poppins.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col bg-background text-foreground">

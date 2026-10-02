@@ -11,8 +11,8 @@ import { getBestsellers, getProductBySlug } from "@/lib/db-products";
 export const dynamic = "force-dynamic";
 
 const otherUniverses = [
-  { title: "Soins & beauté", note: "Aurodhea · Moni Amori", href: "/collections/aurodhea" },
-  { title: "Huiles de soin", note: "Lolum", href: "/collections/lolum" },
+  { title: "Soins & beauté", note: "Visage · Corps · Cheveux", href: "/collections/soins-visage" },
+  { title: "Huiles de soin", note: "Lolûm", href: "/collections/lolum" },
   { title: "Parfumer son intérieur", note: "JAMAAL Home", href: "/collections/parfum-ambiance" },
 ];
 
@@ -21,7 +21,7 @@ export default async function Home() {
     getBestsellers("parfum-femme", 4),
     getBestsellers("parfum-homme", 4),
     getBestsellers("parfum-unisexe", 4),
-    getProductBySlug("jamaal-scented-love-25"),
+    getProductBySlug("amphera-parfum-femme-luxury-extrait-30-16201"),
   ]);
   const featured = campaign ?? femme[0] ?? homme[0];
 

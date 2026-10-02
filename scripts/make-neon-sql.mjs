@@ -49,7 +49,7 @@ for (let i = 0; i < prods.length; i += per) {
 // Mise à jour des prix (idempotente : fixe le prix exact de chaque produit Chogan)
 const priceRows = prods.map((p) => `(${q(p.id)}, ${p.regularPrice})`).join(",\n");
 writeFileSync(
-  "import/neon/5-mise-a-jour-prix.sql",
+  "import/neon/6-mise-a-jour-prix.sql",
   [
     "-- Met à jour les prix des produits Chogan (peut être rejoué sans risque)",
     'UPDATE "Product" AS p SET "regularPrice" = v.price, "updatedAt" = now()',
@@ -57,6 +57,19 @@ writeFileSync(
     priceRows,
     ") AS v(id, price)",
     "WHERE p.id = v.id;",
+    "",
+  ].join("\n")
+);
+// Suppression des anciens produits (catalogue d'origine, non-Chogan). Les commandes passées sont conservées
+// (OrderItem.productId passe à NULL, le nom du produit reste sur la ligne de commande).
+const oldSlugs = JSON.parse(readFileSync("src/data/official-catalog.json", "utf8")).map((p) => p.slug);
+writeFileSync(
+  "import/neon/7-supprimer-anciens-produits.sql",
+  [
+    `-- Supprime les ${oldSlugs.length} produits du catalogue d'origine : il ne reste que la gamme Chogan.`,
+    'DELETE FROM "Product" WHERE "slug" IN (',
+    oldSlugs.map((x) => `  ${q(x)}`).join(",\n"),
+    ");",
     "",
   ].join("\n")
 );

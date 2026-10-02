@@ -6,7 +6,7 @@ import { ArrowDownRight, ArrowRight } from "lucide-react";
 import type { Product } from "@/data/types";
 
 export function HeroSlider({ featuredProduct }: { featuredProduct?: Product | null }) {
-  const image = featuredProduct?.photo || "/produits/jamaal-scented-love-25.jpg";
+  const image = featuredProduct?.photo || "https://cdn.chogangroupspa.com/images/prodotti/big/PR17891233220aamphera-50ml.jpg";
   const productHref = featuredProduct ? `/produits/${featuredProduct.slug}` : "/collections/parfum-femme";
   return <section className="relative isolate overflow-hidden bg-[#14213b] text-[#fbf7f0]">
     <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_15%_50%,rgba(217,169,157,0.16),transparent_52%),linear-gradient(120deg,#14213b_0%,#1d2f4f_55%,#273b60_100%)]"/>

@@ -1,12 +1,11 @@
 import Link from "next/link";
-import { getProductsByCategory } from "@/lib/db-products";
+import { getGiftSets } from "@/lib/db-products";
 import { ProductCard } from "@/components/ProductCard";
 
 export const dynamic = "force-dynamic";
 
 export default async function DiscoverySetsPage() {
-  const catalog = await getProductsByCategory("autres-produits");
-  const sets = catalog.filter((product) => product.name.toLocaleLowerCase("fr").includes("coffret") || product.slug.toLocaleLowerCase().includes("coffret"));
+  const sets = await getGiftSets();
   return <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
     <p className="text-xs font-semibold uppercase tracking-[0.2em] text-rose-dark">Le rituel JAMAAL</p>
     <h1 className="mt-3 font-serif-display text-3xl font-semibold text-navy sm:text-4xl">Coffrets découverte</h1>
