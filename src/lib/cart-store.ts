@@ -69,6 +69,10 @@ export const useCartStore = create<CartState>()(
       total: () => get().items.reduce((sum, i) => sum + i.price * i.quantity, 0),
       count: () => get().items.reduce((sum, i) => sum + i.quantity, 0),
     }),
-    { name: "jamaal-cart" }
+    {
+      name: "jamaal-cart",
+      // On ne mémorise que les articles : sinon le tiroir du panier se rouvrirait à chaque page.
+      partialize: (state) => ({ items: state.items }),
+    }
   )
 );
