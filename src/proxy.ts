@@ -14,6 +14,7 @@ const ADMIN_ONLY_PREFIXES = [
   "/admin/consultants",
   "/admin/candidatures",
   "/admin/messages",
+  "/admin/annonces",
   "/admin/livreurs",
   "/admin/comptabilite",
   "/admin/statistiques",

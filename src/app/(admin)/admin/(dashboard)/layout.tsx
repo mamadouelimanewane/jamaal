@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { cookies } from "next/headers";
+import { stopViewAsReseller } from "@/lib/actions/view-as";
 import { redirect } from "next/navigation";
 import {
   LayoutDashboard,
@@ -18,6 +20,11 @@ import {
   Settings,
   ClipboardList,
   Mail,
+  Banknote,
+  Megaphone,
+  UserCircle,
+  Share2,
+  UsersRound,
 } from "lucide-react";
 import { auth, signOut } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -54,6 +61,7 @@ const adminGroups = [
       { href: "/admin/consultants", label: "Revendeurs / Consultants", icon: Users },
       { href: "/admin/candidatures", label: "Candidatures", icon: Contact },
       { href: "/admin/messages", label: "Messages de contact", icon: Mail },
+      { href: "/admin/annonces", label: "Annonces aux revendeurs", icon: Megaphone },
       { href: "/admin/livreurs", label: "Livreurs", icon: Bike },
     ],
   },
@@ -72,8 +80,14 @@ const adminGroups = [
 
 const consultantLinks = [
   { href: "/admin", label: "Tableau de bord", icon: LayoutDashboard },
+  { href: "/admin/mes-ventes", label: "Mes ventes", icon: BarChart3 },
   { href: "/admin/mes-commandes", label: "Mes commandes", icon: ShoppingCart },
-  { href: "/admin/mon-kit-marketing", label: "Mon Kit Marketing", icon: Newspaper },
+  { href: "/admin/mes-clients", label: "Mes clients", icon: Contact },
+  { href: "/admin/mes-filleuls", label: "Mes filleuls", icon: UsersRound },
+  { href: "/admin/mes-gains", label: "Mes gains", icon: Banknote },
+  { href: "/admin/mon-marketing", label: "Mon marketing", icon: Share2 },
+  { href: "/admin/ma-communication", label: "Ma communication", icon: Megaphone },
+  { href: "/admin/mon-profil", label: "Mon profil", icon: UserCircle },
 ];
 
 const livreurLinks = [
@@ -91,6 +105,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (!session) redirect("/admin/login");
   const role = session.user?.role;
 
+  // Mode « voir l'espace d'un revendeur » (administrateur uniquement)
+  const viewAsId = role === "ADMIN" ? (await cookies()).get("jamaal_viewas")?.value : undefined;
+  const viewingAs = viewAsId ? await prisma.consultant.findUnique({ where: { id: viewAsId }, select: { name: true } }) : null;
+
   const unreadCount = session.user?.id
     ? await prisma.notification.count({ where: { userId: session.user.id, read: false } })
     : 0;
@@ -107,7 +125,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       </div>
 
       <nav className="mt-6 flex flex-1 flex-col gap-5 overflow-y-auto">
-        {role === "ADMIN" &&
+        {role === "ADMIN" && !viewingAs &&
           adminGroups.map((group) => (
             <div key={group.title}>
               <p className="mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-wider text-white/30">
@@ -135,7 +153,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           </div>
         )}
 
-        {role === "CONSULTANT" && (
+        {(role === "CONSULTANT" || !!viewingAs) && (
           <div className="flex flex-col gap-0.5">
             {consultantLinks.map((l) => (
               <SidebarNavLink key={l.href} href={l.href} label={l.label} icon={<l.icon size={16} />} />
@@ -172,5 +190,17 @@ export default async function DashboardLayout({ children }: { children: React.Re
     </>
   );
 
-  return <ResponsiveSidebar sidebar={sidebarContent}>{children}</ResponsiveSidebar>;
+  return (
+    <ResponsiveSidebar sidebar={sidebarContent}>
+      {viewingAs && (
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-rose bg-rose/10 px-4 py-3 text-sm text-navy">
+          <span>Vous consultez l&apos;espace de <strong>{viewingAs.name}</strong> (mode administrateur).</span>
+          <form action={stopViewAsReseller}>
+            <button className="rounded-full bg-navy px-4 py-1.5 text-xs font-semibold text-white hover:bg-navy-light">Quitter ce mode</button>
+          </form>
+        </div>
+      )}
+      {children}
+    </ResponsiveSidebar>
+  );
 }
