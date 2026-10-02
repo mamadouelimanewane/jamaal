@@ -137,7 +137,8 @@ export async function approveApplication(id: string): Promise<ApproveResult> {
     }
   }
 
-  revalidatePath("/admin/candidatures");
+  // Pas de revalidation de /admin/candidatures ici : elle ferait disparaître la ligne (et le lien
+  // d'activation affiché par le composant) avant que l'admin ait pu le copier.
   revalidatePath("/admin/consultants");
   return { ok: true, activationUrl, emailed };
 }
