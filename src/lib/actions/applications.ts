@@ -8,6 +8,7 @@ import { prisma } from "@/lib/prisma";
 import { rateLimit, clientIpFromHeaders } from "@/lib/rate-limit";
 import { applicationSchema } from "@/lib/validations/application";
 import { uniqueConsultantSlug } from "@/lib/unique-slug";
+import { getSiteUrl } from "@/lib/site-url";
 import { requireAdmin } from "./auth-guard";
 
 export type ApplicationState = { ok: boolean; error?: string };
@@ -112,7 +113,8 @@ export async function approveApplication(id: string): Promise<ApproveResult> {
     });
   });
 
-  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "")).replace(/\/$/, "");
+  // Action réservée aux admins : l'hôte de la requête est fiable (pas d'empoisonnement de lien).
+  const siteUrl = await getSiteUrl();
   const activationUrl = `${siteUrl}/admin/reset-password?token=${encodeURIComponent(token)}`;
 
   let emailed = false;
