@@ -32,7 +32,10 @@ const handler = auth((req) => {
   const response = NextResponse.next();
 
   // ——— Attribution consultant via ?ref= ———
-  const ref = searchParams.get("ref");
+  // Le lien personnel /c/<slug> pose aussi le cookie ici : une page serveur n'a pas le droit
+  // d'écrire un cookie (Next.js renvoie une erreur 500), contrairement au proxy.
+  const personalLink = pathname.match(/^\/c\/([a-z0-9-]{2,48})\/?$/i)?.[1];
+  const ref = searchParams.get("ref") ?? personalLink ?? null;
   if (ref && /^[a-z0-9-]{2,48}$/i.test(ref)) {
     response.cookies.set(REF_COOKIE, ref.toLowerCase(), {
       path: "/",

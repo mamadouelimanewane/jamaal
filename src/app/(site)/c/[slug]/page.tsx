@@ -1,7 +1,6 @@
-import { notFound, redirect } from "next/navigation";
-import { cookies } from "next/headers";
+import { notFound } from "next/navigation";
 import Link from "next/link";
-import { resolveConsultantBySlug, REF_COOKIE, REF_MAX_AGE } from "@/lib/ref";
+import { resolveConsultantBySlug } from "@/lib/ref";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -16,13 +15,7 @@ export default async function ConsultantPublicPage({ params }: Props) {
 
   if (!consultant) notFound();
 
-  // Pose / rafraîchit le cookie (30 jours)
-  const jar = await cookies();
-  jar.set(REF_COOKIE, consultant.slug!, {
-    path: "/",
-    maxAge: REF_MAX_AGE,
-    sameSite: "lax",
-  });
+  // Le cookie d'attribution (30 jours) est posé par src/proxy.ts pour toute URL /c/<slug>.
 
   return (
     <div className="mx-auto max-w-lg px-4 py-16 text-center">
