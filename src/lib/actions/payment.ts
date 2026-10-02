@@ -85,33 +85,3 @@ export async function initiatePayment(
   return result;
 }
 
-/** Marque une commande comme payée (appelé par webhooks). */
-export async function markOrderPaid(orderId: string, externalRef?: string) {
-  const order = await prisma.order.findUnique({ where: { id: orderId } });
-  if (!order) return false;
-
-  if ((order as { paymentStatus?: string }).paymentStatus === "PAYE") return true;
-
-  await prisma.order.update({
-    where: { id: orderId },
-    data: {
-      paymentStatus: "PAYE",
-      paidAt: new Date(),
-      ...(externalRef ? { paymentRef: externalRef } : {}),
-      status: order.status === "EN_ATTENTE" ? "CONFIRMEE" : order.status,
-    },
-  });
-
-  // Fidélité : créditer les points (best-effort)
-  try {
-    const { earnLoyaltyForOrder } = await import("@/lib/actions/loyalty");
-    await earnLoyaltyForOrder(orderId);
-  } catch (err) {
-    console.error("[loyalty] earn failed", err);
-  }
-
-  revalidatePath(`/commande/${orderId}`);
-  revalidatePath("/admin/commandes");
-  revalidatePath(`/admin/commandes/${orderId}`);
-  return true;
-}

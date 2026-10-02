@@ -8,7 +8,7 @@ import { OrderStatus } from "@prisma/client";
 import { upsertCustomerFromOrder } from "./customers";
 import { notifyConsultantOfDelivery } from "@/lib/notifications";
 import { notifySponsorOnSale } from "@/lib/sponsor-notifications";
-import { decrementStockAndAlert } from "@/lib/stock";
+import { reserveStock, sendLowStockAlerts } from "@/lib/stock";
 import { createOrderSchema } from "@/lib/validations/order";
 import { rateLimit, clientIpFromHeaders } from "@/lib/rate-limit";
 
@@ -118,10 +118,11 @@ export async function createOrder(
       product.testerPrice != null &&
       item.volumeLabel.toLowerCase().includes("échantillon") &&
       item.price === product.testerPrice;
+    // Prix « régulier » : uniquement pour un produit sans volumes définis
     const isRegular =
+      !volumes.length &&
       product.regularPrice != null &&
-      item.price === product.regularPrice &&
-      (!volumes.length || volumes.some((v) => v.label === item.volumeLabel));
+      item.price === product.regularPrice;
 
     if (!matchedVolume && !isTester && !isRegular) {
       throw new Error(
@@ -164,8 +165,10 @@ export async function createOrder(
       })
     : null;
 
-  // 6. Création atomique de la commande
-  const order = await prisma.order.create({
+  // 6. Commande + réservation du stock dans une même transaction (anti-survente)
+  const { order, stockAlerts } = await prisma.$transaction(async (tx) => {
+  const stockAlerts = await reserveStock(tx, serverItems, true);
+  const order = await tx.order.create({
     data: {
       customerName: data.customer.name,
       customerEmail: data.customer.email || null,
@@ -187,12 +190,14 @@ export async function createOrder(
       },
     },
   });
+  return { order, stockAlerts };
+  });
 
   // 7. Effets de bord
   if (validConsultantId) {
     await notifySponsorOnSale(validConsultantId, total);
   }
-  await decrementStockAndAlert(serverItems);
+  await sendLowStockAlerts(stockAlerts);
 
   // Notification admin (nouvelle commande)
   const admins = await prisma.user.findMany({

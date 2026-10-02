@@ -74,7 +74,7 @@ export const orangeMoneyProvider: PaymentProvider = {
         amount: input.amount,
         return_url: input.successUrl,
         cancel_url: input.cancelUrl,
-        ...(notifUrl ? { notif_url: notifUrl } : {}),
+        ...(notifUrl ? { notif_url: withWebhookToken(notifUrl) } : {}),
         lang: "fr",
       }),
     });
@@ -102,3 +102,12 @@ export const orangeMoneyProvider: PaymentProvider = {
     };
   },
 };
+
+/** Ajoute le secret partagé ORANGE_MONEY_WEBHOOK_SECRET à l'URL de notification. */
+function withWebhookToken(url: string): string {
+  const secret = process.env.ORANGE_MONEY_WEBHOOK_SECRET;
+  if (!secret) return url;
+  const u = new URL(url);
+  u.searchParams.set("token", secret);
+  return u.toString();
+}

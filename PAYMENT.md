@@ -78,6 +78,7 @@ ORANGE_MONEY_MERCHANT_KEY=
 ORANGE_MONEY_TOKEN_URL=https://api.orange.com/oauth/v3/token
 ORANGE_MONEY_PAYMENT_URL=
 ORANGE_MONEY_NOTIF_URL=https://votre-domaine/api/payment/orange/webhook
+ORANGE_MONEY_WEBHOOK_SECRET=   # obligatoire : ajouté en ?token= à la notif_url
 
 # Stripe
 STRIPE_SECRET_KEY=sk_...
