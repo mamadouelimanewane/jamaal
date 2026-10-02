@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 
 const digits = (s: string) => s.replace(/\D/g, "");
 
-async function MesFilleulsInner() {
+export default async function MesFilleulsPage() {
   const me = await getReseller();
   if (!me) return <NotReseller />;
   const since = startOfMonth();
@@ -66,7 +66,7 @@ async function MesFilleulsInner() {
         {links.recruit ? (
           <>
             <p className="mt-1 text-sm text-navy/60">Votre lien d&apos;invitation : la candidature est automatiquement rattachée à vous.</p>
-            <input readOnly value={links.recruit} onFocus={(e) => e.currentTarget.select()} className="mt-3 w-full rounded-xl border border-line bg-cream px-3 py-2 text-xs" />
+            <input readOnly value={links.recruit} className="mt-3 w-full rounded-xl border border-line bg-cream px-3 py-2 text-xs" />
             <div className="mt-3 flex flex-wrap gap-2">
               <CopyButton text={links.recruit} label="Copier le lien" />
               <a
@@ -166,13 +166,4 @@ async function MesFilleulsInner() {
       )}
     </div>
   );
-}
-
-// DIAGNOSTIC TEMPORAIRE : affiche l'erreur exacte au lieu d'une page 500.
-export default async function MesFilleulsPage() {
-  try {
-    return await MesFilleulsInner();
-  } catch (e) {
-    return <pre className="whitespace-pre-wrap rounded-xl border border-rose bg-white p-4 text-xs text-navy">{String(e instanceof Error ? e.message : e).slice(0, 1500)}</pre>;
-  }
 }
