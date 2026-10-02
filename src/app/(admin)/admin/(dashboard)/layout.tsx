@@ -139,7 +139,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
             </div>
           ))}
 
-        {role === "ADMIN" && (
+        {role === "ADMIN" && !viewingAs && (
           <div>
             <p className="mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-wider text-white/30">
               Système
