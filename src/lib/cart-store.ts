@@ -73,6 +73,11 @@ export const useCartStore = create<CartState>()(
       name: "jamaal-cart",
       // On ne mémorise que les articles : sinon le tiroir du panier se rouvrirait à chaque page.
       partialize: (state) => ({ items: state.items }),
+      // Ignore un éventuel « isOpen: true » enregistré par l'ancienne version du site.
+      merge: (persisted, current) => ({
+        ...current,
+        items: (persisted as { items?: CartItem[] } | undefined)?.items ?? [],
+      }),
     }
   )
 );
