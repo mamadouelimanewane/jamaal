@@ -1,21 +1,21 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fbf9f5;
-  --foreground: #241915;
-  --ink: #241915;
-  --wine: #6a2632;
-  --champagne: #d8b894;
-  --taupe: #806c5b;
-  --paper: #fbf9f5;
-  --rule: #e8e0d7;
-  --navy: #16233a;
-  --navy-light: #24374f;
-  --rose: #c9997a;
-  --rose-light: #e4c4ab;
-  --rose-dark: #a97557;
-  --cream: #faf7f2;
-  --line: #e7ded4;
+  --background: #fdfbfa;
+  --foreground: #14213b;
+  --ink: #14213b;
+  --wine: #1d2f4f;
+  --champagne: #d9a99d;
+  --taupe: #6b7391;
+  --paper: #fdfbfa;
+  --rule: #eadfda;
+  --navy: #1d2f4f;
+  --navy-light: #273b60;
+  --rose: #d9a99d;
+  --rose-light: #eac2b6;
+  --rose-dark: #b47a6c;
+  --cream: #fbf6f3;
+  --line: #eadfda;
 }
 
 html {
@@ -105,7 +105,7 @@ body {
   transition: transform .25s ease;
 }
 
-.nav-luxury-link:hover { color: #241915; }
+.nav-luxury-link:hover { color: #14213b; }
 .nav-luxury-link:hover::after { transform: scaleX(1); }
 
 .editorial-link {

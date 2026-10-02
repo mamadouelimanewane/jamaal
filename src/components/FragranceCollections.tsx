@@ -4,9 +4,9 @@ import { Product } from "@/data/types";
 import { ProductVisual } from "./ProductVisual";
 
 const collections = [
-  { title: "Parfums femme", subtitle: "Floraux · lumineux · sensuels", href: "/collections/parfum-femme", accent: "from-[#7f2639]/75" },
+  { title: "Parfums femme", subtitle: "Floraux · lumineux · sensuels", href: "/collections/parfum-femme", accent: "from-[#b47a6c]/75" },
   { title: "Parfums homme", subtitle: "Boisés · intenses · élégants", href: "/collections/parfum-homme", accent: "from-[#182536]/80" },
-  { title: "Parfums unisexes", subtitle: "Des sillages libres", href: "/collections/parfum-unisexe", accent: "from-[#503c32]/75" },
+  { title: "Parfums unisexes", subtitle: "Des sillages libres", href: "/collections/parfum-unisexe", accent: "from-[#3a4f73]/75" },
 ];
 
 export function FragranceCollections({ products }: { products: (Product | undefined)[] }) {
@@ -19,7 +19,7 @@ export function FragranceCollections({ products }: { products: (Product | undefi
       {collections.map((collection, index) => {
         const product = products[index];
         return <Link key={collection.href} href={collection.href} className="group relative isolate min-h-[360px] overflow-hidden bg-[#e9e2d8] sm:min-h-[430px]">
-          {product ? <ProductVisual product={product} fit="cover" className="absolute inset-0 h-full w-full transition duration-700 group-hover:scale-[1.04]" sizes="(max-width: 768px) 100vw, 33vw"/> : <div className="absolute inset-0 bg-gradient-to-br from-[#31231f] to-[#99816a]"/>}
+          {product ? <ProductVisual product={product} fit="cover" className="absolute inset-0 h-full w-full transition duration-700 group-hover:scale-[1.04]" sizes="(max-width: 768px) 100vw, 33vw"/> : <div className="absolute inset-0 bg-gradient-to-br from-[#14213b] to-[#6b7391]"/>}
           <div aria-hidden="true" className={`absolute inset-0 -z-0 bg-gradient-to-t ${collection.accent} via-transparent to-transparent opacity-95`}/>
           <div className="absolute inset-x-0 bottom-0 p-6 text-white sm:p-7">
             <p className="text-[10px] uppercase tracking-[0.2em] text-white/75">JAMAAL · EXTRAIT DE PARFUM</p>

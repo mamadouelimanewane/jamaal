@@ -529,3 +529,30 @@ model AnalyticsEvent {
   @@index([name, createdAt])
   @@index([createdAt])
 }
+
+enum ApplicationStatus {
+  NOUVELLE
+  ACCEPTEE
+  REFUSEE
+}
+
+/// Candidature publique pour devenir revendeur / consultant JAMAAL.
+model ConsultantApplication {
+  id           String            @id @default(cuid())
+  name         String
+  email        String
+  phone        String
+  city         String
+  country      String            @default("Sénégal")
+  experience   String?
+  motivation   String?
+  sponsorCode  String?
+  status       ApplicationStatus @default(NOUVELLE)
+  adminNote    String?
+  consultantId String?
+  createdAt    DateTime          @default(now())
+  processedAt  DateTime?
+
+  @@index([status, createdAt])
+  @@index([email])
+}

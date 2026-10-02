@@ -88,6 +88,110 @@ export const categories: Category[] = [
     description: "Le reste de notre univers JAMAAL, à découvrir sans attendre.",
     accent: "navy",
   },
+  {
+    slug: "gels-douche",
+    label: "Gels douche parfumés",
+    navLabel: "Gels douche",
+    description:
+      "Des gels douche parfumés, inspirés des grands parfums, pour une toilette sensorielle.",
+    accent: "rose",
+  },
+  {
+    slug: "cremes-corps",
+    label: "Crèmes corps parfumées",
+    navLabel: "Crèmes corps",
+    description:
+      "Des crèmes corporelles parfumées qui hydratent et laissent un sillage délicat.",
+    accent: "rose",
+  },
+  {
+    slug: "etuis-parfum",
+    label: "Étuis parfum de poche",
+    navLabel: "Étuis de poche",
+    description:
+      "Des étuis élégants pour emporter votre parfum partout avec vous.",
+    accent: "navy",
+  },
+  {
+    slug: "soins-corps",
+    label: "Soins corps & hygiène",
+    navLabel: "Soins corps",
+    description:
+      "Savons, crèmes, déodorants et soins d'hygiène au quotidien.",
+    accent: "rose",
+  },
+  {
+    slug: "soins-visage",
+    label: "Soins du visage",
+    navLabel: "Soins visage",
+    description:
+      "Nettoyants, sérums, crèmes et masques pour toutes les peaux.",
+    accent: "rose",
+  },
+  {
+    slug: "soins-cheveux",
+    label: "Soins cheveux",
+    navLabel: "Soins cheveux",
+    description:
+      "Shampoings, masques, sérums et brumes pour des cheveux en pleine santé.",
+    accent: "navy",
+  },
+  {
+    slug: "soleil",
+    label: "Produits solaires",
+    navLabel: "Solaire",
+    description:
+      "Sprays, huiles et soins après-soleil pour profiter de l'été en toute sérénité.",
+    accent: "rose",
+  },
+  {
+    slug: "remedes-onguents",
+    label: "Remèdes & onguents",
+    navLabel: "Remèdes",
+    description:
+      "Gels apaisants, pommades et baumes pour les petits maux du quotidien.",
+    accent: "navy",
+  },
+  {
+    slug: "animaux",
+    label: "Produits pour animaux",
+    navLabel: "Animaux",
+    description:
+      "Une gamme de soins dédiée à vos compagnons à quatre pattes.",
+    accent: "navy",
+  },
+  {
+    slug: "nutrition-sport",
+    label: "Nutrition sportive",
+    navLabel: "Nutrition sport",
+    description:
+      "Compléments pour accompagner vos entraînements et votre récupération.",
+    accent: "navy",
+  },
+  {
+    slug: "substituts-repas",
+    label: "Substituts de repas",
+    navLabel: "Substituts de repas",
+    description:
+      "Des shakes pour un repas équilibré, rapide et gourmand.",
+    accent: "navy",
+  },
+  {
+    slug: "cafe-boissons",
+    label: "Café & boissons",
+    navLabel: "Café",
+    description:
+      "Cafés en grains, capsules, dosettes et boissons chaudes.",
+    accent: "navy",
+  },
+  {
+    slug: "accessoires",
+    label: "Accessoires",
+    navLabel: "Accessoires",
+    description:
+      "Accessoires, goodies et articles à associer à votre routine.",
+    accent: "navy",
+  },
 ];
 
 export function getCategory(slug: string): Category | undefined {

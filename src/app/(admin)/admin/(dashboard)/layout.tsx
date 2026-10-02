@@ -51,6 +51,7 @@ const adminGroups = [
     title: "Réseau",
     links: [
       { href: "/admin/consultants", label: "Revendeurs / Consultants", icon: Users },
+      { href: "/admin/candidatures", label: "Candidatures", icon: Contact },
       { href: "/admin/livreurs", label: "Livreurs", icon: Bike },
     ],
   },

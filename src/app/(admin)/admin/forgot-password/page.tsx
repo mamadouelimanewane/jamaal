@@ -3,7 +3,7 @@ import { requestPasswordReset } from "@/lib/actions/password-reset";
 
 export default async function ForgotPasswordPage({ searchParams }: { searchParams: Promise<{ sent?: string }> }) {
   const { sent } = await searchParams;
-  return <main className="flex min-h-screen items-center justify-center bg-[#f5f1eb] p-4"><section className="w-full max-w-md rounded-3xl border border-line bg-white p-8 shadow-xl">
+  return <main className="flex min-h-screen items-center justify-center bg-[#f8f1ee] p-4"><section className="w-full max-w-md rounded-3xl border border-line bg-white p-8 shadow-xl">
     <Link href="/" className="font-serif-display text-xl font-semibold tracking-widest text-navy">JAMAAL</Link>
     <h1 className="mt-8 font-serif-display text-2xl font-semibold text-navy">Réinitialiser le mot de passe</h1>
     <p className="mt-2 text-sm leading-6 text-navy/60">Saisissez l’adresse e-mail associée à votre compte. Si elle existe, vous recevrez un lien valable une heure.</p>
