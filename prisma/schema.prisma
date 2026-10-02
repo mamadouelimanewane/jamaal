@@ -568,3 +568,14 @@ model ContactMessage {
 
   @@index([read, createdAt])
 }
+
+/// Annonce de l'équipe JAMAAL visible par tous les revendeurs (espace « Ma communication »).
+model Announcement {
+  id        String   @id @default(cuid())
+  title     String
+  body      String
+  pinned    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([pinned, createdAt])
+}

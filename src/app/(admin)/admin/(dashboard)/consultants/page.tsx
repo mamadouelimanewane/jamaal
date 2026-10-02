@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/currency";
 import { deleteConsultant } from "@/lib/actions/consultants";
+import { startViewAsReseller } from "@/lib/actions/view-as";
 import { getConsultantRankings } from "@/lib/ranking";
 import { RankBadge } from "@/components/admin/RankBadge";
 
@@ -117,6 +118,9 @@ export default async function AdminConsultantsPage() {
                     )}
                   </td>
                   <td className="px-4 py-3 text-right">
+                    <form action={startViewAsReseller.bind(null, c.id)} className="mr-3 inline">
+                      <button className="text-xs font-semibold text-rose-dark hover:underline">Voir son espace</button>
+                    </form>
                     <Link
                       href={`/admin/consultants/${c.id}`}
                       className="mr-3 text-xs font-semibold text-navy hover:underline"
