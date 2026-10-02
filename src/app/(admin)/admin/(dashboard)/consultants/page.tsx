@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/currency";
 import { deleteConsultant } from "@/lib/actions/consultants";
 import { startViewAsReseller } from "@/lib/actions/view-as";
+import { ResellerAccess } from "@/components/admin/ResellerAccess";
 import { getConsultantRankings } from "@/lib/ranking";
 import { RankBadge } from "@/components/admin/RankBadge";
 
@@ -104,11 +105,7 @@ export default async function AdminConsultantsPage() {
                     )}
                   </td>
                   <td className="px-4 py-3">
-                    {c.user ? (
-                      <span className="text-xs font-semibold text-green-700">{c.user.email}</span>
-                    ) : (
-                      <span className="text-xs text-navy/40">Non créé</span>
-                    )}
+                    <ResellerAccess consultantId={c.id} userEmail={c.user?.email ?? null} defaultEmail={c.email ?? ""} />
                   </td>
                   <td className="px-4 py-3">
                     {c.active ? (
