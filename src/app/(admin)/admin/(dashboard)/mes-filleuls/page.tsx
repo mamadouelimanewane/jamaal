@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 
 const digits = (s: string) => s.replace(/\D/g, "");
 
-export default async function MesFilleulsPage() {
+async function MesFilleulsInner() {
   const me = await getReseller();
   if (!me) return <NotReseller />;
   const since = startOfMonth();
@@ -166,4 +166,13 @@ export default async function MesFilleulsPage() {
       )}
     </div>
   );
+}
+
+// DIAGNOSTIC TEMPORAIRE : affiche l'erreur exacte au lieu d'une page 500.
+export default async function MesFilleulsPage() {
+  try {
+    return await MesFilleulsInner();
+  } catch (e) {
+    return <pre className="whitespace-pre-wrap rounded-xl border border-rose bg-white p-4 text-xs text-navy">{String(e instanceof Error ? e.message : e).slice(0, 1500)}</pre>;
+  }
 }
