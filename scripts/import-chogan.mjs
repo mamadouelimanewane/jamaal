@@ -10,7 +10,7 @@
  *
  * Usage : node scripts/import-chogan.mjs   (MARGE=0.2 par défaut)
  */
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -75,6 +75,12 @@ const nameCount = new Map();
 for (const r of rows) nameCount.set(norm(r.name), (nameCount.get(norm(r.name)) ?? 0) + 1);
 
 const skipped = [];
+// Images déjà associées à un produit existant (scripts/map-photos.mjs) : même article, on ne le réimporte pas.
+const fallbackPath = path.join(root, "src/data/photo-fallback.json");
+const usedByExisting = new Set(
+  existsSync(fallbackPath) ? Object.values(JSON.parse(readFileSync(fallbackPath, "utf8"))).map((u) => u.split("/").pop()) : []
+);
+const droppedIds = [];
 const out = [];
 for (const r of rows) {
   const category = categorize(r.leaf, r.name);
@@ -82,6 +88,8 @@ for (const r of rows) {
     const core = perfumeCore(r.name);
     if (core.length > 3 && existingText.includes(core)) { skipped.push(r.name); continue; }
   } else if (existingNames.has(norm(r.name))) { skipped.push(r.name); continue; }
+  // Même photo qu'un produit existant = même article : on ne le réimporte pas (et on le retire de la base s'il y est).
+  if (usedByExisting.has(r.img)) { droppedIds.push(`chogan-${r.id}`); skipped.push(r.name); continue; }
 
   const dup = nameCount.get(norm(r.name)) > 1;
   const name = (dup ? `${r.name} — réf. ${r.id}` : r.name).replace(/\s+/g, " ");
@@ -108,6 +116,18 @@ for (const r of rows) {
 }
 
 writeFileSync(path.join(root, "src/data/chogan-catalog.json"), JSON.stringify(out, null, 1) + "\n");
+// SQL pour retirer de la base les doublons déjà importés (même photo qu'un produit existant).
+if (droppedIds.length) {
+  const lines = [
+    `-- Supprime ${droppedIds.length} produits Chogan importés en double d'un produit déjà au catalogue.`,
+    "-- (les produits déjà commandés sont conservés)",
+    'DELETE FROM "Product" WHERE "id" IN (',
+    droppedIds.map((i) => `  '${i}'`).join(",\n"),
+    ') AND NOT EXISTS (SELECT 1 FROM "OrderItem" oi WHERE oi."productId" = "Product"."id");',
+    "",
+  ];
+  writeFileSync(path.join(root, "import/neon/7-supprimer-doublons.sql"), lines.join("\n"));
+}
 const byCat = out.reduce((a, p) => ((a[p.category] = (a[p.category] ?? 0) + 1), a), {});
 console.log(`${out.length} produits générés, ${skipped.length} déjà présents ignorés.`);
 console.log(byCat);

@@ -22,7 +22,7 @@ CREATE TABLE "ConsultantApplication" (
 CREATE INDEX "ConsultantApplication_status_createdAt_idx" ON "ConsultantApplication"("status", "createdAt");
 CREATE INDEX "ConsultantApplication_email_idx" ON "ConsultantApplication"("email");
 
-INSERT INTO "_prisma_migrations" ("id","checksum","finished_at","migration_name","logs","rolled_back_at","started_at","applied_steps_count") VALUES ('486999aa-0385-4a55-9066-6e828289eecc','059c3674890d4eb9fdab5d6a88c06b1a269a7215ae9cdded96b231578b3c8464',now(),'20261002010000_consultant_applications',NULL,NULL,now(),1);
+INSERT INTO "_prisma_migrations" ("id","checksum","finished_at","migration_name","logs","rolled_back_at","started_at","applied_steps_count") VALUES ('1b2682ec-beae-433b-93cb-edba7e198404','059c3674890d4eb9fdab5d6a88c06b1a269a7215ae9cdded96b231578b3c8464',now(),'20261002010000_consultant_applications',NULL,NULL,now(),1);
 -- Catégories (ne crée que celles qui manquent)
 INSERT INTO "Category" ("id","slug","label","navLabel","description","accent","position") SELECT 'cat-parfum-femme','parfum-femme','Parfum JAMAAL Femme','JAMAAL Femme','Une collection de parfums pour femme, inspirés des plus grandes maisons de parfumerie, conçus pour révéler votre élégance au quotidien.','rose',0 WHERE NOT EXISTS (SELECT 1 FROM "Category" WHERE "slug"='parfum-femme');
 INSERT INTO "Category" ("id","slug","label","navLabel","description","accent","position") SELECT 'cat-parfum-homme','parfum-homme','Parfum JAMAAL Homme','JAMAAL Homme','Des fragrances masculines intenses et raffinées, pensées pour affirmer votre caractère en toute occasion.','navy',1 WHERE NOT EXISTS (SELECT 1 FROM "Category" WHERE "slug"='parfum-homme');

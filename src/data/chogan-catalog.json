@@ -2358,24 +2358,6 @@
   "isOfficial": true
  },
  {
-  "id": "chogan-7574",
-  "slug": "creme-de-savon-a-la-grenade-7574",
-  "name": "Crème de savon à la Grenade — réf. 7574",
-  "category": "soins-corps",
-  "shortDescription": "Crème de savon à la Grenade — 260 ml. Produit Chogan, distribué au Sénégal par JAMAAL.",
-  "longDescription": [
-   "Crème de savon à la Grenade. Format : 260 ml.",
-   "Produit officiel de la gamme Chogan, distribué au Sénégal par JAMAAL, représentant exclusif."
-  ],
-  "regularPrice": 2500,
-  "reviewCount": 0,
-  "rating": 4.6,
-  "colorFrom": "#1d2f4f",
-  "colorTo": "#d9a99d",
-  "photo": "https://cdn.chogangroupspa.com/images/prodotti/big/PR17192992650sp07b.jpg",
-  "isOfficial": true
- },
- {
   "id": "chogan-7659",
   "slug": "sore-stop-complement-alimentaire-en-gelules-7659",
   "name": "SORE STOP + | Complément alimentaire en gélules",
@@ -2445,24 +2427,6 @@
   "colorFrom": "#1d2f4f",
   "colorTo": "#d9a99d",
   "photo": "https://cdn.chogangroupspa.com/images/prodotti/big/PR16956282220.jpg",
-  "isOfficial": true
- },
- {
-  "id": "chogan-7671",
-  "slug": "lotion-tonique-visage-pour-les-peaux-delicates-et-sensibles-7671",
-  "name": "Lotion tonique visage pour les peaux délicates et sensibles",
-  "category": "soins-visage",
-  "shortDescription": "Lotion tonique visage pour les peaux délicates et sensibles — 150 ml. Produit Chogan, distribué au Sénégal par JAMAAL.",
-  "longDescription": [
-   "Lotion tonique visage pour les peaux délicates et sensibles. Format : 150 ml.",
-   "Produit officiel de la gamme Chogan, distribué au Sénégal par JAMAAL, représentant exclusif."
-  ],
-  "regularPrice": 9800,
-  "reviewCount": 0,
-  "rating": 4.6,
-  "colorFrom": "#1d2f4f",
-  "colorTo": "#d9a99d",
-  "photo": "https://cdn.chogangroupspa.com/images/prodotti/big/PR17065405630.jpg",
   "isOfficial": true
  },
  {
@@ -2592,24 +2556,6 @@
   "isOfficial": true
  },
  {
-  "id": "chogan-7694",
-  "slug": "lotion-anti-chute-capillaire-a-l-undaria-pinnatifida-7694",
-  "name": "Lotion anti-chute capillaire à l'Undaria Pinnatifida",
-  "category": "soins-cheveux",
-  "shortDescription": "Lotion anti-chute capillaire à l'Undaria Pinnatifida — 50 ml. Produit Chogan, distribué au Sénégal par JAMAAL.",
-  "longDescription": [
-   "Lotion anti-chute capillaire à l'Undaria Pinnatifida. Format : 50 ml.",
-   "Produit officiel de la gamme Chogan, distribué au Sénégal par JAMAAL, représentant exclusif."
-  ],
-  "regularPrice": 31500,
-  "reviewCount": 0,
-  "rating": 4.6,
-  "colorFrom": "#1d2f4f",
-  "colorTo": "#d9a99d",
-  "photo": "https://cdn.chogangroupspa.com/images/prodotti/big/PR17176830120FA02-IMG-PRODOTTO.jpg",
-  "isOfficial": true
- },
- {
   "id": "chogan-7695",
   "slug": "batonnets-de-parfum-d-ambiance-7695",
   "name": "Bâtonnets de parfum d'ambiance",
@@ -2661,24 +2607,6 @@
   "colorFrom": "#1d2f4f",
   "colorTo": "#d9a99d",
   "photo": "https://cdn.chogangroupspa.com/images/prodotti/big/PR17219009620CR01B_copia_2.jpg",
-  "isOfficial": true
- },
- {
-  "id": "chogan-7747",
-  "slug": "creme-de-savon-a-la-peche-7747",
-  "name": "Crème de savon à la pêche",
-  "category": "soins-corps",
-  "shortDescription": "Crème de savon à la pêche — 260 ml. Produit Chogan, distribué au Sénégal par JAMAAL.",
-  "longDescription": [
-   "Crème de savon à la pêche. Format : 260 ml.",
-   "Produit officiel de la gamme Chogan, distribué au Sénégal par JAMAAL, représentant exclusif."
-  ],
-  "regularPrice": 2500,
-  "reviewCount": 0,
-  "rating": 4.6,
-  "colorFrom": "#1d2f4f",
-  "colorTo": "#d9a99d",
-  "photo": "https://cdn.chogangroupspa.com/images/prodotti/big/PR17192358650sp05b.jpg",
   "isOfficial": true
  },
  {
@@ -2769,24 +2697,6 @@
   "colorFrom": "#1d2f4f",
   "colorTo": "#d9a99d",
   "photo": "https://cdn.chogangroupspa.com/images/prodotti/big/PR16865733453.png",
-  "isOfficial": true
- },
- {
-  "id": "chogan-7773",
-  "slug": "creme-de-savon-a-la-pomme-verte-7773",
-  "name": "Crème de Savon à la Pomme Verte",
-  "category": "soins-corps",
-  "shortDescription": "Crème de Savon à la Pomme Verte — 260 ml. Produit Chogan, distribué au Sénégal par JAMAAL.",
-  "longDescription": [
-   "Crème de Savon à la Pomme Verte. Format : 260 ml.",
-   "Produit officiel de la gamme Chogan, distribué au Sénégal par JAMAAL, représentant exclusif."
-  ],
-  "regularPrice": 2500,
-  "reviewCount": 0,
-  "rating": 4.6,
-  "colorFrom": "#1d2f4f",
-  "colorTo": "#d9a99d",
-  "photo": "https://cdn.chogangroupspa.com/images/prodotti/big/PR17495565460SP08B_copia_2.jpg",
   "isOfficial": true
  },
  {
@@ -3258,42 +3168,6 @@
   "isOfficial": true
  },
  {
-  "id": "chogan-7874",
-  "slug": "spray-de-premiers-secours-avec-de-98-aloe-vera-7874",
-  "name": "Spray de premiers secours avec de 98% Aloe Vera",
-  "category": "remedes-onguents",
-  "shortDescription": "Spray de premiers secours avec de 98% Aloe Vera — 150 ml. Produit Chogan, distribué au Sénégal par JAMAAL.",
-  "longDescription": [
-   "Spray de premiers secours avec de 98% Aloe Vera. Format : 150 ml.",
-   "Produit officiel de la gamme Chogan, distribué au Sénégal par JAMAAL, représentant exclusif."
-  ],
-  "regularPrice": 10600,
-  "reviewCount": 0,
-  "rating": 4.6,
-  "colorFrom": "#1d2f4f",
-  "colorTo": "#d9a99d",
-  "photo": "https://cdn.chogangroupspa.com/images/prodotti/big/16892493600.jpg",
-  "isOfficial": true
- },
- {
-  "id": "chogan-7875",
-  "slug": "spray-repulsif-anti-tiques-pour-les-chiens-7875",
-  "name": "Spray répulsif anti-tiques pour les chiens",
-  "category": "animaux",
-  "shortDescription": "Spray répulsif anti-tiques pour les chiens — 150 ml. Produit Chogan, distribué au Sénégal par JAMAAL.",
-  "longDescription": [
-   "Spray répulsif anti-tiques pour les chiens. Format : 150 ml.",
-   "Produit officiel de la gamme Chogan, distribué au Sénégal par JAMAAL, représentant exclusif."
-  ],
-  "regularPrice": 9400,
-  "reviewCount": 0,
-  "rating": 4.6,
-  "colorFrom": "#1d2f4f",
-  "colorTo": "#d9a99d",
-  "photo": "https://cdn.chogangroupspa.com/images/prodotti/big/PR16890876180.png",
-  "isOfficial": true
- },
- {
   "id": "chogan-7876",
   "slug": "glitterain-golden-shimmer-body-spray-parfum-de-monoi-et-de-l-7876",
   "name": "GLITTERAIN Golden Shimmer Body Spray (Parfum de monoï et de lait)",
@@ -3381,42 +3255,6 @@
   "colorFrom": "#1d2f4f",
   "colorTo": "#d9a99d",
   "photo": "https://cdn.chogangroupspa.com/images/prodotti/big/PR17495568280SOL22.jpg",
-  "isOfficial": true
- },
- {
-  "id": "chogan-7887",
-  "slug": "creme-mains-au-calendula-7887",
-  "name": "Crème mains au Calendula",
-  "category": "soins-corps",
-  "shortDescription": "Crème mains au Calendula — 75 ml. Produit Chogan, distribué au Sénégal par JAMAAL.",
-  "longDescription": [
-   "Crème mains au Calendula. Format : 75 ml.",
-   "Produit officiel de la gamme Chogan, distribué au Sénégal par JAMAAL, représentant exclusif."
-  ],
-  "regularPrice": 6200,
-  "reviewCount": 0,
-  "rating": 4.6,
-  "colorFrom": "#1d2f4f",
-  "colorTo": "#d9a99d",
-  "photo": "https://cdn.chogangroupspa.com/images/prodotti/big/PR17228624620CR15B_copia_2.jpg",
-  "isOfficial": true
- },
- {
-  "id": "chogan-7888",
-  "slug": "shampoing-anti-chute-7888",
-  "name": "Shampoing anti-chute",
-  "category": "soins-cheveux",
-  "shortDescription": "Shampoing anti-chute — 250 ml. Produit Chogan, distribué au Sénégal par JAMAAL.",
-  "longDescription": [
-   "Shampoing anti-chute. Format : 250 ml.",
-   "Produit officiel de la gamme Chogan, distribué au Sénégal par JAMAAL, représentant exclusif."
-  ],
-  "regularPrice": 12500,
-  "reviewCount": 0,
-  "rating": 4.6,
-  "colorFrom": "#1d2f4f",
-  "colorTo": "#d9a99d",
-  "photo": "https://cdn.chogangroupspa.com/images/prodotti/big/PR17228629190CAP12B_copia_2.jpg",
   "isOfficial": true
  },
  {
@@ -3546,24 +3384,6 @@
   "isOfficial": true
  },
  {
-  "id": "chogan-7913",
-  "slug": "gel-aloe-vera-98-bio-7913",
-  "name": "Gel Aloe Vera 98% Bio",
-  "category": "soins-corps",
-  "shortDescription": "Gel Aloe Vera 98% Bio — 150 ml. Produit Chogan, distribué au Sénégal par JAMAAL.",
-  "longDescription": [
-   "Gel Aloe Vera 98% Bio. Format : 150 ml.",
-   "Produit officiel de la gamme Chogan, distribué au Sénégal par JAMAAL, représentant exclusif."
-  ],
-  "regularPrice": 8800,
-  "reviewCount": 0,
-  "rating": 4.6,
-  "colorFrom": "#1d2f4f",
-  "colorTo": "#d9a99d",
-  "photo": "https://cdn.chogangroupspa.com/images/prodotti/big/PR17228624080CR17B_copia_2.jpg",
-  "isOfficial": true
- },
- {
   "id": "chogan-7914",
   "slug": "creme-corporelle-a-la-noix-de-coco-7914",
   "name": "Crème corporelle à la noix de Coco",
@@ -3651,24 +3471,6 @@
   "colorFrom": "#1d2f4f",
   "colorTo": "#d9a99d",
   "photo": "https://cdn.chogangroupspa.com/images/prodotti/big/PR17412670060BH0212.jpg",
-  "isOfficial": true
- },
- {
-  "id": "chogan-7920",
-  "slug": "shampoing-pour-chiens-7920",
-  "name": "Shampoing pour chiens",
-  "category": "animaux",
-  "shortDescription": "Shampoing pour chiens — 250 ml. Produit Chogan, distribué au Sénégal par JAMAAL.",
-  "longDescription": [
-   "Shampoing pour chiens. Format : 250 ml.",
-   "Produit officiel de la gamme Chogan, distribué au Sénégal par JAMAAL, représentant exclusif."
-  ],
-  "regularPrice": 8800,
-  "reviewCount": 0,
-  "rating": 4.6,
-  "colorFrom": "#1d2f4f",
-  "colorTo": "#d9a99d",
-  "photo": "https://cdn.chogangroupspa.com/images/prodotti/big/PR16938981270.jpg",
   "isOfficial": true
  },
  {
@@ -3867,24 +3669,6 @@
   "colorFrom": "#1d2f4f",
   "colorTo": "#d9a99d",
   "photo": "https://cdn.chogangroupspa.com/images/prodotti/big/PR17097136701.jpg",
-  "isOfficial": true
- },
- {
-  "id": "chogan-7970",
-  "slug": "creme-corps-a-l-aloe-vera-7970",
-  "name": "Crème corps à l’Aloe Vera",
-  "category": "soins-corps",
-  "shortDescription": "Crème corps à l’Aloe Vera — 150 ml. Produit Chogan, distribué au Sénégal par JAMAAL.",
-  "longDescription": [
-   "Crème corps à l’Aloe Vera. Format : 150 ml.",
-   "Produit officiel de la gamme Chogan, distribué au Sénégal par JAMAAL, représentant exclusif."
-  ],
-  "regularPrice": 15100,
-  "reviewCount": 0,
-  "rating": 4.6,
-  "colorFrom": "#1d2f4f",
-  "colorTo": "#d9a99d",
-  "photo": "https://cdn.chogangroupspa.com/images/prodotti/big/PR17495557510CR30B_copia_2.jpg",
   "isOfficial": true
  },
  {
@@ -4230,24 +4014,6 @@
   "isOfficial": true
  },
  {
-  "id": "chogan-8058",
-  "slug": "creme-visage-au-collagene-et-a-l-acide-hyaluronique-8058",
-  "name": "Crème visage au Collagène et à l’Acide hyaluronique",
-  "category": "soins-visage",
-  "shortDescription": "Crème visage au Collagène et à l’Acide hyaluronique — 50 ml. Produit Chogan, distribué au Sénégal par JAMAAL.",
-  "longDescription": [
-   "Crème visage au Collagène et à l’Acide hyaluronique. Format : 50 ml.",
-   "Produit officiel de la gamme Chogan, distribué au Sénégal par JAMAAL, représentant exclusif."
-  ],
-  "regularPrice": 16900,
-  "reviewCount": 0,
-  "rating": 4.6,
-  "colorFrom": "#1d2f4f",
-  "colorTo": "#d9a99d",
-  "photo": "https://cdn.chogangroupspa.com/images/prodotti/big/PR17023689700.jpg",
-  "isOfficial": true
- },
- {
   "id": "chogan-8060",
   "slug": "creme-visage-anti-age-a-la-bave-d-escargot-8060",
   "name": "Crème visage anti-âge à la bave d’escargot",
@@ -4371,24 +4137,6 @@
   "colorFrom": "#1d2f4f",
   "colorTo": "#d9a99d",
   "photo": "https://cdn.chogangroupspa.com/images/prodotti/big/PR17228626070OLCB_copia_2.jpg",
-  "isOfficial": true
- },
- {
-  "id": "chogan-8072",
-  "slug": "creme-de-savon-au-the-vert-8072",
-  "name": "Crème de Savon au Thé Vert",
-  "category": "soins-corps",
-  "shortDescription": "Crème de Savon au Thé Vert — 260 ml. Produit Chogan, distribué au Sénégal par JAMAAL.",
-  "longDescription": [
-   "Crème de Savon au Thé Vert. Format : 260 ml.",
-   "Produit officiel de la gamme Chogan, distribué au Sénégal par JAMAAL, représentant exclusif."
-  ],
-  "regularPrice": 2500,
-  "reviewCount": 0,
-  "rating": 4.6,
-  "colorFrom": "#1d2f4f",
-  "colorTo": "#d9a99d",
-  "photo": "https://cdn.chogangroupspa.com/images/prodotti/big/PR17192356770sp02b.jpg",
   "isOfficial": true
  },
  {
@@ -4968,24 +4716,6 @@
   "isOfficial": true
  },
  {
-  "id": "chogan-8447",
-  "slug": "creme-mains-a-la-camomille-8447",
-  "name": "Crème mains à la Camomille",
-  "category": "soins-corps",
-  "shortDescription": "Crème mains à la Camomille — 75 ml. Produit Chogan, distribué au Sénégal par JAMAAL.",
-  "longDescription": [
-   "Crème mains à la Camomille. Format : 75 ml.",
-   "Produit officiel de la gamme Chogan, distribué au Sénégal par JAMAAL, représentant exclusif."
-  ],
-  "regularPrice": 8100,
-  "reviewCount": 0,
-  "rating": 4.6,
-  "colorFrom": "#1d2f4f",
-  "colorTo": "#d9a99d",
-  "photo": "https://cdn.chogangroupspa.com/images/prodotti/big/PR17098949000.jpg",
-  "isOfficial": true
- },
- {
   "id": "chogan-8448",
   "slug": "frostaway-degivrant-pour-congelateurs-et-freezers-8448",
   "name": "Frostaway Dégivrant pour congélateurs et freezers",
@@ -5184,24 +4914,6 @@
   "isOfficial": true
  },
  {
-  "id": "chogan-8470",
-  "slug": "gel-douche-a-l-avoine-8470",
-  "name": "Gel douche à l’Avoine",
-  "category": "soins-corps",
-  "shortDescription": "Gel douche à l’Avoine — 250 ml. Produit Chogan, distribué au Sénégal par JAMAAL.",
-  "longDescription": [
-   "Gel douche à l’Avoine. Format : 250 ml.",
-   "Produit officiel de la gamme Chogan, distribué au Sénégal par JAMAAL, représentant exclusif."
-  ],
-  "regularPrice": 11300,
-  "reviewCount": 0,
-  "rating": 4.6,
-  "colorFrom": "#1d2f4f",
-  "colorTo": "#d9a99d",
-  "photo": "https://cdn.chogangroupspa.com/images/prodotti/big/PR17110204830.jpg",
-  "isOfficial": true
- },
- {
   "id": "chogan-8471",
   "slug": "gel-apaisant-pour-les-coups-de-soleil-8471",
   "name": "Gel apaisant pour les coups de soleil",
@@ -5253,24 +4965,6 @@
   "colorFrom": "#1d2f4f",
   "colorTo": "#d9a99d",
   "photo": "https://cdn.chogangroupspa.com/images/prodotti/big/PR17127345150.jpg",
-  "isOfficial": true
- },
- {
-  "id": "chogan-8484",
-  "slug": "eau-micellaire-3-en-1-8484",
-  "name": "Eau micellaire 3 en 1",
-  "category": "soins-visage",
-  "shortDescription": "Eau micellaire 3 en 1 — 250 ml. Produit Chogan, distribué au Sénégal par JAMAAL.",
-  "longDescription": [
-   "Eau micellaire 3 en 1. Format : 250 ml.",
-   "Produit officiel de la gamme Chogan, distribué au Sénégal par JAMAAL, représentant exclusif."
-  ],
-  "regularPrice": 9400,
-  "reviewCount": 0,
-  "rating": 4.6,
-  "colorFrom": "#1d2f4f",
-  "colorTo": "#d9a99d",
-  "photo": "https://cdn.chogangroupspa.com/images/prodotti/big/PR17143921220.jpg",
   "isOfficial": true
  },
  {
@@ -5487,24 +5181,6 @@
   "colorFrom": "#1d2f4f",
   "colorTo": "#d9a99d",
   "photo": "https://cdn.chogangroupspa.com/images/prodotti/big/PR17520670970CAP14B_copia_2.jpg",
-  "isOfficial": true
- },
- {
-  "id": "chogan-8574",
-  "slug": "creme-pieds-au-menthol-8574",
-  "name": "Crème pieds au Ménthol",
-  "category": "soins-corps",
-  "shortDescription": "Crème pieds au Ménthol — 75 ml. Produit Chogan, distribué au Sénégal par JAMAAL.",
-  "longDescription": [
-   "Crème pieds au Ménthol. Format : 75 ml.",
-   "Produit officiel de la gamme Chogan, distribué au Sénégal par JAMAAL, représentant exclusif."
-  ],
-  "regularPrice": 6900,
-  "reviewCount": 0,
-  "rating": 4.6,
-  "colorFrom": "#1d2f4f",
-  "colorTo": "#d9a99d",
-  "photo": "https://cdn.chogangroupspa.com/images/prodotti/big/PR17162120520CR19B_IMG-PRODOTTO.jpg",
   "isOfficial": true
  },
  {
@@ -5757,24 +5433,6 @@
   "colorFrom": "#1d2f4f",
   "colorTo": "#d9a99d",
   "photo": "https://cdn.chogangroupspa.com/images/prodotti/big/PR17260556670BV11B_copia_2.jpg",
-  "isOfficial": true
- },
- {
-  "id": "chogan-8680",
-  "slug": "creme-pieds-au-calendula-8680",
-  "name": "Crème pieds au Calendula",
-  "category": "soins-corps",
-  "shortDescription": "Crème pieds au Calendula — 75 ml. Produit Chogan, distribué au Sénégal par JAMAAL.",
-  "longDescription": [
-   "Crème pieds au Calendula. Format : 75 ml.",
-   "Produit officiel de la gamme Chogan, distribué au Sénégal par JAMAAL, représentant exclusif."
-  ],
-  "regularPrice": 6900,
-  "reviewCount": 0,
-  "rating": 4.6,
-  "colorFrom": "#1d2f4f",
-  "colorTo": "#d9a99d",
-  "photo": "https://cdn.chogangroupspa.com/images/prodotti/big/PR17260559950CR29B_copia_2.jpg",
   "isOfficial": true
  },
  {
@@ -6297,24 +5955,6 @@
   "colorFrom": "#1d2f4f",
   "colorTo": "#d9a99d",
   "photo": "https://cdn.chogangroupspa.com/images/prodotti/big/PR17417800940MD24.jpg",
-  "isOfficial": true
- },
- {
-  "id": "chogan-9177",
-  "slug": "lotion-capillaire-rafraichissante-au-menthol-et-au-camphre-9177",
-  "name": "Lotion capillaire rafraîchissante au Menthol et au Camphre",
-  "category": "soins-cheveux",
-  "shortDescription": "Lotion capillaire rafraîchissante au Menthol et au Camphre — 100 ml. Produit Chogan, distribué au Sénégal par JAMAAL.",
-  "longDescription": [
-   "Lotion capillaire rafraîchissante au Menthol et au Camphre. Format : 100 ml.",
-   "Produit officiel de la gamme Chogan, distribué au Sénégal par JAMAAL, représentant exclusif."
-  ],
-  "regularPrice": 15700,
-  "reviewCount": 0,
-  "rating": 4.6,
-  "colorFrom": "#1d2f4f",
-  "colorTo": "#d9a99d",
-  "photo": "https://cdn.chogangroupspa.com/images/prodotti/big/PR17430912750FA03B_copia_2.jpg",
   "isOfficial": true
  },
  {
