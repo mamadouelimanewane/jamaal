@@ -22,6 +22,14 @@ export function Header({ categories }: { categories: Category[] }) {
 
   useEffect(() => setMounted(true), []);
 
+  // Grand logo en haut de page, réduit dès qu'on fait défiler pour ne pas gêner la lecture.
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   function submitSearch(event: React.FormEvent) {
     event.preventDefault();
     if (!query.trim()) return;
@@ -38,14 +46,14 @@ export function Header({ categories }: { categories: Category[] }) {
       <button type="button" className="justify-self-start rounded-full p-2 text-navy transition hover:bg-navy/5 lg:hidden" onClick={() => setMenuOpen((open) => !open)} aria-label={menuOpen ? "Fermer le menu" : "Ouvrir le menu"} aria-expanded={menuOpen}>{menuOpen ? <X size={20}/> : <Menu size={20}/>}</button>
       <Link href="/" aria-label="JAMAAL — accueil" className="col-start-2 row-start-1 flex flex-col items-center py-3 lg:col-start-1 lg:items-start lg:py-2">
         {/* Logo JAMAAL recadré sur le monogramme + nom (le JPG source a de larges marges) */}
-        <span className="relative block aspect-[540/605] h-16 overflow-hidden sm:h-20">
+        <span className={`relative block aspect-[540/605] overflow-hidden transition-all duration-300 ${scrolled ? "h-16 sm:h-20" : "h-28 sm:h-36"}`}>
           <Image
             src="/logo/jamaal-logo.jpg"
             alt="JAMAAL Luxury Cosmetics"
             width={720}
             height={1080}
             priority
-            sizes="80px"
+            sizes="200px"
             className="absolute max-w-none h-[178%] w-auto -left-[19.5%] -top-[37%]"
           />
         </span>
