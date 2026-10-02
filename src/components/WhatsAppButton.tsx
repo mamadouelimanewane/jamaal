@@ -1,7 +1,7 @@
 export function WhatsAppButton() {
   return (
     <a
-      href="https://wa.me/33000000000"
+      href="https://wa.me/221777529288?text=Bonjour%20JAMAAL%2C%20je%20souhaite%20des%20informations."
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Contacter JAMAAL sur WhatsApp"
