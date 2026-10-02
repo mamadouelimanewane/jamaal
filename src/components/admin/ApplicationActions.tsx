@@ -3,7 +3,12 @@
 import { useState, useTransition } from "react";
 import { approveApplication, rejectApplication, type ApproveResult } from "@/lib/actions/applications";
 
-export function ApplicationActions({ id }: { id: string }) {
+/**
+ * Reste monté pour toutes les candidatures (même acceptées) : après « Accepter », Next.js
+ * rafraîchit la liste et le statut passe à ACCEPTEE ; le lien d'activation (état local) doit
+ * rester affiché jusqu'à ce que l'admin l'ait copié.
+ */
+export function ApplicationActions({ id, status }: { id: string; status: string }) {
   const [pending, start] = useTransition();
   const [result, setResult] = useState<ApproveResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -29,6 +34,8 @@ export function ApplicationActions({ id }: { id: string }) {
       </div>
     );
   }
+
+  if (status !== "NOUVELLE") return null;
 
   return (
     <div className="flex flex-col items-start gap-1">

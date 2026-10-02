@@ -65,7 +65,7 @@ export default async function CandidaturesPage() {
                     {statusLabel[a.status]}
                   </span>
                 </td>
-                <td className="px-4 py-3">{a.status === "NOUVELLE" ? <ApplicationActions id={a.id} /> : null}</td>
+                <td className="px-4 py-3"><ApplicationActions id={a.id} status={a.status} /></td>
               </tr>
             ))}
             {applications.length === 0 && (
