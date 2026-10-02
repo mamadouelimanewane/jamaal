@@ -28,11 +28,11 @@ export default async function Home() {
   return <>
     <HeroSlider featuredProduct={featured}/>
 
-    <section aria-label="Les attentions JAMAAL" className="border-b border-[#e8e0d7] bg-[#fbf9f5]">
-      <div className="mx-auto grid max-w-7xl grid-cols-1 divide-y divide-[#e8e0d7] px-5 sm:grid-cols-3 sm:divide-x sm:divide-y-0 sm:px-8 lg:px-12">
-        <div className="flex items-center justify-center gap-3 py-4 sm:py-5"><Sparkles size={16} className="text-[#9a755d]"/><span className="text-[9px] uppercase tracking-[0.15em] text-navy/70">Extraits à 30 %</span></div>
-        <div className="flex items-center justify-center gap-3 py-4 sm:py-5"><ShieldCheck size={16} className="text-[#9a755d]"/><span className="text-[9px] uppercase tracking-[0.15em] text-navy/70">Conseil parfum personnalisé</span></div>
-        <div className="flex items-center justify-center gap-3 py-4 sm:py-5"><Truck size={16} className="text-[#9a755d]"/><span className="text-[9px] uppercase tracking-[0.15em] text-navy/70">Paiement à la livraison</span></div>
+    <section aria-label="Les attentions JAMAAL" className="border-b border-[#eadfda] bg-[#fdfbfa]">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 divide-y divide-[#eadfda] px-5 sm:grid-cols-3 sm:divide-x sm:divide-y-0 sm:px-8 lg:px-12">
+        <div className="flex items-center justify-center gap-3 py-4 sm:py-5"><Sparkles size={16} className="text-[#9c6254]"/><span className="text-[9px] uppercase tracking-[0.15em] text-navy/70">Extraits à 30 %</span></div>
+        <div className="flex items-center justify-center gap-3 py-4 sm:py-5"><ShieldCheck size={16} className="text-[#9c6254]"/><span className="text-[9px] uppercase tracking-[0.15em] text-navy/70">Conseil parfum personnalisé</span></div>
+        <div className="flex items-center justify-center gap-3 py-4 sm:py-5"><Truck size={16} className="text-[#9c6254]"/><span className="text-[9px] uppercase tracking-[0.15em] text-navy/70">Paiement à la livraison</span></div>
       </div>
     </section>
 
@@ -54,7 +54,7 @@ export default async function Home() {
 
     <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-12 lg:py-20">
       <div className="mb-7"><p className="luxury-eyebrow">Au-delà du parfum</p><h2 className="mt-3 font-serif-display text-3xl font-medium text-navy">L’univers JAMAAL</h2></div>
-      <div className="grid gap-px bg-[#d9cbbd] sm:grid-cols-3">{otherUniverses.map((item, index) => <Link key={item.href} href={item.href} className="group flex min-h-36 flex-col justify-between bg-[#fbf9f5] p-6 transition hover:bg-white sm:p-8"><span className="text-[9px] uppercase tracking-[0.18em] text-[#9a755d]">0{index + 1} · JAMAAL</span><span className="mt-7 flex items-end justify-between gap-4"><span><span className="block font-serif-display text-xl text-navy">{item.title}</span><span className="mt-1 block text-xs text-navy/50">{item.note}</span></span><ArrowRight size={17} className="text-[#9a755d] transition-transform group-hover:translate-x-1"/></span></Link>)}</div>
+      <div className="grid gap-px bg-[#d9cbbd] sm:grid-cols-3">{otherUniverses.map((item, index) => <Link key={item.href} href={item.href} className="group flex min-h-36 flex-col justify-between bg-[#fdfbfa] p-6 transition hover:bg-white sm:p-8"><span className="text-[9px] uppercase tracking-[0.18em] text-[#9c6254]">0{index + 1} · JAMAAL</span><span className="mt-7 flex items-end justify-between gap-4"><span><span className="block font-serif-display text-xl text-navy">{item.title}</span><span className="mt-1 block text-xs text-navy/50">{item.note}</span></span><ArrowRight size={17} className="text-[#9c6254] transition-transform group-hover:translate-x-1"/></span></Link>)}</div>
     </section>
 
     <BlogSection/>

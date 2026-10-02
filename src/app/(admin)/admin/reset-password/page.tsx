@@ -3,7 +3,7 @@ import { completePasswordReset } from "@/lib/actions/password-reset";
 
 export default async function ResetPasswordPage({ searchParams }: { searchParams: Promise<{ token?: string; error?: string }> }) {
   const { token = "", error } = await searchParams;
-  return <main className="flex min-h-screen items-center justify-center bg-[#f5f1eb] p-4"><section className="w-full max-w-md rounded-3xl border border-line bg-white p-8 shadow-xl">
+  return <main className="flex min-h-screen items-center justify-center bg-[#f8f1ee] p-4"><section className="w-full max-w-md rounded-3xl border border-line bg-white p-8 shadow-xl">
     <Link href="/" className="font-serif-display text-xl font-semibold tracking-widest text-navy">JAMAAL</Link>
     <h1 className="mt-8 font-serif-display text-2xl font-semibold text-navy">Choisir un nouveau mot de passe</h1>
     {error && <p role="alert" className="mt-4 rounded-xl bg-rose/10 p-3 text-sm text-rose-dark">Le lien est invalide ou expiré, ou les mots de passe ne correspondent pas.</p>}

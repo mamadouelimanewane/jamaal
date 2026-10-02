@@ -27,7 +27,7 @@ export function ReceiptCard({ data }: { data: ReceiptData }) {
         width: "100%",
         maxWidth: 480,
         boxSizing: "border-box",
-        background: "linear-gradient(160deg, #16233a 0%, #24374f 100%)",
+        background: "linear-gradient(160deg, #1d2f4f 0%, #273b60 100%)",
         color: "white",
         padding: 28,
         fontFamily: "Poppins, Arial, sans-serif",
