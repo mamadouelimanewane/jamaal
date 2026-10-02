@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { WHATSAPP_CONTACTS, whatsappLink } from "@/lib/contact";
 
 export default function ContactPage() {
   const [sent, setSent] = useState(false);
@@ -12,6 +13,20 @@ export default function ContactPage() {
         Une question sur un produit, une commande ou notre réseau de consultant·es ? Écrivez-nous,
         nous vous répondons rapidement.
       </p>
+
+      <div className="mt-6 flex flex-wrap gap-3">
+        {WHATSAPP_CONTACTS.map((c) => (
+          <a
+            key={c.number}
+            href={whatsappLink(c.number)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-full border border-line bg-white px-4 py-2.5 text-sm font-semibold text-navy transition hover:border-rose hover:text-rose-dark"
+          >
+            WhatsApp {c.display}
+          </a>
+        ))}
+      </div>
 
       {sent ? (
         <p className="mt-8 rounded-2xl border border-line bg-white p-6 text-sm text-navy">
