@@ -1,77 +1,59 @@
-"use client";
+import Link from "next/link";
+import type { Metadata } from "next";
+import { ApplicationForm } from "@/components/ApplicationForm";
 
-import { useState } from "react";
+export const metadata: Metadata = {
+  title: "Devenir revendeur·se JAMAAL",
+  description:
+    "Rejoignez le réseau JAMAAL, représentant exclusif de Chogan au Sénégal : parfums, beauté, bien-être et maison, avec votre propre vitrine en ligne.",
+};
 
-export default function DevenirConsultantPage() {
-  const [form, setForm] = useState({ name: "", email: "", phone: "" });
-  const [sent, setSent] = useState(false);
+const perks = [
+  ["Toute la gamme Chogan", "Parfums, beauté, nutrition, entretien de la maison : un catalogue complet à proposer."],
+  ["Votre vitrine personnelle", "Un lien /c/votre-nom qui attribue automatiquement vos ventes."],
+  ["Commissions & parrainage", "Gagnez sur vos ventes et sur celles de votre équipe."],
+  ["Formation & outils", "Scripts WhatsApp, kit marketing et accompagnement de l'équipe JAMAAL."],
+];
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setSent(true);
-  }
+export default async function DevenirConsultantPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ ref?: string }>;
+}) {
+  const { ref } = await searchParams;
+  const sponsorCode = ref && /^[a-z0-9-]{2,48}$/i.test(ref) ? ref.toLowerCase() : "";
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-14 sm:px-6">
-      <h1 className="font-serif-display text-3xl font-semibold text-navy">
-        Devenir consultant·e JAMAAL
+    <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
+      <p className="luxury-eyebrow">Rejoindre le réseau</p>
+      <h1 className="mt-2 font-serif-display text-3xl font-semibold text-navy sm:text-4xl">
+        Devenir revendeur·se JAMAAL
       </h1>
       <p className="mt-4 text-sm leading-relaxed text-navy/70">
-        Rejoignez le réseau de consultant·es indépendant·es JAMAAL et proposez notre collection de
-        parfums et cosmétiques à votre entourage, avec votre propre vitrine en ligne. Laissez-nous
-        vos coordonnées, un membre de l&apos;équipe JAMAAL vous recontacte rapidement.
+        JAMAAL est le représentant exclusif de Chogan au Sénégal. Rejoignez notre réseau de
+        revendeur·ses indépendant·es et proposez toute la gamme à votre entourage. Remplissez le
+        formulaire : l&apos;équipe étudie chaque candidature et vous répond rapidement.
       </p>
 
-      {sent ? (
-        <div className="mt-8 rounded-2xl border border-line bg-white p-6 text-center">
-          <p className="font-semibold text-navy">Merci {form.name || ""} !</p>
-          <p className="mt-2 text-sm text-navy/70">
-            Votre demande a bien été enregistrée. Nous revenons vers vous très vite.
-          </p>
-        </div>
-      ) : (
-        <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-4">
-          <div>
-            <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-navy/60">
-              Nom complet
-            </label>
-            <input
-              required
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="w-full rounded-xl border border-line px-4 py-3 text-sm outline-none focus:border-rose"
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-navy/60">
-              E-mail
-            </label>
-            <input
-              required
-              type="email"
-              value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
-              className="w-full rounded-xl border border-line px-4 py-3 text-sm outline-none focus:border-rose"
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-navy/60">
-              Téléphone
-            </label>
-            <input
-              value={form.phone}
-              onChange={(e) => setForm({ ...form, phone: e.target.value })}
-              className="w-full rounded-xl border border-line px-4 py-3 text-sm outline-none focus:border-rose"
-            />
-          </div>
-          <button
-            type="submit"
-            className="mt-2 rounded-full bg-navy py-3 text-sm font-semibold text-white transition hover:bg-navy-light"
-          >
-            Envoyer ma demande
-          </button>
-        </form>
-      )}
+      <ul className="mt-8 grid gap-3 sm:grid-cols-2">
+        {perks.map(([title, text]) => (
+          <li key={title} className="rounded-2xl border border-line bg-cream p-4">
+            <p className="text-sm font-semibold text-navy">{title}</p>
+            <p className="mt-1 text-xs leading-relaxed text-navy/65">{text}</p>
+          </li>
+        ))}
+      </ul>
+
+      <div className="mt-10 rounded-2xl border border-line bg-white p-5 sm:p-8">
+        <ApplicationForm sponsorCode={sponsorCode} />
+      </div>
+
+      <p className="mt-6 text-center text-sm text-navy/60">
+        Déjà revendeur·se ?{" "}
+        <Link href="/espace-revendeur" className="font-semibold text-rose-dark hover:underline">
+          Accéder à mon espace
+        </Link>
+      </p>
     </div>
   );
 }

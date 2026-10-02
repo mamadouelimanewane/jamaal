@@ -12,6 +12,7 @@ const ADMIN_ONLY_PREFIXES = [
   "/admin/commandes",
   "/admin/clients",
   "/admin/consultants",
+  "/admin/candidatures",
   "/admin/livreurs",
   "/admin/comptabilite",
   "/admin/statistiques",

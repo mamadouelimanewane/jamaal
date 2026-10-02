@@ -1,8 +1,9 @@
 import { Product, CategorySlug } from "./types";
 import { demoProducts } from "./demo-catalog";
 import officialRaw from "./official-catalog.json";
+import choganRaw from "./chogan-catalog.json";
 
-const officialProducts = officialRaw as Product[];
+const officialProducts = [...(officialRaw as Product[]), ...(choganRaw as Product[])];
 
 // Pour chaque catégorie : si l'import officiel contient des produits, on les
 // utilise ; sinon on garde le catalogue de démonstration le temps que le

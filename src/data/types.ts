@@ -9,7 +9,20 @@ export type CategorySlug =
   | "entretien-maison"
   | "parfum-ambiance"
   | "complement-alimentaire"
-  | "autres-produits";
+  | "autres-produits"
+  | "gels-douche"
+  | "cremes-corps"
+  | "etuis-parfum"
+  | "soins-corps"
+  | "soins-visage"
+  | "soins-cheveux"
+  | "soleil"
+  | "remedes-onguents"
+  | "animaux"
+  | "nutrition-sport"
+  | "substituts-repas"
+  | "cafe-boissons"
+  | "accessoires";
 
 export interface Category {
   slug: CategorySlug;
