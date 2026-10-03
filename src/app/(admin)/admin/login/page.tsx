@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { BrandLogo } from "@/components/BrandLogo";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { signIn, auth } from "@/lib/auth";
@@ -46,15 +46,9 @@ export default async function AdminLoginPage({
           <div aria-hidden="true" className="absolute -right-24 top-16 h-96 w-96 rounded-full border border-white/10" />
           <div aria-hidden="true" className="absolute -right-12 top-28 h-72 w-72 rounded-full border border-white/10" />
           <Link href="/" className="relative inline-flex w-fit items-center gap-3">
-            <Image
-              src="/logo/jamaal-logo.jpg"
-              alt=""
-              width={46}
-              height={46}
-              className="rounded-full ring-1 ring-white/40"
-              priority
-            />
-            <span className="font-serif-display text-2xl font-semibold tracking-[0.16em]">JAMAAL</span>
+            <span className="rounded-2xl bg-white p-3">
+              <BrandLogo height={112} priority />
+            </span>
           </Link>
           <div className="relative max-w-md">
             <p className="text-[10px] uppercase tracking-[0.28em] text-[#eac2b6]">Espace sécurisé</p>
@@ -73,8 +67,7 @@ export default async function AdminLoginPage({
         <section className="flex items-center justify-center px-5 py-12 sm:px-10 lg:px-12">
           <div className="w-full max-w-md">
             <Link href="/" className="mb-8 inline-flex items-center gap-3 lg:hidden">
-              <Image src="/logo/jamaal-logo.jpg" alt="" width={40} height={40} className="rounded-full" />
-              <span className="font-serif-display text-xl font-semibold tracking-[0.14em] text-navy">JAMAAL</span>
+              <BrandLogo height={88} priority />
             </Link>
             <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-rose-dark">
               {isLivreurEntry ? "Espace livraison" : "Espace équipe"}

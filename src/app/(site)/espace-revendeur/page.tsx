@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { AuthError } from "next-auth";
 import { auth, signIn } from "@/lib/auth";
+import { BrandLogo } from "@/components/BrandLogo";
 
 export const metadata: Metadata = {
   title: "Espace revendeur",
@@ -35,6 +36,7 @@ export default async function EspaceRevendeurPage({
 
   return (
     <div className="mx-auto max-w-md px-4 py-14 sm:px-6">
+      <BrandLogo height={104} priority className="mx-auto mb-6" />
       <p className="luxury-eyebrow">Espace revendeur</p>
       <h1 className="mt-2 font-serif-display text-3xl font-semibold text-navy">Connexion</h1>
       <p className="mt-3 text-sm text-navy/70">

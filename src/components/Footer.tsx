@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BrandLogo } from "@/components/BrandLogo";
 import type { Category } from "@/data/types";
 import { NewsletterForm } from "./NewsletterForm";
 
@@ -8,7 +9,9 @@ export function Footer({ categories }: { categories: Category[] }) {
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div>
-            <h3 className="font-serif-display text-lg font-semibold text-white">JAMAAL</h3>
+            <Link href="/" aria-label="JAMAAL — accueil" className="inline-block rounded-2xl bg-white p-2.5">
+              <BrandLogo height={104} />
+            </Link>
             <p className="mt-3 text-sm leading-relaxed">
               Parfums et cosmétiques inspirés des grandes maisons, à prix juste. Une collection
               signée JAMAAL Luxury Cosmetics.

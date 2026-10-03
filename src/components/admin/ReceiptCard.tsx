@@ -1,4 +1,5 @@
 import { formatPrice } from "@/lib/currency";
+import { BrandLogoPlain } from "@/components/BrandLogo";
 
 export interface ReceiptData {
   orderId: string;
@@ -35,7 +36,7 @@ export function ReceiptCard({ data }: { data: ReceiptData }) {
       }}
     >
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <p style={{ fontSize: 22, fontWeight: 700, letterSpacing: 1 }}>JAMAAL</p>
+        <div style={{ background: "#fff", borderRadius: 12, padding: 6 }}><BrandLogoPlain height={64} /></div>
         <p style={{ fontSize: 11, opacity: 0.7 }}>Luxury Cosmetics</p>
       </div>
 
