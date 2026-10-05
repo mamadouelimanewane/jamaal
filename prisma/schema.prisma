@@ -579,3 +579,19 @@ model Announcement {
 
   @@index([pinned, createdAt])
 }
+
+/// Journal des messages WhatsApp envoyés (OUT) et reçus (IN) via le prestataire WhatsApp Business.
+model WhatsAppMessage {
+  id         String   @id @default(cuid())
+  direction  String // OUT | IN
+  toNumber   String // numéro du destinataire (OUT) ou de l'expéditeur (IN)
+  kind       String // team | reseller | test | inbound
+  body       String
+  status     String // SIMULE | ENVOYE | LIVRE | LU | ECHEC | RECU
+  providerId String?
+  error      String?
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([providerId])
+}

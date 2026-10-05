@@ -8,6 +8,7 @@ import { OrderStatus } from "@prisma/client";
 import { upsertCustomerFromOrder } from "./customers";
 import { notifyConsultantOfDelivery } from "@/lib/notifications";
 import { notifySponsorOnSale } from "@/lib/sponsor-notifications";
+import { notifyResellerWhatsApp, notifyTeamWhatsApp } from "@/lib/whatsapp";
 import { reserveStock, sendLowStockAlerts } from "@/lib/stock";
 import { createOrderSchema } from "@/lib/validations/order";
 import { rateLimit, clientIpFromHeaders } from "@/lib/rate-limit";
@@ -231,6 +232,11 @@ export async function createOrder(
         },
       });
     }
+  }
+
+  notifyTeamWhatsApp(`Nouvelle commande ${total.toLocaleString("fr-FR")} FCFA de ${data.customer.name}${validConsultantId ? " (via un revendeur)" : ""}. Détail : Admin > Commandes.`);
+  if (validConsultantId) {
+    notifyResellerWhatsApp(validConsultantId, `Bonne nouvelle ! Nouvelle commande de ${data.customer.name} : ${total.toLocaleString("fr-FR")} FCFA, rattachée à vous. Suivez-la dans « Mes ventes ».`);
   }
 
   revalidatePath("/admin/commandes");
