@@ -21,7 +21,7 @@ export default async function CentreWhatsAppPage() {
         <div className="mt-3 flex flex-wrap gap-3">
           {WHATSAPP_CONTACTS.map((c) => (
             <a key={c.number} href={whatsappLink(c.number)} target="_blank" rel="noopener noreferrer" className="rounded-full bg-[#25D366] px-4 py-2 text-sm font-semibold text-white hover:opacity-90">
-              {c.display}
+              {c.display} · {c.phone}
             </a>
           ))}
         </div>

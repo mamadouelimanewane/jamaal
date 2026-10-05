@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>JAMAAL × WhatsApp — Récapitulatif</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 20mm 16mm; @bottom-center { content: "JAMAAL × WhatsApp — page " counter(page) " / " counter(pages); font: 8pt "Segoe UI", Arial, sans-serif; color: #8a93a8; } }
+  :root { --navy:#1d2f4f; --rose:#d9a99d; --rosedark:#9c6254; --cream:#fbf6f3; --line:#eadfda; --green:#1f9d55; --amber:#b7791f; }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { margin: 0; font: 9.6pt/1.5 "Segoe UI", Arial, sans-serif; color: #243049; }
+  h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; color: var(--navy); margin: 0; font-weight: 600; }
+  h2 { font-size: 15pt; margin: 16pt 0 7pt; padding-bottom: 5pt; border-bottom: 2px solid var(--rose); break-after: avoid; }
+  h3 { font-size: 11.5pt; margin: 14pt 0 4pt; break-after: avoid; }
+  p { margin: 0 0 7pt; }
+  ul, ol { margin: 0 0 8pt; padding-left: 16pt; } li { margin-bottom: 3pt; }
+  .cover { display: flex; align-items: center; gap: 18pt; padding: 14pt 0 16pt; border-bottom: 3px solid var(--navy); }
+  .cover img { width: 84pt; height: 84pt; border-radius: 12pt; border: 1px solid var(--line); }
+  .cover h1 { font-size: 26pt; line-height: 1.1; }
+  .cover p { margin: 5pt 0 0; color: var(--rosedark); letter-spacing: .06em; text-transform: uppercase; font-size: 8.5pt; }
+  .lead { font-size: 11pt; color: #33405c; margin-top: 12pt; }
+  .box { background: var(--cream); border: 1px solid var(--line); border-radius: 8pt; padding: 9pt 11pt; margin: 8pt 0 10pt; break-inside: avoid; }
+  .box.navy { background: var(--navy); color: #fff; border-color: var(--navy); } .box.navy h3 { color: #fff; margin-top: 0; }
+  table { width: 100%; border-collapse: collapse; margin: 6pt 0 10pt; font-size: 9pt; }
+  th { background: var(--navy); color: #fff; text-align: left; padding: 5pt 7pt; font-weight: 600; }
+  td { padding: 5pt 7pt; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr { break-inside: avoid; } tbody tr:nth-child(even) td { background: #fdfbfa; }
+  .tag { display: inline-block; padding: 1pt 7pt; border-radius: 99pt; font-size: 8pt; font-weight: 700; white-space: nowrap; }
+  .ok { background: #e3f5ea; color: var(--green); } .todo { background: #fdf0d9; color: var(--amber); } .you { background: #f3e5e1; color: var(--rosedark); }
+  .feature { border: 1px solid var(--line); border-left: 4px solid var(--rose); border-radius: 6pt; padding: 7pt 10pt; margin: 6pt 0; break-inside: avoid; }
+  .feature h3 { margin-top: 0; display: flex; justify-content: space-between; align-items: center; gap: 8pt; }
+  .feature .how { color: #3a4663; } .feature .gain { color: var(--green); font-weight: 600; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 9pt; } .cols .box { margin: 0; }
+  .flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 5pt; margin: 8pt 0 10pt; }
+  .step { flex: 1 1 22%; background: #fff; border: 1px solid var(--line); border-top: 3px solid var(--navy); border-radius: 6pt; padding: 6pt 8pt; font-size: 8.6pt; break-inside: avoid; }
+  .step b { display: block; color: var(--navy); margin-bottom: 2pt; }
+  .small { font-size: 8.5pt; color: #5a647c; } code { background: #f1ece9; padding: 0 3pt; border-radius: 3pt; font-size: 8.8pt; }
+  .pb { break-before: page; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <img src="file:///C:/gravity/jamaal-repo/public/icons/icon-192.png" alt="JAMAAL">
+  <div>
+    <h1>JAMAAL × WhatsApp</h1>
+    <p>Intégrer la boutique et le réseau de revendeurs à l'écosystème WhatsApp</p>
+    <p style="margin-top:3pt;color:#8a93a8;text-transform:none;letter-spacing:0">Récapitulatif : propositions, état d'avancement, fonctionnement, avantages · 5 octobre 2026</p>
+  </div>
+</div>
+
+<p class="lead">Au Sénégal, WhatsApp est le canal naturel pour vendre : c'est là que se font les conseils, les commandes, le suivi et la confiance. L'objectif est que le <b>revendeur reste dans WhatsApp</b> et n'ouvre l'application JAMAAL que lorsqu'il en a besoin, tout en gardant le suivi des ventes, des gains et des filleuls.</p>
+
+<h2>1. Vue d'ensemble : trois niveaux d'intégration</h2>
+<table>
+  <thead><tr><th style="width:17%">Niveau</th><th>Ce que cela permet</th><th style="width:14%">État</th><th style="width:22%">Prérequis</th></tr></thead>
+  <tbody>
+    <tr><td><b>1. WhatsApp « sortant » et application installable</b></td><td>Boutons et liens WhatsApp partout, partage avec code revendeur, connexion directe par lien WhatsApp, application sur l'écran d'accueil, Centre WhatsApp (catalogue, réponses rapides).</td><td><span class="tag ok">Implémenté</span></td><td>Aucun compte Meta, aucun coût</td></tr>
+    <tr><td><b>2. WhatsApp Business API</b></td><td>Messages automatiques du site vers WhatsApp : nouvelle commande au revendeur, confirmation au client, candidature sur vos numéros, code de connexion (OTP).</td><td><span class="tag todo">À venir</span></td><td>Compte Meta Business vérifié, numéro dédié, modèles de messages approuvés</td></tr>
+    <tr><td><b>3. Assistant dans la conversation</b></td><td>Le revendeur écrit « ventes », « gains », « lien », « catalogue » à votre numéro officiel et reçoit la réponse ; il peut saisir une vente depuis WhatsApp.</td><td><span class="tag todo">À venir</span></td><td>Niveau 2 en place</td></tr>
+  </tbody>
+</table>
+
+<h2>2. Ce qui est implémenté (niveau 1)</h2>
+
+<div class="feature">
+  <h3>Boutons et liens WhatsApp sur tout le site <span class="tag ok">En ligne</span></h3>
+  <p class="how"><b>Comment ça marche :</b> le bouton vert flottant ouvre un petit menu avec vos deux numéros (+221 77 752 92 88 et +221 77 670 09 96). Un clic ouvre WhatsApp avec un message d'accueil déjà écrit. Les deux numéros apparaissent aussi sur la page Contact. Ils sont définis à un seul endroit du code.</p>
+  <p class="gain">Avantage : le client vous contacte en un geste, sans formulaire ni e-mail.</p>
+</div>
+
+<div class="feature">
+  <h3>Candidature de revendeur avec notification WhatsApp <span class="tag ok">En ligne</span></h3>
+  <p class="how"><b>Comment ça marche :</b> après l'envoi du formulaire, le candidat voit deux boutons verts, un par numéro de l'équipe, qui ouvrent WhatsApp avec sa candidature préremplie (nom, ville, téléphone). En parallèle, la candidature est enregistrée et une notification apparaît dans le back-office. Un code de parrainage prérempli (<code>?ref=nom</code>) rattache le candidat à son parrain.</p>
+  <p class="gain">Avantage : vos deux numéros sont prévenus dès que le candidat appuie sur « Envoyer », et le parrainage est automatique.</p>
+</div>
+
+<div class="feature">
+  <h3>Partage avec attribution automatique des ventes <span class="tag ok">En ligne</span></h3>
+  <p class="how"><b>Comment ça marche :</b> chaque revendeur a sa boutique personnelle (<code>/c/son-nom</code>). Quand un client arrive par ce lien, un cookie de 30 jours le mémorise : sa commande est rattachée au revendeur, qui touche sa commission. Un bouton « Partager sur WhatsApp » est présent sur chaque fiche produit et conserve ce code. Dans « Mon marketing », le revendeur trouve : son lien, un QR code téléchargeable, un générateur de lien par produit avec message prêt à envoyer, et ses codes promo.</p>
+  <p class="gain">Avantage : le revendeur vend en envoyant un lien dans une conversation ; aucune vente n'est « perdue » ni mal attribuée.</p>
+</div>
+
+<div class="feature">
+  <h3>Espace revendeur complet <span class="tag ok">En ligne</span></h3>
+  <p class="how"><b>Comment ça marche :</b> chaque revendeur dispose de : <b>Mes ventes</b> (chiffre d'affaires, produits les plus vendus), <b>Mes clients</b> (avec bouton WhatsApp de relance et repère « à relancer » après 45 jours), <b>Mes filleuls</b> (invitation par WhatsApp, candidatures reçues, ventes de l'équipe), <b>Mes gains</b> (10 % sur ses ventes, 5 % niveau 1, 2 % niveau 2, historique, versements), <b>Mon marketing</b>, <b>Ma communication</b> (annonces de l'équipe, vos deux numéros, contact du parrain) et <b>Mon profil</b>.</p>
+  <p class="gain">Avantage : tout le pilotage de l'activité au même endroit, avec WhatsApp comme moteur d'action (relancer, inviter, partager).</p>
+</div>
+
+<div class="feature">
+  <h3>Connexion directe par lien WhatsApp <span class="tag ok">En ligne</span></h3>
+  <p class="how"><b>Comment ça marche :</b> dans l'administration, le bouton « Lien de connexion WhatsApp » génère un lien <b>valable 24 h et utilisable une seule fois</b>, avec « Envoyer sur WhatsApp » qui ouvre la conversation avec le revendeur. Il appuie sur « Ouvrir mon espace » et il est connecté, sans mot de passe. La connexion se fait au clic (et non à l'ouverture du lien) pour que l'aperçu automatique de WhatsApp ne consomme pas le lien. Le jeton est stocké sous forme chiffrée.</p>
+  <p class="gain">Avantage : fini les mots de passe oubliés ; un revendeur qui n'utilise pas son e-mail se connecte depuis sa conversation WhatsApp.</p>
+</div>
+
+<div class="feature">
+  <h3>Application installable (PWA) <span class="tag ok">En ligne</span></h3>
+  <p class="how"><b>Comment ça marche :</b> le revendeur ajoute JAMAAL à l'écran d'accueil de son téléphone : icône JAMAAL, ouverture en plein écran comme une application, raccourcis vers Mes ventes, Mes clients et Mon marketing, page « hors connexion » si le réseau est coupé. Sur Android, un bouton « Installer » apparaît dans son menu ; sur iPhone, « Partager » puis « Sur l'écran d'accueil ». Aucune boutique d'applications n'est nécessaire.</p>
+  <p class="gain">Avantage : un lien WhatsApp ouvre directement « l'application », sans passer par un navigateur ni un téléchargement.</p>
+</div>
+
+<div class="feature">
+  <h3>Centre WhatsApp pour l'équipe <span class="tag ok">En ligne</span></h3>
+  <p class="how"><b>Comment ça marche :</b> une page de l'administration (Réseau → Centre WhatsApp) regroupe : vos numéros, le <b>catalogue de tous les produits en CSV</b> (nom, prix en FCFA, photo, lien) à importer dans le catalogue de l'application WhatsApp Business, neuf <b>réponses rapides</b> prêtes à copier (accueil, catalogue, conseil parfum, livraison, paiement, commande, devenir revendeur, remerciement, relance), les messages d'accueil et d'absence, et un guide de configuration en huit étapes.</p>
+  <p class="gain">Avantage : vous démarrez votre vitrine WhatsApp Business en une heure, avec des messages cohérents et professionnels.</p>
+</div>
+
+<div class="box">
+  <b>Validé en production :</b> manifest et icônes de l'application, service worker actif, refus d'un faux lien de connexion, pages WhatsApp protégées, envoi du formulaire de candidature avec les deux boutons, attribution d'une commande de test à un revendeur.<br>
+  <b>À vérifier par vous :</b> l'installation sur un vrai téléphone, le téléchargement du catalogue CSV et la génération d'un vrai lien de connexion dans l'administration (ces pages demandent une session administrateur), et l'envoi d'un vrai message depuis WhatsApp.
+</div>
+
+<h2 class="pb">3. Ce qui reste à faire (niveaux 2 et 3)</h2>
+
+<h3>Niveau 2 : WhatsApp Business API, des messages automatiques</h3>
+<p>Ici, c'est <b>le site lui-même</b> qui envoie des messages WhatsApp, sans clic de la part de personne.</p>
+<table>
+  <thead><tr><th style="width:24%">Message automatique</th><th>Exemple</th><th style="width:20%">Destinataire</th></tr></thead>
+  <tbody>
+    <tr><td>Nouvelle commande</td><td>« Nouvelle commande de Awa : 22 000 FCFA. Votre commission : 2 200 FCFA. »</td><td>Revendeur</td></tr>
+    <tr><td>Nouveau filleul</td><td>« Moussa vient de rejoindre votre équipe. »</td><td>Revendeur</td></tr>
+    <tr><td>Récapitulatif de commissions</td><td>« Vos gains du mois : … FCFA. »</td><td>Revendeur</td></tr>
+    <tr><td>Confirmation et suivi</td><td>« Votre commande est confirmée / en livraison / livrée. »</td><td>Client</td></tr>
+    <tr><td>Relance</td><td>« Votre parfum est bientôt fini : le recommander ? »</td><td>Client (avec accord)</td></tr>
+    <tr><td>Candidature ou message de contact</td><td>Alerte dès la soumission, sans dépendre d'un clic</td><td>Vos deux numéros</td></tr>
+    <tr><td>Code de connexion (OTP)</td><td>« Votre code JAMAAL : 482 913 »</td><td>Revendeur</td></tr>
+  </tbody>
+</table>
+
+<h3>Niveau 3 : un assistant dans la conversation</h3>
+<p>Le revendeur écrit à votre numéro officiel et le site répond :</p>
+<table>
+  <thead><tr><th style="width:24%">Il écrit</th><th>Il reçoit</th></tr></thead>
+  <tbody>
+    <tr><td><code>ventes</code></td><td>Ses chiffres du jour et du mois</td></tr>
+    <tr><td><code>gains</code></td><td>Sa commission du mois et son solde à recevoir</td></tr>
+    <tr><td><code>lien</code></td><td>Son lien de boutique et son QR code</td></tr>
+    <tr><td><code>catalogue parfum femme</code></td><td>Une sélection avec photos, prix et liens avec son code</td></tr>
+    <tr><td><code>commande</code></td><td>Un petit questionnaire pour saisir une vente sans ouvrir l'application</td></tr>
+  </tbody>
+</table>
+
+<h3>Ce que le niveau 2 demande, et qui dépend de vous</h3>
+<table>
+  <thead><tr><th style="width:26%">Élément</th><th>Détail</th><th style="width:12%">Qui</th></tr></thead>
+  <tbody>
+    <tr><td>Compte Meta Business vérifié</td><td>Création du compte et vérification de l'entreprise (documents officiels), accès à la plateforme WhatsApp Business.</td><td><span class="tag you">Vous</span></td></tr>
+    <tr><td>Numéro dédié à l'API</td><td>Un numéro distinct des deux actuels (ou migration d'un des deux) : un numéro utilisé par l'API ne sert plus dans l'application WhatsApp classique.</td><td><span class="tag you">Vous</span></td></tr>
+    <tr><td>Modèles de messages</td><td>Meta doit approuver chaque modèle de message « à l'initiative de la boutique » (délai de quelques heures à quelques jours). Je rédige les modèles.</td><td>Moi + Meta</td></tr>
+    <tr><td>Clés d'accès</td><td>Jeton et identifiant du numéro, à placer dans les variables d'environnement Vercel (jamais dans une conversation).</td><td><span class="tag you">Vous</span></td></tr>
+    <tr><td>Code de l'intégration</td><td>Envoi des messages, réception des réponses, journal des envois, désinscription (« STOP »).</td><td>Moi</td></tr>
+    <tr><td>Coût</td><td>Facturé par conversation, quelques centimes d'euro selon le type de message ; les réponses dans les 24 h après un message du client sont les moins chères. Un intermédiaire agréé (Twilio, 360dialog…) simplifie la mise en place.</td><td>Vous</td></tr>
+  </tbody>
+</table>
+
+<div class="box">
+  <b>Règles à respecter, pour protéger votre numéro :</b>
+  <ul style="margin:4pt 0 0">
+    <li><b>Consentement :</b> n'écrire qu'aux personnes qui ont donné leur accord (case à cocher à la commande, ou client qui vous écrit d'abord). C'est la règle de Meta et ce que prévoit la protection des données au Sénégal.</li>
+    <li><b>Pas d'envoi de masse non sollicité</b> : c'est la première cause de blocage d'un numéro WhatsApp, et cela bloquerait la boutique elle-même.</li>
+    <li><b>Désinscription simple :</b> chaque message de relance propose de ne plus en recevoir.</li>
+  </ul>
+</div>
+
+<h2 class="pb">4. Un parcours type, de bout en bout</h2>
+<div class="flow">
+  <div class="step"><b>1. Recrutement</b>Un revendeur envoie son lien d'invitation par WhatsApp ; le candidat postule et prévient l'équipe sur WhatsApp.</div>
+  <div class="step"><b>2. Accès</b>L'administrateur accepte, puis envoie un lien d'activation ou de connexion directe sur WhatsApp.</div>
+  <div class="step"><b>3. Installation</b>Le revendeur ouvre le lien : son espace s'ouvre, il l'ajoute à son écran d'accueil.</div>
+  <div class="step"><b>4. Vente</b>Il envoie un lien produit (avec son code) à ses clients dans WhatsApp ; le client commande sur le site.</div>
+  <div class="step"><b>5. Suivi</b>La vente apparaît dans « Mes ventes », la commission dans « Mes gains » ; avec le niveau 2, il est prévenu par WhatsApp.</div>
+  <div class="step"><b>6. Fidélisation</b>« Mes clients » signale ceux à relancer, en un clic sur WhatsApp ; le revendeur invite ses propres filleuls.</div>
+</div>
+
+<h2>5. Les avantages</h2>
+<div class="cols">
+  <div class="box"><h3>Pour le revendeur</h3>
+    <ul><li>Vend là où ses clients sont déjà</li><li>Un lien = une vente attribuée</li><li>Pas de mot de passe à retenir</li><li>Application sur l'écran d'accueil</li><li>Voit ses gains et son équipe en temps réel</li><li>Relance ses clients en un clic</li></ul></div>
+  <div class="box"><h3>Pour le client</h3>
+    <ul><li>Reste dans l'application qu'il utilise tous les jours</li><li>Reçoit conseils et liens produits directement</li><li>Commande en quelques minutes, paie à la livraison ou en mobile money</li><li>Suivi de commande (niveau 2)</li></ul></div>
+  <div class="box"><h3>Pour JAMAAL</h3>
+    <ul><li>Réseau plus actif et plus réactif</li><li>Recrutement facilité (lien d'invitation + WhatsApp)</li><li>Moins de support : réponses rapides et assistant</li><li>Vitrine WhatsApp Business professionnelle</li><li>Ventes et commissions toujours tracées</li></ul></div>
+</div>
+
+<div style="break-inside: avoid"><h2>6. Calendrier et décisions à prendre</h2>
+<table>
+  <thead><tr><th style="width:18%">Étape</th><th>Contenu</th><th style="width:18%">Délai indicatif</th><th style="width:14%">État</th></tr></thead>
+  <tbody>
+    <tr><td><b>Niveau 1</b></td><td>Liens, partage, connexion directe, application installable, Centre WhatsApp</td><td>Terminé</td><td><span class="tag ok">Fait</span></td></tr>
+    <tr><td><b>Démarches Meta</b></td><td>Création du compte Meta Business, vérification de l'entreprise, choix du numéro dédié</td><td>1 à 3 semaines (côté Meta)</td><td><span class="tag you">Vous</span></td></tr>
+    <tr><td><b>Niveau 2</b></td><td>Notifications automatiques revendeurs, clients et équipe ; OTP</td><td>Quelques jours de développement une fois les clés reçues</td><td><span class="tag todo">À venir</span></td></tr>
+    <tr><td><b>Niveau 3</b></td><td>Assistant « ventes / gains / lien / catalogue / commande »</td><td>Après le niveau 2</td><td><span class="tag todo">À venir</span></td></tr>
+  </tbody>
+</table>
+<p><b>Décisions à prendre :</b> (1) créer le compte Meta Business ; (2) choisir le numéro dédié à l'API, distinct des deux numéros actuels ; (3) valider les modèles de messages que je rédigerai ; (4) décider si l'accord des clients (consentement) se recueille à la commande.</p>
+<p class="small">En attendant le niveau 2, les deux numéros actuels reçoivent déjà les boutons « Prévenir l'équipe sur WhatsApp » des candidatures, et la cloche de notification du back-office alerte l'équipe.</p></div>
+
+</body>
+</html>
