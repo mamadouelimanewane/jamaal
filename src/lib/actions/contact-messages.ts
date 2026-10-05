@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { rateLimit, clientIpFromHeaders } from "@/lib/rate-limit";
+import { notifyTeamWhatsApp } from "@/lib/whatsapp";
 import { requireAdmin } from "./auth-guard";
 
 export type ContactState = { ok: boolean; error?: string };
@@ -43,6 +44,7 @@ export async function submitContactMessage(_prev: ContactState, formData: FormDa
       })),
     });
   }
+  notifyTeamWhatsApp(`Nouveau message de contact de ${parsed.data.name} : ${parsed.data.message.slice(0, 160)}`);
   revalidatePath("/admin/messages");
   return { ok: true };
 }

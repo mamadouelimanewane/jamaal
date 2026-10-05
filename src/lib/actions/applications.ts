@@ -9,6 +9,7 @@ import { rateLimit, clientIpFromHeaders } from "@/lib/rate-limit";
 import { applicationSchema } from "@/lib/validations/application";
 import { uniqueConsultantSlug } from "@/lib/unique-slug";
 import { getSiteUrl } from "@/lib/site-url";
+import { notifyTeamWhatsApp } from "@/lib/whatsapp";
 import { requireAdmin } from "./auth-guard";
 
 export type ApplicationState = {
@@ -71,6 +72,7 @@ export async function submitApplication(_prev: ApplicationState, formData: FormD
       })),
     });
   }
+  notifyTeamWhatsApp(`Nouvelle candidature revendeur : ${d.name} (${d.city}), WhatsApp ${d.phone}. À traiter dans Admin > Candidatures.`);
   revalidatePath("/admin/candidatures");
   return { ok: true, applicant: { name: d.name, city: d.city, phone: d.phone } };
 }

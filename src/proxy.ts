@@ -16,6 +16,7 @@ const ADMIN_ONLY_PREFIXES = [
   "/admin/messages",
   "/admin/annonces",
   "/admin/whatsapp",
+  "/admin/journal-whatsapp",
   "/admin/livreurs",
   "/admin/comptabilite",
   "/admin/statistiques",
