@@ -55,3 +55,28 @@ export async function createResellerAccess(consultantId: string, rawEmail?: stri
   revalidatePath("/admin/consultants");
   return { ok: true, created, activationUrl: `${siteUrl}/admin/reset-password?token=${encodeURIComponent(token)}` };
 }
+
+export type LoginLinkResult = { ok: boolean; error?: string; loginUrl?: string };
+
+/**
+ * Lien de connexion directe (sans mot de passe) pour un revendeur qui a déjà un compte :
+ * valable 24 h, à usage unique, destiné à être envoyé sur WhatsApp. Le jeton est stocké haché
+ * avec le préfixe « login: » (voir src/lib/auth.ts, fournisseur « magic »).
+ */
+export async function createResellerLoginLink(consultantId: string): Promise<LoginLinkResult> {
+  await requireAdmin();
+  const consultant = await prisma.consultant.findUnique({ where: { id: consultantId }, select: { active: true, user: { select: { id: true } } } });
+  if (!consultant?.user) return { ok: false, error: "Ce revendeur n'a pas encore de compte : créez d'abord son accès." };
+  if (!consultant.active) return { ok: false, error: "Ce revendeur est inactif." };
+
+  const token = randomBytes(32).toString("base64url");
+  await prisma.passwordResetToken.create({
+    data: {
+      tokenHash: createHash("sha256").update(`login:${token}`).digest("hex"),
+      userId: consultant.user.id,
+      expiresAt: new Date(Date.now() + 24 * 3600_000),
+    },
+  });
+  const siteUrl = await getSiteUrl();
+  return { ok: true, loginUrl: `${siteUrl}/admin/acces?token=${encodeURIComponent(token)}` };
+}

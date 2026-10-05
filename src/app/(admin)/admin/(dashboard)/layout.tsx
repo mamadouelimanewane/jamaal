@@ -32,6 +32,7 @@ import { ResponsiveSidebar } from "@/components/admin/ResponsiveSidebar";
 import { SidebarNavLink } from "@/components/admin/SidebarNavLink";
 
 import { GlobalSearch } from "@/components/admin/GlobalSearch";
+import { InstallApp } from "@/components/admin/InstallApp";
 
 const adminGroups = [
   {
@@ -62,6 +63,7 @@ const adminGroups = [
       { href: "/admin/candidatures", label: "Candidatures", icon: Contact },
       { href: "/admin/messages", label: "Messages de contact", icon: Mail },
       { href: "/admin/annonces", label: "Annonces aux revendeurs", icon: Megaphone },
+      { href: "/admin/whatsapp", label: "Centre WhatsApp", icon: Share2 },
       { href: "/admin/livreurs", label: "Livreurs", icon: Bike },
     ],
   },
@@ -170,6 +172,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
           </div>
         )}
       </nav>
+
+      {role !== "ADMIN" && (
+        <div className="mt-3">
+          <InstallApp />
+        </div>
+      )}
 
       <div className="mt-auto border-t border-white/10 pt-4">
         <p className="px-2 text-xs font-medium text-white/80">{session.user?.name}</p>

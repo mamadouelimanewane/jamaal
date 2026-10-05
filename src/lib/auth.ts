@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
+import { createHash } from "node:crypto";
 import { prisma } from "@/lib/prisma";
 
 const MAX_FAILURES = 5;
@@ -14,6 +15,24 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   pages: { signIn: "/admin/login" },
   trustHost: true,
   providers: [
+    // Connexion directe par lien à usage unique (envoyé par WhatsApp). Le jeton est stocké haché,
+    // avec le préfixe « login: » pour ne jamais pouvoir servir de lien de réinitialisation.
+    Credentials({
+      id: "magic",
+      credentials: { token: { label: "Jeton", type: "text" } },
+      authorize: async (credentials) => {
+        const token = String(credentials?.token ?? "");
+        if (token.length < 20 || token.length > 200) return null;
+        const tokenHash = createHash("sha256").update(`login:${token}`).digest("hex");
+        const record = await prisma.passwordResetToken.findUnique({ where: { tokenHash }, include: { user: true } });
+        if (!record || record.expiresAt <= new Date()) return null;
+        // Usage unique : la suppression atomique garantit qu'un seul appel réussit.
+        const consumed = await prisma.passwordResetToken.deleteMany({ where: { id: record.id } });
+        if (consumed.count !== 1) return null;
+        const u = record.user;
+        return { id: u.id, email: u.email, name: u.name, role: u.role };
+      },
+    }),
     Credentials({
       credentials: {
         email: { label: "E-mail", type: "email" },

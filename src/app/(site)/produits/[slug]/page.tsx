@@ -6,6 +6,7 @@ import { getCategory } from "@/lib/db-categories";
 import { ProductVisual } from "@/components/ProductVisual";
 import { StarRating } from "@/components/StarRating";
 import { ProductPurchasePanel } from "@/components/ProductPurchasePanel";
+import { ShareWhatsApp } from "@/components/ShareWhatsApp";
 import { ProductCard } from "@/components/ProductCard";
 
 export const dynamic = "force-dynamic";
@@ -34,6 +35,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           <p className="mt-5 text-sm leading-7 text-navy/65">{product.shortDescription}</p>
           <div className="my-7 border-t border-[#eadfda]"/>
           <ProductPurchasePanel product={product}/>
+          <ShareWhatsApp name={product.name} slug={product.slug} price={product.regularPrice ?? null}/>
           <div className="mt-6 grid grid-cols-2 gap-3 border-y border-[#eadfda] py-4 text-[9px] uppercase tracking-[0.12em] text-navy/60"><span>Extrait concentré à 30 %</span><span className="text-right">Paiement à la livraison</span></div>
 
           {(product.topNotes?.length || product.heartNotes?.length || product.baseNotes?.length) ? <section className="mt-9"><p className="luxury-eyebrow">Pyramide olfactive</p><div className="mt-4 grid grid-cols-3 gap-2 sm:gap-4">{[{ label: "Tête", notes: product.topNotes }, { label: "Cœur", notes: product.heartNotes }, { label: "Fond", notes: product.baseNotes }].map((level) => <div key={level.label} className="border-t border-[#c9a99e] pt-3"><p className="text-[8px] uppercase tracking-[0.2em] text-[#9c6254]">{level.label}</p><p className="mt-2 text-[11px] leading-5 text-navy sm:text-xs">{level.notes?.join(", ") || "—"}</p></div>)}</div></section> : null}

@@ -1,18 +1,19 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { createResellerAccess, type AccessResult } from "@/lib/actions/reseller-access";
+import { createResellerAccess, createResellerLoginLink, type AccessResult, type LoginLinkResult } from "@/lib/actions/reseller-access";
 import { CopyButton } from "@/components/admin/CopyButton";
 
 /**
  * Colonne « Compte portail » : crée l'accès d'un revendeur sans compte, ou renouvelle son lien
  * d'activation. Le résultat reste affiché (état local) pour que l'admin puisse copier le lien.
  */
-export function ResellerAccess({ consultantId, userEmail, defaultEmail }: { consultantId: string; userEmail: string | null; defaultEmail: string }) {
+export function ResellerAccess({ consultantId, userEmail, defaultEmail, whatsapp, name }: { consultantId: string; userEmail: string | null; defaultEmail: string; whatsapp: string; name: string }) {
   const [pending, start] = useTransition();
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState(defaultEmail);
   const [result, setResult] = useState<AccessResult | null>(null);
+  const [login, setLogin] = useState<LoginLinkResult | null>(null);
 
   if (result?.ok && result.activationUrl) {
     return (
@@ -24,6 +25,10 @@ export function ResellerAccess({ consultantId, userEmail, defaultEmail }: { cons
       </div>
     );
   }
+
+  // wa.me attend le numéro en chiffres, sans « + » ni « 00 » (ex. 0039… → 39…)
+  const phone = whatsapp.replace(/\D/g, "").replace(/^00/, "");
+  const loginMsg = login?.loginUrl ? `Bonjour ${name}, voici votre lien pour ouvrir votre espace JAMAAL sans mot de passe (valable 24 h, usage unique) : ${login.loginUrl}` : "";
 
   const run = (withEmail?: string) =>
     start(async () => {
@@ -38,6 +43,33 @@ export function ResellerAccess({ consultantId, userEmail, defaultEmail }: { cons
           <button type="button" disabled={pending} onClick={() => run()} className="mt-1 block font-semibold text-rose-dark hover:underline disabled:opacity-50">
             {pending ? "…" : "Nouveau lien d'activation"}
           </button>
+          {login?.loginUrl ? (
+            <div className="mt-2 rounded-lg border border-line bg-cream p-2">
+              <p className="text-navy/60">Lien de connexion (24 h, usage unique) :</p>
+              <input readOnly value={login.loginUrl} className="mt-1 w-full rounded border border-line bg-white px-2 py-1" />
+              <div className="mt-1.5 flex flex-wrap items-center gap-2">
+                <CopyButton text={login.loginUrl} label="Copier" />
+                <a
+                  href={`https://wa.me/${phone}?text=${encodeURIComponent(loginMsg)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-full bg-[#25D366] px-3 py-1.5 font-semibold text-white hover:opacity-90"
+                >
+                  Envoyer sur WhatsApp
+                </a>
+              </div>
+            </div>
+          ) : (
+            <button
+              type="button"
+              disabled={pending}
+              onClick={() => start(async () => setLogin(await createResellerLoginLink(consultantId)))}
+              className="mt-1 block font-semibold text-[#1f9d55] hover:underline disabled:opacity-50"
+            >
+              Lien de connexion WhatsApp
+            </button>
+          )}
+          {login && !login.ok && <p className="mt-1 text-rose-dark">{login.error}</p>}
         </>
       ) : open ? (
         <div className="flex flex-col gap-1.5">
