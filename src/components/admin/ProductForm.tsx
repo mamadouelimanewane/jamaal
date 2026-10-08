@@ -50,13 +50,17 @@ export async function ProductForm({
           <input name="family" defaultValue={product?.family ?? ""} className={inputClass} />
         </div>
         <div>
-          <label className={labelClass}>Numéro (catalogue)</label>
+          <label className={labelClass}>N° de fiche Chogan</label>
           <input
             type="number"
             name="number"
             defaultValue={product?.number ?? undefined}
             className={inputClass}
           />
+        </div>
+        <div>
+          <label className={labelClass}>Code Chogan (ex. 001M, 060, BSF016)</label>
+          <input name="choganCode" defaultValue={product?.choganCode ?? ""} className={inputClass} />
         </div>
       </div>
 

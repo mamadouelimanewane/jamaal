@@ -13,7 +13,7 @@ export default async function AdminProductsPage({
   const { q = "", stock } = await searchParams;
   const products = await prisma.product.findMany({
     where: q
-      ? { name: { contains: q, mode: "insensitive" } }
+      ? { OR: [{ name: { contains: q, mode: "insensitive" } }, { choganCode: { startsWith: q, mode: "insensitive" } }, ...(/^\d+$/.test(q) ? [{ number: Number(q) }] : [])] }
       : undefined,
     orderBy: { createdAt: "desc" },
     take: 300,
@@ -70,6 +70,7 @@ export default async function AdminProductsPage({
         <table className="w-full text-sm">
           <thead className="bg-cream text-left text-xs uppercase text-navy/70">
             <tr>
+              <th className="px-4 py-3">Code</th>
               <th className="px-4 py-3">Nom</th>
               <th className="px-4 py-3">Catégorie</th>
               <th className="px-4 py-3">Prix régulier</th>
@@ -82,6 +83,7 @@ export default async function AdminProductsPage({
               const isLow = p.stock <= p.lowStockThreshold;
               return (
                 <tr key={p.id} className="border-t border-line">
+                  <td className="whitespace-nowrap px-4 py-3 text-navy/85"><span className="font-semibold text-navy">{p.choganCode ?? "—"}</span>{p.number ? <span className="block text-xs text-navy/65">Fiche {p.number}</span> : null}</td>
                   <td className="px-4 py-3 font-medium text-navy">{p.name}</td>
                   <td className="px-4 py-3 text-navy/85">{p.category}</td>
                   <td className="px-4 py-3 text-navy/85">

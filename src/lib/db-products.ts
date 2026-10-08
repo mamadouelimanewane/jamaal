@@ -6,6 +6,7 @@ function toUiProduct(p: DbProduct): Product {
   return {
     id: p.id,
     number: p.number ?? undefined,
+    choganCode: p.choganCode ?? undefined,
     slug: p.slug,
     name: p.name,
     category: p.category as CategorySlug,
@@ -69,6 +70,7 @@ export async function searchProducts(query: string): Promise<Product[]> {
   const where: Prisma.ProductWhereInput = {
     OR: [
       { name: { contains: q, mode: "insensitive" } },
+      { choganCode: { startsWith: q.replace(/^cod\.?\s*/i, "").replace(/^n°\s*/i, ""), mode: "insensitive" } },
       ...(Number.isFinite(asNumber) && asNumber > 0 ? [{ number: asNumber }] : []),
     ],
   };

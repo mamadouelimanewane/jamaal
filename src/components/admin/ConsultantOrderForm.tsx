@@ -66,7 +66,7 @@ export function ConsultantOrderForm({
           <input
             value={query}
             onChange={(e) => search(e.target.value)}
-            placeholder="Rechercher un produit JAMAAL…"
+            placeholder="Nom, code Chogan (ex. 001M) ou n° de fiche…"
             className="w-full rounded-lg border border-line py-2 pl-9 pr-3 text-sm outline-none focus:border-navy"
           />
         </div>
@@ -77,7 +77,7 @@ export function ConsultantOrderForm({
             const volumes = p.volumes?.length ? p.volumes : [{ label: "Format unique", price: p.regularPrice ?? 0 }];
             return (
               <div key={p.id} className="rounded-xl border border-line p-3">
-                <p className="text-sm font-medium text-navy">{p.name}</p>
+                <p className="text-sm font-medium text-navy">{p.name}{p.choganCode ? <span className="ml-1.5 text-xs font-normal text-navy/70">Code {p.choganCode}</span> : null}{p.number ? <span className="ml-1.5 text-xs font-normal text-navy/60">· Fiche {p.number}</span> : null}</p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {volumes.map((v) => (
                     <button
