@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/currency";
 import { ReceiptDownload } from "@/components/admin/ReceiptDownload";
 import { CopyTrackingLink } from "@/components/admin/CopyTrackingLink";
+import { DELIVERY_LABELS, type DeliveryStatus } from "@/lib/delivery";
 
 export const dynamic = "force-dynamic";
 
@@ -60,11 +61,36 @@ export default async function MesCommandeDetailPage({
             </li>
           ))}
         </ul>
+        {order.deliveryFee > 0 && (
+          <div className="mt-3 flex justify-between border-t border-line pt-3 text-sm text-navy/90">
+            <span>Livraison{order.deliveryDistanceKm != null ? ` (${order.deliveryDistanceKm} km)` : ""}</span>
+            <span>{formatPrice(order.deliveryFee)}</span>
+          </div>
+        )}
         <div className="mt-3 flex justify-between border-t border-line pt-3 text-base font-semibold text-navy">
           <span>Total</span>
           <span>{formatPrice(order.total)}</span>
         </div>
       </div>
+
+      {order.deliveryMode === "LIVRAISON_JAMAAL" && (
+        <div className="mt-6 rounded-2xl border border-line bg-white p-5">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-sm font-semibold text-navy">Livraison JAMAAL</h2>
+            {order.deliveryStatus && <span className="rounded-full bg-cream px-3 py-1 text-sm font-semibold text-ink">{DELIVERY_LABELS[order.deliveryStatus as DeliveryStatus] ?? order.deliveryStatus}</span>}
+          </div>
+          <p className="mt-2 text-[15px] text-ink">
+            {order.deliveryTarget === "VENDEUR" ? "Livrée chez vous, pour votre client." : "Livrée directement à votre client."}
+          </p>
+          <p className="text-sm text-navy/85">{order.address ?? "Adresse non renseignée"}</p>
+          {order.deliveryCode && (
+            <p className="mt-3 text-sm text-navy/90">
+              Code de remise à donner au livreur{order.deliveryTarget === "VENDEUR" ? "" : " (transmis aussi au client)"} :{" "}
+              <span className="rounded-lg bg-navy px-2.5 py-1 font-mono text-base font-semibold tracking-widest text-white">{order.deliveryCode}</span>
+            </p>
+          )}
+        </div>
+      )}
 
       <div className="mt-6 flex items-center justify-between rounded-2xl border border-line bg-white p-4">
         <div>

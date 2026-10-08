@@ -27,6 +27,8 @@ export function LivreurDeliveryCard(props: {
   id: string;
   customerName: string;
   customerPhone: string | null;
+  /** Livraison chez le vendeur qui achète pour son client : nom du client final. */
+  forCustomer?: string | null;
   address: string | null;
   total: number;
   paid: boolean;
@@ -61,6 +63,7 @@ export function LivreurDeliveryCard(props: {
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
           <p className="text-lg font-semibold text-ink">{props.customerName}</p>
+          {props.forCustomer && <p className="text-sm font-medium text-amber-800">Consultant·e JAMAAL · commande pour {props.forCustomer}</p>}
           <p className="text-[15px] text-navy/85">{props.address ?? "Adresse non renseignée"}</p>
         </div>
         <span className="rounded-full bg-cream px-3 py-1 text-sm font-semibold text-ink">{DELIVERY_LABELS[props.status]}</span>

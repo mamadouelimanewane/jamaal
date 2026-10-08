@@ -5,6 +5,7 @@ import { Search, Plus, Trash2 } from "lucide-react";
 import { searchProductsForOrder, type ProductSearchResult } from "@/lib/actions/product-search";
 import { createConsultantOrder } from "@/lib/actions/consultant-orders";
 import { formatPrice } from "@/lib/currency";
+import { ConsultantDeliveryFields } from "./ConsultantDeliveryFields";
 
 interface LineItem {
   productId: string;
@@ -18,7 +19,13 @@ const inputClass =
   "mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-navy";
 const labelClass = "text-xs font-medium text-navy/85";
 
-export function ConsultantOrderForm() {
+export function ConsultantOrderForm({
+  depot,
+  vendor,
+}: {
+  depot: { lat: number; lng: number; label: string };
+  vendor: { address: string | null; lat: number | null; lng: number | null };
+}) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<ProductSearchResult[]>([]);
   const [items, setItems] = useState<LineItem[]>([]);
@@ -109,7 +116,7 @@ export function ConsultantOrderForm() {
           {items.length === 0 && <p className="text-xs text-navy/65">Aucun article ajouté.</p>}
         </ul>
         <div className="mt-2 flex justify-between border-t border-line pt-2 text-sm font-semibold text-navy">
-          <span>Total</span>
+          <span>Total des produits</span>
           <span>{formatPrice(total)}</span>
         </div>
       </div>
@@ -126,16 +133,11 @@ export function ConsultantOrderForm() {
             <input name="customerPhone" required className={inputClass} />
           </div>
           <div>
-            <label className={labelClass}>Adresse de livraison</label>
-            <textarea name="address" rows={2} className={inputClass} />
+            <label className={labelClass}>Adresse du client</label>
+            <textarea name="address" rows={2} placeholder="Quartier, rue, repère" className={inputClass} />
           </div>
-          <div>
-            <label className={labelClass}>Mode de livraison</label>
-            <select name="deliveryMode" defaultValue="RETRAIT_CONSULTANT" className={inputClass}>
-              <option value="RETRAIT_CONSULTANT">Je livre / remets moi-même le colis</option>
-              <option value="LIVRAISON_JAMAAL">JAMAAL livre directement mon client (je serai notifié)</option>
-            </select>
-          </div>
+
+          <ConsultantDeliveryFields productsTotal={total} depot={depot} vendor={vendor} />
 
           <button
             type="submit"

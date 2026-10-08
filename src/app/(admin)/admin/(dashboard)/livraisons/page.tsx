@@ -104,6 +104,7 @@ export default async function LivraisonsPage() {
                 <li key={o.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
                   <div>
                     <Link href={`/admin/commandes/${o.id}`} className="text-[15px] font-semibold text-ink hover:underline">{o.customerName}</Link>
+                    {o.deliveryTarget === "VENDEUR" && <span className="ml-2 rounded-full bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-900">chez {o.deliveryContactName ?? "le consultant"}</span>}
                     <p className="text-sm text-navy/80">{o.address ?? "Adresse non renseignée"}{o.deliveryDistanceKm != null ? ` · ${o.deliveryDistanceKm} km` : ""} · {o.paymentStatus === "PAYE" ? "payée" : "à encaisser"}{o.deliveryStatus === "ECHEC" ? " · échec précédent" : ""}</p>
                   </div>
                   {livreurOptions.length ? <AssignLivreurForm orderId={o.id} livreurs={livreurOptions} suggestedId={suggest(dest)} /> : <Link href="/admin/livreurs/nouveau" className="text-sm font-semibold text-rose-dark">Ajouter un livreur</Link>}
@@ -122,6 +123,7 @@ export default async function LivraisonsPage() {
               <li key={o.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
                 <div>
                   <Link href={`/admin/commandes/${o.id}`} className="text-[15px] font-semibold text-ink hover:underline">{o.customerName}</Link>
+                    {o.deliveryTarget === "VENDEUR" && <span className="ml-2 rounded-full bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-900">chez {o.deliveryContactName ?? "le consultant"}</span>}
                   <p className="text-sm text-navy/80">{o.livreur?.name ?? "—"} · {DELIVERY_LABELS[o.deliveryStatus as DeliveryStatus]} · mis à jour {ago(o.updatedAt)}</p>
                 </div>
                 <DeliveryAdminActions orderId={o.id} />

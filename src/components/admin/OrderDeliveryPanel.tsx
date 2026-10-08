@@ -16,6 +16,9 @@ export async function OrderDeliveryPanel({ orderId }: { orderId: string }) {
       deliveryDistanceKm: true,
       livreurShare: true,
       deliveredAt: true,
+      deliveryTarget: true,
+      deliveryContactName: true,
+      deliveryContactPhone: true,
       livreur: { select: { name: true, phone: true } },
       deliveryEvents: { orderBy: { createdAt: "asc" }, include: { livreur: { select: { name: true } } } },
     },
@@ -32,7 +35,8 @@ export async function OrderDeliveryPanel({ orderId }: { orderId: string }) {
       </div>
       <dl className="mt-3 grid gap-x-6 gap-y-1 text-[15px] sm:grid-cols-2">
         <div className="flex justify-between"><dt className="text-navy/80">Livreur</dt><dd className="text-ink">{order.livreur ? `${order.livreur.name} (${order.livreur.phone})` : "À attribuer"}</dd></div>
-        <div className="flex justify-between"><dt className="text-navy/80">Code client</dt><dd className="font-mono font-semibold text-ink">{order.deliveryCode ?? "—"}</dd></div>
+        <div className="flex justify-between"><dt className="text-navy/80">Livrer à</dt><dd className="text-right text-ink">{order.deliveryTarget === "VENDEUR" ? "Consultant·e (achète pour son client)" : "Client"}{order.deliveryContactName ? ` · ${order.deliveryContactName}` : ""}{order.deliveryContactPhone ? ` (${order.deliveryContactPhone})` : ""}</dd></div>
+        <div className="flex justify-between"><dt className="text-navy/80">Code de remise</dt><dd className="font-mono font-semibold text-ink">{order.deliveryCode ?? "—"}</dd></div>
         <div className="flex justify-between"><dt className="text-navy/80">Distance</dt><dd className="text-ink">{order.deliveryDistanceKm != null ? `${order.deliveryDistanceKm} km` : "—"}</dd></div>
         <div className="flex justify-between"><dt className="text-navy/80">Frais / part livreur</dt><dd className="text-ink">{formatPrice(order.deliveryFee)} / {formatPrice(order.livreurShare)}</dd></div>
       </dl>

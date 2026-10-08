@@ -278,6 +278,11 @@ model Order {
   deliveryCode       String?
   deliveredAt        DateTime?
   livreurShare       Int       @default(0)
+  /// Où livrer : "CLIENT" (adresse du client) ou "VENDEUR" (le consultant achète pour son client),
+  /// et la personne que le livreur doit joindre.
+  deliveryTarget       String?
+  deliveryContactName  String?
+  deliveryContactPhone String?
   deliveryEvents     DeliveryEvent[]
   livreurEarning     LivreurEarning?
 
@@ -347,6 +352,10 @@ model Consultant {
   /// Wallet de versement des commissions : "WAVE" ou "ORANGE_MONEY", et numéro (+221…).
   walletProvider String?
   walletNumber   String?
+  /// Adresse où le consultant se fait livrer quand il achète pour le compte d'un client.
+  deliveryAddress String?
+  deliveryLat     Float?
+  deliveryLng     Float?
 
   sponsorId String?
   sponsor   Consultant?  @relation("ConsultantSponsor", fields: [sponsorId], references: [id], onDelete: SetNull)
