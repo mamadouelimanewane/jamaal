@@ -62,6 +62,14 @@ export async function ProductForm({
           <label className={labelClass}>Code Chogan (ex. 001M, 060, BSF016)</label>
           <input name="choganCode" defaultValue={product?.choganCode ?? ""} className={inputClass} />
         </div>
+        <div>
+          <label className={labelClass}>Inspiré de (parfum de marque)</label>
+          <input name="inspiredBy" defaultValue={product?.inspiredBy ?? ""} placeholder="ex. Sauvage" className={inputClass} />
+        </div>
+        <div>
+          <label className={labelClass}>Marque du parfum d&apos;inspiration</label>
+          <input name="inspiredBrand" defaultValue={product?.inspiredBrand ?? ""} placeholder="ex. Dior" className={inputClass} />
+        </div>
       </div>
 
       <div>

@@ -104,6 +104,9 @@ model Product {
   number            Int?
   /// Code produit Chogan (« Cod. » : 001M, 060, BSF016…).
   choganCode        String?
+  /// Parfum de grande marque dont s'inspire la fragrance (ex. « Sauvage ») et sa marque (« Dior »).
+  inspiredBy        String?
+  inspiredBrand     String?
   slug              String           @unique
   name              String
   category          String

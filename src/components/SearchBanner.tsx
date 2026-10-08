@@ -32,7 +32,7 @@ export function SearchBanner() {
             onChange={(e) => setQuery(e.target.value)}
             type="search"
             aria-label="Rechercher un parfum"
-            placeholder="Nom, numéro, notes…"
+            placeholder="Nom, code, parfum de marque…"
             className="min-w-0 flex-1 bg-transparent py-2 text-sm text-ink outline-none placeholder:text-ink/40"
           />
           <button

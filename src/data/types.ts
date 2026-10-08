@@ -42,6 +42,9 @@ export interface Product {
   number?: number;
   /** Code produit Chogan (ex. 001M, 060, BSF016). */
   choganCode?: string;
+  /** Parfum de grande marque dont s'inspire la fragrance, et sa marque. */
+  inspiredBy?: string;
+  inspiredBrand?: string;
   slug: string;
   name: string;
   category: CategorySlug;
