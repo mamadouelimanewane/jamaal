@@ -1,31 +1,32 @@
--- 8) Modèle économique : migrations + prix publics Chogan (rejouable)
+-- 8) Modèle économique : tables/colonnes + prix publics Chogan (rejouable)
 BEGIN;
 
--- Migration 20261008010000_rate_limit_buckets
-DO $mig$
-BEGIN
-  IF NOT EXISTS (SELECT 1 FROM "_prisma_migrations" WHERE "migration_name" = '20261008010000_rate_limit_buckets') THEN
-    EXECUTE $q$CREATE TABLE "RateLimitBucket" (
+-- Limitation de débit partagée (lot 2)
+CREATE TABLE IF NOT EXISTS "RateLimitBucket" (
     "key" TEXT NOT NULL,
     "count" INTEGER NOT NULL DEFAULT 0,
     "resetAt" TIMESTAMP(3) NOT NULL,
     CONSTRAINT "RateLimitBucket_pkey" PRIMARY KEY ("key")
-)$q$;
-    EXECUTE $q$CREATE INDEX "RateLimitBucket_resetAt_idx" ON "RateLimitBucket"("resetAt")$q$;
-    INSERT INTO "_prisma_migrations" ("id","checksum","finished_at","migration_name","logs","rolled_back_at","started_at","applied_steps_count") VALUES ('d74a724d-7efe-4a0b-948e-8a46a00a6041','ca91eafe5348cbd9bece1a4f6f3ff00ff1b22b1b5f34976c84e1933494b89c1d',now(),'20261008010000_rate_limit_buckets',NULL,NULL,now(),1);
-  END IF;
-END
-$mig$;
+);
+CREATE INDEX IF NOT EXISTS "RateLimitBucket_resetAt_idx" ON "RateLimitBucket"("resetAt");
 
--- Migration 20261008020000_product_public_price
-DO $mig$
-BEGIN
-  IF NOT EXISTS (SELECT 1 FROM "_prisma_migrations" WHERE "migration_name" = '20261008020000_product_public_price') THEN
-    EXECUTE $q$ALTER TABLE "Product" ADD COLUMN "publicPrice" INTEGER$q$;
-    INSERT INTO "_prisma_migrations" ("id","checksum","finished_at","migration_name","logs","rolled_back_at","started_at","applied_steps_count") VALUES ('8757a31e-5686-4b79-8866-cf964307b21f','267e7e9fecabc479ad90cc6bf155dddfa6c8c4ddf10fac0b992f7e6b4526dc1f',now(),'20261008020000_product_public_price',NULL,NULL,now(),1);
+-- Prix public Chogan (lot 3)
+ALTER TABLE "Product" ADD COLUMN IF NOT EXISTS "publicPrice" INTEGER;
+
+DO $mig$ BEGIN
+  IF to_regclass('"_prisma_migrations"') IS NOT NULL THEN
+    EXECUTE $q$INSERT INTO "_prisma_migrations" ("id","checksum","finished_at","migration_name","logs","rolled_back_at","started_at","applied_steps_count")
+      SELECT '841bea04-b194-4a2c-a648-33e4588c641d','ca91eafe5348cbd9bece1a4f6f3ff00ff1b22b1b5f34976c84e1933494b89c1d',now(),'20261008010000_rate_limit_buckets',NULL,NULL,now(),1
+      WHERE NOT EXISTS (SELECT 1 FROM "_prisma_migrations" WHERE "migration_name" = '20261008010000_rate_limit_buckets')$q$;
   END IF;
-END
-$mig$;
+END $mig$;
+DO $mig$ BEGIN
+  IF to_regclass('"_prisma_migrations"') IS NOT NULL THEN
+    EXECUTE $q$INSERT INTO "_prisma_migrations" ("id","checksum","finished_at","migration_name","logs","rolled_back_at","started_at","applied_steps_count")
+      SELECT 'c00bcfb6-65ed-4bbb-9151-e3e0d536bfe3','267e7e9fecabc479ad90cc6bf155dddfa6c8c4ddf10fac0b992f7e6b4526dc1f',now(),'20261008020000_product_public_price',NULL,NULL,now(),1
+      WHERE NOT EXISTS (SELECT 1 FROM "_prisma_migrations" WHERE "migration_name" = '20261008020000_product_public_price')$q$;
+  END IF;
+END $mig$;
 
 -- Prix public Chogan (FCFA) de 579 produits
 UPDATE "Product" AS p SET "publicPrice" = v.price, "updatedAt" = now()
