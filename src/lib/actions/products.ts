@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "./auth-guard";
 import { logActivity } from "@/lib/activity-log";
 import { uploadProductImage } from "@/lib/upload";
+import { invalidateSearchIndex } from "@/lib/search-index";
 
 function splitList(value: FormDataEntryValue | null): string[] {
   return String(value ?? "")
@@ -113,6 +114,7 @@ export async function createProduct(formData: FormData) {
   const session = await requireAdmin();
   const data = await productDataFromForm(formData);
   const product = await prisma.product.create({ data });
+  invalidateSearchIndex();
   await syncVariantStock(product.id, formData, session.user?.id ?? null);
   if (data.stock > 0) await prisma.stockMovement.create({ data: { productId: product.id, userId: session.user?.id ?? null, delta: data.stock, previousStock: 0, nextStock: data.stock, reason: "Stock initial du produit" } });
   await logActivity(session, "Création produit", "Product", product.id);
@@ -126,6 +128,7 @@ export async function updateProduct(id: string, formData: FormData) {
   const data = await productDataFromForm(formData);
   const previous = await prisma.product.findUnique({ where: { id } });
   await prisma.product.update({ where: { id }, data });
+  invalidateSearchIndex();
   await syncVariantStock(id, formData, session.user?.id ?? null);
   if (previous && data.stock !== previous.stock) await prisma.stockMovement.create({ data: { productId: id, userId: session.user?.id ?? null, delta: data.stock - previous.stock, previousStock: previous.stock, nextStock: data.stock, reason: "Ajustement depuis la fiche produit" } });
   await logActivity(session, "Modification produit", "Product", id);
@@ -141,6 +144,7 @@ export async function updateProduct(id: string, formData: FormData) {
 export async function deleteProduct(id: string) {
   const session = await requireAdmin();
   const product = await prisma.product.delete({ where: { id } });
+  invalidateSearchIndex();
   await logActivity(session, "Suppression produit", "Product", id);
   revalidatePath("/admin/produits");
   revalidatePath(`/collections/${product.category}`);

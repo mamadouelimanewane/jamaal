@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "./auth-guard";
+import { invalidateSearchIndex } from "@/lib/search-index";
 
 function categoryDataFromForm(formData: FormData) {
   return {
@@ -19,6 +20,7 @@ function categoryDataFromForm(formData: FormData) {
 export async function createCategory(formData: FormData) {
   await requireAdmin();
   await prisma.category.create({ data: categoryDataFromForm(formData) });
+  invalidateSearchIndex();
   revalidatePath("/admin/categories");
   revalidatePath("/", "layout");
   redirect("/admin/categories");
@@ -27,6 +29,7 @@ export async function createCategory(formData: FormData) {
 export async function updateCategory(id: string, formData: FormData) {
   await requireAdmin();
   await prisma.category.update({ where: { id }, data: categoryDataFromForm(formData) });
+  invalidateSearchIndex();
   revalidatePath("/admin/categories");
   revalidatePath("/", "layout");
   redirect("/admin/categories");
@@ -35,6 +38,7 @@ export async function updateCategory(id: string, formData: FormData) {
 export async function deleteCategory(id: string) {
   await requireAdmin();
   await prisma.category.delete({ where: { id } });
+  invalidateSearchIndex();
   revalidatePath("/admin/categories");
   revalidatePath("/", "layout");
 }
