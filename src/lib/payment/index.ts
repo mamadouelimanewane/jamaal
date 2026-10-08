@@ -16,9 +16,21 @@ export function isPaymentAccepted(id: PaymentProviderId, model: Acceptance): boo
   return model.acceptCashOnDelivery;
 }
 
-/** Providers proposés au panier : autorisés dans le modèle ET configurés (clés présentes). */
+/**
+ * Providers proposés au panier : autorisés dans le modèle ET configurés (clés présentes).
+ * Filet de sécurité : si aucun paiement en ligne n'est encore branché, le paiement à la
+ * livraison reste proposé pour ne pas bloquer les ventes ; il disparaît dès que Wave ou
+ * Orange Money est configuré.
+ */
 export function getAvailablePaymentProviders(model: Acceptance): PaymentProvider[] {
-  return all.filter((p) => p.available && isPaymentAccepted(p.id, model));
+  const online = all.filter((p) => p.id !== "cod" && p.available && isPaymentAccepted(p.id, model));
+  if (online.length) return model.acceptCashOnDelivery ? [...online, codProvider] : online;
+  return [codProvider];
+}
+
+/** Le paiement à la livraison est-il proposé uniquement en secours (aucun paiement en ligne branché) ? */
+export function isCashFallbackActive(model: Acceptance): boolean {
+  return !model.acceptCashOnDelivery && getAvailablePaymentProviders(model).every((p) => p.id === "cod");
 }
 
 /** État de chaque moyen de paiement, pour l'écran d'administration. */

@@ -18,7 +18,7 @@ import { sponsorRatesFor, type BusinessModel } from "@/lib/business-model";
 import { commissionBase } from "@/lib/commission";
 import { isWalletProvider, payoutProvidersConfig, refreshWave, sendPayout, WALLET_LABELS, type PayoutResult } from "./providers";
 
-type Level = "VENTE" | "NIVEAU_1" | "NIVEAU_2";
+export type Level = "VENTE" | "NIVEAU_1" | "NIVEAU_2";
 
 /** Rafraîchit les pages concernées (sans effet hors d'une requête, ex. tâche de fond). */
 function refreshPages() {
@@ -38,8 +38,10 @@ function isPayable(order: { status: string; paymentStatus: string; paymentMethod
   return model.payoutTrigger === "PAID" || order.status === "LIVREE";
 }
 
-/** Enregistre les commissions dues sur une commande (sans rien envoyer). Renvoie les membres concernés. */
-export async function recordCommissionsForOrder(orderId: string, model?: BusinessModel): Promise<string[]> {
+export type PlannedCommission = { consultantId: string; name: string; level: Level; rate: number; base: number; amount: number };
+
+/** Commissions prévues sur une commande avec les taux actuels (sans rien écrire). */
+export async function plannedCommissions(orderId: string, model?: BusinessModel) {
   const m = model ?? (await getBusinessModel());
   const order = await prisma.order.findUnique({
     where: { id: orderId },
@@ -50,26 +52,37 @@ export async function recordCommissionsForOrder(orderId: string, model?: Busines
       status: true,
       paymentStatus: true,
       paymentMethod: true,
-      consultant: { select: { id: true, sponsor: { select: { id: true, sponsorId: true, sponsor: { select: { id: true } } } } } },
+      consultant: {
+        select: { id: true, name: true, sponsor: { select: { id: true, name: true, sponsorId: true, sponsor: { select: { id: true, name: true } } } } },
+      },
     },
   });
-  if (!order?.consultant || !isPayable(order, m)) return [];
-
+  if (!order) return null;
   const base = commissionBase(order);
+  const rows: PlannedCommission[] = [];
   const seller = order.consultant;
-  const sponsor = seller.sponsor;
-  const grand = sponsor?.sponsor;
-  const rates = sponsorRatesFor(!!sponsor?.sponsorId, m);
+  if (seller) {
+    const sponsor = seller.sponsor;
+    const grand = sponsor?.sponsor;
+    const rates = sponsorRatesFor(!!sponsor?.sponsorId, m);
+    rows.push({ consultantId: seller.id, name: seller.name, level: "VENTE", rate: m.sellerPct, base, amount: 0 });
+    if (sponsor) rows.push({ consultantId: sponsor.id, name: sponsor.name, level: "NIVEAU_1", rate: rates.level1, base, amount: 0 });
+    if (sponsor && grand) rows.push({ consultantId: grand.id, name: grand.name, level: "NIVEAU_2", rate: rates.level2, base, amount: 0 });
+  }
+  for (const r of rows) r.amount = Math.round((base * r.rate) / 100);
+  return { order, base, rows: rows.filter((r) => r.amount > 0), payable: isPayable(order, m) };
+}
 
-  const rows: { consultantId: string; level: Level; rate: number }[] = [{ consultantId: seller.id, level: "VENTE", rate: m.sellerPct }];
-  if (sponsor) rows.push({ consultantId: sponsor.id, level: "NIVEAU_1", rate: rates.level1 });
-  if (sponsor && grand) rows.push({ consultantId: grand.id, level: "NIVEAU_2", rate: rates.level2 });
-
-  const data = rows
-    .map((r) => ({ ...r, orderId: order.id, base, amount: Math.round((base * r.rate) / 100) }))
-    .filter((r) => r.amount > 0);
-  if (data.length) await prisma.commissionEntry.createMany({ data, skipDuplicates: true });
-  return data.map((r) => r.consultantId);
+/** Enregistre les commissions dues sur une commande (sans rien envoyer). Renvoie les membres concernés. */
+export async function recordCommissionsForOrder(orderId: string, model?: BusinessModel): Promise<string[]> {
+  const m = model ?? (await getBusinessModel());
+  const plan = await plannedCommissions(orderId, m);
+  if (!plan || !plan.payable || !plan.rows.length) return [];
+  await prisma.commissionEntry.createMany({
+    data: plan.rows.map((r) => ({ consultantId: r.consultantId, orderId, level: r.level, rate: r.rate, base: r.base, amount: r.amount })),
+    skipDuplicates: true,
+  });
+  return plan.rows.map((r) => r.consultantId);
 }
 
 /** Annule les commissions pas encore versées d'une commande (commande annulée). */

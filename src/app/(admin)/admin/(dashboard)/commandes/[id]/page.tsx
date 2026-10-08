@@ -5,6 +5,7 @@ import { formatPrice } from "@/lib/currency";
 import { updateOrderStatus, assignOrderLogistics } from "@/lib/actions/orders";
 import { OrderStatus } from "@prisma/client";
 import { CopyTrackingLink } from "@/components/admin/CopyTrackingLink";
+import { OrderSplit } from "@/components/admin/OrderSplit";
 
 const statuses: OrderStatus[] = ["EN_ATTENTE", "CONFIRMEE", "EXPEDIEE", "LIVREE", "ANNULEE"];
 const statusLabels: Record<string, string> = {
@@ -120,6 +121,8 @@ export default async function AdminOrderDetailPage({
           Mettre à jour
         </button>
       </form>
+
+      <OrderSplit orderId={order.id} />
 
       {/* Historique horodaté des statuts */}
       <div className="mt-6 rounded-2xl border border-line bg-white p-5">
