@@ -17,6 +17,8 @@ const schema = z.object({
 export async function updateOwnProfile(_prev: ProfileState, formData: FormData): Promise<ProfileState> {
   const me = await getReseller();
   if (!me) return { ok: false, error: "Session invalide." };
+  // Le mode « voir son espace » de l'administrateur est en lecture seule.
+  if (me.viewAs) return { ok: false, error: "Mode consultation : modification impossible. Quittez « Voir son espace » pour modifier ce profil depuis la fiche revendeur." };
   const parsed = schema.safeParse({
     name: formData.get("name") ?? "",
     city: formData.get("city") ?? "",

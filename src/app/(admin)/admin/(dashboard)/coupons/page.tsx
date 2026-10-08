@@ -1,3 +1,4 @@
+import { requireAdminPage } from "@/lib/admin-page-guard";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { deleteCoupon } from "@/lib/actions/coupons";
@@ -6,6 +7,7 @@ import { formatPrice } from "@/lib/currency";
 export const dynamic = "force-dynamic";
 
 export default async function AdminCouponsPage() {
+  await requireAdminPage();
   const coupons = await prisma.coupon.findMany({ orderBy: { createdAt: "desc" }, include: { _count: { select: { orders: true } } } });
   const now = new Date();
   const activeCount = coupons.filter((coupon) => coupon.active && (!coupon.expiresAt || coupon.expiresAt > now) && (coupon.usageLimit === null || coupon.usedCount < coupon.usageLimit)).length;

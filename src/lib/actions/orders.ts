@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin, requireLivreurProfile } from "./auth-guard";
 import { OrderStatus } from "@prisma/client";
-import { upsertCustomerFromOrder } from "./customers";
+import { upsertCustomerFromOrder } from "@/lib/customers";
 import { notifyConsultantOfDelivery } from "@/lib/notifications";
 import { notifySponsorOnSale } from "@/lib/sponsor-notifications";
 import { notifyResellerWhatsApp, notifyTeamWhatsApp } from "@/lib/whatsapp";

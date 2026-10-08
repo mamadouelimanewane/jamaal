@@ -1,3 +1,4 @@
+import { requireAdminPage } from "@/lib/admin-page-guard";
 import { getCommissionRate, getLoyaltySettings } from "@/lib/settings";
 import { updateCommissionRate, updateLoyaltySettingsAction } from "@/lib/actions/settings";
 import { Settings, Percent, Gift } from "lucide-react";
@@ -5,6 +6,7 @@ import { Settings, Percent, Gift } from "lucide-react";
 export const dynamic = "force-dynamic";
 
 export default async function SettingsPage() {
+  await requireAdminPage();
   const commissionRate = await getCommissionRate();
   const loyalty = await getLoyaltySettings();
 

@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+import { cache } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight } from "lucide-react";
@@ -11,9 +13,33 @@ import { ProductCard } from "@/components/ProductCard";
 
 export const dynamic = "force-dynamic";
 
+// Une seule requête base pour la page et ses métadonnées.
+const loadProduct = cache(getProductBySlug);
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const product = await loadProduct(slug);
+  if (!product) return { title: "Produit introuvable", robots: { index: false } };
+  const description = product.shortDescription.slice(0, 180);
+  const priceText = product.regularPrice ? ` — ${product.regularPrice.toLocaleString("fr-FR")} FCFA` : "";
+  const image = product.photo ?? "/logo/jamaal-logo.jpg";
+  return {
+    title: product.name,
+    description,
+    alternates: { canonical: `/produits/${product.slug}` },
+    openGraph: {
+      type: "website",
+      url: `/produits/${product.slug}`,
+      title: `${product.name}${priceText}`,
+      description,
+      images: [{ url: image, alt: product.name }],
+    },
+  };
+}
+
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const product = await getProductBySlug(slug);
+  const product = await loadProduct(slug);
   if (!product) notFound();
   const category = await getCategory(product.category);
   const related = (await getProductsByCategory(product.category)).filter((item) => item.id !== product.id).slice(0, 4);
