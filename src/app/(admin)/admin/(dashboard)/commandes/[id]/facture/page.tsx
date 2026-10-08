@@ -53,7 +53,7 @@ export default async function OrderInvoicePage({
             <p className="mt-1 text-xs font-medium uppercase tracking-widest text-rose-dark">
               Luxury Cosmetics
             </p>
-            <p className="mt-2 text-xs text-navy/60">
+            <p className="mt-2 text-xs text-navy/75">
               Dakar, Sénégal
               <br />
               Contact: +221 77 000 00 00
@@ -64,13 +64,13 @@ export default async function OrderInvoicePage({
 
           <div className="text-right">
             <h2 className="font-serif-display text-xl font-bold text-navy">FACTURE</h2>
-            <p className="mt-1 font-mono text-xs font-semibold text-navy/70">
+            <p className="mt-1 font-mono text-xs font-semibold text-navy/85">
               N° FA-{order.id.slice(-8).toUpperCase()}
             </p>
-            <p className="mt-1 text-xs text-navy/60">
+            <p className="mt-1 text-xs text-navy/75">
               Date : {order.createdAt.toLocaleDateString("fr-FR")}
             </p>
-            <p className="text-xs text-navy/60">
+            <p className="text-xs text-navy/75">
               Statut : <span className="font-semibold text-emerald-700">{order.status}</span>
             </p>
           </div>
@@ -79,25 +79,25 @@ export default async function OrderInvoicePage({
         {/* Coordonnées Client & Facturation */}
         <div className="mt-6 grid grid-cols-2 gap-4 border-b border-line pb-6 text-xs">
           <div>
-            <p className="font-semibold uppercase tracking-wider text-navy/40">Facturé à :</p>
+            <p className="font-semibold uppercase tracking-wider text-navy/65">Facturé à :</p>
             <p className="mt-1 text-sm font-bold text-navy">{order.customerName}</p>
-            {order.customerPhone && <p className="text-navy/70">Tél : {order.customerPhone}</p>}
-            {order.customerEmail && <p className="text-navy/70">Email : {order.customerEmail}</p>}
-            {order.address && <p className="mt-1 text-navy/70">Adresse : {order.address}</p>}
+            {order.customerPhone && <p className="text-navy/85">Tél : {order.customerPhone}</p>}
+            {order.customerEmail && <p className="text-navy/85">Email : {order.customerEmail}</p>}
+            {order.address && <p className="mt-1 text-navy/85">Adresse : {order.address}</p>}
           </div>
 
           <div className="text-right">
-            <p className="font-semibold uppercase tracking-wider text-navy/40">Mode de livraison :</p>
+            <p className="font-semibold uppercase tracking-wider text-navy/65">Mode de livraison :</p>
             <p className="mt-1 font-medium text-navy">
               {order.deliveryMode === "LIVRAISON_JAMAAL"
                 ? "Livraison directe JAMAAL"
                 : "Retrait / Remise Consultant"}
             </p>
             {order.consultant && (
-              <p className="mt-1 text-navy/70">Consultant : {order.consultant.name}</p>
+              <p className="mt-1 text-navy/85">Consultant : {order.consultant.name}</p>
             )}
             {order.livreur && (
-              <p className="text-navy/70">Livreur : {order.livreur.name}</p>
+              <p className="text-navy/85">Livreur : {order.livreur.name}</p>
             )}
           </div>
         </div>
@@ -106,7 +106,7 @@ export default async function OrderInvoicePage({
         <div className="mt-6">
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="border-b border-navy/10 bg-cream/60 uppercase tracking-wider text-navy/60">
+              <tr className="border-b border-navy/10 bg-cream/60 uppercase tracking-wider text-navy/75">
                 <th className="py-2.5 px-3">Désignation</th>
                 <th className="py-2.5 px-3">Format</th>
                 <th className="py-2.5 px-3 text-center">Quantité</th>
@@ -118,9 +118,9 @@ export default async function OrderInvoicePage({
               {order.items.map((item) => (
                 <tr key={item.id}>
                   <td className="py-3 px-3 font-medium text-navy">{item.productName}</td>
-                  <td className="py-3 px-3 text-navy/70">{item.volumeLabel}</td>
+                  <td className="py-3 px-3 text-navy/85">{item.volumeLabel}</td>
                   <td className="py-3 px-3 text-center font-semibold text-navy">{item.quantity}</td>
-                  <td className="py-3 px-3 text-right text-navy/70">{formatPrice(item.price)}</td>
+                  <td className="py-3 px-3 text-right text-navy/85">{formatPrice(item.price)}</td>
                   <td className="py-3 px-3 text-right font-medium text-navy">
                     {formatPrice(item.price * item.quantity)}
                   </td>
@@ -133,13 +133,13 @@ export default async function OrderInvoicePage({
         {/* Totaux & Réductions */}
         <div className="mt-6 flex flex-col items-end border-t border-line pt-4 text-xs">
           <div className="w-full max-w-xs space-y-2">
-            <div className="flex justify-between text-navy/70">
+            <div className="flex justify-between text-navy/85">
               <span>Sous-total HT</span>
               <span>{formatPrice(subtotal)}</span>
             </div>
 
             {order.deliveryFee > 0 && (
-              <div className="flex justify-between text-navy/70">
+              <div className="flex justify-between text-navy/85">
                 <span>Frais de livraison</span>
                 <span>{formatPrice(order.deliveryFee)}</span>
               </div>
@@ -160,7 +160,7 @@ export default async function OrderInvoicePage({
         </div>
 
         {/* Footer facture */}
-        <div className="mt-12 border-t border-line pt-6 text-center text-[10px] text-navy/40">
+        <div className="mt-12 border-t border-line pt-6 text-center text-xs text-navy/65">
           <p>Merci pour votre confiance ! Pour toute question concernant cette facture, contactez notre support.</p>
           <p className="mt-0.5">JAMAAL Luxury Cosmetics — Parfums & Cosmétiques d&apos;exception</p>
         </div>

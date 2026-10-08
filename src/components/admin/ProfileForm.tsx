@@ -10,15 +10,15 @@ export function ProfileForm({ name, city, whatsapp }: { name: string; city: stri
   const [state, action, pending] = useActionState(updateOwnProfile, initial);
   return (
     <form action={action} className="grid gap-4 sm:grid-cols-2">
-      <label className="text-xs font-semibold text-navy/70 sm:col-span-2">
+      <label className="text-xs font-semibold text-navy/85 sm:col-span-2">
         Nom affiché
         <input name="name" defaultValue={name} required maxLength={100} className={field} />
       </label>
-      <label className="text-xs font-semibold text-navy/70">
+      <label className="text-xs font-semibold text-navy/85">
         Ville
         <input name="city" defaultValue={city} required maxLength={80} className={field} />
       </label>
-      <label className="text-xs font-semibold text-navy/70">
+      <label className="text-xs font-semibold text-navy/85">
         Numéro WhatsApp
         <input name="whatsapp" defaultValue={whatsapp} required placeholder="+221 77 000 00 00" className={field} />
       </label>

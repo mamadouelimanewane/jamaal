@@ -51,7 +51,7 @@ export default async function AdminLoginPage({
             </span>
           </Link>
           <div className="relative max-w-md">
-            <p className="text-[10px] uppercase tracking-[0.28em] text-[#eac2b6]">Espace sécurisé</p>
+            <p className="text-xs uppercase tracking-[0.28em] text-[#eac2b6]">Espace sécurisé</p>
             <h1 className="mt-4 font-serif-display text-4xl font-medium leading-tight xl:text-5xl">
               L’excellence JAMAAL, au quotidien.
             </h1>
@@ -61,7 +61,7 @@ export default async function AdminLoginPage({
                 : "Retrouvez votre espace de travail et les outils pour faire grandir l’univers JAMAAL."}
             </p>
           </div>
-          <p className="relative text-xs tracking-wide text-white/45">JAMAAL Luxury Cosmetics</p>
+          <p className="relative text-xs tracking-wide text-white/70">JAMAAL Luxury Cosmetics</p>
         </section>
 
         <section className="flex items-center justify-center px-5 py-12 sm:px-10 lg:px-12">
@@ -69,13 +69,13 @@ export default async function AdminLoginPage({
             <Link href="/" className="mb-8 inline-flex items-center gap-3 lg:hidden">
               <BrandLogo height={88} priority />
             </Link>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-rose-dark">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-rose-dark">
               {isLivreurEntry ? "Espace livraison" : "Espace équipe"}
             </p>
             <h2 className="mt-3 font-serif-display text-3xl font-semibold text-navy">
               {isLivreurEntry ? "Bienvenue" : "Connexion"}
             </h2>
-            <p className="mt-2 text-sm leading-6 text-navy/60">
+            <p className="mt-2 text-sm leading-6 text-navy/75">
               Connectez-vous avec les identifiants de votre compte JAMAAL.
             </p>
 
@@ -90,7 +90,7 @@ export default async function AdminLoginPage({
             <form action={loginAction} className="mt-7 flex flex-col gap-5">
               <input type="hidden" name="next" value={redirectTo} />
               <div>
-                <label htmlFor="email" className="text-xs font-semibold text-navy/75">Adresse e-mail</label>
+                <label htmlFor="email" className="text-xs font-semibold text-navy/85">Adresse e-mail</label>
                 <input
                   id="email"
                   type="email"
@@ -103,7 +103,7 @@ export default async function AdminLoginPage({
                 />
               </div>
               <div>
-                <label htmlFor="password" className="text-xs font-semibold text-navy/75">Mot de passe</label>
+                <label htmlFor="password" className="text-xs font-semibold text-navy/85">Mot de passe</label>
                 <input
                   id="password"
                   type="password"
@@ -121,7 +121,7 @@ export default async function AdminLoginPage({
               </button>
             </form>
             <Link href="/admin/forgot-password" className="mt-5 block text-center text-xs font-semibold text-rose-dark hover:underline">Mot de passe oublié ?</Link>
-            <p className="mt-6 text-center text-xs text-navy/45">
+            <p className="mt-6 text-center text-xs text-navy/70">
               Besoin d’aide pour vous connecter ? Contactez votre administrateur.
             </p>
           </div>

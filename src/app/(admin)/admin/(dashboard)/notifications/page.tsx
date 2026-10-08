@@ -41,18 +41,18 @@ export default async function NotificationsPage() {
             </div>
             <div className="flex-1">
               <p className="text-sm font-semibold text-navy">{n.title}</p>
-              <p className="mt-0.5 text-sm text-navy/70">{n.message}</p>
-              <p className="mt-1 text-xs text-navy/40">{n.createdAt.toLocaleString("fr-FR")}</p>
+              <p className="mt-0.5 text-sm text-navy/85">{n.message}</p>
+              <p className="mt-1 text-xs text-navy/65">{n.createdAt.toLocaleString("fr-FR")}</p>
             </div>
             {!n.read && (
               <form action={markNotificationRead.bind(null, n.id)}>
-                <button className="text-xs font-semibold text-navy/50 hover:text-navy">Lu</button>
+                <button className="text-xs font-semibold text-navy/70 hover:text-navy">Lu</button>
               </form>
             )}
           </li>
         ))}
         {notifications.length === 0 && (
-          <p className="text-sm text-navy/50">Aucune notification pour le moment.</p>
+          <p className="text-sm text-navy/70">Aucune notification pour le moment.</p>
         )}
       </ul>
     </div>

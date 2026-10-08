@@ -82,7 +82,7 @@ export default async function ConsultantCommandesPage({
             <h1 className="font-serif-display text-2xl font-semibold text-navy">
               Commandes — {consultant.name}
             </h1>
-            <p className="text-sm text-navy/60">
+            <p className="text-sm text-navy/75">
               {orders.length} commande(s) affichée(s) — CA net :{" "}
               <span className="font-semibold text-navy">{formatPrice(totalNet)}</span>
             </p>
@@ -95,7 +95,7 @@ export default async function ConsultantCommandesPage({
         {(Object.keys(STATUS_LABELS) as OrderStatus[]).map((s) => (
           <div
             key={s}
-            className={`rounded-full px-3 py-1 text-[11px] font-semibold ${STATUS_COLORS[s]}`}
+            className={`rounded-full px-3 py-1 text-xs font-semibold ${STATUS_COLORS[s]}`}
           >
             {STATUS_LABELS[s]} : {countByStatus[s] ?? 0}
           </div>
@@ -140,7 +140,7 @@ export default async function ConsultantCommandesPage({
       {/* Tableau */}
       <div className="mt-6 overflow-x-auto rounded-2xl border border-line bg-white">
         <table className="w-full text-sm">
-          <thead className="bg-cream text-left text-xs uppercase text-navy/50">
+          <thead className="bg-cream text-left text-xs uppercase text-navy/70">
             <tr>
               <th className="px-4 py-3">Client</th>
               <th className="px-4 py-3">Date</th>
@@ -155,7 +155,7 @@ export default async function ConsultantCommandesPage({
           <tbody>
             {orders.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-4 py-10 text-center text-navy/40">
+                <td colSpan={8} className="px-4 py-10 text-center text-navy/65">
                   Aucune commande pour ce filtre.
                 </td>
               </tr>
@@ -164,28 +164,28 @@ export default async function ConsultantCommandesPage({
               <tr key={o.id} className="border-t border-line">
                 <td className="px-4 py-3">
                   <p className="font-medium text-navy">{o.customerName}</p>
-                  <p className="text-xs text-navy/50">{o.customerPhone ?? ""}</p>
+                  <p className="text-xs text-navy/70">{o.customerPhone ?? ""}</p>
                 </td>
-                <td className="px-4 py-3 text-navy/60">
+                <td className="px-4 py-3 text-navy/75">
                   {o.createdAt.toLocaleDateString("fr-FR")}
                 </td>
-                <td className="px-4 py-3 text-navy/60">{o.items.length} art.</td>
+                <td className="px-4 py-3 text-navy/75">{o.items.length} art.</td>
                 <td className="px-4 py-3 font-semibold text-navy">
                   {formatPrice(o.total)}
                 </td>
-                <td className="px-4 py-3 text-navy/60">
+                <td className="px-4 py-3 text-navy/75">
                   {o.discountAmount > 0 ? (
                     <span className="text-rose-dark">- {formatPrice(o.discountAmount)}</span>
                   ) : (
                     "—"
                   )}
                 </td>
-                <td className="px-4 py-3 text-xs text-navy/60">
+                <td className="px-4 py-3 text-xs text-navy/75">
                   {o.deliveryMode === "LIVRAISON_JAMAAL" ? "JAMAAL" : "Consultant"}
                 </td>
                 <td className="px-4 py-3">
                   <span
-                    className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold ${STATUS_COLORS[o.status]}`}
+                    className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${STATUS_COLORS[o.status]}`}
                   >
                     {STATUS_LABELS[o.status]}
                   </span>
@@ -202,7 +202,7 @@ export default async function ConsultantCommandesPage({
                       href={`/admin/commandes/${o.id}/facture`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs text-navy/40 hover:text-navy"
+                      className="text-xs text-navy/65 hover:text-navy"
                     >
                       <Download size={13} />
                     </a>

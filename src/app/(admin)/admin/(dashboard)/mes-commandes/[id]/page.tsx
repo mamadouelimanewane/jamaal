@@ -44,7 +44,7 @@ export default async function MesCommandeDetailPage({
       <h1 className="font-serif-display text-2xl font-semibold text-navy">
         Commande de {order.customerName}
       </h1>
-      <p className="mt-1 text-sm text-navy/60">
+      <p className="mt-1 text-sm text-navy/75">
         {order.createdAt.toLocaleDateString("fr-FR")} — {statusLabels[order.status] ?? order.status}
       </p>
 
@@ -53,7 +53,7 @@ export default async function MesCommandeDetailPage({
         <ul className="flex flex-col gap-2">
           {order.items.map((item) => (
             <li key={item.id} className="flex justify-between text-sm">
-              <span className="text-navy/80">
+              <span className="text-navy/90">
                 {item.productName} — {item.volumeLabel} × {item.quantity}
               </span>
               <span className="font-medium text-navy">{formatPrice(item.price * item.quantity)}</span>
@@ -69,7 +69,7 @@ export default async function MesCommandeDetailPage({
       <div className="mt-6 flex items-center justify-between rounded-2xl border border-line bg-white p-4">
         <div>
           <p className="text-sm font-semibold text-navy">Lien de suivi client</p>
-          <p className="text-xs text-navy/50">
+          <p className="text-xs text-navy/70">
             Votre client peut suivre sa commande en direct, sans compte, avec ce lien.
           </p>
         </div>

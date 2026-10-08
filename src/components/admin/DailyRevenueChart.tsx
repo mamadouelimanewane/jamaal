@@ -27,7 +27,7 @@ export function DailyRevenueChart({ data }: { data: { date: string; total: numbe
                 y={height - 4}
                 textAnchor="middle"
                 fontSize="9"
-                className="fill-current text-navy/50"
+                className="fill-current text-navy/70"
               >
                 {d.date.slice(5)}
               </text>

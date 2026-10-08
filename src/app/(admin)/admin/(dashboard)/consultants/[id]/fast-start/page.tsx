@@ -61,7 +61,7 @@ export default async function FastStartPage({ params }: { params: Promise<{ id: 
               Fast-Start Bonus — {consultant.name}
             </h1>
           </div>
-          <p className="text-xs text-navy/50 mt-0.5">
+          <p className="text-xs text-navy/70 mt-0.5">
             Prime versée lorsqu&apos;un filleul réalise 50 000 FCFA de CA dans ses 30 premiers jours.
           </p>
         </div>
@@ -70,15 +70,15 @@ export default async function FastStartPage({ params }: { params: Promise<{ id: 
       {/* KPI */}
       <div className="mb-6 grid gap-4 sm:grid-cols-3">
         <div className="rounded-2xl border border-line bg-white p-5 shadow-sm text-center">
-          <p className="text-xs font-semibold uppercase tracking-wider text-navy/50">Bonus versés</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-navy/70">Bonus versés</p>
           <p className="mt-2 text-2xl font-bold text-emerald-600">{formatPrice(totalEarned)}</p>
         </div>
         <div className="rounded-2xl border border-line bg-white p-5 shadow-sm text-center">
-          <p className="text-xs font-semibold uppercase tracking-wider text-navy/50">Bonus en attente</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-navy/70">Bonus en attente</p>
           <p className="mt-2 text-2xl font-bold text-amber-500">{formatPrice(totalPending)}</p>
         </div>
         <div className="rounded-2xl border border-line bg-white p-5 shadow-sm text-center">
-          <p className="text-xs font-semibold uppercase tracking-wider text-navy/50">Total filleuls éligibles</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-navy/70">Total filleuls éligibles</p>
           <p className="mt-2 text-2xl font-bold text-navy">{bonuses.length}</p>
         </div>
       </div>
@@ -99,12 +99,12 @@ export default async function FastStartPage({ params }: { params: Promise<{ id: 
           <h2 className="font-semibold text-navy">Historique des bonus</h2>
         </div>
         {bonuses.length === 0 ? (
-          <p className="px-5 py-10 text-center text-sm text-navy/40">
+          <p className="px-5 py-10 text-center text-sm text-navy/65">
             Aucun bonus Fast-Start pour l&apos;instant. Recrutez et formez vos filleuls pour en bénéficier !
           </p>
         ) : (
           <table className="w-full text-sm">
-            <thead className="bg-cream text-left text-xs uppercase text-navy/50">
+            <thead className="bg-cream text-left text-xs uppercase text-navy/70">
               <tr>
                 <th className="px-4 py-3">Filleul</th>
                 <th className="px-4 py-3">Date recrutement</th>
@@ -122,18 +122,18 @@ export default async function FastStartPage({ params }: { params: Promise<{ id: 
                       <Link href={`/admin/consultants/${b.sponsoree.id}`} className="font-medium text-navy hover:underline">
                         {b.sponsoree.name}
                       </Link>
-                      <p className="text-xs text-navy/50">{b.sponsoree.city}</p>
+                      <p className="text-xs text-navy/70">{b.sponsoree.city}</p>
                     </td>
-                    <td className="px-4 py-3 text-navy/60">
+                    <td className="px-4 py-3 text-navy/75">
                       {b.sponsoree.createdAt.toLocaleDateString("fr-FR")}
                     </td>
                     <td className="px-4 py-3 font-bold text-navy">{formatPrice(b.amount)}</td>
                     <td className="px-4 py-3">
-                      <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold ${cfg.color}`}>
+                      <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${cfg.color}`}>
                         {cfg.icon} {cfg.label}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-navy/60">
+                    <td className="px-4 py-3 text-navy/75">
                       {b.awardedAt ? b.awardedAt.toLocaleDateString("fr-FR") : "—"}
                     </td>
                   </tr>

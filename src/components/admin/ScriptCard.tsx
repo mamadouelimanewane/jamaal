@@ -42,7 +42,7 @@ export function ScriptCard({
       <div className="flex items-start justify-between gap-3">
         <div>
           <h3 className="text-sm font-semibold text-navy">{script.title}</h3>
-          <p className="mt-0.5 text-xs text-navy/50">{script.description}</p>
+          <p className="mt-0.5 text-xs text-navy/70">{script.description}</p>
         </div>
         <button
           type="button"
@@ -69,12 +69,12 @@ export function ScriptCard({
         />
       </div>
 
-      <pre className="mt-3 whitespace-pre-wrap rounded-xl bg-navy/5 p-3 text-xs leading-relaxed text-navy/80">
+      <pre className="mt-3 whitespace-pre-wrap rounded-xl bg-navy/5 p-3 text-xs leading-relaxed text-navy/90">
         {text}
       </pre>
 
       {consultantName && (
-        <p className="mt-2 text-[10px] text-navy/40">
+        <p className="mt-2 text-xs text-navy/65">
           Lien utilisé : {personalLink} · {consultantName}
         </p>
       )}

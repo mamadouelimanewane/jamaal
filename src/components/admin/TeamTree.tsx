@@ -96,7 +96,7 @@ export function TeamTree({ data }: TeamTreeProps) {
         style={{ touchAction: "pan-x pan-y" }}
       />
       {/* Legend */}
-      <div className="mt-4 flex flex-wrap justify-center gap-4 text-xs text-navy/60">
+      <div className="mt-4 flex flex-wrap justify-center gap-4 text-xs text-navy/75">
         {[
           { color: "#f59e0b", label: "Gold" },
           { color: "#94a3b8", label: "Silver" },

@@ -20,7 +20,7 @@ export function ApplicationActions({ id, status }: { id: string; status: string 
         <p className="font-semibold text-emerald-700">
           Acceptée{result.emailed ? " — e-mail d'activation envoyé" : ""}.
         </p>
-        <p className="mt-1 text-navy/60">Lien d&apos;activation (7 jours) à transmettre sur WhatsApp :</p>
+        <p className="mt-1 text-navy/75">Lien d&apos;activation (7 jours) à transmettre sur WhatsApp :</p>
         <input readOnly value={result.activationUrl} onFocus={(e) => e.currentTarget.select()} className="mt-1 w-full rounded-lg border border-line bg-cream px-2 py-1.5" />
         <button
           type="button"

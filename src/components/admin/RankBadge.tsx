@@ -10,7 +10,7 @@ const styles: Record<Exclude<ConsultantRank, null>, string> = {
 
 export function RankBadge({ rank }: { rank: ConsultantRank }) {
   if (!rank) {
-    return <span className="text-xs text-navy/40">—</span>;
+    return <span className="text-xs text-navy/65">—</span>;
   }
   return (
     <span

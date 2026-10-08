@@ -34,7 +34,7 @@ export function ProductLinkGenerator({ products, origin, refSlug }: { products: 
             <li key={p.slug}>
               <button type="button" onClick={() => setPicked(p)} className="flex w-full items-center justify-between gap-3 px-4 py-2 text-left hover:bg-cream">
                 <span className="text-navy">{p.name}</span>
-                {p.price != null && <span className="shrink-0 text-xs text-navy/50">{p.price.toLocaleString("fr-FR")} FCFA</span>}
+                {p.price != null && <span className="shrink-0 text-xs text-navy/70">{p.price.toLocaleString("fr-FR")} FCFA</span>}
               </button>
             </li>
           ))}

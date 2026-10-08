@@ -31,7 +31,7 @@ export function StatCard({
       </div>
       <div>
         <p className="text-2xl font-semibold text-navy">{value}</p>
-        <p className="mt-0.5 text-xs text-navy/60">{label}</p>
+        <p className="mt-0.5 text-xs text-navy/75">{label}</p>
       </div>
     </div>
   );

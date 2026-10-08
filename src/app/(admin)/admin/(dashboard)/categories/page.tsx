@@ -23,7 +23,7 @@ export default async function AdminCategoriesPage() {
 
       <div className="mt-6 overflow-x-auto rounded-2xl border border-line bg-white">
         <table className="w-full text-sm">
-          <thead className="bg-cream text-left text-xs uppercase text-navy/50">
+          <thead className="bg-cream text-left text-xs uppercase text-navy/70">
             <tr>
               <th className="px-4 py-3">Ordre</th>
               <th className="px-4 py-3">Label</th>
@@ -35,9 +35,9 @@ export default async function AdminCategoriesPage() {
           <tbody>
             {categories.map((c) => (
               <tr key={c.id} className="border-t border-line">
-                <td className="px-4 py-3 text-navy/60">{c.position}</td>
+                <td className="px-4 py-3 text-navy/75">{c.position}</td>
                 <td className="px-4 py-3 font-medium text-navy">{c.label}</td>
-                <td className="px-4 py-3 text-navy/60">{c.slug}</td>
+                <td className="px-4 py-3 text-navy/75">{c.slug}</td>
                 <td className="px-4 py-3">
                   <span
                     className={`rounded-full px-2.5 py-1 text-xs font-semibold ${

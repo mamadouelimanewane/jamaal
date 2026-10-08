@@ -55,13 +55,13 @@ export default async function AdminConsultantsPage() {
           </Link>
         </div>
       </div>
-      <p className="mt-1 text-sm text-navy/60">
+      <p className="mt-1 text-sm text-navy/75">
         Classement du mois en cours — Gold, Silver puis Bronze selon le CA généré et les filleuls actifs.
       </p>
 
       <div className="mt-6 overflow-x-auto rounded-2xl border border-line bg-white">
         <table className="w-full text-sm">
-          <thead className="bg-cream text-left text-xs uppercase text-navy/50">
+          <thead className="bg-cream text-left text-xs uppercase text-navy/70">
             <tr>
               <th className="px-4 py-3">Rang</th>
               <th className="px-4 py-3">Nom</th>
@@ -94,12 +94,12 @@ export default async function AdminConsultantsPage() {
                       {c.name}
                     </a>
                   </td>
-                  <td className="px-4 py-3 text-navy/70">{c.city}</td>
-                  <td className="px-4 py-3 text-navy/70">{c.sponsor?.name ?? "—"}</td>
-                  <td className="px-4 py-3 text-navy/70">
+                  <td className="px-4 py-3 text-navy/85">{c.city}</td>
+                  <td className="px-4 py-3 text-navy/85">{c.sponsor?.name ?? "—"}</td>
+                  <td className="px-4 py-3 text-navy/85">
                     {c.orders.length} commande(s) — {formatPrice(revenue)}
                     {info && info.activeSponsoredCount > 0 && (
-                      <span className="ml-1 text-xs text-navy/50">
+                      <span className="ml-1 text-xs text-navy/70">
                         · {info.activeSponsoredCount} filleul(s) actif(s)
                       </span>
                     )}
@@ -111,7 +111,7 @@ export default async function AdminConsultantsPage() {
                     {c.active ? (
                       <span className="text-xs font-semibold text-green-700">Actif</span>
                     ) : (
-                      <span className="text-xs font-semibold text-navy/40">Inactif</span>
+                      <span className="text-xs font-semibold text-navy/65">Inactif</span>
                     )}
                   </td>
                   <td className="px-4 py-3 text-right">
@@ -126,7 +126,7 @@ export default async function AdminConsultantsPage() {
                     </Link>
                     <Link
                       href={`/admin/consultants/${c.id}/modifier`}
-                      className="mr-3 text-xs font-semibold text-navy/60 hover:underline"
+                      className="mr-3 text-xs font-semibold text-navy/75 hover:underline"
                     >
                       Modifier
                     </Link>
@@ -142,7 +142,7 @@ export default async function AdminConsultantsPage() {
           </tbody>
         </table>
       </div>
-      <p className="mt-3 text-xs text-navy/50">
+      <p className="mt-3 text-xs text-navy/70">
         Pour donner l&apos;accès au portail à un revendeur, créez son compte depuis{" "}
         <Link href="/admin/utilisateurs" className="underline">
           Utilisateurs

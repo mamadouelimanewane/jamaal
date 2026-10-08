@@ -2,7 +2,7 @@ import type { Consultant } from "@prisma/client";
 
 const inputClass =
   "mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-navy";
-const labelClass = "text-xs font-medium text-navy/70";
+const labelClass = "text-xs font-medium text-navy/85";
 
 export function ConsultantForm({
   action,
@@ -26,7 +26,7 @@ export function ConsultantForm({
       <div>
         <label className={labelClass}>Slug du lien personnel</label>
         <div className="mt-1 flex items-center gap-2">
-          <span className="shrink-0 text-xs text-navy/50">/c/</span>
+          <span className="shrink-0 text-xs text-navy/70">/c/</span>
           <input
             name="slug"
             defaultValue={consultant?.slug ?? ""}
@@ -36,7 +36,7 @@ export function ConsultantForm({
             className={inputClass + " mt-0"}
           />
         </div>
-        <p className="mt-1 text-[11px] text-navy/40">
+        <p className="mt-1 text-xs text-navy/65">
           Lien partageable : jamaal…/c/<strong>slug</strong>. Laissez vide pour générer automatiquement.
         </p>
       </div>
@@ -61,7 +61,7 @@ export function ConsultantForm({
             ))}
         </select>
       </div>
-      <label className="flex items-center gap-2 text-sm text-navy/70">
+      <label className="flex items-center gap-2 text-sm text-navy/85">
         <input type="checkbox" name="active" defaultChecked={consultant?.active ?? true} />
         Actif (visible sur le site)
       </label>

@@ -29,7 +29,7 @@ export default async function FormationPage() {
   return (
     <div>
       <h1 className="font-serif-display text-2xl font-semibold text-navy">Formation</h1>
-      <p className="mt-1 text-sm text-navy/60">
+      <p className="mt-1 text-sm text-navy/75">
         Checklist de démarrage et guides pour réussir en tant que consultant·e JAMAAL.
       </p>
 
@@ -48,8 +48,8 @@ export default async function FormationPage() {
             className="rounded-2xl border border-line bg-white p-6"
           >
             <h3 className="text-base font-semibold text-navy">{article.title}</h3>
-            <p className="mt-1 text-sm text-navy/60">{article.excerpt}</p>
-            <ol className="mt-4 list-decimal space-y-2 pl-5 text-sm text-navy/80">
+            <p className="mt-1 text-sm text-navy/75">{article.excerpt}</p>
+            <ol className="mt-4 list-decimal space-y-2 pl-5 text-sm text-navy/90">
               {article.content.map((line, i) => (
                 <li key={i}>{line}</li>
               ))}

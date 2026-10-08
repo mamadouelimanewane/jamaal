@@ -68,7 +68,7 @@ export default async function OutilsVentePage() {
   return (
     <div>
       <h1 className="font-serif-display text-2xl font-semibold text-navy">Outils de vente</h1>
-      <p className="mt-1 text-sm text-navy/60">
+      <p className="mt-1 text-sm text-navy/75">
         Scripts WhatsApp, lien personnel et mini-catalogue à partager avec vos clients.
       </p>
 
@@ -79,7 +79,7 @@ export default async function OutilsVentePage() {
       {/* Scripts */}
       <section className="mt-12">
         <h2 className="font-serif-display text-lg font-semibold text-navy">Scripts WhatsApp</h2>
-        <p className="mt-1 text-sm text-navy/60">
+        <p className="mt-1 text-sm text-navy/75">
           Personnalisez le prénom et le produit, puis copiez le message en un clic.
         </p>
 
@@ -89,7 +89,7 @@ export default async function OutilsVentePage() {
             if (items.length === 0) return null;
             return (
               <div key={cat.id}>
-                <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-navy/40">
+                <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-navy/65">
                   {cat.label}
                 </h3>
                 <div className="grid gap-4 lg:grid-cols-2">
@@ -111,7 +111,7 @@ export default async function OutilsVentePage() {
       {/* Catalogue */}
       <section className="mt-14">
         <h2 className="font-serif-display text-lg font-semibold text-navy">Mini-catalogue</h2>
-        <p className="mt-1 text-sm text-navy/60">
+        <p className="mt-1 text-sm text-navy/75">
           Imprimez en PDF ou téléchargez une image à envoyer sur WhatsApp / Instagram.
         </p>
         <div className="mt-6 max-w-lg">
@@ -128,7 +128,7 @@ export default async function OutilsVentePage() {
       {/* Tips */}
       <section className="mt-14 rounded-2xl border border-line bg-white p-6">
         <h2 className="text-sm font-semibold text-navy">Conseils rapides</h2>
-        <ul className="mt-3 list-inside list-disc space-y-1.5 text-sm text-navy/70">
+        <ul className="mt-3 list-inside list-disc space-y-1.5 text-sm text-navy/85">
           <li>Partagez toujours votre lien personnel pour que les commandes vous soient attribuées.</li>
           <li>Commencez par un échantillon : plus facile de convaincre.</li>
           <li>Relancez poliment 48 h après un premier message sans réponse.</li>

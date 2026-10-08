@@ -22,7 +22,7 @@ export default async function SettingsPage() {
           <h1 className="font-serif-display text-2xl font-semibold text-navy">
             Réglages système & Fidélité
           </h1>
-          <p className="text-sm text-navy/60">
+          <p className="text-sm text-navy/75">
             Configurez les taux de commission réseau et les règles du programme de fidélité client.
           </p>
         </div>
@@ -35,7 +35,7 @@ export default async function SettingsPage() {
             <Percent size={18} className="text-rose" />
             <h2>Commissions revendeurs</h2>
           </div>
-          <p className="mt-1 text-xs text-navy/60">
+          <p className="mt-1 text-xs text-navy/75">
             Vendeur : <strong>{model.sellerPct} %</strong> · parrain seul : <strong>{model.sponsorAlonePct} %</strong> · parrain + grand-parrain :{" "}
             <strong>{model.sponsorSharedPct} % + {model.grandSponsorPct} %</strong> du prix de vente.
           </p>
@@ -50,13 +50,13 @@ export default async function SettingsPage() {
             <Gift size={18} className="text-amber-600" />
             <h2>Programme de Fidélité Clients</h2>
           </div>
-          <p className="mt-1 text-xs text-navy/60">
+          <p className="mt-1 text-xs text-navy/75">
             Définissez combien de points un client gagne par tranche d&apos;achat en FCFA.
           </p>
 
           <form action={updateLoyaltySettingsAction} className="mt-6 flex flex-col gap-4">
             <div>
-              <label className="block text-xs font-semibold text-navy/70">
+              <label className="block text-xs font-semibold text-navy/85">
                 Points attribués par tranche
               </label>
               <input
@@ -70,7 +70,7 @@ export default async function SettingsPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-navy/70">
+              <label className="block text-xs font-semibold text-navy/85">
                 Tranche d&apos;achat (en FCFA)
               </label>
               <input
@@ -87,7 +87,7 @@ export default async function SettingsPage() {
             <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-3 text-xs text-amber-800">
               <span className="font-semibold">Règle actuelle :</span> {loyalty.earningRate} point(s) pour chaque {loyalty.spendThreshold.toLocaleString("fr-FR")} FCFA dépensé(s).
               <br />
-              <span className="text-[11px] text-amber-700/80">
+              <span className="text-xs text-amber-700/80">
                 (Ex: 10 000 FCFA d&apos;achat = {Math.floor(10000 / loyalty.spendThreshold) * loyalty.earningRate} points gagnés)
               </span>
             </div>

@@ -61,7 +61,7 @@ export default async function MesGainsPage() {
   return (
     <div className="max-w-6xl">
       <h1 className="font-serif-display text-2xl font-semibold text-navy">Mes gains</h1>
-      <p className="mt-1 text-sm text-navy/60">
+      <p className="mt-1 text-sm text-navy/75">
         Vos commissions : {info.rate} % sur vos ventes, {info.sponsorRate} % sur celles de vos filleuls directs, {info.sponsorL2Rate} % sur le niveau 2,
         calculées sur le prix des produits (hors livraison) des ventes encaissées. Les ventes annulées et remboursées ne comptent pas.
       </p>
@@ -77,9 +77,9 @@ export default async function MesGainsPage() {
         <div className="rounded-2xl border border-line bg-white p-5">
           <h2 className="font-serif-display text-lg font-semibold text-navy">Ce mois-ci en détail</h2>
           <ul className="mt-3 divide-y divide-line text-sm">
-            <li className="flex justify-between py-2"><span className="text-navy/70">Mes ventes ({formatPrice(info.monthlyRevenue)})</span><span className="font-semibold">{formatPrice(info.monthlyCommission)}</span></li>
-            <li className="flex justify-between py-2"><span className="text-navy/70">Équipe niveau 1 ({formatPrice(info.monthlyTeamRevenue)})</span><span className="font-semibold">{formatPrice(info.monthlySponsorCommission)}</span></li>
-            <li className="flex justify-between py-2"><span className="text-navy/70">Équipe niveau 2 ({formatPrice(info.monthlyL2Revenue)})</span><span className="font-semibold">{formatPrice(info.monthlyL2Commission)}</span></li>
+            <li className="flex justify-between py-2"><span className="text-navy/85">Mes ventes ({formatPrice(info.monthlyRevenue)})</span><span className="font-semibold">{formatPrice(info.monthlyCommission)}</span></li>
+            <li className="flex justify-between py-2"><span className="text-navy/85">Équipe niveau 1 ({formatPrice(info.monthlyTeamRevenue)})</span><span className="font-semibold">{formatPrice(info.monthlySponsorCommission)}</span></li>
+            <li className="flex justify-between py-2"><span className="text-navy/85">Équipe niveau 2 ({formatPrice(info.monthlyL2Revenue)})</span><span className="font-semibold">{formatPrice(info.monthlyL2Commission)}</span></li>
             <li className="flex justify-between py-2 text-navy"><span className="font-semibold">Total</span><span className="font-semibold text-emerald-700">{formatPrice(monthTotal)}</span></li>
           </ul>
         </div>
@@ -87,19 +87,19 @@ export default async function MesGainsPage() {
           <h2 className="flex items-center gap-2 font-serif-display text-lg font-semibold text-navy"><Target size={18} /> Objectif du mois</h2>
           {target ? (
             <>
-              <p className="mt-3 text-sm text-navy/70">
+              <p className="mt-3 text-sm text-navy/85">
                 {formatPrice(info.monthlyRevenue)} vendus sur {formatPrice(target.targetRevenue)} d&apos;objectif.
               </p>
               <div className="mt-3 h-3 overflow-hidden rounded-full bg-navy/10">
                 <div className="h-full rounded-full bg-rose-dark" style={{ width: `${progress}%` }} />
               </div>
-              <p className="mt-2 text-xs font-semibold text-navy/60">{progress} % atteint</p>
+              <p className="mt-2 text-xs font-semibold text-navy/75">{progress} % atteint</p>
             </>
           ) : (
-            <p className="mt-3 text-sm text-navy/60">Aucun objectif fixé pour ce mois. L&apos;équipe JAMAAL peut vous en définir un.</p>
+            <p className="mt-3 text-sm text-navy/75">Aucun objectif fixé pour ce mois. L&apos;équipe JAMAAL peut vous en définir un.</p>
           )}
           {bonuses.length > 0 && (
-            <p className="mt-4 flex items-center gap-2 text-xs text-navy/60"><Gift size={14} /> Bonus de démarrage rapide versés : <strong className="text-navy">{formatPrice(bonusPaid)}</strong></p>
+            <p className="mt-4 flex items-center gap-2 text-xs text-navy/75"><Gift size={14} /> Bonus de démarrage rapide versés : <strong className="text-navy">{formatPrice(bonusPaid)}</strong></p>
           )}
         </div>
       </div>
@@ -107,7 +107,7 @@ export default async function MesGainsPage() {
       {model.primesEnabled && model.primeTiers.length > 0 && (
         <div className="mt-6 rounded-2xl border border-line bg-white p-5">
           <h2 className="flex items-center gap-2 font-serif-display text-lg font-semibold text-navy"><Trophy size={18} /> Primes du mois</h2>
-          <p className="mt-1 text-sm text-navy/65">
+          <p className="mt-1 text-sm text-navy/80">
             Ventes personnelles encaissées ce mois-ci : <strong className="text-navy">{formatPrice(info.monthlyRevenue)}</strong>.
             {prime.reached ? <> Palier atteint : prime de <strong className="text-emerald-700">{formatPrice(prime.reached.amount)}</strong>{prime.reached.extra ? ` + ${prime.reached.extra}` : ""}.</> : " Aucun palier atteint pour l'instant."}
           </p>
@@ -116,26 +116,26 @@ export default async function MesGainsPage() {
               <div className="mt-3 h-3 overflow-hidden rounded-full bg-navy/10">
                 <div className="h-full rounded-full bg-emerald-600" style={{ width: `${prime.progress}%` }} />
               </div>
-              <p className="mt-2 text-xs text-navy/60">
+              <p className="mt-2 text-xs text-navy/75">
                 Encore <strong className="text-navy">{formatPrice(prime.remaining)}</strong> pour la prime de {formatPrice(prime.next.amount)}{prime.next.extra ? ` + ${prime.next.extra}` : ""}.
               </p>
             </>
           )}
           <ul className="mt-4 grid gap-2 text-xs sm:grid-cols-2 lg:grid-cols-4">
             {model.primeTiers.map((t) => (
-              <li key={t.threshold} className={`rounded-xl border px-3 py-2 ${info.monthlyRevenue >= t.threshold ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-line text-navy/70"}`}>
+              <li key={t.threshold} className={`rounded-xl border px-3 py-2 ${info.monthlyRevenue >= t.threshold ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-line text-navy/85"}`}>
                 <span className="block font-semibold">{formatPrice(t.threshold)} de ventes</span>
                 Prime {formatPrice(t.amount)}{t.extra ? ` + ${t.extra}` : ""}
               </li>
             ))}
           </ul>
-          {model.topSellerBonus > 0 && <p className="mt-3 text-xs text-navy/60">Bonus de {formatPrice(model.topSellerBonus)} pour le 1er du classement mensuel (chiffre d&apos;affaires client).</p>}
+          {model.topSellerBonus > 0 && <p className="mt-3 text-xs text-navy/75">Bonus de {formatPrice(model.topSellerBonus)} pour le 1er du classement mensuel (chiffre d&apos;affaires client).</p>}
         </div>
       )}
 
       <div className="mt-6 overflow-x-auto rounded-2xl border border-line bg-white">
         <table className="w-full text-sm">
-          <thead className="bg-cream text-left text-xs uppercase text-navy/50">
+          <thead className="bg-cream text-left text-xs uppercase text-navy/70">
             <tr>
               <th className="px-4 py-3">Mois</th>
               <th className="px-4 py-3 text-right">Mes ventes</th>
@@ -163,11 +163,11 @@ export default async function MesGainsPage() {
         <ul className="mt-3 divide-y divide-line text-sm">
           {payments.map((p) => (
             <li key={p.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
-              <span className="text-navy">{p.periodLabel}{p.note ? <span className="ml-2 text-xs text-navy/50">· {p.note}</span> : null}</span>
-              <span className="font-semibold text-navy">{formatPrice(p.amount)} <span className="ml-2 text-xs font-normal text-navy/50">{p.paidAt.toLocaleDateString("fr-FR")}</span></span>
+              <span className="text-navy">{p.periodLabel}{p.note ? <span className="ml-2 text-xs text-navy/70">· {p.note}</span> : null}</span>
+              <span className="font-semibold text-navy">{formatPrice(p.amount)} <span className="ml-2 text-xs font-normal text-navy/70">{p.paidAt.toLocaleDateString("fr-FR")}</span></span>
             </li>
           ))}
-          {payments.length === 0 && <li className="py-4 text-center text-navy/50">Aucun versement pour le moment.</li>}
+          {payments.length === 0 && <li className="py-4 text-center text-navy/70">Aucun versement pour le moment.</li>}
         </ul>
       </div>
     </div>

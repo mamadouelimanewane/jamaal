@@ -3,7 +3,7 @@ import type { Product } from "@prisma/client";
 
 const inputClass =
   "mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-navy";
-const labelClass = "text-xs font-medium text-navy/70";
+const labelClass = "text-xs font-medium text-navy/85";
 
 function volumesToText(volumes: unknown): string {
   if (!Array.isArray(volumes)) return "";
@@ -115,7 +115,7 @@ export async function ProductForm({
             defaultValue={product?.publicPrice ?? undefined}
             className={inputClass}
           />
-          <p className="mt-1 text-[11px] text-navy/50">Base du prix de vente (Admin &gt; Modèle économique &gt; Mettre à jour les prix).</p>
+          <p className="mt-1 text-xs text-navy/70">Base du prix de vente (Admin &gt; Modèle économique &gt; Mettre à jour les prix).</p>
         </div>
         <div>
           <label className={labelClass}>Prix de vente (FCFA)</label>
@@ -200,7 +200,7 @@ export async function ProductForm({
         </div>
       </div>
 
-      <label className="flex items-center gap-2 text-sm text-navy/70">
+      <label className="flex items-center gap-2 text-sm text-navy/85">
         <input type="checkbox" name="isOfficial" defaultChecked={product?.isOfficial ?? true} />
         Produit officiel (catalogue importé)
       </label>

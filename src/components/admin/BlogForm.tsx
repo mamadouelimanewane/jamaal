@@ -2,7 +2,7 @@ import type { BlogPost } from "@prisma/client";
 
 const inputClass =
   "mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-navy";
-const labelClass = "text-xs font-medium text-navy/70";
+const labelClass = "text-xs font-medium text-navy/85";
 
 function toDateInputValue(date?: Date): string {
   if (!date) return new Date().toISOString().slice(0, 10);
@@ -47,7 +47,7 @@ export function BlogForm({
           <label className={labelClass}>Date de publication</label>
           <input type="date" name="date" defaultValue={toDateInputValue(post?.date)} className={inputClass} />
         </div>
-        <label className="mt-6 flex items-center gap-2 text-sm text-navy/70">
+        <label className="mt-6 flex items-center gap-2 text-sm text-navy/85">
           <input type="checkbox" name="published" defaultChecked={post?.published ?? true} />
           Publié (visible sur le site)
         </label>

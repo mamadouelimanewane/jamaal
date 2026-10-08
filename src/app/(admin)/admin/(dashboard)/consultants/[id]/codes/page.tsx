@@ -54,7 +54,7 @@ export default async function ConsultantCodesPage({ params }: { params: Promise<
               Codes Promo — {consultant.name}
             </h1>
           </div>
-          <p className="text-xs text-navy/50 mt-0.5">
+          <p className="text-xs text-navy/70 mt-0.5">
             Générez des codes uniques à partager sur WhatsApp et les réseaux sociaux pour tracker vos ventes sans lien.
           </p>
         </div>

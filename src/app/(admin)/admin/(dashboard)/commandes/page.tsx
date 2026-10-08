@@ -42,7 +42,7 @@ export default async function AdminOrdersPage() {
 
       <div className="mt-6 overflow-x-auto rounded-2xl border border-line bg-white">
         <table className="w-full text-sm">
-          <thead className="bg-cream text-left text-xs uppercase text-navy/50">
+          <thead className="bg-cream text-left text-xs uppercase text-navy/70">
             <tr>
               <th className="px-4 py-3">Client</th>
               <th className="px-4 py-3">Articles</th>
@@ -60,12 +60,12 @@ export default async function AdminOrdersPage() {
                   <Link href={`/admin/commandes/${o.id}`} className="font-medium text-navy hover:underline">
                     {o.customerName}
                   </Link>
-                  <p className="text-xs text-navy/50">{o.customerPhone ?? o.customerEmail ?? ""}</p>
+                  <p className="text-xs text-navy/70">{o.customerPhone ?? o.customerEmail ?? ""}</p>
                 </td>
-                <td className="px-4 py-3 text-navy/70">{o.items.length}</td>
-                <td className="px-4 py-3 text-navy/70">{formatPrice(o.total)}</td>
-                <td className="px-4 py-3 text-navy/70">{o.consultant?.name ?? "—"}</td>
-                <td className="px-4 py-3 text-navy/70">
+                <td className="px-4 py-3 text-navy/85">{o.items.length}</td>
+                <td className="px-4 py-3 text-navy/85">{formatPrice(o.total)}</td>
+                <td className="px-4 py-3 text-navy/85">{o.consultant?.name ?? "—"}</td>
+                <td className="px-4 py-3 text-navy/85">
                   {o.deliveryMode === "LIVRAISON_JAMAAL" ? (
                     <span>JAMAAL{o.livreur ? ` · ${o.livreur.name}` : ""}</span>
                   ) : (
@@ -77,12 +77,12 @@ export default async function AdminOrdersPage() {
                     {statusLabels[o.status] ?? o.status}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-navy/60">{o.createdAt.toLocaleDateString("fr-FR")}</td>
+                <td className="px-4 py-3 text-navy/75">{o.createdAt.toLocaleDateString("fr-FR")}</td>
               </tr>
             ))}
             {orders.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-4 py-6 text-center text-navy/50">
+                <td colSpan={7} className="px-4 py-6 text-center text-navy/70">
                   Aucune commande pour le moment.
                 </td>
               </tr>

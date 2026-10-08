@@ -57,7 +57,7 @@ export default async function AdminProductsPage({
           placeholder="Rechercher un produit…"
           className="w-full max-w-sm rounded-full border border-line px-4 py-2 text-sm outline-none focus:border-navy"
         />
-        <label className="flex items-center gap-2 text-xs text-navy/70">
+        <label className="flex items-center gap-2 text-xs text-navy/85">
           <input type="checkbox" name="stock" value="bas" defaultChecked={stock === "bas"} />
           Stock bas uniquement
         </label>
@@ -68,7 +68,7 @@ export default async function AdminProductsPage({
 
       <div className="mt-6 overflow-x-auto rounded-2xl border border-line bg-white">
         <table className="w-full text-sm">
-          <thead className="bg-cream text-left text-xs uppercase text-navy/50">
+          <thead className="bg-cream text-left text-xs uppercase text-navy/70">
             <tr>
               <th className="px-4 py-3">Nom</th>
               <th className="px-4 py-3">Catégorie</th>
@@ -83,8 +83,8 @@ export default async function AdminProductsPage({
               return (
                 <tr key={p.id} className="border-t border-line">
                   <td className="px-4 py-3 font-medium text-navy">{p.name}</td>
-                  <td className="px-4 py-3 text-navy/70">{p.category}</td>
-                  <td className="px-4 py-3 text-navy/70">
+                  <td className="px-4 py-3 text-navy/85">{p.category}</td>
+                  <td className="px-4 py-3 text-navy/85">
                     {p.regularPrice ? formatPrice(p.regularPrice) : "—"}
                   </td>
                   <td className="px-4 py-3">

@@ -24,7 +24,7 @@ export default async function KitMarketingPage() {
           Mon Kit Marketing
         </h1>
       </div>
-      <p className="mt-1 text-sm text-navy/60">
+      <p className="mt-1 text-sm text-navy/75">
         Téléchargez les visuels officiels et utilisez nos textes de vente optimisés pour vos statuts WhatsApp et Facebook.
       </p>
 
@@ -35,14 +35,14 @@ export default async function KitMarketingPage() {
               {p.photo ? (
                 <Image src={p.photo} alt={p.name} fill className="object-cover" />
               ) : (
-                <div className="flex h-full items-center justify-center text-navy/20">
+                <div className="flex h-full items-center justify-center text-navy/45">
                   <ImageIcon size={48} />
                 </div>
               )}
             </div>
             <div className="p-4">
               <h2 className="font-semibold text-navy">{p.name}</h2>
-              <p className="mt-1 line-clamp-2 text-xs text-navy/60">{p.shortDescription}</p>
+              <p className="mt-1 line-clamp-2 text-xs text-navy/75">{p.shortDescription}</p>
               
               <div className="mt-4 flex flex-col gap-2">
                 <a
@@ -55,8 +55,8 @@ export default async function KitMarketingPage() {
                 </a>
                 
                 <div className="rounded-xl border border-line bg-cream/30 p-3 text-xs">
-                  <p className="font-semibold text-navy/70">Texte pour statut :</p>
-                  <p className="mt-1 italic text-navy/60">
+                  <p className="font-semibold text-navy/85">Texte pour statut :</p>
+                  <p className="mt-1 italic text-navy/75">
                     Découvrez {p.name}, la fragrance idéale pour vous démarquer. Qualité premium à prix accessible ! Contactez-moi pour commander.
                   </p>
                 </div>

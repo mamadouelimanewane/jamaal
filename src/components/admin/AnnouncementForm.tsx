@@ -10,15 +10,15 @@ export function AnnouncementForm() {
   const [state, action, pending] = useActionState(createAnnouncement, initial);
   return (
     <form action={action} className="flex flex-col gap-4">
-      <label className="text-xs font-semibold text-navy/70">
+      <label className="text-xs font-semibold text-navy/85">
         Titre
         <input name="title" required maxLength={120} className={field} placeholder="Ex. Nouveauté : parfums Luxury Extrait 30 %" />
       </label>
-      <label className="text-xs font-semibold text-navy/70">
+      <label className="text-xs font-semibold text-navy/85">
         Message
         <textarea name="body" required rows={4} maxLength={3000} className={field} />
       </label>
-      <label className="flex items-center gap-2 text-sm text-navy/70">
+      <label className="flex items-center gap-2 text-sm text-navy/85">
         <input type="checkbox" name="pinned" className="h-4 w-4 accent-[#1d2f4f]" /> Épingler en haut de la liste
       </label>
       {state.error && <p role="alert" className="rounded-xl border border-rose-dark/20 bg-rose/10 px-4 py-2 text-sm text-rose-dark">{state.error}</p>}

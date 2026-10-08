@@ -38,7 +38,7 @@ export function InstallApp() {
       <p className="flex items-center gap-2 font-semibold text-white"><Download size={14} /> Installer l&apos;application</p>
       {evt ? (
         <>
-          <p className="mt-1 text-white/60">Ajoutez JAMAAL à votre écran d&apos;accueil : il s&apos;ouvre comme une application.</p>
+          <p className="mt-1 text-white/75">Ajoutez JAMAAL à votre écran d&apos;accueil : il s&apos;ouvre comme une application.</p>
           <button
             type="button"
             onClick={() => {
@@ -50,7 +50,7 @@ export function InstallApp() {
           </button>
         </>
       ) : (
-        <p className="mt-1 text-white/60">
+        <p className="mt-1 text-white/75">
           Sur iPhone : touchez <Share size={12} className="inline" /> puis « Sur l&apos;écran d&apos;accueil ».
         </p>
       )}

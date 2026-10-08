@@ -29,14 +29,14 @@ export default async function MonMarketingPage() {
   return (
     <div className="max-w-5xl">
       <h1 className="font-serif-display text-2xl font-semibold text-navy">Mon marketing</h1>
-      <p className="mt-1 text-sm text-navy/60">Tout pour faire connaître vos produits. Chaque lien ci-dessous attribue automatiquement les commandes à votre compte.</p>
+      <p className="mt-1 text-sm text-navy/75">Tout pour faire connaître vos produits. Chaque lien ci-dessous attribue automatiquement les commandes à votre compte.</p>
 
       <div className="mt-6 grid gap-5 lg:grid-cols-[1fr_auto]">
         <div className="rounded-2xl border border-line bg-white p-5">
           <h2 className="font-serif-display text-lg font-semibold text-navy">Ma boutique personnelle</h2>
           {links.shop ? (
             <>
-              <p className="mt-1 text-sm text-navy/60">Votre vitrine : les clients voient votre nom et peuvent vous contacter.</p>
+              <p className="mt-1 text-sm text-navy/75">Votre vitrine : les clients voient votre nom et peuvent vous contacter.</p>
               <input readOnly value={links.shop} className="mt-3 w-full rounded-xl border border-line bg-cream px-3 py-2 text-xs" />
               <div className="mt-3 flex flex-wrap gap-2">
                 <CopyButton text={links.shop} label="Copier mon lien" />
@@ -50,7 +50,7 @@ export default async function MonMarketingPage() {
               </div>
             </>
           ) : (
-            <p className="mt-2 text-sm text-navy/60">Votre lien n&apos;est pas encore configuré : demandez à l&apos;équipe JAMAAL de renseigner votre identifiant.</p>
+            <p className="mt-2 text-sm text-navy/75">Votre lien n&apos;est pas encore configuré : demandez à l&apos;équipe JAMAAL de renseigner votre identifiant.</p>
           )}
         </div>
         {links.shop && <QrCard url={links.shop} name={me.slug ?? me.name} />}
@@ -58,7 +58,7 @@ export default async function MonMarketingPage() {
 
       <div className="mt-6 rounded-2xl border border-line bg-white p-5">
         <h2 className="font-serif-display text-lg font-semibold text-navy">Lien d&apos;un produit précis</h2>
-        <p className="mt-1 mb-4 text-sm text-navy/60">Cherchez un produit, copiez son lien avec votre code, et envoyez-le à votre client.</p>
+        <p className="mt-1 mb-4 text-sm text-navy/75">Cherchez un produit, copiez son lien avec votre code, et envoyez-le à votre client.</p>
         <ProductLinkGenerator
           products={products.map((p) => ({ slug: p.slug, name: p.name, price: p.regularPrice }))}
           origin={links.origin}
@@ -68,7 +68,7 @@ export default async function MonMarketingPage() {
 
       <div className="mt-6 rounded-2xl border border-line bg-white p-5">
         <h2 className="flex items-center gap-2 font-serif-display text-lg font-semibold text-navy"><MessageSquareText size={18} /> Mes codes promo</h2>
-        <p className="mt-1 text-sm text-navy/60">Codes de réduction créés pour vous par l&apos;équipe JAMAAL. Donnez-les à vos clients pour déclencher un achat.</p>
+        <p className="mt-1 text-sm text-navy/75">Codes de réduction créés pour vous par l&apos;équipe JAMAAL. Donnez-les à vos clients pour déclencher un achat.</p>
         <ul className="mt-3 divide-y divide-line text-sm">
           {promos.map((p) => {
             const expired = p.expiresAt && p.expiresAt < new Date();
@@ -76,7 +76,7 @@ export default async function MonMarketingPage() {
               <li key={p.id} className="flex flex-wrap items-center justify-between gap-2 py-2.5">
                 <div>
                   <p className="font-mono text-sm font-semibold text-navy">{p.code}</p>
-                  <p className="text-xs text-navy/50">
+                  <p className="text-xs text-navy/70">
                     -{p.discountPct} % · utilisé {p.usedCount}{p.usageLimit ? ` / ${p.usageLimit}` : ""} fois
                     {p.expiresAt ? ` · ${expired ? "expiré le" : "valable jusqu'au"} ${p.expiresAt.toLocaleDateString("fr-FR")}` : ""}
                   </p>
@@ -85,7 +85,7 @@ export default async function MonMarketingPage() {
               </li>
             );
           })}
-          {promos.length === 0 && <li className="py-4 text-center text-navy/50">Pas encore de code promo. Demandez-en un à l&apos;équipe JAMAAL sur WhatsApp (voir « Ma communication »).</li>}
+          {promos.length === 0 && <li className="py-4 text-center text-navy/70">Pas encore de code promo. Demandez-en un à l&apos;équipe JAMAAL sur WhatsApp (voir « Ma communication »).</li>}
         </ul>
       </div>
 
@@ -94,7 +94,7 @@ export default async function MonMarketingPage() {
           <Link key={t.href} href={t.href} className="rounded-2xl border border-line bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-md">
             <t.icon size={20} className="text-rose-dark" />
             <p className="mt-3 font-semibold text-navy">{t.title}</p>
-            <p className="mt-1 text-xs leading-relaxed text-navy/60">{t.text}</p>
+            <p className="mt-1 text-xs leading-relaxed text-navy/75">{t.text}</p>
           </Link>
         ))}
       </div>

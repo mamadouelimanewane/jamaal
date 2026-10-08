@@ -18,7 +18,7 @@ export function ResponsiveSidebar({
   const setOpen = (value: boolean) => setOpenedOn(value ? pathname : null);
 
   return (
-    <div className="min-h-screen bg-cream lg:flex">
+    <div className="admin-ui min-h-screen bg-cream lg:flex">
       <header className="sticky top-0 z-30 flex items-center justify-between border-b border-white/10 bg-navy px-4 py-3 lg:hidden shadow-sm">
         <p className="font-serif-display text-lg font-semibold tracking-wide text-white">JAMAAL</p>
         <button
@@ -42,7 +42,7 @@ export function ResponsiveSidebar({
         <button
           onClick={() => setOpen(false)}
           aria-label="Fermer le menu"
-          className="absolute right-3 top-3 rounded-lg p-1.5 text-white/60 hover:bg-white/10 lg:hidden transition-colors"
+          className="absolute right-3 top-3 rounded-lg p-1.5 text-white/75 hover:bg-white/10 lg:hidden transition-colors"
         >
           <X size={20} />
         </button>

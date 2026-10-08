@@ -23,7 +23,7 @@ export default async function MaCommunicationPage() {
   return (
     <div className="max-w-5xl">
       <h1 className="font-serif-display text-2xl font-semibold text-navy">Ma communication</h1>
-      <p className="mt-1 text-sm text-navy/60">Les annonces de l&apos;équipe JAMAAL, vos notifications et les moyens de nous joindre.</p>
+      <p className="mt-1 text-sm text-navy/75">Les annonces de l&apos;équipe JAMAAL, vos notifications et les moyens de nous joindre.</p>
 
       <div className="mt-6 grid gap-5 lg:grid-cols-[1.4fr_1fr]">
         <section className="rounded-2xl border border-line bg-white p-5">
@@ -35,18 +35,18 @@ export default async function MaCommunicationPage() {
                   <h3 className="font-semibold text-navy">{a.title}</h3>
                   {a.pinned && <Pin size={14} className="mt-1 shrink-0 text-rose-dark" aria-label="Épinglée" />}
                 </div>
-                <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-navy/75">{a.body}</p>
-                <p className="mt-2 text-xs text-navy/40">{a.createdAt.toLocaleDateString("fr-FR")}</p>
+                <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-navy/85">{a.body}</p>
+                <p className="mt-2 text-xs text-navy/65">{a.createdAt.toLocaleDateString("fr-FR")}</p>
               </article>
             ))}
-            {announcements.length === 0 && <p className="py-6 text-center text-sm text-navy/50">Aucune annonce pour le moment.</p>}
+            {announcements.length === 0 && <p className="py-6 text-center text-sm text-navy/70">Aucune annonce pour le moment.</p>}
           </div>
         </section>
 
         <div className="flex flex-col gap-5">
           <section className="rounded-2xl border border-line bg-white p-5">
             <h2 className="flex items-center gap-2 font-serif-display text-lg font-semibold text-navy"><MessageCircle size={18} /> Écrire à JAMAAL</h2>
-            <p className="mt-1 text-sm text-navy/60">Une question, une commande à suivre, un code promo à demander ?</p>
+            <p className="mt-1 text-sm text-navy/75">Une question, une commande à suivre, un code promo à demander ?</p>
             <div className="mt-3 flex flex-col gap-2">
               {WHATSAPP_CONTACTS.map((c) => (
                 <a key={c.number} href={whatsappLink(c.number, hello)} target="_blank" rel="noopener noreferrer" className="rounded-full bg-[#25D366] px-4 py-2 text-center text-sm font-semibold text-white hover:opacity-90">
@@ -59,7 +59,7 @@ export default async function MaCommunicationPage() {
           {me.sponsor && (
             <section className="rounded-2xl border border-line bg-white p-5">
               <h2 className="font-serif-display text-lg font-semibold text-navy">Mon parrain</h2>
-              <p className="mt-1 text-sm text-navy/70">{me.sponsor.name} · {me.sponsor.city}</p>
+              <p className="mt-1 text-sm text-navy/85">{me.sponsor.name} · {me.sponsor.city}</p>
               <a
                 href={me.sponsor.whatsapp.startsWith("http") ? me.sponsor.whatsapp : `https://wa.me/${digits(me.sponsor.whatsapp)}?text=${encodeURIComponent(`Bonjour ${me.sponsor.name}, c'est ${me.name}, ta filleule/ton filleul JAMAAL. `)}`}
                 target="_blank"
@@ -77,10 +77,10 @@ export default async function MaCommunicationPage() {
               {notifications.map((n) => (
                 <li key={n.id} className="py-2">
                   <p className={`text-navy ${n.read ? "" : "font-semibold"}`}>{n.title}</p>
-                  <p className="text-xs text-navy/50">{n.message.slice(0, 90)}</p>
+                  <p className="text-xs text-navy/70">{n.message.slice(0, 90)}</p>
                 </li>
               ))}
-              {notifications.length === 0 && <li className="py-3 text-center text-navy/50">Aucune notification.</li>}
+              {notifications.length === 0 && <li className="py-3 text-center text-navy/70">Aucune notification.</li>}
             </ul>
             <Link href="/admin/notifications" className="mt-3 inline-block text-xs font-semibold text-rose-dark hover:underline">Toutes mes notifications →</Link>
           </section>
