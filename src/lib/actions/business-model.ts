@@ -6,6 +6,7 @@ import { requireAdmin } from "./auth-guard";
 import { logActivity } from "@/lib/activity-log";
 import { getBusinessModel, saveBusinessModel } from "@/lib/business-model-store";
 import { normalizeBusinessModel, salePriceFromPublic, type BusinessModel, type PrimeTier } from "@/lib/business-model";
+import { invalidateSearchIndex } from "@/lib/search-index";
 
 export type BusinessModelState = { ok: boolean; message?: string; error?: string };
 
@@ -118,6 +119,7 @@ export async function applyCatalogPricingAction(): Promise<BusinessModelState> {
   // Par lots, pour ne pas dépasser les limites de transaction de Neon.
   for (let i = 0; i < changes.length; i += 100) {
     await prisma.$transaction(changes.slice(i, i + 100).map((c) => prisma.product.update({ where: { id: c.id }, data: { regularPrice: c.price } })));
+    invalidateSearchIndex();
   }
   await logActivity(session, `Mise à jour des prix (${changes.length} produits, vente = ${model.salePct} % du prix public)`, "Product");
 

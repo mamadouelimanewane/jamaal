@@ -10,7 +10,9 @@
     "lint": "eslint",
     "import:catalog": "node scripts/import-catalog.mjs",
     "db:seed": "tsx prisma/seed.ts",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "test": "tsx --test 'src/**/__tests__/*.test.ts'",
+    "test:db": "SEARCH_DB_TEST=1 tsx --test 'src/**/__tests__/*.db.test.ts'"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",

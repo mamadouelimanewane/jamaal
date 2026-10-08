@@ -16,6 +16,10 @@ export interface SearchDoc {
   categoryLabel: string;
   family: string | null;
   notes: string[];
+  /** Description courte et longue (poids faible). */
+  description?: string;
+  /** Formats vendus (« 70 ml », « Échantillon 3 ml »…). */
+  volumes?: string[];
   price: number | null;
   photo: string | null;
   colorFrom: string;
@@ -88,9 +92,12 @@ function fuzzyMax(len: number) {
   return len >= 8 ? 2 : len >= 4 ? 1 : 0;
 }
 
-interface Prepared {
+export interface Prepared {
   doc: SearchDoc;
   code: string;
+  /** Code principal et codes des autres formats (30 ml : 3…, 15 ml : T…). */
+  codes: string[];
+  desc: string[];
   name: string[];
   inspired: string[];
   brand: string[];
@@ -102,6 +109,30 @@ interface Prepared {
   inspiredCompact: string;
 }
 
+/**
+ * Codes de format Chogan : le parfum 001M (70 ml) existe en 301M (30 ml) et T001M (15 ml) ;
+ * les codes à 3 chiffres font de même (060 → 360, T060 ; 150M → 3150M, T150M).
+ */
+export function codeAliases(code: string | null): string[] {
+  const c = normalize(code ?? "").replace(/ /g, "");
+  if (!c) return [];
+  const out = new Set([c]);
+  const m = c.match(/^(\d{2,3})([mwub]?)$/);
+  if (m) {
+    const n = m[1].padStart(3, "0"); // 74M → 074m
+    const g = m[2];
+    out.add(n + g);
+    out.add(`3${n.startsWith("0") ? n.slice(1) : n}${g}`); // 30 ml : 301M, 3150M, 360
+    out.add(`t${n}${g}`); // 15 ml : T001M
+    if (g) out.add(`t${n}`); // T090 (sans lettre)
+  }
+  return [...out];
+}
+
+function words(s: string): string[] {
+  return normalize(s).split(" ").filter(Boolean);
+}
+
 export function prepare(docs: SearchDoc[]): Prepared[] {
   return docs.map((doc) => {
     const name = normalize(doc.name);
@@ -109,10 +140,12 @@ export function prepare(docs: SearchDoc[]): Prepared[] {
     return {
       doc,
       code: normalize(doc.choganCode ?? "").replace(/ /g, ""),
+      codes: codeAliases(doc.choganCode),
+      desc: [...new Set(words(doc.description ?? ""))],
       name: name.split(" ").filter(Boolean),
       inspired: inspired.split(" ").filter(Boolean),
       brand: normalize(doc.inspiredBrand ?? "").split(" ").filter(Boolean),
-      meta: normalize(`${doc.categoryLabel} ${doc.category.replace(/-/g, " ")} ${doc.family ?? ""}`).split(" ").filter(Boolean),
+      meta: [...new Set(words(`${doc.categoryLabel} ${doc.category.replace(/-/g, " ")} ${doc.family ?? ""} ${(doc.volumes ?? []).join(" ")} ml`))],
       notes: normalize(doc.notes.join(" ")).split(" ").filter(Boolean),
       nameFull: name,
       inspiredFull: inspired,
@@ -143,6 +176,7 @@ function tokenScore(t: string, p: Prepared): number {
     if (p.code) {
       const bare = v.replace(/^0+/, "");
       if (p.code === v) best = Math.max(best, 120);
+      else if (p.codes.includes(v)) best = Math.max(best, 110);
       else if (p.code.startsWith(v) && /\d/.test(v)) best = Math.max(best, 90);
       else if (/^\d+$/.test(v) && p.code.replace(/^0+/, "").startsWith(bare) && bare.length >= 2) best = Math.max(best, 70);
     }
@@ -154,6 +188,7 @@ function tokenScore(t: string, p: Prepared): number {
       wordScore(v, p.brand, 30, 22, 12) * syn,
       wordScore(v, p.meta, 14, 10, 0) * syn,
       wordScore(v, p.notes, 10, 7, 0) * syn,
+      v.length >= 3 ? wordScore(v, p.desc, 6, 4, 0) * syn : 0,
       // Mots collés ou apostrophes : « jadore » pour J'adore, « blackopium »
       v.length >= 4 && p.inspiredCompact.startsWith(v) ? 34 * syn : 0,
       v.length >= 4 && p.nameCompact.startsWith(v) ? 34 * syn : 0,
@@ -169,7 +204,13 @@ export function search(index: Prepared[], query: string, limit = 60): { hits: Se
   if (!tokens.length) return { hits: [], total: 0 };
   const phrase = normalize(query);
   const hits: SearchHit[] = [];
+  const whole = phrase.replace(/ /g, "");
   for (const p of index) {
+    // Code complet saisi tel quel, même avec tirets ou barres (« INTA001-06 », « LOLSET01-EN/IT/FR »)
+    if (whole.length >= 3 && (p.code === whole || p.codes.includes(whole))) {
+      hits.push({ doc: p.doc, score: 200 + (p.code === whole ? 20 : 0) });
+      continue;
+    }
     let score = 0;
     let ok = true;
     for (const t of tokens) {

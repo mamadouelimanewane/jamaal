@@ -1,30 +1,29 @@
 /**
- * Index de recherche du catalogue, gardé en mémoire 5 minutes (≈ 600 produits : la recherche
- * se fait sans requête SQL à chaque frappe).
+ * Index de recherche du catalogue, en mémoire et toujours à jour : chaque recherche vérifie
+ * d'abord une empreinte de la base (au plus une fois par seconde) et reconstruit l'index si
+ * un produit, un format ou une collection a changé.
  */
+import { createHash } from "node:crypto";
 import { prisma } from "./prisma";
 import { getCategories } from "./db-categories";
+import { createVersionedCache } from "./search-cache";
 import { prepare, search, suggest, brandFacets, categoryFacets, type SearchDoc } from "./search-engine";
 
-type Index = ReturnType<typeof prepare>;
-let cache: { at: number; index: Index } | null = null;
-let loading: Promise<Index> | null = null;
-const TTL = 5 * 60_000;
-
-async function load(): Promise<Index> {
+async function load() {
   const [rows, categories] = await Promise.all([
     prisma.product.findMany({
       select: {
         id: true, slug: true, name: true, choganCode: true, number: true, inspiredBy: true, inspiredBrand: true,
         category: true, family: true, topNotes: true, heartNotes: true, baseNotes: true, regularPrice: true,
         volumes: true, testerPrice: true, photo: true, colorFrom: true, colorTo: true, reviewCount: true, badge: true,
+        shortDescription: true, longDescription: true, variants: { select: { volumeLabel: true } },
       },
     }),
     getCategories(),
   ]);
   const labels = new Map(categories.map((c) => [c.slug as string, c.navLabel.replace("JAMAAL ", "")]));
   const docs: SearchDoc[] = rows.map((r) => {
-    const volumes = (r.volumes as { price: number }[] | null) ?? [];
+    const volumes = (r.volumes as { label?: string; price?: number }[] | null) ?? [];
     const prices = [r.regularPrice, ...volumes.map((v) => v.price)].filter((p): p is number => typeof p === "number" && p > 0);
     return {
       id: r.id,
@@ -38,6 +37,8 @@ async function load(): Promise<Index> {
       categoryLabel: labels.get(r.category) ?? r.category,
       family: r.family,
       notes: [...r.topNotes, ...r.heartNotes, ...r.baseNotes],
+      description: [r.shortDescription, ...r.longDescription].join(" "),
+      volumes: [...volumes.map((v) => v.label ?? ""), ...r.variants.map((v) => v.volumeLabel)].filter(Boolean),
       price: prices.length ? Math.min(...prices) : null,
       photo: r.photo,
       colorFrom: r.colorFrom,
@@ -48,17 +49,30 @@ async function load(): Promise<Index> {
   return prepare(docs);
 }
 
-export async function getSearchIndex(): Promise<Index> {
-  if (cache && Date.now() - cache.at < TTL) return cache.index;
-  loading ??= load()
-    .then((index) => {
-      cache = { at: Date.now(), index };
-      return index;
-    })
-    .finally(() => {
-      loading = null;
-    });
-  return loading;
+/** Empreinte de la base : change dès qu'un produit, un format ou une collection change (≈ 2 ms). */
+async function version() {
+  // Empreinte de toutes les lignes (et pas seulement de la date la plus récente) : insensible aux
+  // horloges décalées entre scripts SQL et application.
+  const [rows, cats] = await Promise.all([
+    prisma.$queryRaw<{ p: string | null; v: string | null }[]>`
+      SELECT
+        (SELECT md5(string_agg("id" || ':' || "updatedAt"::text, ',' ORDER BY "id")) FROM "Product") AS p,
+        (SELECT md5(string_agg("productId" || ':' || "volumeLabel", ',' ORDER BY "id")) FROM "ProductVariant") AS v`,
+    prisma.category.findMany({ select: { slug: true, navLabel: true }, orderBy: { slug: "asc" } }),
+  ]);
+  const catHash = createHash("sha1").update(JSON.stringify(cats)).digest("hex").slice(0, 10);
+  return `${rows[0]?.p ?? "0"}:${rows[0]?.v ?? "0"}:${catHash}`;
+}
+
+const cache = createVersionedCache({ load, version, checkEveryMs: 1000 });
+
+export function getSearchIndex() {
+  return cache.get();
+}
+
+/** À appeler après une modification du catalogue (prise en compte immédiate sur cette instance). */
+export function invalidateSearchIndex() {
+  cache.invalidate();
 }
 
 export async function searchCatalog(query: string, limit = 60) {
