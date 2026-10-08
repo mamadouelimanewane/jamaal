@@ -65,7 +65,11 @@ async function consultantDataFromForm(formData: FormData, existingId?: string) {
   if (sponsorId) {
     const { maxDirectRecruits } = await getBusinessModel();
     const capacity = await sponsorCapacity(sponsorId, maxDirectRecruits, existingId);
-    if (!capacity.ok) throw new Error(`Ce parrain a déjà ${capacity.max} filleuls directs (maximum fixé dans le Modèle économique).`);
+    if (!capacity.ok) {
+      throw new Error(capacity.finalSeller
+        ? "Ce parrain est Consultant (vendeur final) : il ne peut pas avoir de filleuls. Choisissez un Leader ou un Parrain."
+        : `Ce parrain a déjà ${capacity.max} filleuls directs (maximum fixé dans le Modèle économique).`);
+    }
   }
 
   return {

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { ConsultantForm } from "@/components/admin/ConsultantForm";
 import { updateConsultant } from "@/lib/actions/consultants";
+import { sponsorOptionsList } from "@/lib/network";
 
 export default async function EditConsultantPage({
   params,
@@ -11,7 +12,7 @@ export default async function EditConsultantPage({
   const { id } = await params;
   const [consultant, sponsorOptions] = await Promise.all([
     prisma.consultant.findUnique({ where: { id } }),
-    prisma.consultant.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, city: true } }),
+    sponsorOptionsList(),
   ]);
   if (!consultant) notFound();
 

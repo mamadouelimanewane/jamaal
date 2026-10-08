@@ -28,7 +28,7 @@ const pts = (n: number) => n.toLocaleString("fr-FR", { maximumFractionDigits: 1 
 const SEGMENTS = {
   purchase: { label: "Achat chez Chogan", color: "#8a93ad" },
   seller: { label: "Vendeur", color: "#2f6f9f" },
-  sponsors: { label: "Réseau (Leader, Consultant)", color: "#86b1d1" },
+  sponsors: { label: "Réseau (Parrain, Leader)", color: "#86b1d1" },
   costs: { label: "Expédition et frais", color: "#d4a93c" },
   net: { label: "Marge JAMAAL", color: "#9b5c4d" },
 } as const;
@@ -270,11 +270,11 @@ export function BusinessModelEditor({
             <SectionTitle icon={Percent} title="Commissions" text="En % du prix de vente, hors livraison, sur les ventes encaissées." tone="#2f6f9f" />
             <div className="mt-5 flex flex-col gap-4">
               <NumberField label="Vendeur (sur ses propres ventes)" name="sellerPct" value={model.sellerPct} onChange={set} suffix="%" />
-              <NumberField label="Consultant, sur les ventes de ses Leaders" name="sponsorAlonePct" value={model.sponsorAlonePct} onChange={set} suffix="%" hint="Le parrain direct du vendeur touche toute l'enveloppe quand personne n'est au-dessus de lui." />
-              <p className="-mb-1 text-sm font-medium text-ink">Sur les ventes d&apos;un Parrain, l&apos;enveloppe est partagée :</p>
+              <NumberField label="Leader, sur les ventes de ses Parrains" name="sponsorAlonePct" value={model.sponsorAlonePct} onChange={set} suffix="%" hint="Le parrain direct du vendeur touche toute l'enveloppe quand personne n'est au-dessus de lui." />
+              <p className="-mb-1 text-sm font-medium text-ink">Sur les ventes d&apos;un Consultant (vendeur final), l&apos;enveloppe est partagée :</p>
               <div className="grid grid-cols-2 gap-3">
-                <NumberField label="Leader" name="sponsorSharedPct" value={model.sponsorSharedPct} onChange={set} suffix="%" />
-                <NumberField label="Consultant" name="grandSponsorPct" value={model.grandSponsorPct} onChange={set} suffix="%" />
+                <NumberField label="Parrain direct" name="sponsorSharedPct" value={model.sponsorSharedPct} onChange={set} suffix="%" />
+                <NumberField label="Leader" name="grandSponsorPct" value={model.grandSponsorPct} onChange={set} suffix="%" />
               </div>
             </div>
           </section>

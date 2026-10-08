@@ -6,7 +6,7 @@ import { getReseller, resellerLinks, startOfMonth } from "@/lib/reseller";
 import { getBusinessModel } from "@/lib/business-model-store";
 import { sponsorRatesFor } from "@/lib/business-model";
 import { COMMISSIONABLE_ORDER } from "@/lib/commission";
-import { getNetworkDepth, titleForDepth } from "@/lib/network";
+import { canSponsorAtDepth, getNetworkDepth, titleForDepth, titleLabel } from "@/lib/network";
 import { NetworkTitleBadge } from "@/components/admin/NetworkTitleBadge";
 import { StatCard } from "@/components/admin/StatCard";
 import { CopyButton } from "@/components/admin/CopyButton";
@@ -34,6 +34,7 @@ export default async function MesFilleulsPage() {
   const myTitle = titleForDepth(depth);
   const level1Title = titleForDepth(depth + 1);
   const level2Title = titleForDepth(depth + 2);
+  const finalSeller = !canSponsorAtDepth(depth);
   // 6 % si je suis un parrain sans parrain au-dessus, 3 % sinon (+ 3 % sur le niveau 2).
   const { level1: rate1, level2: rate2 } = sponsorRatesFor(!!me.sponsorId, model);
   const ids = l1.map((c) => c.id);
@@ -55,7 +56,7 @@ export default async function MesFilleulsPage() {
   const teamMonth = [...m.values()].reduce((s, v) => s + v.ca, 0);
   const l2Count = l1.reduce((s, c) => s + c._count.sponsored, 0);
   const pending = applications.filter((a) => a.status === "NOUVELLE").length;
-  const inviteMsg = `Bonjour ! Je suis consultant·e JAMAAL, représentant exclusif de Chogan au Sénégal. Tu veux gagner de l'argent en vendant parfums, soins et produits maison ? Postule avec mon lien : ${links.recruit ?? ""}`;
+  const inviteMsg = `Bonjour ! Je fais partie du réseau JAMAAL, représentant exclusif de Chogan au Sénégal. Tu veux gagner de l'argent en vendant parfums, soins et produits maison ? Postule avec mon lien : ${links.recruit ?? ""}`;
 
   return (
     <div className="max-w-6xl">
@@ -65,8 +66,14 @@ export default async function MesFilleulsPage() {
         <span className="ml-auto"><LiveRefresh /></span>
       </div>
       <p className="mt-1 text-sm text-navy/75">
-        Vous êtes <strong>{myTitle}</strong>. Vos filleuls directs sont vos <strong>{level1Title}s</strong> : vous touchez {rate1} % sur leurs ventes encaissées.
-        {" "}Sur les ventes de leurs propres filleuls ({level2Title}s), vous touchez {rate2} %.
+        {finalSeller ? (
+          <>Vous êtes <strong>{titleLabel(myTitle)}</strong> : vous vendez et touchez votre commission sur vos ventes. Le dernier niveau de la chaîne ne parraine pas.</>
+        ) : (
+          <>
+            Vous êtes <strong>{titleLabel(myTitle)}</strong>. Vos filleuls directs sont vos <strong>{level1Title}s</strong> : vous touchez {rate1} % sur leurs ventes encaissées.
+            {level2Title !== level1Title && canSponsorAtDepth(depth + 1) ? <>{" "}Sur les ventes de leurs propres filleuls ({level2Title}s), vous touchez {rate2} %.</> : null}
+          </>
+        )}
       </p>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -78,7 +85,9 @@ export default async function MesFilleulsPage() {
 
       <div className="mt-6 rounded-2xl border border-line bg-white p-5">
         <h2 className="font-serif-display text-lg font-semibold text-navy">Recruter un·e filleul·e</h2>
-        {links.recruit ? (
+        {finalSeller ? (
+          <p className="mt-2 text-sm text-navy/75">En tant que Consultant (vendeur final), vous ne recrutez pas. Une personne intéressée peut rejoindre JAMAAL avec le code de votre Parrain ou de votre Leader.</p>
+        ) : links.recruit ? (
           <>
             <p className="mt-1 text-sm text-navy/75">Votre lien d&apos;invitation : la candidature est automatiquement rattachée à vous.</p>
             <input readOnly value={links.recruit} className="mt-3 w-full rounded-xl border border-line bg-cream px-3 py-2 text-xs" />
