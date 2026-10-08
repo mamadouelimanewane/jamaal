@@ -58,12 +58,12 @@ export default async function AdminComptabilitePage() {
         <StatCard label="Chiffre d'affaires net" value={formatPrice(revenue)} icon={TrendingUp} color="emerald" />
         <StatCard label="Dépenses" value={formatPrice(totalExpenses)} icon={TrendingDown} color="red" />
         <StatCard label="Remboursements" value={formatPrice(totalRefunded)} icon={Undo2} color="amber" href="/admin/retours" />
-        <StatCard label="Commissions dues aux revendeurs" value={formatPrice(commissionsDue)} icon={Percent} color="purple" href="/admin/consultants" />
+        <StatCard label="Commissions dues aux consultants" value={formatPrice(commissionsDue)} icon={Percent} color="purple" href="/admin/consultants" />
         <StatCard label="Marge nette" value={formatPrice(profit)} icon={Wallet} color={profit >= 0 ? "navy" : "red"} />
       </div>
 
       <div className="mt-8 max-w-sm">
-        <h2 className="mb-3 text-sm font-semibold text-navy">Taux de commission des revendeurs</h2>
+        <h2 className="mb-3 text-sm font-semibold text-navy">Taux de commission des consultants</h2>
         <form action={updateCommissionRate} className="flex flex-wrap items-center gap-3 rounded-2xl border border-line bg-white p-4">
           <input
             type="number"
@@ -74,7 +74,7 @@ export default async function AdminComptabilitePage() {
             defaultValue={rate}
             className="w-24 rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-navy"
           />
-          <span className="text-sm text-navy/75">% du CA généré par chaque revendeur</span>
+          <span className="text-sm text-navy/75">% du CA généré par chaque consultant</span>
           <button className="w-full rounded-full bg-navy px-4 py-2 text-xs font-semibold text-white hover:bg-navy-light sm:ml-auto sm:w-fit">
             Enregistrer
           </button>

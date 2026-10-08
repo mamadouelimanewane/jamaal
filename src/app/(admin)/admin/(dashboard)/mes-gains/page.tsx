@@ -4,6 +4,7 @@ import { formatPrice } from "@/lib/currency";
 import { getConsultantCommission, COMMISSIONABLE_ORDER, commissionBase } from "@/lib/commission";
 import { getBusinessModel } from "@/lib/business-model-store";
 import { primeStatus } from "@/lib/business-model";
+import { getNetworkDepth, titleForDepth } from "@/lib/network";
 import { getReseller, MONTHS_FR, startOfMonth } from "@/lib/reseller";
 import { StatCard } from "@/components/admin/StatCard";
 import { NotReseller } from "@/components/admin/NotReseller";
@@ -17,6 +18,9 @@ export default async function MesGainsPage() {
 
   const [info, model] = await Promise.all([getConsultantCommission(me.id), getBusinessModel()]);
   const prime = primeStatus(info.monthlyRevenue, model);
+  const depth = await getNetworkDepth(me.id);
+  const level1 = `${titleForDepth(depth + 1)}s`;
+  const level2 = `filleuls de mes ${level1}`;
   const l1 = await prisma.consultant.findMany({ where: { sponsorId: me.id }, select: { id: true } });
   const l1Ids = l1.map((c) => c.id);
   const l2 = l1Ids.length ? await prisma.consultant.findMany({ where: { sponsorId: { in: l1Ids } }, select: { id: true } }) : [];
@@ -62,7 +66,7 @@ export default async function MesGainsPage() {
     <div className="max-w-6xl">
       <h1 className="font-serif-display text-2xl font-semibold text-navy">Mes gains</h1>
       <p className="mt-1 text-sm text-navy/75">
-        Vos commissions : {info.rate} % sur vos ventes, {info.sponsorRate} % sur celles de vos filleuls directs, {info.sponsorL2Rate} % sur le niveau 2,
+        Vos commissions : {info.rate} % sur vos ventes, {info.sponsorRate} % sur celles de vos {level1}, {info.sponsorL2Rate} % sur celles des {level2},
         calculées sur le prix des produits (hors livraison) des ventes encaissées. Les ventes annulées et remboursées ne comptent pas.
       </p>
 
@@ -78,8 +82,8 @@ export default async function MesGainsPage() {
           <h2 className="font-serif-display text-lg font-semibold text-navy">Ce mois-ci en détail</h2>
           <ul className="mt-3 divide-y divide-line text-sm">
             <li className="flex justify-between py-2"><span className="text-navy/85">Mes ventes ({formatPrice(info.monthlyRevenue)})</span><span className="font-semibold">{formatPrice(info.monthlyCommission)}</span></li>
-            <li className="flex justify-between py-2"><span className="text-navy/85">Équipe niveau 1 ({formatPrice(info.monthlyTeamRevenue)})</span><span className="font-semibold">{formatPrice(info.monthlySponsorCommission)}</span></li>
-            <li className="flex justify-between py-2"><span className="text-navy/85">Équipe niveau 2 ({formatPrice(info.monthlyL2Revenue)})</span><span className="font-semibold">{formatPrice(info.monthlyL2Commission)}</span></li>
+            <li className="flex justify-between py-2"><span className="text-navy/85">Mes {level1} ({formatPrice(info.monthlyTeamRevenue)})</span><span className="font-semibold">{formatPrice(info.monthlySponsorCommission)}</span></li>
+            <li className="flex justify-between py-2"><span className="text-navy/85">Les {level2} ({formatPrice(info.monthlyL2Revenue)})</span><span className="font-semibold">{formatPrice(info.monthlyL2Commission)}</span></li>
             <li className="flex justify-between py-2 text-navy"><span className="font-semibold">Total</span><span className="font-semibold text-emerald-700">{formatPrice(monthTotal)}</span></li>
           </ul>
         </div>
@@ -139,8 +143,8 @@ export default async function MesGainsPage() {
             <tr>
               <th className="px-4 py-3">Mois</th>
               <th className="px-4 py-3 text-right">Mes ventes</th>
-              <th className="px-4 py-3 text-right">Équipe niv. 1</th>
-              <th className="px-4 py-3 text-right">Équipe niv. 2</th>
+              <th className="px-4 py-3 text-right">Mes {level1}</th>
+              <th className="px-4 py-3 text-right">Leurs filleuls</th>
               <th className="px-4 py-3 text-right">Gain</th>
             </tr>
           </thead>

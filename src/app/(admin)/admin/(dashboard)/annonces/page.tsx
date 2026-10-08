@@ -11,8 +11,8 @@ export default async function AnnoncesPage() {
 
   return (
     <div className="max-w-3xl">
-      <h1 className="font-serif-display text-2xl font-semibold text-navy">Annonces aux revendeurs</h1>
-      <p className="mt-1 text-sm text-navy/75">Communiquez avec tout le réseau : nouveautés, promotions, rappels. Chaque annonce apparaît dans « Ma communication » de chaque revendeur et déclenche une notification.</p>
+      <h1 className="font-serif-display text-2xl font-semibold text-navy">Annonces aux consultants</h1>
+      <p className="mt-1 text-sm text-navy/75">Communiquez avec tout le réseau : nouveautés, promotions, rappels. Chaque annonce apparaît dans « Ma communication » de chaque consultant et déclenche une notification.</p>
 
       <div className="mt-6 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <AnnouncementForm />

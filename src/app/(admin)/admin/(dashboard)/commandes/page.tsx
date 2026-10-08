@@ -47,7 +47,7 @@ export default async function AdminOrdersPage() {
               <th className="px-4 py-3">Client</th>
               <th className="px-4 py-3">Articles</th>
               <th className="px-4 py-3">Total</th>
-              <th className="px-4 py-3">Revendeur</th>
+              <th className="px-4 py-3">Consultant</th>
               <th className="px-4 py-3">Livraison</th>
               <th className="px-4 py-3">Statut</th>
               <th className="px-4 py-3">Date</th>

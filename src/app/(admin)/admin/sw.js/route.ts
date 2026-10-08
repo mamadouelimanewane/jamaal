@@ -1,5 +1,5 @@
 /**
- * Service worker de l'application revendeur (installable). Servi sous /admin/sw.js pour que sa
+ * Service worker de l'application consultant (installable). Servi sous /admin/sw.js pour que sa
  * portée soit /admin/. Il ne met AUCUNE donnée en cache (les pages contiennent des chiffres de
  * vente à jour) : il affiche seulement une page « hors connexion » si le réseau est coupé.
  */

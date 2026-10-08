@@ -33,7 +33,7 @@ export default async function SettingsPage() {
         <div className="rounded-2xl border border-line bg-white p-6 shadow-sm">
           <div className="flex items-center gap-2 font-semibold text-navy">
             <Percent size={18} className="text-rose" />
-            <h2>Commissions revendeurs</h2>
+            <h2>Commissions consultants</h2>
           </div>
           <p className="mt-1 text-xs text-navy/75">
             Vendeur : <strong>{model.sellerPct} %</strong> · parrain seul : <strong>{model.sponsorAlonePct} %</strong> · parrain + grand-parrain :{" "}

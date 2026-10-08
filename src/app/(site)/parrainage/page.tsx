@@ -16,7 +16,7 @@ export default function ParrainagePage() {
         <Users size={28} className="mx-auto mb-3 text-rose-dark" />
         <p className="font-semibold text-navy">Vous êtes consultant(e) ?</p>
         <p className="mt-2 text-sm text-navy/60">
-          Connectez-vous à votre espace revendeur pour consulter votre code ambassadeur.
+          Connectez-vous à votre espace consultant pour consulter votre code ambassadeur.
         </p>
         <a href="/admin" className="mt-5 inline-flex rounded-full bg-navy px-5 py-2.5 text-sm font-semibold text-white">
           Accéder à mon espace

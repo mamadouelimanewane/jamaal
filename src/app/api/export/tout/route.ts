@@ -78,7 +78,7 @@ export async function GET() {
         { label: "Nombre de produits", value: products.length },
         { label: "Nombre de commandes", value: orders.length },
         { label: "Nombre de clients", value: clients.length },
-        { label: "Nombre de revendeurs", value: consultants.length },
+        { label: "Nombre de consultants", value: consultants.length },
         { label: "Date d'export", value: new Date().toLocaleString("fr-FR") },
       ],
     },
@@ -106,7 +106,7 @@ export async function GET() {
         { header: "Client", key: "client", width: 24 },
         { header: "Total (FCFA)", key: "total", width: 16 },
         { header: "Statut", key: "status", width: 14 },
-        { header: "Revendeur", key: "consultant", width: 20 },
+        { header: "Consultant", key: "consultant", width: 20 },
         { header: "Livreur", key: "livreur", width: 18 },
       ],
       rows: orders.map((o) => ({
@@ -134,7 +134,7 @@ export async function GET() {
       })),
     },
     {
-      name: "Revendeurs",
+      name: "Consultants",
       columns: [
         { header: "Nom", key: "name", width: 24 },
         { header: "Ville", key: "city", width: 16 },

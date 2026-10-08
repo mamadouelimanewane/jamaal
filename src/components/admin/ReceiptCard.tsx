@@ -103,7 +103,7 @@ export function ReceiptCard({ data }: { data: ReceiptData }) {
           opacity: 0.85,
         }}
       >
-        <p style={{ margin: 0 }}>Votre revendeur JAMAAL</p>
+        <p style={{ margin: 0 }}>Votre consultant JAMAAL</p>
         <p style={{ margin: "2px 0 0", fontWeight: 600 }}>{data.consultantName}</p>
         <p style={{ margin: "2px 0 0" }}>{data.consultantWhatsapp}</p>
       </div>

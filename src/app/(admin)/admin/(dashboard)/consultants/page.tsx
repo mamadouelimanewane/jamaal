@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { depthFromLoaded, titleForDepth } from "@/lib/network";
+import { NetworkTitleBadge } from "@/components/admin/NetworkTitleBadge";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/currency";
 import { deleteConsultant } from "@/lib/actions/consultants";
@@ -16,7 +18,7 @@ export default async function AdminConsultantsPage() {
     prisma.consultant.findMany({
       include: {
         user: true,
-        sponsor: { select: { name: true } },
+        sponsor: { select: { name: true, sponsorId: true } },
         orders: { select: { total: true, status: true } },
       },
     }),
@@ -38,7 +40,7 @@ export default async function AdminConsultantsPage() {
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="font-serif-display text-2xl font-semibold text-navy">
-          Revendeurs / Consultants ({consultants.length})
+          Consultants ({consultants.length})
         </h1>
         <div className="flex flex-wrap gap-2">
           <a
@@ -93,6 +95,7 @@ export default async function AdminConsultantsPage() {
                     >
                       {c.name}
                     </a>
+                    <span className="ml-2 align-middle"><NetworkTitleBadge title={titleForDepth(depthFromLoaded(c))} /></span>
                   </td>
                   <td className="px-4 py-3 text-navy/85">{c.city}</td>
                   <td className="px-4 py-3 text-navy/85">{c.sponsor?.name ?? "—"}</td>
@@ -143,7 +146,7 @@ export default async function AdminConsultantsPage() {
         </table>
       </div>
       <p className="mt-3 text-xs text-navy/70">
-        Pour donner l&apos;accès au portail à un revendeur, créez son compte depuis{" "}
+        Pour donner l&apos;accès au portail à un consultant, créez son compte depuis{" "}
         <Link href="/admin/utilisateurs" className="underline">
           Utilisateurs
         </Link>{" "}

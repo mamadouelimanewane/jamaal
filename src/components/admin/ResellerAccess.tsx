@@ -5,7 +5,7 @@ import { createResellerAccess, createResellerLoginLink, type AccessResult, type 
 import { CopyButton } from "@/components/admin/CopyButton";
 
 /**
- * Colonne « Compte portail » : crée l'accès d'un revendeur sans compte, ou renouvelle son lien
+ * Colonne « Compte portail » : crée l'accès d'un consultant sans compte, ou renouvelle son lien
  * d'activation. Le résultat reste affiché (état local) pour que l'admin puisse copier le lien.
  */
 export function ResellerAccess({ consultantId, userEmail, defaultEmail, whatsapp, name }: { consultantId: string; userEmail: string | null; defaultEmail: string; whatsapp: string; name: string }) {
@@ -77,7 +77,7 @@ export function ResellerAccess({ consultantId, userEmail, defaultEmail, whatsapp
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="E-mail du revendeur"
+            placeholder="E-mail du consultant"
             className="w-full rounded-lg border border-line px-2 py-1.5"
           />
           <div className="flex gap-2">

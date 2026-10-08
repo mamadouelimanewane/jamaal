@@ -7,7 +7,7 @@ import { requireAdmin } from "./auth-guard";
 // Pas d'export : un fichier "use server" ne peut exporter que des fonctions asynchrones.
 const VIEW_AS_COOKIE = "jamaal_viewas";
 
-/** L'admin consulte l'espace d'un revendeur (lecture de ses pages, sans connaître son mot de passe). */
+/** L'admin consulte l'espace d'un consultant (lecture de ses pages, sans connaître son mot de passe). */
 export async function startViewAsReseller(consultantId: string) {
   await requireAdmin();
   const jar = await cookies();

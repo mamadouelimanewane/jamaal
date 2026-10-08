@@ -6,7 +6,7 @@ import { CopyButton } from "@/components/admin/CopyButton";
 
 type P = { slug: string; name: string; price: number | null };
 
-/** Génère un lien produit qui attribue automatiquement la vente au revendeur (?ref=). */
+/** Génère un lien produit qui attribue automatiquement la vente au consultant (?ref=). */
 export function ProductLinkGenerator({ products, origin, refSlug }: { products: P[]; origin: string; refSlug: string | null }) {
   const [q, setQ] = useState("");
   const [picked, setPicked] = useState<P | null>(null);

@@ -22,7 +22,7 @@ export function AnnouncementForm() {
         <input type="checkbox" name="pinned" className="h-4 w-4 accent-[#1d2f4f]" /> Épingler en haut de la liste
       </label>
       {state.error && <p role="alert" className="rounded-xl border border-rose-dark/20 bg-rose/10 px-4 py-2 text-sm text-rose-dark">{state.error}</p>}
-      {state.ok && <p role="status" className="rounded-xl bg-emerald-50 px-4 py-2 text-sm text-emerald-800">Annonce publiée : les revendeurs sont prévenus par notification.</p>}
+      {state.ok && <p role="status" className="rounded-xl bg-emerald-50 px-4 py-2 text-sm text-emerald-800">Annonce publiée : les consultants sont prévenus par notification.</p>}
       <button type="submit" disabled={pending} className="w-fit rounded-full bg-navy px-6 py-2.5 text-sm font-semibold text-white hover:bg-navy-light disabled:opacity-60">
         {pending ? "Publication…" : "Publier l'annonce"}
       </button>

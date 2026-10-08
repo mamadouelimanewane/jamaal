@@ -35,7 +35,7 @@ function rankFromStats(monthlyRevenue: number, activeSponsoredCount: number): Co
 }
 
 /**
- * Calcule le rang (Gold/Silver/Bronze) de chaque revendeur pour un mois donné
+ * Calcule le rang (Gold/Silver/Bronze) de chaque consultant pour un mois donné
  * (par défaut le mois en cours) à partir de son CA net (remboursements déduits)
  * et du nombre de filleuls actifs ce mois-là. Rien n'est stocké en base : tout
  * est recalculé à la volée, y compris pour les mois passés (historique).
@@ -129,7 +129,7 @@ export interface RankProgress {
   sponsoredNeeded: number;
 }
 
-/** De combien un revendeur est-il proche du rang supérieur ? */
+/** De combien un consultant est-il proche du rang supérieur ? */
 export function getProgressToNextRank(info: ConsultantRankInfo): RankProgress {
   if (info.rank === "GOLD") return { nextRank: null, revenueNeeded: 0, sponsoredNeeded: 0 };
 
@@ -152,7 +152,7 @@ export interface MonthlyRankSnapshot {
   monthlyRevenue: number;
 }
 
-/** Historique du rang d'un revendeur sur les N derniers mois (mois en cours inclus). */
+/** Historique du rang d'un consultant sur les N derniers mois (mois en cours inclus). */
 export async function getConsultantRankHistory(
   consultantId: string,
   monthsBack = 6
@@ -182,7 +182,7 @@ export interface LeaderboardEntry {
   rank: ConsultantRank;
 }
 
-/** Top N revendeurs du mois en cours, pour le "concours du mois". */
+/** Top N consultants du mois en cours, pour le "concours du mois". */
 export async function getMonthlyLeaderboard(limit = 3): Promise<LeaderboardEntry[]> {
   const [rankings, consultants] = await Promise.all([
     getConsultantRankings(),

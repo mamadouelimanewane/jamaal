@@ -19,7 +19,7 @@ async function openAction(formData: FormData) {
 /**
  * Page d'arrivée du lien de connexion WhatsApp. La connexion se fait au CLIC sur le bouton (POST) et
  * non à l'ouverture de la page : WhatsApp ouvre les liens pour fabriquer un aperçu, ce qui
- * consommerait sinon le lien à usage unique avant le revendeur.
+ * consommerait sinon le lien à usage unique avant le consultant.
  */
 export default async function AccesPage({ searchParams }: { searchParams: Promise<{ token?: string; erreur?: string }> }) {
   const { token, erreur } = await searchParams;

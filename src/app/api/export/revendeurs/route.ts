@@ -36,9 +36,9 @@ export async function GET() {
     });
   }
 
-  return excelResponse("revendeurs-jamaal.xlsx", [
+  return excelResponse("consultants-jamaal.xlsx", [
     {
-      name: "Revendeurs",
+      name: "Consultants",
       columns: [
         { header: "Nom", key: "name", width: 24 },
         { header: "Ville", key: "city", width: 16 },

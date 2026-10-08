@@ -13,12 +13,12 @@ const schema = z.object({
   whatsapp: z.string().trim().regex(/^\+?[\d\s().-]{8,20}$/, "Numéro WhatsApp invalide (ex. +221 77 000 00 00)."),
 });
 
-/** Le revendeur modifie ses propres informations de contact (jamais celles d'un autre). */
+/** Le consultant modifie ses propres informations de contact (jamais celles d'un autre). */
 export async function updateOwnProfile(_prev: ProfileState, formData: FormData): Promise<ProfileState> {
   const me = await getReseller();
   if (!me) return { ok: false, error: "Session invalide." };
   // Le mode « voir son espace » de l'administrateur est en lecture seule.
-  if (me.viewAs) return { ok: false, error: "Mode consultation : modification impossible. Quittez « Voir son espace » pour modifier ce profil depuis la fiche revendeur." };
+  if (me.viewAs) return { ok: false, error: "Mode consultation : modification impossible. Quittez « Voir son espace » pour modifier ce profil depuis la fiche consultant." };
   const parsed = schema.safeParse({
     name: formData.get("name") ?? "",
     city: formData.get("city") ?? "",

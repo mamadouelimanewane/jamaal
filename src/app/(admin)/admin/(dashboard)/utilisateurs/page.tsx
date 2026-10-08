@@ -80,13 +80,13 @@ export default async function AdminUsersPage() {
           <div>
             <label className={labelClass}>Rôle</label>
             <select name="role" defaultValue="CONSULTANT" className={inputClass}>
-              <option value="CONSULTANT">Consultant / Revendeur</option>
+              <option value="CONSULTANT">Consultant</option>
               <option value="LIVREUR">Livreur</option>
               <option value="ADMIN">Administrateur</option>
             </select>
           </div>
           <div>
-            <label className={labelClass}>Fiche revendeur à rattacher (si rôle Consultant)</label>
+            <label className={labelClass}>Fiche consultant à rattacher (si rôle Consultant)</label>
             <select name="consultantId" defaultValue="" className={inputClass}>
               <option value="">— Aucune —</option>
               {consultants.map((c) => (

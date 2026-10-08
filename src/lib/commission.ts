@@ -41,7 +41,7 @@ export function commissionBase(order: { total: number; deliveryFee?: number | nu
   return Math.max(0, order.total - (order.deliveryFee ?? 0));
 }
 
-/** Ventes encaissées (hors livraison, remboursements déduits) d'un ou plusieurs revendeurs. */
+/** Ventes encaissées (hors livraison, remboursements déduits) d'un ou plusieurs consultants. */
 export async function paidSales(consultantIds: string[], since?: Date): Promise<number> {
   if (!consultantIds.length) return 0;
   const [agg, refunded] = await Promise.all([
