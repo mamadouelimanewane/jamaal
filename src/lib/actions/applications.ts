@@ -11,6 +11,8 @@ import { uniqueConsultantSlug } from "@/lib/unique-slug";
 import { getSiteUrl } from "@/lib/site-url";
 import { notifyTeamWhatsApp } from "@/lib/whatsapp";
 import { requireAdmin } from "./auth-guard";
+import { getBusinessModel } from "@/lib/business-model-store";
+import { sponsorCapacity } from "@/lib/network";
 
 export type ApplicationState = {
   ok: boolean;
@@ -42,6 +44,16 @@ export async function submitApplication(_prev: ApplicationState, formData: FormD
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Formulaire invalide." };
   const d = parsed.data;
 
+  // Parrainage obligatoire : le code doit être celui d'un membre actif qui a encore de la place.
+  const sponsorCode = d.sponsorCode.toLowerCase();
+  const sponsor = await prisma.consultant.findFirst({ where: { slug: sponsorCode, active: true }, select: { id: true, name: true } });
+  if (!sponsor) return { ok: false, error: "Ce code de parrainage n'existe pas ou n'est plus actif. Vérifiez-le auprès de votre parrain." };
+  const { maxDirectRecruits } = await getBusinessModel();
+  const capacity = await sponsorCapacity(sponsor.id, maxDirectRecruits);
+  if (!capacity.ok) {
+    return { ok: false, error: `${sponsor.name} a déjà ${capacity.max} filleuls directs, le maximum. Demandez le code d'un membre de son équipe.` };
+  }
+
   // Pas de doublon en attente pour le même e-mail.
   const pending = await prisma.consultantApplication.findFirst({
     where: { email: d.email, status: "NOUVELLE" },
@@ -58,7 +70,7 @@ export async function submitApplication(_prev: ApplicationState, formData: FormD
       country: d.country,
       experience: d.experience || null,
       motivation: d.motivation || null,
-      sponsorCode: d.sponsorCode ? d.sponsorCode.toLowerCase() : null,
+      sponsorCode,
     },
   });
 
@@ -96,9 +108,14 @@ export async function approveApplication(id: string): Promise<ApproveResult> {
   const exists = await prisma.user.findFirst({ where: { email: { equals: email, mode: "insensitive" } }, select: { id: true } });
   if (exists) return { ok: false, error: "Un compte existe déjà avec cet e-mail." };
 
+  // Nouvelle vérification : le parrain a pu atteindre sa limite depuis la candidature.
   const sponsor = app.sponsorCode
-    ? await prisma.consultant.findFirst({ where: { slug: app.sponsorCode, active: true }, select: { id: true } })
+    ? await prisma.consultant.findFirst({ where: { slug: app.sponsorCode, active: true }, select: { id: true, name: true } })
     : null;
+  if (!sponsor) return { ok: false, error: "Pas de parrain actif pour cette candidature : rattachez-la à un membre (code de parrainage) avant de l'accepter." };
+  const { maxDirectRecruits } = await getBusinessModel();
+  const capacity = await sponsorCapacity(sponsor.id, maxDirectRecruits);
+  if (!capacity.ok) return { ok: false, error: `${sponsor.name} a déjà ${capacity.max} filleuls directs (maximum). Rattachez cette candidature à un membre de son équipe.` };
   const slug = await uniqueConsultantSlug(app.name);
   const token = randomBytes(32).toString("base64url");
   // Mot de passe aléatoire inutilisable tant que le lien d'activation n'a pas été utilisé.
@@ -106,7 +123,7 @@ export async function approveApplication(id: string): Promise<ApproveResult> {
 
   await prisma.$transaction(async (tx) => {
     const consultant = await tx.consultant.create({
-      data: { name: app.name, city: app.city, whatsapp: app.phone, email, active: true, slug, sponsorId: sponsor?.id ?? null },
+      data: { name: app.name, city: app.city, whatsapp: app.phone, email, active: true, slug, sponsorId: sponsor.id },
     });
     const user = await tx.user.create({
       data: { email, name: app.name, passwordHash, role: "CONSULTANT", consultantId: consultant.id },

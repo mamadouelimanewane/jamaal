@@ -1,6 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getBusinessModel } from "@/lib/business-model-store";
+import { sponsorCapacity } from "@/lib/network";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "./auth-guard";
@@ -56,6 +58,14 @@ async function consultantDataFromForm(formData: FormData, existingId?: string) {
     if (conflict) {
       throw new Error(`Le slug « ${slug} » est déjà utilisé par un autre consultant.`);
     }
+  }
+
+  // Un membre ne peut pas être son propre parrain, et chaque parrain a un nombre limité de filleuls.
+  if (sponsorId && sponsorId === existingId) throw new Error("Un consultant ne peut pas être son propre parrain.");
+  if (sponsorId) {
+    const { maxDirectRecruits } = await getBusinessModel();
+    const capacity = await sponsorCapacity(sponsorId, maxDirectRecruits, existingId);
+    if (!capacity.ok) throw new Error(`Ce parrain a déjà ${capacity.max} filleuls directs (maximum fixé dans le Modèle économique).`);
   }
 
   return {

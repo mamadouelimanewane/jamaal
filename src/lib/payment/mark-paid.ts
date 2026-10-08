@@ -1,4 +1,6 @@
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
+import { runPayoutsForOrder } from "@/lib/payouts/engine";
 import { prisma } from "@/lib/prisma";
 import { awardLoyaltyForOrder } from "@/lib/loyalty-award";
 
@@ -47,6 +49,9 @@ export async function markOrderPaid(
   } catch (err) {
     console.error("[loyalty] earn failed", err);
   }
+
+  // Commissions du réseau : enregistrées et versées sur les wallets après la réponse au webhook.
+  after(() => runPayoutsForOrder(orderId));
 
   revalidatePath(`/commande/${orderId}`);
   revalidatePath("/admin/commandes");

@@ -8,6 +8,8 @@ import { OrderStatus } from "@prisma/client";
 import { upsertCustomerFromOrder } from "@/lib/customers";
 import { notifyConsultantOfDelivery } from "@/lib/notifications";
 import { notifySponsorOnSale } from "@/lib/sponsor-notifications";
+import { cancelCommissionsForOrder, runPayoutsForOrder } from "@/lib/payouts/engine";
+import { after } from "next/server";
 import { notifyResellerWhatsApp, notifyTeamWhatsApp } from "@/lib/whatsapp";
 import { reserveStock, sendLowStockAlerts } from "@/lib/stock";
 import { createOrderSchema } from "@/lib/validations/order";
@@ -246,12 +248,19 @@ export async function createOrder(
   return order.id;
 }
 
+/** Commissions du réseau : versées à la livraison (si choisi), annulées si la commande l'est. */
+async function onOrderStatusChanged(id: string, status: OrderStatus) {
+  if (status === "LIVREE") after(() => runPayoutsForOrder(id));
+  if (status === "ANNULEE") await cancelCommissionsForOrder(id);
+}
+
 export async function updateOrderStatus(id: string, status: OrderStatus) {
   await requireAdmin();
   await prisma.order.update({ where: { id }, data: { status } });
   if (status === "LIVREE") {
     await notifyConsultantOfDelivery(id);
   }
+  await onOrderStatusChanged(id, status);
   revalidatePath("/admin/commandes");
   revalidatePath(`/admin/commandes/${id}`);
 }
@@ -291,6 +300,7 @@ export async function livreurUpdateOrderStatus(id: string, status: OrderStatus) 
   if (status === "LIVREE") {
     await notifyConsultantOfDelivery(id);
   }
+  await onOrderStatusChanged(id, status);
   revalidatePath("/admin/mes-livraisons");
 }
 

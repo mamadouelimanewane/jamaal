@@ -5,6 +5,8 @@ import { getConsultantCommission, COMMISSIONABLE_ORDER, commissionBase } from "@
 import { getBusinessModel } from "@/lib/business-model-store";
 import { primeStatus } from "@/lib/business-model";
 import { getNetworkDepth, titleForDepth } from "@/lib/network";
+import Link from "next/link";
+import { WALLET_LABELS } from "@/lib/payouts/providers";
 import { getReseller, MONTHS_FR, startOfMonth } from "@/lib/reseller";
 import { StatCard } from "@/components/admin/StatCard";
 import { NotReseller } from "@/components/admin/NotReseller";
@@ -19,6 +21,10 @@ export default async function MesGainsPage() {
   const [info, model] = await Promise.all([getConsultantCommission(me.id), getBusinessModel()]);
   const prime = primeStatus(info.monthlyRevenue, model);
   const depth = await getNetworkDepth(me.id);
+  const [walletPending, walletPayouts] = await Promise.all([
+    prisma.commissionEntry.aggregate({ where: { consultantId: me.id, status: "A_VERSER" }, _sum: { amount: true } }),
+    prisma.payout.findMany({ where: { consultantId: me.id }, orderBy: { createdAt: "desc" }, take: 5 }),
+  ]);
   const level1 = `${titleForDepth(depth + 1)}s`;
   const level2 = `filleuls de mes ${level1}`;
   const l1 = await prisma.consultant.findMany({ where: { sponsorId: me.id }, select: { id: true } });
@@ -75,6 +81,29 @@ export default async function MesGainsPage() {
         <StatCard label="Gains cumulés" value={formatPrice(lifetimeTotal)} icon={Wallet} color="navy" />
         <StatCard label="Déjà versé" value={formatPrice(paid)} icon={Banknote} color="blue" />
         <StatCard label="Solde à recevoir" value={formatPrice(balance)} icon={Wallet} color="rose" />
+      </div>
+
+      <div className={`mt-6 rounded-2xl border p-5 ${me.walletNumber ? "border-line bg-white" : "border-amber-200 bg-amber-50"}`}>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="flex items-center gap-2 font-serif-display text-lg font-semibold text-navy"><Wallet size={18} /> Mon wallet</h2>
+          <Link href="/admin/mon-profil#wallet" className="text-sm font-semibold text-rose-dark hover:underline">{me.walletNumber ? "Modifier" : "Indiquer mon wallet"}</Link>
+        </div>
+        <p className="mt-2 text-[15px] text-navy/85">
+          {me.walletNumber
+            ? <>Vos commissions sont versées automatiquement sur <strong>{WALLET_LABELS[me.walletProvider as "WAVE"] ?? me.walletProvider} {me.walletNumber}</strong>.</>
+            : <>Indiquez votre numéro Wave ou Orange Money pour recevoir vos commissions automatiquement.</>}
+          {" "}En attente de versement : <strong>{formatPrice(walletPending._sum.amount ?? 0)}</strong>.
+        </p>
+        {walletPayouts.length > 0 && (
+          <ul className="mt-3 divide-y divide-line text-sm">
+            {walletPayouts.map((p) => (
+              <li key={p.id} className="flex justify-between py-2">
+                <span className="text-navy/85">{p.createdAt.toLocaleDateString("fr-FR")} · {WALLET_LABELS[p.provider as "WAVE"] ?? p.provider}</span>
+                <span className="font-semibold text-ink">{formatPrice(p.amount)} {p.status === "VERSE" ? "· versé" : p.status === "EN_COURS" ? "· en cours" : "· échec, nouvel essai prévu"}</span>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       <div className="mt-6 grid gap-4 lg:grid-cols-2">

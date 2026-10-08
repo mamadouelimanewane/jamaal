@@ -42,6 +42,19 @@ export type BusinessModel = {
   primeTiers: PrimeTier[];
   /** Bonus du 1er du classement mensuel (FCFA, 0 = aucun). */
   topSellerBonus: number;
+  /** Nombre maximal de filleuls directs par membre (0 = illimité). */
+  maxDirectRecruits: number;
+  /** Moyens de paiement acceptés au panier (s'ils sont configurés). */
+  acceptWave: boolean;
+  acceptOrangeMoney: boolean;
+  acceptCard: boolean;
+  acceptCashOnDelivery: boolean;
+  /** Versement automatique des commissions sur le wallet Wave / Orange Money des membres. */
+  payoutsEnabled: boolean;
+  /** Moment du versement : dès le paiement confirmé, ou à la livraison. */
+  payoutTrigger: "PAID" | "DELIVERED";
+  /** Montant minimal d'un versement (FCFA) ; en dessous, la commission attend la suivante. */
+  minPayout: number;
 };
 
 export const DEFAULT_BUSINESS_MODEL: BusinessModel = {
@@ -62,6 +75,14 @@ export const DEFAULT_BUSINESS_MODEL: BusinessModel = {
     { threshold: 500_000, amount: 75_000, extra: "mise en avant sur la page de la marque" },
   ],
   topSellerBonus: 25_000,
+  maxDirectRecruits: 10,
+  acceptWave: true,
+  acceptOrangeMoney: true,
+  acceptCard: false,
+  acceptCashOnDelivery: false,
+  payoutsEnabled: true,
+  payoutTrigger: "PAID",
+  minPayout: 0,
 };
 
 /** Fusionne une valeur enregistrée (éventuellement partielle ou ancienne) avec les valeurs par défaut. */
@@ -83,7 +104,12 @@ export function normalizeBusinessModel(raw: unknown): BusinessModel {
   num("shippingPct", 0, 100);
   num("miscPct", 0, 100);
   num("topSellerBonus", 0, 100_000_000);
-  if (typeof r.primesEnabled === "boolean") base.primesEnabled = r.primesEnabled;
+  num("maxDirectRecruits", 0, 1000);
+  num("minPayout", 0, 10_000_000);
+  for (const key of ["primesEnabled", "acceptWave", "acceptOrangeMoney", "acceptCard", "acceptCashOnDelivery", "payoutsEnabled"] as const) {
+    if (typeof r[key] === "boolean") base[key] = r[key] as boolean;
+  }
+  if (r.payoutTrigger === "PAID" || r.payoutTrigger === "DELIVERED") base.payoutTrigger = r.payoutTrigger;
   if (Array.isArray(r.primeTiers)) {
     base.primeTiers = r.primeTiers
       .map((t) => ({

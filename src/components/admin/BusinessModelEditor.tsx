@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { Banknote, Calculator, CircleCheck, CircleAlert, Percent, Plus, Tag, Trash2, Trophy, Truck } from "lucide-react";
+import { Banknote, Calculator, CircleCheck, CircleAlert, CreditCard, Percent, Plus, Tag, Trash2, Trophy, Truck } from "lucide-react";
 import {
   productMargin,
   salePriceFromPublic,
@@ -41,7 +41,9 @@ type NumKey =
   | "grandSponsorPct"
   | "shippingPct"
   | "miscPct"
-  | "topSellerBonus";
+  | "topSellerBonus"
+  | "maxDirectRecruits"
+  | "minPayout";
 
 function NumberField({
   label,
@@ -331,6 +333,48 @@ export function BusinessModelEditor({
             </div>
           </div>
           <p className="mt-4 text-sm text-navy/75">« Financée par la marge » compare la prime à ce que JAMAAL gagne réellement sur les ventes du palier, avec le scénario choisi en haut de page.</p>
+        </section>
+
+        <section className={card}>
+          <SectionTitle icon={CreditCard} title="Réseau, paiements et versements" text="Règles d'inscription, moyens de paiement acceptés au panier et versement des commissions." tone="#1f7a55" />
+          <div className="mt-5 grid gap-6 lg:grid-cols-3">
+            <div className="flex flex-col gap-4">
+              <NumberField label="Filleuls directs maximum par membre" name="maxDirectRecruits" value={model.maxDirectRecruits} onChange={set} step="1" hint="0 = illimité. Au-delà, le candidat doit utiliser le code d'un membre de l'équipe." />
+              <p className="text-sm text-navy/80">Le code de parrainage est obligatoire pour toute candidature.</p>
+            </div>
+            <fieldset>
+              <legend className="text-sm font-medium text-ink">Moyens de paiement acceptés</legend>
+              <p className="mt-1 text-xs text-navy/75">Proposés au panier seulement s&apos;ils sont aussi configurés (clés Vercel).</p>
+              <div className="mt-3 flex flex-col gap-2">
+                {([
+                  ["acceptWave", "Wave"],
+                  ["acceptOrangeMoney", "Orange Money"],
+                  ["acceptCard", "Carte bancaire (Stripe)"],
+                  ["acceptCashOnDelivery", "Paiement à la livraison (espèces)"],
+                ] as const).map(([key, label]) => (
+                  <label key={key} className="flex items-center gap-3 rounded-xl border border-line px-3.5 py-2.5 text-[15px] text-ink">
+                    <input type="checkbox" name={key} checked={model[key]} onChange={(e) => setModel((m) => ({ ...m, [key]: e.target.checked }))} className="h-5 w-5 accent-[#182845]" />
+                    {label}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            <div className="flex flex-col gap-4">
+              <label className="flex items-center gap-3 rounded-xl border border-line px-3.5 py-2.5 text-[15px] font-medium text-ink">
+                <input type="checkbox" name="payoutsEnabled" checked={model.payoutsEnabled} onChange={(e) => setModel((m) => ({ ...m, payoutsEnabled: e.target.checked }))} className="h-5 w-5 accent-[#182845]" />
+                Verser automatiquement les commissions sur les wallets
+              </label>
+              <label className="block text-sm font-medium text-ink">
+                Moment du versement
+                <select name="payoutTrigger" value={model.payoutTrigger} onChange={(e) => setModel((m) => ({ ...m, payoutTrigger: e.target.value === "DELIVERED" ? "DELIVERED" : "PAID" }))} className={input}>
+                  <option value="PAID">Dès que le client a payé</option>
+                  <option value="DELIVERED">À la livraison de la commande</option>
+                </select>
+                <span className="mt-1.5 block text-xs font-normal text-navy/75">À la livraison, une commande retournée avant livraison ne coûte aucune commission.</span>
+              </label>
+              <NumberField label="Versement minimal" name="minPayout" value={model.minPayout} onChange={set} suffix="F" step="100" hint="En dessous, la commission attend la suivante. 0 = tout est versé." />
+            </div>
+          </div>
         </section>
 
         {/* Barre d'enregistrement : reste visible tant qu'il y a des modifications */}

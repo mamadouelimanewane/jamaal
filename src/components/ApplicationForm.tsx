@@ -85,8 +85,9 @@ export function ApplicationForm({ sponsorCode = "" }: { sponsorCode?: string }) 
         <textarea id="motivation" name="motivation" rows={3} maxLength={1000} className={input} />
       </div>
       <div className="sm:col-span-2">
-        <label htmlFor="sponsorCode" className={label}>Code de parrainage (facultatif)</label>
-        <input id="sponsorCode" name="sponsorCode" defaultValue={sponsorCode} maxLength={48} placeholder="ex. aminata" className={input} />
+        <label htmlFor="sponsorCode" className={label}>Code de parrainage (obligatoire)</label>
+        <input id="sponsorCode" name="sponsorCode" defaultValue={sponsorCode} required minLength={2} maxLength={48} placeholder="ex. aminata" className={input} />
+        <p className="mt-1.5 text-xs text-navy/70">On ne rejoint JAMAAL que par un membre du réseau : demandez son code (ou utilisez son lien d&apos;invitation).</p>
       </div>
 
       <label className="flex items-start gap-3 text-sm text-navy/75 sm:col-span-2">

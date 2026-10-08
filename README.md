@@ -50,6 +50,8 @@ Variables d'environnement principales (`.env`, jamais commité) :
 | `NEXT_PUBLIC_SITE_URL` | domaine public (liens WhatsApp, sitemap, aperçus) |
 | `WAVE_*`, `ORANGE_MONEY_*`, `STRIPE_*` | paiement (voir `PAYMENT.md`) |
 | `WHATSAPP_*` | envoi WhatsApp (voir `docs/whatsapp-api-config.md`) |
+| `WAVE_PAYOUT_API_KEY` | versement des commissions sur Wave (clé « Payout » Wave Business) |
+| `ORANGE_PAYOUT_URL`, `ORANGE_PAYOUT_TOKEN` | versement des commissions sur Orange Money (Sonatel ou agrégateur) |
 
 ## Base de données
 
@@ -76,4 +78,7 @@ Les scripts de `import/neon/` sont l'historique des imports faits à la main ; i
   `requireStaff`… ; les fonctions internes non protégées restent hors des fichiers `"use server"`)
 - `src/proxy.ts` — attribution revendeur (`?ref=`) et protection des routes `/admin`
 - `src/lib/rate-limit.ts` — limitation de débit partagée (table `RateLimitBucket`)
+- `src/lib/business-model.ts` — modèle économique (prix, commissions, paiements, versements)
+- `src/lib/payouts/` — commissions par commande et versements sur wallet Wave / Orange Money
+- `src/lib/network.ts` — titres du réseau (Consultant → Leader → Parrain) et limite de filleuls
 - `src/components/` — composants de la boutique et du back-office

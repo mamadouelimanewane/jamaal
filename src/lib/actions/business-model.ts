@@ -48,6 +48,18 @@ export async function saveBusinessModelAction(_prev: BusinessModelState, formDat
   input.topSellerBonus = Number.isFinite(topBonus) && topBonus > 0 ? Math.round(topBonus) : 0;
   input.primesEnabled = formData.get("primesEnabled") === "on";
 
+  // Réseau, paiements et versements
+  const maxRecruits = readNumber(formData, "maxDirectRecruits");
+  input.maxDirectRecruits = Number.isFinite(maxRecruits) && maxRecruits >= 0 ? Math.round(maxRecruits) : 10;
+  const minPayout = readNumber(formData, "minPayout");
+  input.minPayout = Number.isFinite(minPayout) && minPayout > 0 ? Math.round(minPayout) : 0;
+  input.acceptWave = formData.get("acceptWave") === "on";
+  input.acceptOrangeMoney = formData.get("acceptOrangeMoney") === "on";
+  input.acceptCard = formData.get("acceptCard") === "on";
+  input.acceptCashOnDelivery = formData.get("acceptCashOnDelivery") === "on";
+  input.payoutsEnabled = formData.get("payoutsEnabled") === "on";
+  input.payoutTrigger = formData.get("payoutTrigger") === "DELIVERED" ? "DELIVERED" : "PAID";
+
   const thresholds = formData.getAll("tierThreshold");
   const amounts = formData.getAll("tierAmount");
   const extras = formData.getAll("tierExtra");

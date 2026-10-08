@@ -150,6 +150,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <div className="flex flex-col gap-0.5">
               <SidebarNavLink href="/admin/notifications" label="Notifications" icon={<Bell size={16} />} badge={unreadCount} />
               <SidebarNavLink href="/admin/utilisateurs" label="Utilisateurs" icon={<UserCog size={16} />} />
+              <SidebarNavLink href="/admin/versements" label="Versements" icon={<Wallet size={16} />} />
               <SidebarNavLink href="/admin/modele-economique" label="Modèle économique" icon={<Calculator size={16} />} />
               <SidebarNavLink href="/admin/reglages" label="Réglages & Fidélité" icon={<Settings size={16} />} />
               <SidebarNavLink href="/admin/historique" label="Journal des actions" icon={<ClipboardList size={16} />} />
