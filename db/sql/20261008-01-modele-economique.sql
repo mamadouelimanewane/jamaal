@@ -1,5 +1,4 @@
 -- Modèle économique : tables/colonnes + prix publics Chogan (rejouable)
-BEGIN;
 
 -- Limitation de débit partagée (lot 2)
 CREATE TABLE IF NOT EXISTS "RateLimitBucket" (
@@ -612,5 +611,3 @@ FROM (VALUES
 ('chogan-14681', 274990)
 ) AS v(id, price)
 WHERE p."id" = v.id;
-
-COMMIT;

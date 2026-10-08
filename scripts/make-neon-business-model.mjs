@@ -1,20 +1,20 @@
 #!/usr/bin/env node
 /**
- * Génère import/neon/8-modele-economique.sql, à coller dans Neon > SQL Editor si
- * `npx prisma migrate deploy` ne peut pas joindre la base (port 5432 bloqué).
+ * Génère db/sql/20261008-01-modele-economique.sql (appliqué automatiquement au déploiement
+ * par scripts/db-migrate.mjs) et sa copie manuelle import/neon/8-modele-economique.sql.
  *
  * - applique les migrations RateLimitBucket et Product.publicPrice (une seule fois) ;
  * - renseigne le prix public Chogan (FCFA) des produits à partir de src/data/chogan-catalog.json.
  * Le script peut être rejoué sans risque. Les prix de vente ne changent pas ici :
  * utilisez ensuite Admin > Modèle économique > « Mettre à jour les prix ».
  */
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { createHash, randomUUID } from "node:crypto";
 
 // La base Neon peut ne pas avoir de table _prisma_migrations (schéma créé par SQL) :
 // on utilise donc des instructions idempotentes (IF NOT EXISTS) plutôt que l'historique Prisma.
 const migrations = ["20261008010000_rate_limit_buckets", "20261008020000_product_public_price"];
-let sql = "-- 8) Modèle économique : tables/colonnes + prix publics Chogan (rejouable)\nBEGIN;\n\n";
+let sql = "";
 sql += `-- Limitation de débit partagée (lot 2)
 CREATE TABLE IF NOT EXISTS "RateLimitBucket" (
     "key" TEXT NOT NULL,
@@ -46,7 +46,12 @@ sql += "\n";
 
 const catalog = JSON.parse(readFileSync("src/data/chogan-catalog.json", "utf8"));
 const rows = catalog.filter((p) => p.publicPrice > 0).map((p) => `('${p.id.replace(/'/g, "''")}', ${p.publicPrice})`);
-sql += `-- Prix public Chogan (FCFA) de ${rows.length} produits\nUPDATE "Product" AS p SET "publicPrice" = v.price, "updatedAt" = now()\nFROM (VALUES\n${rows.join(",\n")}\n) AS v(id, price)\nWHERE p."id" = v.id;\n\nCOMMIT;\n`;
+sql += `-- Prix public Chogan (FCFA) de ${rows.length} produits\nUPDATE "Product" AS p SET "publicPrice" = v.price, "updatedAt" = now()\nFROM (VALUES\n${rows.join(",\n")}\n) AS v(id, price)\nWHERE p."id" = v.id;\n`;
 
-writeFileSync("import/neon/8-modele-economique.sql", sql);
-console.log(`import/neon/8-modele-economique.sql : ${rows.length} prix publics`);
+const title = "-- Modèle économique : tables/colonnes + prix publics Chogan (rejouable)\n";
+// 1) Appliqué automatiquement au déploiement par scripts/db-migrate.mjs (qui gère la transaction).
+mkdirSync("db/sql", { recursive: true });
+writeFileSync("db/sql/20261008-01-modele-economique.sql", title + "\n" + sql);
+// 2) Copie manuelle pour Neon > SQL Editor (au cas où), dans sa propre transaction.
+writeFileSync("import/neon/8-modele-economique.sql", title + "BEGIN;\n\n" + sql + "\nCOMMIT;\n");
+console.log(`db/sql/20261008-01-modele-economique.sql + import/neon/8-modele-economique.sql : ${rows.length} prix publics`);
