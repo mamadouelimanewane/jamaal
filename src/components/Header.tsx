@@ -3,10 +3,11 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { ArrowRight, Menu, Search, ShoppingBag, UserRound, X } from "lucide-react";
+import { Menu, Search, ShoppingBag, UserRound, X } from "lucide-react";
 import type { Category } from "@/data/types";
 import { useCartStore } from "@/lib/cart-store";
+import { useSearchStore } from "@/lib/search-store";
+import { SearchOverlay } from "@/components/SearchOverlay";
 
 const subscribeNoop = () => () => {};
 
@@ -14,9 +15,7 @@ const FEATURED_CATEGORIES = ["parfum-femme", "parfum-homme", "parfum-unisexe"];
 
 export function Header({ categories }: { categories: Category[] }) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [query, setQuery] = useState("");
-  const router = useRouter();
+  const openSearch = useSearchStore((s) => s.open);
   const count = useCartStore((state) => state.count());
   const openCart = useCartStore((state) => state.open);
   const perfumeCategories = categories.filter((category) => FEATURED_CATEGORIES.includes(category.slug));
@@ -31,13 +30,6 @@ export function Header({ categories }: { categories: Category[] }) {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-
-  function submitSearch(event: React.FormEvent) {
-    event.preventDefault();
-    if (!query.trim()) return;
-    router.push(`/recherche?q=${encodeURIComponent(query.trim())}`);
-    setSearchOpen(false);
-  }
 
   function closeMenu() {
     setMenuOpen(false);
@@ -61,7 +53,7 @@ export function Header({ categories }: { categories: Category[] }) {
         </span>
       </Link>
 
-      <nav aria-label="Navigation principale" className="hidden items-center justify-center gap-7 lg:col-span-1 lg:col-start-2 lg:row-start-1 lg:flex xl:gap-9">
+      <nav aria-label="Navigation principale" className="hidden items-center justify-center gap-7 lg:col-span-1 lg:col-start-2 lg:row-start-1 lg:flex xl:gap-6 2xl:gap-9">
         {perfumeCategories.map((category) => <Link key={category.slug} href={`/collections/${category.slug}`} className="nav-luxury-link">{category.navLabel.replace("JAMAAL ", "")}</Link>)}
         <Link href="/collections" className="nav-luxury-link">Toute la gamme</Link>
         <Link href="/coffrets-decouverte" className="nav-luxury-link">Coffrets</Link>
@@ -70,13 +62,14 @@ export function Header({ categories }: { categories: Category[] }) {
       </nav>
 
       <div className="col-start-3 row-start-1 flex items-center justify-self-end gap-1 sm:gap-2">
-        <button type="button" onClick={() => setSearchOpen((open) => !open)} aria-label="Rechercher un parfum" aria-expanded={searchOpen} className="rounded-full p-2.5 text-navy/80 transition hover:bg-navy/5 hover:text-[#9c6254]"><Search size={18}/></button>
+        <button type="button" onClick={() => openSearch()} aria-label="Rechercher un parfum" className="rounded-full p-2.5 text-navy/80 transition hover:bg-navy/5 hover:text-[#9c6254] xl:hidden"><Search size={18}/></button>
+        <button type="button" onClick={() => openSearch()} className="hidden w-48 items-center gap-2 whitespace-nowrap rounded-full border border-[#eadfda] bg-white/80 px-3.5 py-2 text-left text-[13px] text-navy/55 shadow-sm transition hover:border-[#c9997a] hover:text-navy xl:flex 2xl:w-60"><Search size={16} className="shrink-0 text-[#9c6254]"/><span className="flex-1">Rechercher…</span><kbd className="rounded border border-[#eadfda] px-1.5 text-[10px] text-navy/50">Ctrl K</kbd></button>
         <Link href="/compte" aria-label="Mon compte" className="hidden rounded-full p-2.5 text-navy/80 transition hover:bg-navy/5 hover:text-[#9c6254] sm:block"><UserRound size={18}/></Link>
         <button type="button" onClick={openCart} aria-label={`Ouvrir le panier${mounted && count ? `, ${count} article(s)` : ""}`} className="relative rounded-full p-2.5 text-navy/80 transition hover:bg-navy/5 hover:text-[#9c6254]"><ShoppingBag size={18}/>{mounted && count > 0 && <span className="absolute right-0 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#1d2f4f] px-1 text-[9px] font-semibold text-white">{count}</span>}</button>
       </div>
     </div>
 
-    {searchOpen && <form onSubmit={submitSearch} role="search" className="border-t border-[#eadfda] bg-[#f5f0e9] px-4 py-4 sm:px-8"><div className="mx-auto flex max-w-2xl items-center gap-3 border-b border-[#c9a99e] pb-2"><Search size={17} className="shrink-0 text-[#9c6254]"/><input autoFocus value={query} onChange={(event) => setQuery(event.target.value)} type="search" aria-label="Rechercher un parfum" placeholder="Nom, code ou parfum de marque (ex. Sauvage)" className="w-full bg-transparent py-2 text-sm text-navy outline-none placeholder:text-navy/45"/><button type="submit" className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.15em] text-navy">Chercher<ArrowRight size={14}/></button></div></form>}
+    <SearchOverlay categories={categories} />
 
     {menuOpen && <nav aria-label="Menu mobile" className="border-t border-[#eadfda] bg-[#fdfbfa] px-5 py-4 lg:hidden"><div className="flex flex-col"><Link href="/collections" onClick={closeMenu} className="border-b border-[#eadfda] py-3 font-serif-display text-lg text-navy">Toute la gamme</Link>{perfumeCategories.map((category) => <Link key={category.slug} href={`/collections/${category.slug}`} onClick={closeMenu} className="border-b border-[#eadfda] py-3 font-serif-display text-lg text-navy">{category.navLabel.replace("JAMAAL ", "")}</Link>)}<Link href="/coffrets-decouverte" onClick={closeMenu} className="border-b border-[#eadfda] py-3 font-serif-display text-lg text-navy">Coffrets découverte</Link><Link href="/quiz" onClick={closeMenu} className="border-b border-[#eadfda] py-3 font-serif-display text-lg text-navy">Trouver mon parfum</Link><Link href="/espace-revendeur" onClick={closeMenu} className="border-b border-[#eadfda] py-3 font-serif-display text-lg text-navy">Espace consultant</Link><Link href="/devenir-consultant" onClick={closeMenu} className="py-3 text-xs uppercase tracking-widest text-navy/60">Devenir consultant JAMAAL</Link></div></nav>}
   </header>;

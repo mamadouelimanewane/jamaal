@@ -154,3 +154,8 @@ body {
   outline: 2px solid #9b5c4d;
   outline-offset: 2px;
 }
+
+/* Recherche plein écran */
+@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+@keyframes slideDown { from { opacity: 0; transform: translateY(-10px) } to { opacity: 1; transform: none } }
+@media (prefers-reduced-motion: reduce) { [class*="animate-[slideDown"], [class*="animate-[fadeIn"] { animation: none !important } }

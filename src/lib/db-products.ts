@@ -81,3 +81,11 @@ export async function searchProducts(query: string): Promise<Product[]> {
   const rows = await prisma.product.findMany({ where, take: 40 });
   return rows.map(toUiProduct);
 }
+
+/** Produits dans l'ordre des identifiants donnés (résultats de recherche). */
+export async function getProductsByIds(ids: string[]): Promise<Product[]> {
+  if (!ids.length) return [];
+  const rows = await prisma.product.findMany({ where: { id: { in: ids } } });
+  const byId = new Map(rows.map((r) => [r.id, toUiProduct(r)]));
+  return ids.map((id) => byId.get(id)).filter((p): p is Product => !!p);
+}
