@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
 import { auth } from "@/lib/auth";
 
 const REF_COOKIE = "jamaal_ref";
@@ -23,6 +22,9 @@ const ADMIN_ONLY_PREFIXES = [
   "/admin/blog",
   "/admin/retours",
   "/admin/historique",
+  "/admin/stocks",
+  "/admin/coupons",
+  "/admin/reglages",
 ];
 
 /**

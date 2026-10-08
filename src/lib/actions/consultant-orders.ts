@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireConsultantProfile } from "./auth-guard";
-import { upsertCustomerFromOrder } from "./customers";
+import { upsertCustomerFromOrder } from "@/lib/customers";
 import { notifySponsorOnFirstSale } from "@/lib/sponsor-notifications";
 import { decrementStockAndAlert } from "@/lib/stock";
 

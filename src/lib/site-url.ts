@@ -22,3 +22,14 @@ export async function getSiteUrl(): Promise<string> {
   }
   return process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "";
 }
+
+/**
+ * URL de base statique (sans accès aux en-têtes de requête), pour les métadonnées,
+ * le sitemap et robots.txt. Définissez NEXT_PUBLIC_SITE_URL avec le domaine définitif.
+ */
+export function siteBaseUrl(): string {
+  const configured = process.env.NEXT_PUBLIC_SITE_URL;
+  if (configured) return configured.replace(/\/$/, "");
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
+  return "http://localhost:3030";
+}

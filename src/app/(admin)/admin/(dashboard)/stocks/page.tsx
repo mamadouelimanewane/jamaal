@@ -1,9 +1,11 @@
+import { requireAdminPage } from "@/lib/admin-page-guard";
 import { prisma } from "@/lib/prisma";
 import { adjustStock } from "@/lib/actions/stock";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminStockPage() {
+  await requireAdminPage();
   const [products, movements] = await Promise.all([
     prisma.product.findMany({
       orderBy: { name: "asc" },
