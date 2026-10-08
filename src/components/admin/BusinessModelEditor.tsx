@@ -1,7 +1,9 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { Banknote, Calculator, CircleCheck, CircleAlert, CreditCard, Percent, Plus, Tag, Trash2, Trophy, Truck } from "lucide-react";
+import { Banknote, Bike, Calculator, CircleCheck, CircleAlert, CreditCard, Percent, Plus, Tag, Trash2, Trophy, Truck } from "lucide-react";
+import { DeliveryMap } from "@/components/maps/DeliveryMap";
+import { quoteDelivery } from "@/lib/delivery";
 import {
   productMargin,
   salePriceFromPublic,
@@ -43,7 +45,13 @@ type NumKey =
   | "miscPct"
   | "topSellerBonus"
   | "maxDirectRecruits"
-  | "minPayout";
+  | "minPayout"
+  | "deliveryBaseFee"
+  | "deliveryIncludedKm"
+  | "deliveryPerKm"
+  | "deliveryMaxKm"
+  | "deliveryFreeAbove"
+  | "livreurSharePct";
 
 function NumberField({
   label,
@@ -373,6 +381,40 @@ export function BusinessModelEditor({
                 <span className="mt-1.5 block text-xs font-normal text-navy/75">À la livraison, une commande retournée avant livraison ne coûte aucune commission.</span>
               </label>
               <NumberField label="Versement minimal" name="minPayout" value={model.minPayout} onChange={set} suffix="F" step="100" hint="En dessous, la commission attend la suivante. 0 = tout est versé." />
+            </div>
+          </div>
+        </section>
+
+        <section className={card}>
+          <SectionTitle icon={Bike} title="Livraison" text="Dépôt de départ, frais facturés au client selon la distance, et part reversée au livreur." tone="#9b5c4d" />
+          <div className="mt-5 grid gap-6 lg:grid-cols-2">
+            <div>
+              <label className="block text-sm font-medium text-ink">
+                Nom du dépôt
+                <input name="depotLabel" value={model.depotLabel} onChange={(e) => setModel((m) => ({ ...m, depotLabel: e.target.value }))} className={input} />
+              </label>
+              <p className="mt-3 text-sm text-navy/80">Touchez la carte ou déplacez le repère pour placer le dépôt.</p>
+              <div className="mt-2">
+                <DeliveryMap height={260} onMove={(lat, lng) => setModel((m) => ({ ...m, depotLat: lat, depotLng: lng }))} points={[{ id: "depot", kind: "depot", lat: model.depotLat, lng: model.depotLng, label: model.depotLabel, draggable: true }]} />
+              </div>
+              <input type="hidden" name="depotLat" value={model.depotLat} />
+              <input type="hidden" name="depotLng" value={model.depotLng} />
+              <p className="mt-1 text-xs text-navy/70">{model.depotLat.toFixed(5)}, {model.depotLng.toFixed(5)}</p>
+            </div>
+            <div className="grid grid-cols-2 content-start gap-4">
+              <NumberField label="Forfait de livraison" name="deliveryBaseFee" value={model.deliveryBaseFee} onChange={set} suffix="F" step="100" />
+              <NumberField label="Km inclus dans le forfait" name="deliveryIncludedKm" value={model.deliveryIncludedKm} onChange={set} suffix="km" step="0.5" />
+              <NumberField label="Prix par km au-delà" name="deliveryPerKm" value={model.deliveryPerKm} onChange={set} suffix="F" step="50" />
+              <NumberField label="Distance maximale" name="deliveryMaxKm" value={model.deliveryMaxKm} onChange={set} suffix="km" step="1" hint="0 = sans limite" />
+              <NumberField label="Livraison offerte dès" name="deliveryFreeAbove" value={model.deliveryFreeAbove} onChange={set} suffix="F" step="1000" hint="0 = jamais" />
+              <NumberField label="Part du livreur" name="livreurSharePct" value={model.livreurSharePct} onChange={set} suffix="%" step="1" hint="des frais de livraison" />
+              <div className="col-span-2 rounded-xl bg-cream px-4 py-3 text-sm text-navy/85">
+                Exemples (distance par la route) :{" "}
+                {[3, 8, 15].map((km, i) => {
+                  const q = quoteDelivery({ lat: model.depotLat, lng: model.depotLng + km / (111.32 * Math.cos((model.depotLat * Math.PI) / 180) * 1.35) }, 0, live);
+                  return <span key={km}>{i ? " · " : ""}{km} km → <strong>{q.ok ? fcfa(q.fee) : "hors zone"}</strong>{q.ok && q.livreurShare ? ` (livreur ${fcfa(q.livreurShare)})` : ""}</span>;
+                })}
+              </div>
             </div>
           </div>
         </section>

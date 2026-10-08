@@ -9,11 +9,14 @@ import { upsertCustomerFromOrder } from "@/lib/customers";
 import { notifyConsultantOfDelivery } from "@/lib/notifications";
 import { notifySponsorOnSale } from "@/lib/sponsor-notifications";
 import { cancelCommissionsForOrder, runPayoutsForOrder } from "@/lib/payouts/engine";
+import { recordLivreurEarning } from "@/lib/delivery-engine";
 import { after } from "next/server";
 import { notifyResellerWhatsApp, notifyTeamWhatsApp } from "@/lib/whatsapp";
 import { reserveStock, sendLowStockAlerts } from "@/lib/stock";
 import { createOrderSchema } from "@/lib/validations/order";
 import { rateLimit, clientIpFromHeaders } from "@/lib/rate-limit";
+import { getBusinessModel } from "@/lib/business-model-store";
+import { isValidPoint, newDeliveryCode, quoteDelivery } from "@/lib/delivery";
 
 export interface CheckoutItem {
   productId: string;
@@ -21,6 +24,13 @@ export interface CheckoutItem {
   volumeLabel: string;
   price: number;
   quantity: number;
+}
+
+/** Mode de remise choisi au panier. */
+export interface CheckoutDelivery {
+  mode: "LIVRAISON" | "RETRAIT";
+  lat?: number | null;
+  lng?: number | null;
 }
 
 export interface CheckoutCustomer {
@@ -44,7 +54,8 @@ export async function createOrder(
   consultantId?: string | null,
   acceptCgv: boolean = false,
   giftWrap: boolean = false,
-  giftMessage: string = ""
+  giftMessage: string = "",
+  delivery: CheckoutDelivery = { mode: "RETRAIT" }
 ) {
   // 0. Rate limiting
   const h = await headers();
@@ -145,6 +156,37 @@ export async function createOrder(
     });
   }
 
+  // 3 bis. Livraison : frais recalculés côté serveur à partir de la position du client.
+  const productsTotal = total;
+  let deliveryData: {
+    deliveryMode: "LIVRAISON_JAMAAL" | "RETRAIT_CONSULTANT";
+    deliveryLat?: number;
+    deliveryLng?: number;
+    deliveryFee?: number;
+    deliveryDistanceKm?: number;
+    deliveryCode?: string;
+    deliveryStatus?: string;
+    livreurShare?: number;
+  } = { deliveryMode: "RETRAIT_CONSULTANT" };
+  if (delivery?.mode === "LIVRAISON") {
+    const point = { lat: Number(delivery.lat), lng: Number(delivery.lng) };
+    if (!isValidPoint(point)) throw new Error("Indiquez votre position de livraison sur la carte.");
+    if (!data.customer.address) throw new Error("Précisez votre adresse de livraison (quartier, repère).");
+    const quote = quoteDelivery(point, productsTotal, await getBusinessModel());
+    if (!quote.ok) throw new Error(quote.error);
+    total += quote.fee;
+    deliveryData = {
+      deliveryMode: "LIVRAISON_JAMAAL",
+      deliveryLat: point.lat,
+      deliveryLng: point.lng,
+      deliveryFee: quote.fee,
+      deliveryDistanceKm: quote.distanceKm,
+      deliveryCode: newDeliveryCode(),
+      deliveryStatus: "A_PREPARER",
+      livreurShare: quote.livreurShare,
+    };
+  }
+
   // 4. Vérifier le consultant s'il est fourni
   let validConsultantId: string | null = null;
   if (data.consultantId) {
@@ -182,6 +224,7 @@ export async function createOrder(
       giftMessage: data.giftWrap ? (data.giftMessage || null) : null,
       customerId,
       consultantId: validConsultantId,
+      ...deliveryData,
       items: {
         create: serverItems.map((i) => ({
           productId: i.productId,
@@ -195,6 +238,10 @@ export async function createOrder(
   });
   return { order, stockAlerts };
   });
+
+  if (deliveryData.deliveryStatus) {
+    await prisma.deliveryEvent.create({ data: { orderId: order.id, status: "A_PREPARER", note: `${deliveryData.deliveryDistanceKm} km depuis le dépôt` } });
+  }
 
   // 7. Effets de bord
   if (validConsultantId) {
@@ -250,7 +297,18 @@ export async function createOrder(
 
 /** Commissions du réseau : versées à la livraison (si choisi), annulées si la commande l'est. */
 async function onOrderStatusChanged(id: string, status: OrderStatus) {
-  if (status === "LIVREE") after(() => runPayoutsForOrder(id));
+  if (status === "LIVREE") {
+    // Livraison JAMAAL marquée livrée depuis la fiche commande : on clôt aussi l'étape de livraison.
+    const closed = await prisma.order.updateMany({
+      where: { id, deliveryMode: "LIVRAISON_JAMAAL", deliveryStatus: { not: "LIVREE" } },
+      data: { deliveryStatus: "LIVREE", deliveredAt: new Date() },
+    });
+    if (closed.count) await prisma.deliveryEvent.create({ data: { orderId: id, status: "LIVREE", note: "Marquée livrée par l'équipe JAMAAL" } });
+    after(async () => {
+      await runPayoutsForOrder(id);
+      await recordLivreurEarning(id).catch((e) => console.error("[livraison] part livreur", id, e));
+    });
+  }
   if (status === "ANNULEE") await cancelCommissionsForOrder(id);
 }
 

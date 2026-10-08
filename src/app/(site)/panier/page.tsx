@@ -8,6 +8,7 @@ import { useCartStore } from "@/lib/cart-store";
 import { formatPrice } from "@/lib/currency";
 import { createOrder } from "@/lib/actions/orders";
 import { getCartPrices } from "@/lib/actions/cart";
+import { DeliveryChooser, type DeliveryChoice } from "@/components/DeliveryChooser";
 import { getActiveConsultantsForCheckout } from "@/lib/actions/public-data";
 import { initiatePayment } from "@/lib/actions/payment";
 import { listPaymentOptions } from "@/lib/actions/payment-options";
@@ -29,6 +30,8 @@ export default function CartPage() {
   const router = useRouter();
   const { items, removeItem, updateQuantity, total, clear, syncPrices } = useCartStore();
   const [pricesUpdated, setPricesUpdated] = useState(false);
+  const [delivery, setDelivery] = useState<DeliveryChoice>({ mode: "LIVRAISON", lat: null, lng: null, quote: null });
+  const deliveryFee = delivery.mode === "LIVRAISON" && delivery.quote?.ok ? delivery.quote.fee : 0;
   const [pricesChecked, setPricesChecked] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -98,6 +101,20 @@ export default function CartPage() {
       setError("Aucun moyen de paiement n'est disponible pour le moment.");
       return;
     }
+    if (delivery.mode === "LIVRAISON") {
+      if (delivery.lat == null || delivery.lng == null) {
+        setError("Indiquez votre position de livraison (bouton « Utiliser ma position » ou touchez la carte).");
+        return;
+      }
+      if (delivery.quote && !delivery.quote.ok) {
+        setError(delivery.quote.error);
+        return;
+      }
+      if (!customer.address.trim()) {
+        setError("Précisez votre adresse de livraison (quartier, repère).");
+        return;
+      }
+    }
 
     setSubmitting(true);
     setError(null);
@@ -120,7 +137,8 @@ export default function CartPage() {
         consultantId || null,
         acceptCgv,
         giftWrap,
-        giftMessage
+        giftMessage,
+        delivery.mode === "LIVRAISON" ? { mode: "LIVRAISON", lat: delivery.lat, lng: delivery.lng } : { mode: "RETRAIT" }
       );
       clear();
 
@@ -213,9 +231,19 @@ export default function CartPage() {
               <span>Sous-total</span>
               <span>{formatPrice(total())}</span>
             </div>
+            <div className="mt-2 flex items-center justify-between text-sm text-navy/70">
+              <span>Livraison</span>
+              <span>
+                {delivery.mode === "RETRAIT"
+                  ? "Retrait, sans frais"
+                  : delivery.quote?.ok
+                    ? delivery.quote.free ? "Offerte" : formatPrice(deliveryFee)
+                    : "Selon votre position"}
+              </span>
+            </div>
             <div className="mt-2 flex items-center justify-between text-base font-semibold text-navy">
               <span>Total</span>
-              <span>{formatPrice(total())}</span>
+              <span>{formatPrice(total() + deliveryFee)}</span>
             </div>
 
             <div className="mt-4 flex flex-col gap-3">
@@ -241,12 +269,14 @@ export default function CartPage() {
                 className="rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-navy"
               />
               <textarea
-                placeholder="Adresse de livraison"
+                placeholder={delivery.mode === "LIVRAISON" ? "Adresse de livraison (quartier, rue, repère)" : "Adresse (facultatif)"}
                 rows={2}
                 value={customer.address}
                 onChange={(e) => setCustomer((c) => ({ ...c, address: e.target.value }))}
                 className="rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-navy"
               />
+
+              <DeliveryChooser productsTotal={total()} value={delivery} onChange={setDelivery} />
 
               {consultants.length > 0 && (
                 <div>

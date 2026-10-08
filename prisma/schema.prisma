@@ -271,6 +271,15 @@ model Order {
   deliveryZoneId String?
   deliveryZone   DeliveryZone? @relation(fields: [deliveryZoneId], references: [id], onDelete: SetNull)
   deliveryFee    Int           @default(0)
+  /// Module livraison : étape ("A_PREPARER", "ASSIGNEE", "RECUPEREE", "EN_ROUTE", "LIVREE", "ECHEC"),
+  /// distance depuis le dépôt, code à 4 chiffres remis par le client au livreur, part du livreur.
+  deliveryStatus     String?
+  deliveryDistanceKm Float?
+  deliveryCode       String?
+  deliveredAt        DateTime?
+  livreurShare       Int       @default(0)
+  deliveryEvents     DeliveryEvent[]
+  livreurEarning     LivreurEarning?
 
   couponId       String?
   coupon         Coupon? @relation(fields: [couponId], references: [id], onDelete: SetNull)
@@ -395,9 +404,14 @@ model Livreur {
   lastLng    Float?
   lastSeenAt DateTime?
   createdAt  DateTime  @default(now())
+  /// Wallet de versement de la part livreur : "WAVE" ou "ORANGE_MONEY".
+  walletProvider String?
+  walletNumber   String?
 
-  user   User?
-  orders Order[]
+  user     User?
+  orders   Order[]
+  earnings LivreurEarning[]
+  events   DeliveryEvent[]
 }
 
 model Customer {
@@ -653,4 +667,39 @@ model Payout {
 
   @@index([consultantId])
   @@index([status])
+}
+
+/// Étape d'une livraison, horodatée et géolocalisée (position du livreur au moment de l'action).
+model DeliveryEvent {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  livreurId String?
+  livreur   Livreur? @relation(fields: [livreurId], references: [id], onDelete: SetNull)
+  status    String
+  lat       Float?
+  lng       Float?
+  note      String?
+  createdAt DateTime @default(now())
+
+  @@index([orderId])
+}
+
+/// Part du livreur sur une livraison, versée sur son wallet.
+model LivreurEarning {
+  id          String   @id @default(cuid())
+  livreurId   String
+  livreur     Livreur  @relation(fields: [livreurId], references: [id], onDelete: Cascade)
+  orderId     String   @unique
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  amount      Int
+  /// "A_VERSER", "EN_COURS", "VERSE", "ANNULE"
+  status      String   @default("A_VERSER")
+  provider    String?
+  providerRef String?
+  error       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([livreurId, status])
 }

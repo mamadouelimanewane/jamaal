@@ -25,6 +25,11 @@ export async function OrderSplit({ orderId }: { orderId: string }) {
     }),
     prisma.orderItem.findMany({ where: { orderId }, select: { quantity: true, product: { select: { publicPrice: true } } } }),
   ]);
+  const [delivery, earning] = await Promise.all([
+    prisma.order.findUnique({ where: { id: orderId }, select: { livreurShare: true } }),
+    prisma.livreurEarning.findUnique({ where: { orderId }, select: { status: true, amount: true } }),
+  ]);
+  const livreurShare = earning?.amount ?? delivery?.livreurShare ?? 0;
   if (!plan) return null;
 
   const ORDER = ["VENTE", "NIVEAU_1", "NIVEAU_2"];
@@ -94,10 +99,16 @@ export async function OrderSplit({ orderId }: { orderId: string }) {
           <dt className="font-semibold text-ink">{knownCost ? "Marge JAMAAL (estimée)" : "Reste à JAMAAL après commissions"}</dt>
           <dd className={`text-lg font-semibold ${jamaal < 0 ? "text-red-700" : "text-rose-dark"}`}>{formatPrice(jamaal)}</dd>
         </div>
-        {plan.order.deliveryFee > 0 && (
-          <div className="flex justify-between py-2 text-sm">
-            <dt className="text-navy/80">Frais de livraison facturés (hors commissions)</dt>
-            <dd className="text-ink">{formatPrice(plan.order.deliveryFee)}</dd>
+        {(plan.order.deliveryFee > 0 || livreurShare > 0) && (
+          <div className="py-2 text-sm">
+            <div className="flex justify-between">
+              <dt className="text-navy/80">Frais de livraison facturés (hors commissions)</dt>
+              <dd className="text-ink">{formatPrice(plan.order.deliveryFee)}</dd>
+            </div>
+            <div className="mt-1 flex justify-between">
+              <dt className="text-navy/80">Part du livreur{earning ? ` (${earning.status === "VERSE" ? "versée" : "à verser"})` : ""}</dt>
+              <dd className="text-ink">− {formatPrice(livreurShare)}</dd>
+            </div>
           </div>
         )}
       </dl>

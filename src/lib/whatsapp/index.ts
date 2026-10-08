@@ -9,7 +9,7 @@ import { sendViaTwilio } from "./twilio";
  * (« meta » = API Cloud de Meta / 360dialog, « twilio »). Sans configuration, les messages sont
  * SIMULÉS : ils sont enregistrés dans le journal mais rien n'est envoyé.
  */
-export type WhatsAppKind = "team" | "reseller" | "test";
+export type WhatsAppKind = "team" | "reseller" | "test" | "client";
 
 export interface SendResult {
   status: "SIMULE" | "ENVOYE" | "ECHEC";

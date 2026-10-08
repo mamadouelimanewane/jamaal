@@ -60,6 +60,21 @@ export async function saveBusinessModelAction(_prev: BusinessModelState, formDat
   input.payoutsEnabled = formData.get("payoutsEnabled") === "on";
   input.payoutTrigger = formData.get("payoutTrigger") === "DELIVERED" ? "DELIVERED" : "PAID";
 
+  // Livraison
+  const depotLat = readNumber(formData, "depotLat");
+  const depotLng = readNumber(formData, "depotLng");
+  if (!Number.isFinite(depotLat) || !Number.isFinite(depotLng) || Math.abs(depotLat) > 90 || Math.abs(depotLng) > 180) {
+    return { ok: false, error: "Position du dépôt invalide : placez-la sur la carte." };
+  }
+  input.depotLat = depotLat;
+  input.depotLng = depotLng;
+  input.depotLabel = String(formData.get("depotLabel") ?? "").trim().slice(0, 120) || "Dépôt JAMAAL";
+  for (const key of ["deliveryBaseFee", "deliveryIncludedKm", "deliveryPerKm", "deliveryMaxKm", "deliveryFreeAbove", "livreurSharePct"] as const) {
+    const v = readNumber(formData, key);
+    if (!Number.isFinite(v) || v < 0 || (key === "livreurSharePct" && v > 100)) return { ok: false, error: "Valeur de livraison invalide." };
+    input[key] = v;
+  }
+
   const thresholds = formData.getAll("tierThreshold");
   const amounts = formData.getAll("tierAmount");
   const extras = formData.getAll("tierExtra");
