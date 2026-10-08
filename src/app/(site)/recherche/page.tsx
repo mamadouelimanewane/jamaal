@@ -20,7 +20,7 @@ export default async function SearchPage({
 
       {results.length === 0 ? (
         <p className="mt-10 text-sm text-navy/60">
-          Aucun résultat. Essayez un autre nom, un code Chogan (ex : « 001M », « 060 ») ou un numéro de fiche.
+          Aucun résultat. Essayez un autre nom, un parfum de marque (ex : « Sauvage », « Dior »), un code Chogan (ex : « 001M ») ou un numéro de fiche.
         </p>
       ) : (
         <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">

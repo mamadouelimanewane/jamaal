@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const product = await loadProduct(slug);
   if (!product) return { title: "Produit introuvable", robots: { index: false } };
-  const description = product.shortDescription.slice(0, 180);
+  const description = (product.inspiredBy ? `Inspiré de ${product.inspiredBy}${product.inspiredBrand ? ` (${product.inspiredBrand})` : ""}. ` : "") + product.shortDescription.slice(0, 160);
   const priceText = product.regularPrice ? ` — ${product.regularPrice.toLocaleString("fr-FR")} FCFA` : "";
   const image = product.photo ?? "/logo/jamaal-logo.jpg";
   return {
@@ -62,6 +62,13 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
               {product.choganCode ? <>Code Chogan <span className="font-semibold text-navy">{product.choganCode}</span></> : null}
               {product.choganCode && product.number ? " · " : null}
               {product.number ? <>N° de fiche {product.number}</> : null}
+            </p>
+          ) : null}
+          {product.inspiredBy ? (
+            <p className="mt-4 inline-flex flex-wrap items-baseline gap-x-1.5 rounded-full bg-[#f5ece8] px-4 py-2 text-sm text-[#14213b]">
+              <span className="text-navy/70">Inspiré de</span>
+              <span className="font-semibold">{product.inspiredBy}</span>
+              {product.inspiredBrand ? <span className="text-navy/70">· {product.inspiredBrand}</span> : null}
             </p>
           ) : null}
           {product.reviewCount > 0 && <div className="mt-3"><StarRating rating={product.rating} count={product.reviewCount}/></div>}

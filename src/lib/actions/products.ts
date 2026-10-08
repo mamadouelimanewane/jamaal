@@ -84,6 +84,8 @@ async function productDataFromForm(formData: FormData) {
   return {
     number: numberVal ? Number(numberVal) : null,
     choganCode: String(formData.get("choganCode") ?? "").trim().toUpperCase() || null,
+    inspiredBy: String(formData.get("inspiredBy") ?? "").trim().slice(0, 120) || null,
+    inspiredBrand: String(formData.get("inspiredBrand") ?? "").trim().slice(0, 80) || null,
     slug: String(formData.get("slug") ?? "").trim(),
     name: String(formData.get("name") ?? "").trim(),
     category: String(formData.get("category") ?? ""),

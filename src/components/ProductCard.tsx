@@ -25,7 +25,13 @@ export function ProductCard({ product }: { product: Product }) {
           {product.number ? <>Fiche {product.number}</> : null}
         </p>
       ) : null}
-      <p className="mt-1 line-clamp-2 text-[10px] leading-5 text-navy/55 sm:text-xs">{product.shortDescription}</p>
+      {product.inspiredBy ? (
+        <p className="mt-1 line-clamp-2 text-[11px] leading-5 text-[#9c6254] sm:text-xs">
+          Inspiré de <span className="font-semibold">{product.inspiredBy}</span>{product.inspiredBrand ? ` · ${product.inspiredBrand}` : ""}
+        </p>
+      ) : (
+        <p className="mt-1 line-clamp-2 text-[10px] leading-5 text-navy/55 sm:text-xs">{product.shortDescription}</p>
+      )}
       {product.reviewCount > 0 && <div className="mt-2"><StarRating rating={product.rating} count={product.reviewCount}/></div>}
       <p className="mt-2.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-navy sm:text-[11px]">{priceLabel}</p>
     </div>
