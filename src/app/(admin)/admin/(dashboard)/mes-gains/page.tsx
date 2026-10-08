@@ -7,6 +7,7 @@ import { primeStatus } from "@/lib/business-model";
 import { getNetworkDepth, titleForDepth } from "@/lib/network";
 import Link from "next/link";
 import { WALLET_LABELS } from "@/lib/payouts/providers";
+import { LiveEarnings } from "@/components/admin/LiveEarnings";
 import { getReseller, MONTHS_FR, startOfMonth } from "@/lib/reseller";
 import { StatCard } from "@/components/admin/StatCard";
 import { NotReseller } from "@/components/admin/NotReseller";
@@ -81,6 +82,10 @@ export default async function MesGainsPage() {
         <StatCard label="Gains cumulés" value={formatPrice(lifetimeTotal)} icon={Wallet} color="navy" />
         <StatCard label="Déjà versé" value={formatPrice(paid)} icon={Banknote} color="blue" />
         <StatCard label="Solde à recevoir" value={formatPrice(balance)} icon={Wallet} color="rose" />
+      </div>
+
+      <div className="mt-6">
+        <LiveEarnings consultantId={me.id} />
       </div>
 
       <div className={`mt-6 rounded-2xl border p-5 ${me.walletNumber ? "border-line bg-white" : "border-amber-200 bg-amber-50"}`}>

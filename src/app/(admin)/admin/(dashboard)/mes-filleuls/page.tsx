@@ -1,4 +1,5 @@
 import { MessageCircle, UserPlus, Users } from "lucide-react";
+import { LiveRefresh } from "@/components/admin/LiveRefresh";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/currency";
 import { getReseller, resellerLinks, startOfMonth } from "@/lib/reseller";
@@ -61,6 +62,7 @@ export default async function MesFilleulsPage() {
       <div className="flex flex-wrap items-center gap-3">
         <h1 className="font-serif-display text-2xl font-semibold text-navy">Mes filleuls</h1>
         <NetworkTitleBadge title={myTitle} />
+        <span className="ml-auto"><LiveRefresh /></span>
       </div>
       <p className="mt-1 text-sm text-navy/75">
         Vous êtes <strong>{myTitle}</strong>. Vos filleuls directs sont vos <strong>{level1Title}s</strong> : vous touchez {rate1} % sur leurs ventes encaissées.
