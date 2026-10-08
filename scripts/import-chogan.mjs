@@ -6,10 +6,12 @@
  * Le catalogue du site est 100 % Chogan : un produit du site = un produit Chogan
  * (identifiant, nom, format et photo viennent tels quels du site Chogan).
  *
- * - Prix de vente en FCFA = prix public € × 655,957 × (1 + MARGE) × (1 − REMISE), arrondi à 100 FCFA.
+ * - Prix public Chogan en FCFA = prix public € × 655,957 (champ publicPrice).
+ * - Prix de vente JAMAAL = prix public FCFA × VENTE % (125 % par défaut), arrondi à 100 FCFA.
+ *   En production, le pourcentage se règle dans Admin > Modèle économique, qui recalcule les prix.
  * - Images : CDN Chogan (démo). À remplacer par vos propres fichiers pour la production.
  *
- * Usage : node scripts/import-chogan.mjs   (MARGE=0.2 REMISE=0.2 par défaut)
+ * Usage : node scripts/import-chogan.mjs   (VENTE=125 par défaut)
  */
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -17,15 +19,15 @@ import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const EUR_XOF = 655.957;
-const MARGE = Number(process.env.MARGE ?? 0.2);
-// Remise appliquée ensuite sur le prix majoré (20 % par défaut).
-const REMISE = Number(process.env.REMISE ?? 0.2);
+// Prix de vente en % du prix public Chogan (modèle économique : prix public + 25 %).
+const VENTE = Number(process.env.VENTE ?? 125);
 const CDN = "https://cdn.chogangroupspa.com/images/prodotti/big/";
 
 const norm = (s) =>
   s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 const slugify = (s) => norm(s).replace(/\s+/g, "-").slice(0, 60).replace(/-$/, "");
-const priceXof = (eur) => Math.max(100, Math.round((eur * EUR_XOF * (1 + MARGE) * (1 - REMISE)) / 100) * 100);
+const publicXof = (eur) => Math.round(eur * EUR_XOF);
+const priceXof = (eur) => Math.max(100, Math.round((publicXof(eur) * VENTE) / 100 / 100) * 100);
 
 /** Catégorie JAMAAL à partir de la catégorie Chogan (leaf) et du nom. */
 function categorize(leaf, name) {
@@ -81,6 +83,7 @@ const out = rows.map((r) => {
       `${r.name}.${detail}`,
       "Produit officiel de la gamme Chogan, distribué au Sénégal par JAMAAL, représentant exclusif.",
     ],
+    publicPrice: publicXof(r.eur),
     regularPrice: priceXof(r.eur),
     reviewCount: 0,
     rating: 4.6,

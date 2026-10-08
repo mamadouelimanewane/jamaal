@@ -1,57 +1,39 @@
 import { prisma } from "./prisma";
+import { getBusinessModel, saveBusinessModel } from "./business-model-store";
 
-const DEFAULT_COMMISSION_RATE = 10; // % sur les ventes directes du consultant
-const DEFAULT_SPONSOR_RATE = 5; // % sur le CA des filleuls (niveau 1)
+/*
+ * Taux de commission : ils font partie du modèle économique (Admin > Modèle économique).
+ * Ces fonctions sont conservées pour les écrans qui les utilisaient déjà.
+ */
 
+/** Commission du vendeur sur ses propres ventes (% du prix de vente). */
 export async function getCommissionRate(): Promise<number> {
-  const setting = await prisma.setting.findUnique({ where: { key: "commission_rate" } });
-  if (!setting) return DEFAULT_COMMISSION_RATE;
-  const parsed = Number(setting.value);
-  return Number.isFinite(parsed) ? parsed : DEFAULT_COMMISSION_RATE;
+  return (await getBusinessModel()).sellerPct;
 }
 
 export async function setCommissionRate(rate: number) {
-  await prisma.setting.upsert({
-    where: { key: "commission_rate" },
-    update: { value: String(rate) },
-    create: { key: "commission_rate", value: String(rate) },
-  });
+  const model = await getBusinessModel();
+  await saveBusinessModel({ ...model, sellerPct: rate });
 }
 
-/** Commission de parrainage (sur le CA des filleuls directs). */
+/** Part du parrain direct lorsqu'il est seul (sans grand-parrain au-dessus de lui). */
 export async function getSponsorCommissionRate(): Promise<number> {
-  const setting = await prisma.setting.findUnique({ where: { key: "sponsor_commission_rate" } });
-  if (!setting) return DEFAULT_SPONSOR_RATE;
-  const parsed = Number(setting.value);
-  return Number.isFinite(parsed) ? parsed : DEFAULT_SPONSOR_RATE;
+  return (await getBusinessModel()).sponsorAlonePct;
 }
 
 export async function setSponsorCommissionRate(rate: number) {
-  await prisma.setting.upsert({
-    where: { key: "sponsor_commission_rate" },
-    update: { value: String(rate) },
-    create: { key: "sponsor_commission_rate", value: String(rate) },
-  });
+  const model = await getBusinessModel();
+  await saveBusinessModel({ ...model, sponsorAlonePct: rate });
 }
 
-const DEFAULT_SPONSOR_L2_RATE = 2; // % sur le CA des filleuls de niveau 2
-
-/** Commission parrainage niveau 2 (petite-filleuls). */
+/** Part du grand-parrain (niveau 2). */
 export async function getSponsorL2CommissionRate(): Promise<number> {
-  const setting = await prisma.setting.findUnique({
-    where: { key: "sponsor_l2_commission_rate" },
-  });
-  if (!setting) return DEFAULT_SPONSOR_L2_RATE;
-  const parsed = Number(setting.value);
-  return Number.isFinite(parsed) ? parsed : DEFAULT_SPONSOR_L2_RATE;
+  return (await getBusinessModel()).grandSponsorPct;
 }
 
 export async function setSponsorL2CommissionRate(rate: number) {
-  await prisma.setting.upsert({
-    where: { key: "sponsor_l2_commission_rate" },
-    update: { value: String(rate) },
-    create: { key: "sponsor_l2_commission_rate", value: String(rate) },
-  });
+  const model = await getBusinessModel();
+  await saveBusinessModel({ ...model, grandSponsorPct: rate });
 }
 
 export async function getLoyaltySettings() {

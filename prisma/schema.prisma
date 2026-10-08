@@ -113,6 +113,8 @@ model Product {
   testerPrice       Int?
   volumes           Json?
   regularPrice      Int?
+  /// Prix public Chogan en FCFA : base du prix de vente (Admin > Modèle économique).
+  publicPrice       Int?
   reviewCount       Int              @default(0)
   rating            Float            @default(4.5)
   badge             String?

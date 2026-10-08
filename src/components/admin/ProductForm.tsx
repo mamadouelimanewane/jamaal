@@ -96,7 +96,7 @@ export async function ProductForm({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div>
           <label className={labelClass}>Prix testeur (FCFA)</label>
           <input
@@ -107,7 +107,18 @@ export async function ProductForm({
           />
         </div>
         <div>
-          <label className={labelClass}>Prix régulier (FCFA)</label>
+          <label className={labelClass}>Prix public Chogan (FCFA)</label>
+          <input
+            type="number"
+            name="publicPrice"
+            min={0}
+            defaultValue={product?.publicPrice ?? undefined}
+            className={inputClass}
+          />
+          <p className="mt-1 text-[11px] text-navy/50">Base du prix de vente (Admin &gt; Modèle économique &gt; Mettre à jour les prix).</p>
+        </div>
+        <div>
+          <label className={labelClass}>Prix de vente (FCFA)</label>
           <input
             type="number"
             name="regularPrice"

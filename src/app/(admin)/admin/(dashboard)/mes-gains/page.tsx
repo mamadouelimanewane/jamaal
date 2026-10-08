@@ -1,7 +1,9 @@
-import { Banknote, Gift, Target, Wallet } from "lucide-react";
+import { Banknote, Gift, Target, Trophy, Wallet } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/currency";
-import { getConsultantCommission } from "@/lib/commission";
+import { getConsultantCommission, COMMISSIONABLE_ORDER, commissionBase } from "@/lib/commission";
+import { getBusinessModel } from "@/lib/business-model-store";
+import { primeStatus } from "@/lib/business-model";
 import { getReseller, MONTHS_FR, startOfMonth } from "@/lib/reseller";
 import { StatCard } from "@/components/admin/StatCard";
 import { NotReseller } from "@/components/admin/NotReseller";
@@ -13,7 +15,8 @@ export default async function MesGainsPage() {
   if (!me) return <NotReseller />;
   const now = new Date();
 
-  const info = await getConsultantCommission(me.id);
+  const [info, model] = await Promise.all([getConsultantCommission(me.id), getBusinessModel()]);
+  const prime = primeStatus(info.monthlyRevenue, model);
   const l1 = await prisma.consultant.findMany({ where: { sponsorId: me.id }, select: { id: true } });
   const l1Ids = l1.map((c) => c.id);
   const l2 = l1Ids.length ? await prisma.consultant.findMany({ where: { sponsorId: { in: l1Ids } }, select: { id: true } }) : [];
@@ -22,8 +25,8 @@ export default async function MesGainsPage() {
   const from = startOfMonth(-5);
   const [orders, payments, bonuses, target] = await Promise.all([
     prisma.order.findMany({
-      where: { consultantId: { in: [me.id, ...l1Ids, ...l2Ids] }, status: { not: "ANNULEE" }, createdAt: { gte: from } },
-      select: { consultantId: true, total: true, createdAt: true },
+      where: { ...COMMISSIONABLE_ORDER, consultantId: { in: [me.id, ...l1Ids, ...l2Ids] }, createdAt: { gte: from } },
+      select: { consultantId: true, total: true, deliveryFee: true, createdAt: true },
     }),
     prisma.commissionPayment.findMany({ where: { consultantId: me.id }, orderBy: { paidAt: "desc" }, take: 50 }),
     prisma.fastStartBonus.findMany({ where: { sponsorId: me.id }, include: { sponsoree: { select: { name: true } } } }),
@@ -40,9 +43,10 @@ export default async function MesGainsPage() {
   for (const o of orders) {
     const mo = byKey.get(`${o.createdAt.getFullYear()}-${o.createdAt.getMonth()}`);
     if (!mo || !o.consultantId) continue;
-    if (o.consultantId === me.id) mo.own += o.total;
-    else if (set1.has(o.consultantId)) mo.team1 += o.total;
-    else if (set2.has(o.consultantId)) mo.team2 += o.total;
+    const base = commissionBase(o);
+    if (o.consultantId === me.id) mo.own += base;
+    else if (set1.has(o.consultantId)) mo.team1 += base;
+    else if (set2.has(o.consultantId)) mo.team2 += base;
   }
   const gain = (m: (typeof months)[number]) =>
     Math.round((m.own * info.rate) / 100) + Math.round((m.team1 * info.sponsorRate) / 100) + Math.round((m.team2 * info.sponsorL2Rate) / 100);
@@ -58,8 +62,8 @@ export default async function MesGainsPage() {
     <div className="max-w-6xl">
       <h1 className="font-serif-display text-2xl font-semibold text-navy">Mes gains</h1>
       <p className="mt-1 text-sm text-navy/60">
-        Vos commissions : {info.rate} % sur vos ventes, {info.sponsorRate} % sur celles de vos filleuls directs, {info.sponsorL2Rate} % sur le niveau 2.
-        Les ventes annulées et remboursées ne comptent pas.
+        Vos commissions : {info.rate} % sur vos ventes, {info.sponsorRate} % sur celles de vos filleuls directs, {info.sponsorL2Rate} % sur le niveau 2,
+        calculées sur le prix des produits (hors livraison) des ventes encaissées. Les ventes annulées et remboursées ne comptent pas.
       </p>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -99,6 +103,35 @@ export default async function MesGainsPage() {
           )}
         </div>
       </div>
+
+      {model.primesEnabled && model.primeTiers.length > 0 && (
+        <div className="mt-6 rounded-2xl border border-line bg-white p-5">
+          <h2 className="flex items-center gap-2 font-serif-display text-lg font-semibold text-navy"><Trophy size={18} /> Primes du mois</h2>
+          <p className="mt-1 text-sm text-navy/65">
+            Ventes personnelles encaissées ce mois-ci : <strong className="text-navy">{formatPrice(info.monthlyRevenue)}</strong>.
+            {prime.reached ? <> Palier atteint : prime de <strong className="text-emerald-700">{formatPrice(prime.reached.amount)}</strong>{prime.reached.extra ? ` + ${prime.reached.extra}` : ""}.</> : " Aucun palier atteint pour l'instant."}
+          </p>
+          {prime.next && (
+            <>
+              <div className="mt-3 h-3 overflow-hidden rounded-full bg-navy/10">
+                <div className="h-full rounded-full bg-emerald-600" style={{ width: `${prime.progress}%` }} />
+              </div>
+              <p className="mt-2 text-xs text-navy/60">
+                Encore <strong className="text-navy">{formatPrice(prime.remaining)}</strong> pour la prime de {formatPrice(prime.next.amount)}{prime.next.extra ? ` + ${prime.next.extra}` : ""}.
+              </p>
+            </>
+          )}
+          <ul className="mt-4 grid gap-2 text-xs sm:grid-cols-2 lg:grid-cols-4">
+            {model.primeTiers.map((t) => (
+              <li key={t.threshold} className={`rounded-xl border px-3 py-2 ${info.monthlyRevenue >= t.threshold ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-line text-navy/70"}`}>
+                <span className="block font-semibold">{formatPrice(t.threshold)} de ventes</span>
+                Prime {formatPrice(t.amount)}{t.extra ? ` + ${t.extra}` : ""}
+              </li>
+            ))}
+          </ul>
+          {model.topSellerBonus > 0 && <p className="mt-3 text-xs text-navy/60">Bonus de {formatPrice(model.topSellerBonus)} pour le 1er du classement mensuel (chiffre d&apos;affaires client).</p>}
+        </div>
+      )}
 
       <div className="mt-6 overflow-x-auto rounded-2xl border border-line bg-white">
         <table className="w-full text-sm">
