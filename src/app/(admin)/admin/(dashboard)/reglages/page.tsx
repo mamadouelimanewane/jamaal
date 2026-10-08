@@ -1,13 +1,15 @@
 import { requireAdminPage } from "@/lib/admin-page-guard";
-import { getCommissionRate, getLoyaltySettings } from "@/lib/settings";
-import { updateCommissionRate, updateLoyaltySettingsAction } from "@/lib/actions/settings";
+import Link from "next/link";
+import { getLoyaltySettings } from "@/lib/settings";
+import { getBusinessModel } from "@/lib/business-model-store";
+import { updateLoyaltySettingsAction } from "@/lib/actions/settings";
 import { Settings, Percent, Gift } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
 export default async function SettingsPage() {
   await requireAdminPage();
-  const commissionRate = await getCommissionRate();
+  const model = await getBusinessModel();
   const loyalty = await getLoyaltySettings();
 
   return (
@@ -27,39 +29,19 @@ export default async function SettingsPage() {
       </div>
 
       <div className="mt-8 grid gap-6 md:grid-cols-2">
-        {/* Commission Revendeurs */}
+        {/* Commissions : gérées dans le modèle économique */}
         <div className="rounded-2xl border border-line bg-white p-6 shadow-sm">
           <div className="flex items-center gap-2 font-semibold text-navy">
             <Percent size={18} className="text-rose" />
-            <h2>Taux de Commission Revendeurs</h2>
+            <h2>Commissions revendeurs</h2>
           </div>
           <p className="mt-1 text-xs text-navy/60">
-            Pourcentage reversé par défaut à chaque revendeur sur son chiffre d&apos;affaires généré.
+            Vendeur : <strong>{model.sellerPct} %</strong> · parrain seul : <strong>{model.sponsorAlonePct} %</strong> · parrain + grand-parrain :{" "}
+            <strong>{model.sponsorSharedPct} % + {model.grandSponsorPct} %</strong> du prix de vente.
           </p>
-
-          <form action={updateCommissionRate} className="mt-6 flex flex-col gap-4">
-            <div>
-              <label className="block text-xs font-semibold text-navy/70">
-                Taux de commission (%)
-              </label>
-              <input
-                type="number"
-                name="rate"
-                defaultValue={commissionRate}
-                step="0.5"
-                min="0"
-                max="100"
-                required
-                className="mt-1 w-full rounded-xl border border-line bg-cream/50 px-4 py-2.5 text-sm text-navy focus:border-navy focus:outline-none"
-              />
-            </div>
-            <button
-              type="submit"
-              className="mt-2 rounded-xl bg-navy px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-navy-light"
-            >
-              Enregistrer le taux
-            </button>
-          </form>
+          <Link href="/admin/modele-economique" className="mt-6 inline-block rounded-xl bg-navy px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-navy-light">
+            Modifier dans « Modèle économique »
+          </Link>
         </div>
 
         {/* Programme de Fidélité */}

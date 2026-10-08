@@ -53,12 +53,20 @@ Variables d'environnement principales (`.env`, jamais commité) :
 
 ## Base de données
 
-Le schéma est dans `prisma/schema.prisma` et les migrations dans `prisma/migrations/`.
-Elles ne sont **pas** appliquées automatiquement au déploiement :
+Le schéma est décrit dans `prisma/schema.prisma`. La base Neon de production n'a **pas**
+d'historique Prisma (`_prisma_migrations`) : ne lancez pas `prisma migrate deploy` dessus.
 
-```bash
-npx prisma migrate deploy
-```
+**Mises à jour automatiques** : chaque fichier de `db/sql/` est appliqué une seule fois, au
+déploiement Vercel, par `scripts/db-migrate.mjs` (lancé par `npm run build`). Le suivi est dans
+la table `_jamaal_sql`. Pour changer la base :
+
+1. ajoutez la migration Prisma correspondante (`prisma/migrations/…`) pour garder le schéma à jour ;
+2. ajoutez un nouveau fichier `db/sql/AAAAMMJJ-NN-description.sql`, **additif et rejouable**
+   (`IF NOT EXISTS`…) : il s'applique aussi lors des prévisualisations, qui partagent la base ;
+3. ne modifiez jamais un fichier déjà appliqué (le déploiement s'arrête) : créez-en un nouveau.
+
+En local : `npm run db:migrate` applique les scripts sur la base de votre `.env`.
+Les scripts de `import/neon/` sont l'historique des imports faits à la main ; ils ne sont pas rejoués.
 
 ## Structure
 

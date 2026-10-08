@@ -71,6 +71,7 @@ async function syncVariantStock(productId: string, formData: FormData, userId: s
 async function productDataFromForm(formData: FormData) {
   const testerPrice = formData.get("testerPrice");
   const regularPrice = formData.get("regularPrice");
+  const publicPrice = Number(formData.get("publicPrice") ?? "");
   const numberVal = formData.get("number");
   const badge = String(formData.get("badge") ?? "");
 
@@ -94,6 +95,7 @@ async function productDataFromForm(formData: FormData) {
     testerPrice: testerPrice ? Number(testerPrice) : null,
     volumes: parseVolumes(formData.get("volumes")) ?? undefined,
     regularPrice: regularPrice ? Number(regularPrice) : null,
+    publicPrice: Number.isFinite(publicPrice) && publicPrice > 0 ? Math.round(publicPrice) : null,
     badge: badge || null,
     colorFrom: String(formData.get("colorFrom") ?? "#1d2f4f"),
     colorTo: String(formData.get("colorTo") ?? "#d9a99d"),

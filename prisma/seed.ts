@@ -30,6 +30,7 @@ async function main() {
         testerPrice: p.testerPrice ?? null,
         volumes: (p.volumes as Prisma.InputJsonValue | undefined) ?? undefined,
         regularPrice: p.regularPrice ?? null,
+        publicPrice: p.publicPrice ?? null,
         reviewCount: p.reviewCount,
         rating: p.rating,
         badge: p.badge ?? null,

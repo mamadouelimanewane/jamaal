@@ -1,9 +1,7 @@
 import { prisma } from "./prisma";
-import {
-  getCommissionRate,
-  getSponsorCommissionRate,
-  getSponsorL2CommissionRate,
-} from "./settings";
+import type { Prisma } from "@prisma/client";
+import { getBusinessModel } from "./business-model-store";
+import { sponsorRatesFor } from "./business-model";
 import { getRefundedTotal } from "./revenue";
 
 function startOfMonth(): Date {
@@ -29,99 +27,81 @@ export interface CommissionInfo {
   lifetimeL2Commission: number;
 }
 
-async function teamRevenue(
-  teamIds: string[],
-  since?: Date
-): Promise<{ gross: number; refunded: number }> {
-  if (!teamIds.length) return { gross: 0, refunded: 0 };
+/**
+ * Commandes qui ouvrent droit à commission : encaissées (paiement confirmé, ou paiement à la
+ * livraison effectivement livré) et non annulées.
+ */
+export const COMMISSIONABLE_ORDER: Prisma.OrderWhereInput = {
+  status: { not: "ANNULEE" },
+  OR: [{ paymentStatus: "PAYE" }, { paymentMethod: "A_LA_LIVRAISON", status: "LIVREE" }],
+};
+
+/** Base de commission d'une commande : prix des produits, sans les frais de livraison. */
+export function commissionBase(order: { total: number; deliveryFee?: number | null }): number {
+  return Math.max(0, order.total - (order.deliveryFee ?? 0));
+}
+
+/** Ventes encaissées (hors livraison, remboursements déduits) d'un ou plusieurs revendeurs. */
+export async function paidSales(consultantIds: string[], since?: Date): Promise<number> {
+  if (!consultantIds.length) return 0;
   const [agg, refunded] = await Promise.all([
     prisma.order.aggregate({
-      _sum: { total: true },
+      _sum: { total: true, deliveryFee: true },
       where: {
-        consultantId: { in: teamIds },
-        status: { not: "ANNULEE" },
+        ...COMMISSIONABLE_ORDER,
+        consultantId: { in: consultantIds },
         ...(since ? { createdAt: { gte: since } } : {}),
       },
     }),
-    getRefundedTotal({
-      consultantIds: teamIds,
-      ...(since ? { since } : {}),
-    }),
+    getRefundedTotal({ consultantIds, ...(since ? { since } : {}) }),
   ]);
-  return { gross: agg._sum.total ?? 0, refunded };
+  return Math.max(0, (agg._sum.total ?? 0) - (agg._sum.deliveryFee ?? 0) - refunded);
 }
 
 export async function getConsultantCommission(consultantId: string): Promise<CommissionInfo> {
   const since = startOfMonth();
 
-  const level1 = await prisma.consultant.findMany({
-    where: { sponsorId: consultantId },
-    select: { id: true },
-  });
+  const [me, level1, model] = await Promise.all([
+    prisma.consultant.findUnique({ where: { id: consultantId }, select: { sponsorId: true } }),
+    prisma.consultant.findMany({ where: { sponsorId: consultantId }, select: { id: true } }),
+    getBusinessModel(),
+  ]);
   const l1Ids = level1.map((t) => t.id);
-
   const level2 = l1Ids.length
-    ? await prisma.consultant.findMany({
-        where: { sponsorId: { in: l1Ids } },
-        select: { id: true },
-      })
+    ? await prisma.consultant.findMany({ where: { sponsorId: { in: l1Ids } }, select: { id: true } })
     : [];
   const l2Ids = level2.map((t) => t.id);
 
-  const [
-    rate,
-    sponsorRate,
-    sponsorL2Rate,
-    monthlyAgg,
-    monthlyRefunded,
-    lifetimeAgg,
-    lifetimeRefunded,
-    monthlyL1,
-    lifetimeL1,
-    monthlyL2,
-    lifetimeL2,
-  ] = await Promise.all([
-    getCommissionRate(),
-    getSponsorCommissionRate(),
-    getSponsorL2CommissionRate(),
-    prisma.order.aggregate({
-      _sum: { total: true },
-      where: { consultantId, status: { not: "ANNULEE" }, createdAt: { gte: since } },
-    }),
-    getRefundedTotal({ consultantId, since }),
-    prisma.order.aggregate({
-      _sum: { total: true },
-      where: { consultantId, status: { not: "ANNULEE" } },
-    }),
-    getRefundedTotal({ consultantId }),
-    teamRevenue(l1Ids, since),
-    teamRevenue(l1Ids),
-    teamRevenue(l2Ids, since),
-    teamRevenue(l2Ids),
-  ]);
+  const rate = model.sellerPct;
+  // Parrain seul : il prend toute l'enveloppe (6 %) ; s'il a lui-même un parrain, il la partage (3 % + 3 %).
+  const { level1: sponsorRate, level2: sponsorL2Rate } = sponsorRatesFor(!!me?.sponsorId, model);
 
-  const monthlyRevenue = Math.max(0, (monthlyAgg._sum.total ?? 0) - monthlyRefunded);
-  const lifetimeRevenue = Math.max(0, (lifetimeAgg._sum.total ?? 0) - lifetimeRefunded);
-  const monthlyTeamRevenue = Math.max(0, monthlyL1.gross - monthlyL1.refunded);
-  const lifetimeTeamRevenue = Math.max(0, lifetimeL1.gross - lifetimeL1.refunded);
-  const monthlyL2Revenue = Math.max(0, monthlyL2.gross - monthlyL2.refunded);
-  const lifetimeL2Revenue = Math.max(0, lifetimeL2.gross - lifetimeL2.refunded);
+  const [monthlyRevenue, lifetimeRevenue, monthlyTeamRevenue, lifetimeTeamRevenue, monthlyL2Revenue, lifetimeL2Revenue] =
+    await Promise.all([
+      paidSales([consultantId], since),
+      paidSales([consultantId]),
+      paidSales(l1Ids, since),
+      paidSales(l1Ids),
+      paidSales(l2Ids, since),
+      paidSales(l2Ids),
+    ]);
 
+  const pct = (amount: number, r: number) => Math.round((amount * r) / 100);
   return {
     rate,
     monthlyRevenue,
-    monthlyCommission: Math.round((monthlyRevenue * rate) / 100),
+    monthlyCommission: pct(monthlyRevenue, rate),
     lifetimeRevenue,
-    lifetimeCommission: Math.round((lifetimeRevenue * rate) / 100),
+    lifetimeCommission: pct(lifetimeRevenue, rate),
     sponsorRate,
     monthlyTeamRevenue,
-    monthlySponsorCommission: Math.round((monthlyTeamRevenue * sponsorRate) / 100),
+    monthlySponsorCommission: pct(monthlyTeamRevenue, sponsorRate),
     lifetimeTeamRevenue,
-    lifetimeSponsorCommission: Math.round((lifetimeTeamRevenue * sponsorRate) / 100),
+    lifetimeSponsorCommission: pct(lifetimeTeamRevenue, sponsorRate),
     sponsorL2Rate,
     monthlyL2Revenue,
-    monthlyL2Commission: Math.round((monthlyL2Revenue * sponsorL2Rate) / 100),
+    monthlyL2Commission: pct(monthlyL2Revenue, sponsorL2Rate),
     lifetimeL2Revenue,
-    lifetimeL2Commission: Math.round((lifetimeL2Revenue * sponsorL2Rate) / 100),
+    lifetimeL2Commission: pct(lifetimeL2Revenue, sponsorL2Rate),
   };
 }

@@ -2,7 +2,9 @@ import { MessageCircle, UserPlus, Users } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/currency";
 import { getReseller, resellerLinks, startOfMonth } from "@/lib/reseller";
-import { getSponsorCommissionRate, getSponsorL2CommissionRate } from "@/lib/settings";
+import { getBusinessModel } from "@/lib/business-model-store";
+import { sponsorRatesFor } from "@/lib/business-model";
+import { COMMISSIONABLE_ORDER } from "@/lib/commission";
 import { StatCard } from "@/components/admin/StatCard";
 import { CopyButton } from "@/components/admin/CopyButton";
 import { NotReseller } from "@/components/admin/NotReseller";
@@ -17,31 +19,32 @@ export default async function MesFilleulsPage() {
   const since = startOfMonth();
   const links = await resellerLinks(me.slug);
 
-  const [l1, rate1, rate2] = await Promise.all([
+  const [l1, model] = await Promise.all([
     prisma.consultant.findMany({
       where: { sponsorId: me.id },
       orderBy: { createdAt: "desc" },
       select: { id: true, name: true, city: true, whatsapp: true, active: true, createdAt: true, _count: { select: { sponsored: true } } },
     }),
-    getSponsorCommissionRate(),
-    getSponsorL2CommissionRate(),
+    getBusinessModel(),
   ]);
+  // 6 % si je suis un parrain sans parrain au-dessus, 3 % sinon (+ 3 % sur le niveau 2).
+  const { level1: rate1, level2: rate2 } = sponsorRatesFor(!!me.sponsorId, model);
   const ids = l1.map((c) => c.id);
 
   const [monthly, lifetime, applications, bonuses] = await Promise.all([
     ids.length
-      ? prisma.order.groupBy({ by: ["consultantId"], where: { consultantId: { in: ids }, status: { not: "ANNULEE" }, createdAt: { gte: since } }, _sum: { total: true }, _count: { _all: true } })
+      ? prisma.order.groupBy({ by: ["consultantId"], where: { ...COMMISSIONABLE_ORDER, consultantId: { in: ids }, createdAt: { gte: since } }, _sum: { total: true, deliveryFee: true }, _count: { _all: true } })
       : [],
     ids.length
-      ? prisma.order.groupBy({ by: ["consultantId"], where: { consultantId: { in: ids }, status: { not: "ANNULEE" } }, _sum: { total: true } })
+      ? prisma.order.groupBy({ by: ["consultantId"], where: { ...COMMISSIONABLE_ORDER, consultantId: { in: ids } }, _sum: { total: true, deliveryFee: true } })
       : [],
     me.slug
       ? prisma.consultantApplication.findMany({ where: { sponsorCode: me.slug }, orderBy: { createdAt: "desc" }, take: 20 })
       : [],
     prisma.fastStartBonus.findMany({ where: { sponsorId: me.id }, include: { sponsoree: { select: { name: true } } }, orderBy: { createdAt: "desc" } }),
   ]);
-  const m = new Map(monthly.map((r) => [r.consultantId, { ca: r._sum.total ?? 0, n: r._count._all }]));
-  const l = new Map(lifetime.map((r) => [r.consultantId, r._sum.total ?? 0]));
+  const m = new Map(monthly.map((r) => [r.consultantId, { ca: (r._sum.total ?? 0) - (r._sum.deliveryFee ?? 0), n: r._count._all }]));
+  const l = new Map(lifetime.map((r) => [r.consultantId, (r._sum.total ?? 0) - (r._sum.deliveryFee ?? 0)]));
   const teamMonth = [...m.values()].reduce((s, v) => s + v.ca, 0);
   const l2Count = l1.reduce((s, c) => s + c._count.sponsored, 0);
   const pending = applications.filter((a) => a.status === "NOUVELLE").length;
@@ -51,7 +54,7 @@ export default async function MesFilleulsPage() {
     <div className="max-w-6xl">
       <h1 className="font-serif-display text-2xl font-semibold text-navy">Mes filleuls</h1>
       <p className="mt-1 text-sm text-navy/60">
-        Les revendeur·ses que vous avez recruté·es. Vous gagnez {rate1} % sur les ventes de vos filleuls directs et {rate2} % sur leurs propres filleuls.
+        Les revendeur·ses que vous avez recruté·es. Vous gagnez {rate1} % sur les ventes encaissées de vos filleuls directs et {rate2} % sur celles de leurs propres filleuls.
       </p>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
