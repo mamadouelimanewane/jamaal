@@ -7,6 +7,7 @@ import { Minus, Plus, Trash2 } from "lucide-react";
 import { useCartStore } from "@/lib/cart-store";
 import { formatPrice } from "@/lib/currency";
 import { createOrder } from "@/lib/actions/orders";
+import { getCartPrices } from "@/lib/actions/cart";
 import { getActiveConsultantsForCheckout } from "@/lib/actions/public-data";
 import { initiatePayment } from "@/lib/actions/payment";
 import { listPaymentOptions } from "@/lib/actions/payment-options";
@@ -26,7 +27,9 @@ function readRefCookie(): string | null {
 
 export default function CartPage() {
   const router = useRouter();
-  const { items, removeItem, updateQuantity, total, clear } = useCartStore();
+  const { items, removeItem, updateQuantity, total, clear, syncPrices } = useCartStore();
+  const [pricesUpdated, setPricesUpdated] = useState(false);
+  const [pricesChecked, setPricesChecked] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [customer, setCustomer] = useState({ name: "", phone: "", email: "", address: "" });
@@ -46,6 +49,22 @@ export default function CartPage() {
     },
   ]);
   const [paymentMethod, setPaymentMethod] = useState<PaymentProviderId>("cod");
+
+  // Le panier est conservé dans le navigateur : on y remet les prix actuels du catalogue.
+  useEffect(() => {
+    if (pricesChecked || items.length === 0) return;
+    let cancelled = false;
+    getCartPrices(items.map((i) => ({ productId: i.productId, volumeLabel: i.volumeLabel })))
+      .then((prices) => {
+        if (cancelled) return;
+        if (syncPrices(prices) > 0) setPricesUpdated(true);
+        setPricesChecked(true);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [items, pricesChecked, syncPrices]);
 
   useEffect(() => {
     getActiveConsultantsForCheckout().then((list) => {
@@ -132,6 +151,11 @@ export default function CartPage() {
         </div>
       ) : (
         <div className="mt-8 grid gap-8 lg:grid-cols-3">
+          {pricesUpdated && (
+            <p role="status" className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 lg:col-span-3">
+              Les prix de certains articles ont changé depuis votre dernière visite. Votre panier affiche les prix actuels.
+            </p>
+          )}
           <ul className="flex flex-col gap-4 lg:col-span-2">
             {items.map((item) => (
               <li
