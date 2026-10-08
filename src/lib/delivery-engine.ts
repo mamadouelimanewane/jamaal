@@ -56,7 +56,7 @@ export async function advanceDelivery(
 ) {
   const order = await prisma.order.findUnique({
     where: { id: orderId },
-    select: { id: true, status: true, deliveryStatus: true, deliveryCode: true, livreurId: true, deliveryMode: true, customerName: true, customerPhone: true, livreurShare: true },
+    select: { id: true, status: true, deliveryStatus: true, deliveryCode: true, livreurId: true, deliveryMode: true, customerName: true, customerPhone: true, deliveryContactName: true, deliveryContactPhone: true, deliveryTarget: true, livreurShare: true },
   });
   if (!order || order.deliveryMode !== "LIVRAISON_JAMAAL") throw new DeliveryError("Cette commande n'est pas une livraison JAMAAL.");
   if (order.status === "ANNULEE") throw new DeliveryError("Commande annulée.");
@@ -117,15 +117,28 @@ export async function advanceDelivery(
   refresh(orderId);
 }
 
-async function afterStep(orderId: string, to: DeliveryStatus, order: { customerName: string; customerPhone: string | null; livreurShare: number }) {
+type StepOrder = {
+  customerName: string;
+  customerPhone: string | null;
+  deliveryContactName: string | null;
+  deliveryContactPhone: string | null;
+  deliveryTarget: string | null;
+  livreurShare: number;
+};
+
+async function afterStep(orderId: string, to: DeliveryStatus, order: StepOrder) {
   const site = await getSiteUrl().catch(() => "");
   const track = site ? `${site}/suivi/${orderId}` : "";
-  if (to === "EN_ROUTE" && order.customerPhone) {
+  // La personne qui reçoit le colis : le client, ou le vendeur s'il se fait livrer à sa propre adresse.
+  const atVendor = order.deliveryTarget === "VENDEUR";
+  const contactName = order.deliveryContactName ?? order.customerName;
+  const contactPhone = order.deliveryContactPhone ?? order.customerPhone;
+  if (to === "EN_ROUTE" && contactPhone) {
     const o = await prisma.order.findUnique({ where: { id: orderId }, select: { deliveryCode: true, livreur: { select: { name: true } } } });
     await sendWhatsApp({
-      to: order.customerPhone,
-      kind: "client",
-      text: `Bonjour ${order.customerName}, votre commande JAMAAL est en route${o?.livreur ? ` avec ${o.livreur.name}` : ""}. Suivez-la en direct : ${track}\nCode de livraison à donner au livreur : ${o?.deliveryCode ?? ""}`,
+      to: contactPhone,
+      kind: atVendor ? "reseller" : "client",
+      text: `Bonjour ${contactName}, ${atVendor ? `la commande JAMAAL de ${order.customerName}` : "votre commande JAMAAL"} est en route${o?.livreur ? ` avec ${o.livreur.name}` : ""}. Suivez-la en direct : ${track}\nCode de livraison à donner au livreur : ${o?.deliveryCode ?? ""}`,
     });
   }
   if (to === "LIVREE") {
@@ -134,7 +147,8 @@ async function afterStep(orderId: string, to: DeliveryStatus, order: { customerN
     await safely("commissions", () => runPayoutsForOrder(orderId));
     await safely("part livreur", () => recordLivreurEarning(orderId));
     await safely("consultant", () => notifyConsultantOfDelivery(orderId));
-    if (order.customerPhone) await safely("client", () => sendWhatsApp({ to: order.customerPhone!, kind: "client", text: `Merci ${order.customerName} ! Votre commande JAMAAL a bien été livrée. À très vite.` }));
+    // Livré chez le vendeur : il est déjà prévenu par la notification consultant ci-dessus.
+    if (!atVendor && contactPhone) await safely("client", () => sendWhatsApp({ to: contactPhone, kind: "client", text: `Merci ${contactName} ! Votre commande JAMAAL a bien été livrée. À très vite.` }));
   }
 }
 

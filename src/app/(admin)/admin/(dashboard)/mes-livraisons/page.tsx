@@ -68,8 +68,9 @@ export default async function MesLivraisonsPage() {
           <LivreurDeliveryCard
             key={o.id}
             id={o.id}
-            customerName={o.customerName}
-            customerPhone={o.customerPhone}
+            customerName={o.deliveryContactName ?? o.customerName}
+            customerPhone={o.deliveryContactPhone ?? o.customerPhone}
+            forCustomer={o.deliveryTarget === "VENDEUR" ? o.customerName : null}
             address={o.address}
             total={o.total}
             paid={o.paymentStatus === "PAYE"}
