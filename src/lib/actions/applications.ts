@@ -25,7 +25,7 @@ export async function submitApplication(_prev: ApplicationState, formData: FormD
   if (String(formData.get("website") ?? "").trim()) return { ok: true };
 
   const h = await headers();
-  const limited = rateLimit(`apply:${clientIpFromHeaders(h)}`, { limit: 3, windowMs: 10 * 60_000 });
+  const limited = await rateLimit(`apply:${clientIpFromHeaders(h)}`, { limit: 3, windowMs: 10 * 60_000 });
   if (!limited.ok) return { ok: false, error: `Trop de tentatives. Réessayez dans ${limited.retryAfterSec} s.` };
 
   const parsed = applicationSchema.safeParse({

@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 const MAX_FAILURES = 5;
 const WINDOW_MS = 15 * 60 * 1000;
 const LOCK_MS = 15 * 60 * 1000;
+const ROLE_REFRESH_MS = 5 * 60 * 1000;
 const DUMMY_HASH = "$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -68,10 +69,26 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    jwt: ({ token, user }) => {
+    jwt: async ({ token, user }) => {
+      const now = Date.now();
       if (user) {
         token.role = (user as { role: string }).role;
         token.id = user.id;
+        token.checkedAt = now;
+        return token;
+      }
+      // Le rôle est relu en base toutes les 5 minutes : un compte supprimé est déconnecté et un
+      // changement de rôle prend effet sans attendre l'expiration de la session (8 h).
+      const checkedAt = typeof token.checkedAt === "number" ? token.checkedAt : 0;
+      if (token.id && now - checkedAt > ROLE_REFRESH_MS) {
+        try {
+          const fresh = await prisma.user.findUnique({ where: { id: token.id as string }, select: { role: true } });
+          if (!fresh) return null;
+          token.role = fresh.role;
+          token.checkedAt = now;
+        } catch {
+          // Base momentanément indisponible : on garde le rôle connu et on réessaiera.
+        }
       }
       return token;
     },

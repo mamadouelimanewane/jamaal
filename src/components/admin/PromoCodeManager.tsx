@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { Copy, Check, Plus, Loader2, Trash2, Download, QrCode } from "lucide-react";
+import { Copy, Check, Plus, Loader2, QrCode } from "lucide-react";
 
 interface PromoCode {
   id: string;

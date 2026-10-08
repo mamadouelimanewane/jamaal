@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -8,19 +8,21 @@ import { ArrowRight, Menu, Search, ShoppingBag, UserRound, X } from "lucide-reac
 import type { Category } from "@/data/types";
 import { useCartStore } from "@/lib/cart-store";
 
+const subscribeNoop = () => () => {};
+
 const FEATURED_CATEGORIES = ["parfum-femme", "parfum-homme", "parfum-unisexe"];
 
 export function Header({ categories }: { categories: Category[] }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const count = useCartStore((state) => state.count());
   const openCart = useCartStore((state) => state.open);
   const perfumeCategories = categories.filter((category) => FEATURED_CATEGORIES.includes(category.slug));
 
-  useEffect(() => setMounted(true), []);
+  // Le panier vient du localStorage : on n'affiche le compteur qu'après l'hydratation.
+  const mounted = useSyncExternalStore(subscribeNoop, () => true, () => false);
 
   // Grand logo en haut de page, réduit dès qu'on fait défiler pour ne pas gêner la lecture.
   const [scrolled, setScrolled] = useState(false);

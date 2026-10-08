@@ -12,7 +12,7 @@ const escapeHtml = (value: string) => value.replace(/[&<>"']/g, (char) => ({ "&"
 
 export async function requestPasswordReset(formData: FormData) {
   const requestHeaders = await headers();
-  const limited = rateLimit(`password-reset:${clientIpFromHeaders(requestHeaders)}`, { limit: 5, windowMs: 10 * 60_000 });
+  const limited = await rateLimit(`password-reset:${clientIpFromHeaders(requestHeaders)}`, { limit: 5, windowMs: 10 * 60_000 });
   if (!limited.ok) redirect("/admin/forgot-password?sent=1");
 
   const email = String(formData.get("email") ?? "").trim().toLowerCase();

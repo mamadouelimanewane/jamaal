@@ -17,7 +17,7 @@ export async function initiatePayment(
 ) {
   const h = await headers();
   const ip = clientIpFromHeaders(h);
-  const limited = rateLimit(`pay:${ip}`, { limit: 10, windowMs: 60_000 });
+  const limited = await rateLimit(`pay:${ip}`, { limit: 10, windowMs: 60_000 });
   if (!limited.ok) {
     throw new Error(`Trop de tentatives. Réessayez dans ${limited.retryAfterSec}s.`);
   }

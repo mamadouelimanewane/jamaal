@@ -1,61 +1,71 @@
 # JAMAAL Luxury Cosmetics
 
-Boutique en ligne JAMAAL — parfums et cosmétiques inspirés des grandes maisons de
-parfumerie, à prix juste. Application construite avec Next.js 16 (App Router),
-React 19, TypeScript, Tailwind CSS v4 et Zustand.
+Boutique en ligne et back-office de JAMAAL : parfums et cosmétiques de la gamme Chogan,
+vendus au Sénégal (prix en FCFA) via un réseau de revendeurs.
 
-## Origine du projet
+Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS v4 · Zustand ·
+Prisma 7 + PostgreSQL (Neon) · NextAuth v5 · déployé sur Vercel.
 
-Ce site reprend **l'architecture et le modèle** d'une vitrine de revendeur/consultant
-indépendant du groupe CHOGAN (parfums "inspirés de" grandes marques, vendus en
-vente directe) : slider d'accueil, barre de recherche par nom/numéro, catégories
-(parfums femme/homme, soins, maquillage, bijoux, entretien maison, compléments,
-parfums d'ambiance...), fiche produit avec notes olfactives et volumes, panier,
-page "devenir consultant", liste de consultants, avis clients, blog.
+## Ce que fait l'application
 
-**Important — ce qui a été volontairement recréé plutôt que copié :**
+- **Boutique publique** : catalogue par collections, fiche produit (notes olfactives, volumes),
+  recherche, quiz parfum, favoris, panier, commande, suivi de livraison, avis, blog, parrainage,
+  candidature revendeur, page personnelle de chaque revendeur (`/c/<slug>`).
+- **Back-office** (`/admin`) avec trois rôles :
+  - **ADMIN** : commandes, produits, stocks, clients, revendeurs, candidatures, coupons,
+    comptabilité, statistiques, livreurs, blog, annonces, Centre WhatsApp, réglages ;
+  - **CONSULTANT** (revendeur) : ventes, clients, filleuls, gains, kit marketing, profil ;
+  - **LIVREUR** : livraisons et partage de position.
+- **Paiement** : Wave, Orange Money, Stripe et paiement à la livraison (`PAYMENT.md`).
+- **WhatsApp** : application installable (PWA), connexion par lien, envoi de messages
+  (Meta / 360dialog / Twilio) — voir `docs/whatsapp-api-config.md`.
 
-- Tous les **textes** (descriptions produits, articles de blog, blocs explicatifs)
-  sont rédigés spécifiquement pour JAMAAL. Aucun texte n'a été copié du site
-  d'inspiration ou de la marque CHOGAN.
-- Tous les **visuels produits** sont des illustrations SVG générées (flacons,
-  pots, tubes...) dans les couleurs JAMAAL — aucune photo n'a été téléchargée
-  depuis un site tiers.
-- Le **catalogue** (numérotation des parfums, familles olfactives, prix) est une
-  création originale de démonstration, distincte de la numérotation réelle des
-  produits CHOGAN.
-- Il n'y a **aucun scraping ni synchronisation automatique** avec un site tiers :
-  ce serait à la fois fragile techniquement et risqué juridiquement (le contenu
-  d'un site concurrent/consultant appartient à son auteur).
+## Catalogue
 
-## Pour aller vers une vraie boutique consultant (si vous devenez consultant·e)
+Le catalogue en base est importé à partir des données Chogan :
 
-1. Remplacez le contenu de démonstration dans `src/data/products.ts`,
-   `src/data/blog.ts`, `src/data/consultants.ts` par vos données réelles.
-2. Si votre organisation (ex. CHOGAN) vous fournit un catalogue officiel
-   (export CSV/API, visuels marketing autorisés), écrivez un script d'import qui
-   génère `src/data/products.ts` à partir de ce flux plutôt que de dupliquer le
-   contenu d'un autre site.
-3. Remplacez les visuels placeholder (`ProductBottle.tsx`) par vos photos
-   produits officielles (`public/produits/...` + `next/image`).
-4. Ajoutez votre vrai lien d'inscription consultant, numéro WhatsApp, et vos
-   informations légales (mentions légales, CGV) avant toute mise en production.
-5. Branchez un vrai moyen de paiement (Stripe, etc.) : la page `/panier` est un
-   tunnel de commande factice qui ne traite aucun paiement réel.
+- `src/data/chogan-catalog.json` — catalogue Chogan (les images sont servies par
+  `cdn.chogangroupspa.com`, autorisé dans `next.config.ts`) ;
+- `scripts/chogan-export.browser.js` — export du catalogue public Chogan depuis le navigateur ;
+- `scripts/import-catalog.mjs` et `import/README.md` — import d'un catalogue CSV ;
+- `import/neon/*.sql` — scripts SQL d'import appliqués sur la base Neon.
+
+> L'utilisation des noms, textes et visuels Chogan, ainsi que les mentions affichées sur le site
+> (« distribué par JAMAAL », « représentant exclusif »…), doivent correspondre à votre accord de
+> distribution avec la marque. Vérifiez-les avec vos mentions légales et CGV.
 
 ## Démarrage
 
 ```bash
-npm install
-npm run dev
+npm install          # génère aussi le client Prisma
+npm run dev          # http://localhost:3000
 ```
 
-Le site tourne sur `http://localhost:3030` (voir `.claude/launch.json` au niveau
-de `C:/gravity`).
+Variables d'environnement principales (`.env`, jamais commité) :
+
+| Variable | Rôle |
+|---|---|
+| `DATABASE_URL` / `DATABASE_URL_UNPOOLED` | base PostgreSQL (Neon) |
+| `AUTH_SECRET` | secret NextAuth |
+| `NEXT_PUBLIC_SITE_URL` | domaine public (liens WhatsApp, sitemap, aperçus) |
+| `WAVE_*`, `ORANGE_MONEY_*`, `STRIPE_*` | paiement (voir `PAYMENT.md`) |
+| `WHATSAPP_*` | envoi WhatsApp (voir `docs/whatsapp-api-config.md`) |
+
+## Base de données
+
+Le schéma est dans `prisma/schema.prisma` et les migrations dans `prisma/migrations/`.
+Elles ne sont **pas** appliquées automatiquement au déploiement :
+
+```bash
+npx prisma migrate deploy
+```
 
 ## Structure
 
-- `src/data/` — catalogue, catégories, blog, avis, consultants (démonstration)
-- `src/components/` — Header, Footer, HeroSlider, ProductCard, CartDrawer...
-- `src/app/` — pages App Router (accueil, collections, produits, panier, blog...)
-- `src/lib/cart-store.ts` — panier (Zustand + persistance localStorage)
+- `src/app/(site)/` — pages publiques ; `src/app/(admin)/admin/` — back-office
+- `src/app/api/` — exports, webhooks de paiement et WhatsApp, suivi de commande
+- `src/lib/actions/` — actions serveur (chaque action vérifie le rôle avec `requireAdmin`,
+  `requireStaff`… ; les fonctions internes non protégées restent hors des fichiers `"use server"`)
+- `src/proxy.ts` — attribution revendeur (`?ref=`) et protection des routes `/admin`
+- `src/lib/rate-limit.ts` — limitation de débit partagée (table `RateLimitBucket`)
+- `src/components/` — composants de la boutique et du back-office
