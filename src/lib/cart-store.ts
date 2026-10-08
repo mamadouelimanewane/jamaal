@@ -23,6 +23,8 @@ interface CartState {
   removeItem: (productId: string, volumeLabel: string) => void;
   updateQuantity: (productId: string, volumeLabel: string, quantity: number) => void;
   clear: () => void;
+  /** Remplace les prix par ceux du serveur (null = article retiré). Renvoie le nombre d'articles modifiés. */
+  syncPrices: (prices: { productId: string; volumeLabel: string; price: number | null }[]) => number;
   total: () => number;
   count: () => number;
 }
@@ -66,6 +68,26 @@ export const useCartStore = create<CartState>()(
             .filter((i) => i.quantity > 0),
         })),
       clear: () => set({ items: [] }),
+      syncPrices: (prices) => {
+        const key = (i: { productId: string; volumeLabel: string }) => `${i.productId}::${i.volumeLabel}`;
+        const map = new Map(prices.map((p) => [key(p), p.price]));
+        let changed = 0;
+        const items = get().items.flatMap((i) => {
+          if (!map.has(key(i))) return [i];
+          const price = map.get(key(i));
+          if (price == null) {
+            changed += 1;
+            return [];
+          }
+          if (price !== i.price) {
+            changed += 1;
+            return [{ ...i, price }];
+          }
+          return [i];
+        });
+        if (changed) set({ items });
+        return changed;
+      },
       total: () => get().items.reduce((sum, i) => sum + i.price * i.quantity, 0),
       count: () => get().items.reduce((sum, i) => sum + i.quantity, 0),
     }),
