@@ -66,15 +66,14 @@ const rows = readFileSync(path.join(root, "import/chogan-raw.txt"), "utf8")
     return { id, leaf, eur: Number(eur), format: format.trim(), img, name: rest.join("|").trim() };
   });
 
-const nameCount = new Map();
-for (const r of rows) nameCount.set(norm(r.name), (nameCount.get(norm(r.name)) ?? 0) + 1);
 
 const out = rows.map((r) => {
-  const dup = nameCount.get(norm(r.name)) > 1;
-  const name = (dup ? `${r.name} — réf. ${r.id}` : r.name).replace(/\s+/g, " ");
+  // Nom et référence identiques à Chogan (la référence est affichée à part, champ number).
+  const name = r.name.replace(/\s+/g, " ").trim();
   const detail = r.format ? ` Format : ${r.format}.` : "";
   return {
     id: `chogan-${r.id}`,
+    number: Number(r.id),
     slug: `${slugify(r.name)}-${r.id}`,
     name,
     category: categorize(r.leaf, r.name),
