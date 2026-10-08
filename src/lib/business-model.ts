@@ -55,6 +55,20 @@ export type BusinessModel = {
   payoutTrigger: "PAID" | "DELIVERED";
   /** Montant minimal d'un versement (FCFA) ; en dessous, la commission attend la suivante. */
   minPayout: number;
+  /** Livraison : position et nom du dépôt (point de départ des livreurs). */
+  depotLat: number;
+  depotLng: number;
+  depotLabel: string;
+  /** Frais = forfait (incluant les premiers km) + prix par km au-delà, arrondi. */
+  deliveryBaseFee: number;
+  deliveryIncludedKm: number;
+  deliveryPerKm: number;
+  /** Distance maximale livrée (km, à vol d'oiseau × coefficient routier). 0 = illimitée. */
+  deliveryMaxKm: number;
+  /** Livraison offerte à partir de ce montant de produits (FCFA). 0 = jamais. */
+  deliveryFreeAbove: number;
+  /** Part des frais de livraison reversée au livreur (%). */
+  livreurSharePct: number;
 };
 
 export const DEFAULT_BUSINESS_MODEL: BusinessModel = {
@@ -83,6 +97,15 @@ export const DEFAULT_BUSINESS_MODEL: BusinessModel = {
   payoutsEnabled: true,
   payoutTrigger: "PAID",
   minPayout: 0,
+  depotLat: 14.6928,
+  depotLng: -17.4467,
+  depotLabel: "Dépôt JAMAAL (Dakar)",
+  deliveryBaseFee: 1000,
+  deliveryIncludedKm: 3,
+  deliveryPerKm: 200,
+  deliveryMaxKm: 40,
+  deliveryFreeAbove: 0,
+  livreurSharePct: 70,
 };
 
 /** Fusionne une valeur enregistrée (éventuellement partielle ou ancienne) avec les valeurs par défaut. */
@@ -106,6 +129,16 @@ export function normalizeBusinessModel(raw: unknown): BusinessModel {
   num("topSellerBonus", 0, 100_000_000);
   num("maxDirectRecruits", 0, 1000);
   num("minPayout", 0, 10_000_000);
+  num("depotLat", -90, 90);
+  const lng = Number(r.depotLng);
+  if (Number.isFinite(lng) && lng >= -180 && lng <= 180) base.depotLng = lng;
+  if (typeof r.depotLabel === "string" && r.depotLabel.trim()) base.depotLabel = r.depotLabel.trim().slice(0, 120);
+  num("deliveryBaseFee", 0, 1_000_000);
+  num("deliveryIncludedKm", 0, 500);
+  num("deliveryPerKm", 0, 100_000);
+  num("deliveryMaxKm", 0, 2000);
+  num("deliveryFreeAbove", 0, 100_000_000);
+  num("livreurSharePct", 0, 100);
   for (const key of ["primesEnabled", "acceptWave", "acceptOrangeMoney", "acceptCard", "acceptCashOnDelivery", "payoutsEnabled"] as const) {
     if (typeof r[key] === "boolean") base[key] = r[key] as boolean;
   }

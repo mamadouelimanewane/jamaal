@@ -81,4 +81,7 @@ Les scripts de `import/neon/` sont l'historique des imports faits à la main ; i
 - `src/lib/business-model.ts` — modèle économique (prix, commissions, paiements, versements)
 - `src/lib/payouts/` — commissions par commande et versements sur wallet Wave / Orange Money
 - `src/lib/network.ts` — titres du réseau (Consultant → Leader → Parrain) et limite de filleuls
+- `src/lib/delivery.ts`, `src/lib/delivery-engine.ts` — livraison : frais selon la distance au dépôt,
+  étapes géolocalisées, code de remise, part du livreur ; cartes Leaflet / OpenStreetMap
+  (`src/components/maps/DeliveryMap.tsx`)
 - `src/components/` — composants de la boutique et du back-office

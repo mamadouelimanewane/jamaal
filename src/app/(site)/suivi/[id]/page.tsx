@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/currency";
 import { DeliveryTimeline } from "@/components/DeliveryTimeline";
-import { LiveDeliveryMap } from "@/components/LiveDeliveryMap";
+import { LiveTracking } from "@/components/LiveTracking";
 
 export const dynamic = "force-dynamic";
 
@@ -25,13 +25,24 @@ export default async function TrackingPage({
         Commande passée le {order.createdAt.toLocaleDateString("fr-FR")}
       </p>
 
-      <div className="mt-8 rounded-2xl border border-line bg-white p-6">
-        <DeliveryTimeline status={order.status} />
-      </div>
-
-      <div className="mt-6">
-        <LiveDeliveryMap orderId={order.id} />
-      </div>
+      {order.deliveryMode === "LIVRAISON_JAMAAL" && order.deliveryStatus ? (
+        <>
+          {order.deliveryCode && order.deliveryStatus !== "LIVREE" && order.status !== "ANNULEE" && (
+            <div className="mt-6 rounded-2xl border-2 border-dashed border-navy/30 bg-cream p-5 text-center">
+              <p className="text-sm text-navy/80">Code de livraison à donner au livreur à la remise du colis</p>
+              <p className="mt-1 font-serif-display text-4xl font-semibold tracking-[0.3em] text-navy">{order.deliveryCode}</p>
+              <p className="mt-1 text-xs text-navy/70">Ne le communiquez qu&apos;au moment de recevoir votre commande.</p>
+            </div>
+          )}
+          <div className="mt-6">
+            <LiveTracking orderId={order.id} />
+          </div>
+        </>
+      ) : (
+        <div className="mt-8 rounded-2xl border border-line bg-white p-6">
+          <DeliveryTimeline status={order.status} />
+        </div>
+      )}
 
       {order.deliveryMode === "LIVRAISON_JAMAAL" && order.livreur && order.status !== "LIVREE" && (
         <p className="mt-4 text-center text-sm text-navy/60">
