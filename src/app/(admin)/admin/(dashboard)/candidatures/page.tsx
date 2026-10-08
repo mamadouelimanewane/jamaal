@@ -22,10 +22,10 @@ export default async function CandidaturesPage() {
   return (
     <div>
       <h1 className="font-serif-display text-2xl font-semibold text-navy">
-        Candidatures revendeurs ({pendingCount} en attente)
+        Candidatures consultants ({pendingCount} en attente)
       </h1>
       <p className="mt-1 text-sm text-navy/75">
-        Accepter une candidature crée le profil revendeur, son lien personnel et son compte. La
+        Accepter une candidature crée le profil consultant, son lien personnel et son compte. La
         personne choisit son mot de passe via un lien d&apos;activation.
       </p>
 

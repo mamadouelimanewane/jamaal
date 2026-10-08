@@ -27,11 +27,11 @@ export type BusinessModel = {
   priceRounding: number;
   /** Commission du vendeur, en % du prix de vente. */
   sellerPct: number;
-  /** Part du parrain direct quand il n'a pas lui-même de parrain (il prend toute l'enveloppe). */
+  /** Part du parrain direct quand personne n'est au-dessus de lui (ex. Consultant sur la vente d'un Leader). */
   sponsorAlonePct: number;
-  /** Part du parrain direct quand il existe aussi un grand-parrain. */
+  /** Part du parrain direct quand il a lui-même un parrain (ex. Leader sur la vente d'un Parrain). */
   sponsorSharedPct: number;
-  /** Part du grand-parrain (niveau 2). */
+  /** Part du grand-parrain (ex. Consultant sur la vente d'un Parrain). */
   grandSponsorPct: number;
   /** Expédition Italie → Dakar, en % du prix public. */
   shippingPct: number;
@@ -103,7 +103,7 @@ export function salePriceFromPublic(publicPrice: number, model: BusinessModel): 
   return Math.max(step, Math.round((publicPrice * model.salePct) / 100 / step) * step);
 }
 
-/** Taux touchés par un revendeur sur les ventes de son équipe, selon qu'il a lui-même un parrain. */
+/** Taux touchés par un consultant sur les ventes de son équipe, selon qu'il a lui-même un parrain. */
 export function sponsorRatesFor(hasOwnSponsor: boolean, model: BusinessModel) {
   return {
     /** Sur les ventes de ses filleuls directs. */

@@ -14,8 +14,8 @@ const hashToken = (token: string) => createHash("sha256").update(token).digest("
 const emailSchema = z.string().trim().toLowerCase().email("E-mail invalide.").max(254);
 
 /**
- * Donne un accès de connexion à un revendeur existant (ou renouvelle son lien d'activation).
- * Aucun mot de passe n'est communiqué : le revendeur choisit le sien via un lien valable 7 jours.
+ * Donne un accès de connexion à un consultant existant (ou renouvelle son lien d'activation).
+ * Aucun mot de passe n'est communiqué : le consultant choisit le sien via un lien valable 7 jours.
  */
 export async function createResellerAccess(consultantId: string, rawEmail?: string): Promise<AccessResult> {
   await requireAdmin();
@@ -23,7 +23,7 @@ export async function createResellerAccess(consultantId: string, rawEmail?: stri
     where: { id: consultantId },
     select: { id: true, name: true, email: true, user: { select: { id: true } } },
   });
-  if (!consultant) return { ok: false, error: "Revendeur introuvable." };
+  if (!consultant) return { ok: false, error: "Consultant introuvable." };
 
   const token = randomBytes(32).toString("base64url");
   let userId = consultant.user?.id;
@@ -59,15 +59,15 @@ export async function createResellerAccess(consultantId: string, rawEmail?: stri
 export type LoginLinkResult = { ok: boolean; error?: string; loginUrl?: string };
 
 /**
- * Lien de connexion directe (sans mot de passe) pour un revendeur qui a déjà un compte :
+ * Lien de connexion directe (sans mot de passe) pour un consultant qui a déjà un compte :
  * valable 24 h, à usage unique, destiné à être envoyé sur WhatsApp. Le jeton est stocké haché
  * avec le préfixe « login: » (voir src/lib/auth.ts, fournisseur « magic »).
  */
 export async function createResellerLoginLink(consultantId: string): Promise<LoginLinkResult> {
   await requireAdmin();
   const consultant = await prisma.consultant.findUnique({ where: { id: consultantId }, select: { active: true, user: { select: { id: true } } } });
-  if (!consultant?.user) return { ok: false, error: "Ce revendeur n'a pas encore de compte : créez d'abord son accès." };
-  if (!consultant.active) return { ok: false, error: "Ce revendeur est inactif." };
+  if (!consultant?.user) return { ok: false, error: "Ce consultant n'a pas encore de compte : créez d'abord son accès." };
+  if (!consultant.active) return { ok: false, error: "Ce consultant est inactif." };
 
   const token = randomBytes(32).toString("base64url");
   await prisma.passwordResetToken.create({

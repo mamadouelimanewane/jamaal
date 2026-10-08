@@ -5,7 +5,7 @@ import "../../globals.css";
 export const metadata: Metadata = {
   title: "Back-office JAMAAL",
   robots: { index: false, follow: false },
-  // Application installable (écran d'accueil) pour les revendeurs et livreurs
+  // Application installable (écran d'accueil) pour les consultants et livreurs
   manifest: "/revendeur.webmanifest",
   icons: { apple: "/icons/apple-touch-icon.png" },
   appleWebApp: { capable: true, title: "JAMAAL", statusBarStyle: "default" },

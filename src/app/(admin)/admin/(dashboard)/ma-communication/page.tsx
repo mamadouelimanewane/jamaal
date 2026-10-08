@@ -18,7 +18,7 @@ export default async function MaCommunicationPage() {
     prisma.announcement.findMany({ orderBy: [{ pinned: "desc" }, { createdAt: "desc" }], take: 20 }).catch(() => []),
     prisma.notification.findMany({ where: { userId: me.userId }, orderBy: { createdAt: "desc" }, take: 6 }),
   ]);
-  const hello = `Bonjour JAMAAL, je suis ${me.name} (revendeur·se, ${me.city}). `;
+  const hello = `Bonjour JAMAAL, je suis ${me.name} (consultant·e, ${me.city}). `;
 
   return (
     <div className="max-w-5xl">

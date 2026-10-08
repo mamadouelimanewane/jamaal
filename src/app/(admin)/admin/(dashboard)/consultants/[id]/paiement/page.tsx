@@ -161,7 +161,7 @@ export default async function CommissionPaymentPage({
         {consultant.commissionPayments.length === 0 ? (
           <div className="px-5 py-8 text-center text-sm text-navy/65">
             <TrendingUp className="mx-auto mb-2 text-navy/45" size={28} />
-            Aucun versement enregistré pour ce revendeur.
+            Aucun versement enregistré pour ce consultant.
           </div>
         ) : (
           <div className="overflow-x-auto">

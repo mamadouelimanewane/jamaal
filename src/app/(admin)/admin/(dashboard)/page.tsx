@@ -82,7 +82,7 @@ async function AdminOverview() {
     { label: "Commandes totales", value: orderCount, icon: ShoppingCart, color: "blue" as const, href: "/admin/commandes" },
     { label: "Commandes en attente", value: pendingOrders, icon: ShoppingCart, color: "red" as const, href: "/admin/commandes" },
     { label: "Retours en attente", value: pendingReturns, icon: Undo2, color: "amber" as const, href: "/admin/retours" },
-    { label: "Revendeurs actifs", value: consultantCount, icon: Users, color: "purple" as const, href: "/admin/consultants" },
+    { label: "Consultants actifs", value: consultantCount, icon: Users, color: "purple" as const, href: "/admin/consultants" },
     { label: "Livreurs actifs", value: livreurCount, icon: Bike, color: "emerald" as const, href: "/admin/livreurs" },
     { label: "Clients enregistrés", value: clientCount, icon: Contact, color: "navy" as const, href: "/admin/clients" },
     { label: "Chiffre d'affaires net", value: formatPrice(revenue), icon: TrendingUp, color: "emerald" as const, href: "/admin/statistiques" },
@@ -111,7 +111,7 @@ async function AdminOverview() {
 
       <div className="mt-10">
         <h2 className="mb-4 font-serif-display text-lg font-semibold text-navy">
-          🏆 Concours du mois — Top 3 revendeurs
+          🏆 Concours du mois — Top 3 consultants
         </h2>
         <MonthlyLeaderboard entries={leaderboard} />
       </div>
@@ -156,7 +156,7 @@ async function AdminOverview() {
 async function ConsultantOverview({ userId }: { userId: string }) {
   const user = await prisma.user.findUnique({ where: { id: userId }, include: { consultant: true } });
   if (!user?.consultant) {
-    return <p className="text-sm text-navy/75">Aucun profil revendeur lié à ce compte pour le moment.</p>;
+    return <p className="text-sm text-navy/75">Aucun profil consultant lié à ce compte pour le moment.</p>;
   }
   const consultantId = user.consultant.id;
 
@@ -187,7 +187,7 @@ async function ConsultantOverview({ userId }: { userId: string }) {
         <RankBadge rank={rankInfo.rank} />
       </div>
       <p className="mt-1 text-sm text-navy/75">
-        Votre espace revendeur JAMAAL — CA de ce mois-ci : {formatPrice(rankInfo.monthlyRevenue)}
+        Votre espace consultant JAMAAL — CA de ce mois-ci : {formatPrice(rankInfo.monthlyRevenue)}
         {myPosition >= 0 && ` · #${myPosition + 1} au classement du mois`}.
       </p>
 
@@ -259,7 +259,7 @@ async function ConsultantOverview({ userId }: { userId: string }) {
       <div className="mt-10">
         <h2 className="mb-1 font-serif-display text-lg font-semibold text-navy">Mon équipe</h2>
         <p className="mb-4 text-sm text-navy/75">
-          Les revendeurs que vous avez parrainés. Un filleul actif ce mois-ci vous fait progresser dans le classement.
+          Les consultants que vous avez parrainés. Un filleul actif ce mois-ci vous fait progresser dans le classement.
         </p>
         {team.length === 0 ? (
           <p className="text-sm text-navy/70">

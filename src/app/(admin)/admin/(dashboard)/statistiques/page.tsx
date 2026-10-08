@@ -79,7 +79,7 @@ export default async function AdminStatsPage() {
         </div>
 
         <div className="rounded-2xl border border-line bg-white p-5">
-          <h2 className="mb-4 text-sm font-semibold text-navy">Top revendeurs (CA)</h2>
+          <h2 className="mb-4 text-sm font-semibold text-navy">Top consultants (CA)</h2>
           <BarList
             items={topConsultantsRaw.map((c) => ({
               label: consultantName.get(c.consultantId ?? "") ?? "Inconnu",

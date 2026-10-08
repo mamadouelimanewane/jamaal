@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 
-/** Enregistre le service worker de l'application revendeur (rend le site installable). */
+/** Enregistre le service worker de l'application consultant (rend le site installable). */
 export function PwaRegister() {
   useEffect(() => {
     if ("serviceWorker" in navigator) {

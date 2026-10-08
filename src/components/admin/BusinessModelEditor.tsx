@@ -26,7 +26,7 @@ const pts = (n: number) => n.toLocaleString("fr-FR", { maximumFractionDigits: 1 
 const SEGMENTS = {
   purchase: { label: "Achat chez Chogan", color: "#8a93ad" },
   seller: { label: "Vendeur", color: "#2f6f9f" },
-  sponsors: { label: "Parrains", color: "#86b1d1" },
+  sponsors: { label: "Réseau (Leader, Consultant)", color: "#86b1d1" },
   costs: { label: "Expédition et frais", color: "#d4a93c" },
   net: { label: "Marge JAMAAL", color: "#9b5c4d" },
 } as const;
@@ -259,11 +259,12 @@ export function BusinessModelEditor({
           <section className={card}>
             <SectionTitle icon={Percent} title="Commissions" text="En % du prix de vente, hors livraison, sur les ventes encaissées." tone="#2f6f9f" />
             <div className="mt-5 flex flex-col gap-4">
-              <NumberField label="Vendeur" name="sellerPct" value={model.sellerPct} onChange={set} suffix="%" />
-              <NumberField label="Parrain direct, s'il est seul" name="sponsorAlonePct" value={model.sponsorAlonePct} onChange={set} suffix="%" hint="Quand le vendeur n'a pas de grand-parrain." />
+              <NumberField label="Vendeur (sur ses propres ventes)" name="sellerPct" value={model.sellerPct} onChange={set} suffix="%" />
+              <NumberField label="Consultant, sur les ventes de ses Leaders" name="sponsorAlonePct" value={model.sponsorAlonePct} onChange={set} suffix="%" hint="Le parrain direct du vendeur touche toute l'enveloppe quand personne n'est au-dessus de lui." />
+              <p className="-mb-1 text-sm font-medium text-ink">Sur les ventes d&apos;un Parrain, l&apos;enveloppe est partagée :</p>
               <div className="grid grid-cols-2 gap-3">
-                <NumberField label="Parrain (partagé)" name="sponsorSharedPct" value={model.sponsorSharedPct} onChange={set} suffix="%" />
-                <NumberField label="Grand-parrain" name="grandSponsorPct" value={model.grandSponsorPct} onChange={set} suffix="%" />
+                <NumberField label="Leader" name="sponsorSharedPct" value={model.sponsorSharedPct} onChange={set} suffix="%" />
+                <NumberField label="Consultant" name="grandSponsorPct" value={model.grandSponsorPct} onChange={set} suffix="%" />
               </div>
             </div>
           </section>
@@ -279,7 +280,7 @@ export function BusinessModelEditor({
 
         <section className={card}>
           <div className="flex flex-wrap items-start justify-between gap-4">
-            <SectionTitle icon={Trophy} title="Primes mensuelles" text="Sur les ventes personnelles encaissées du mois. Désactivées, elles n'apparaissent pas chez les revendeurs." tone="#9b5c4d" />
+            <SectionTitle icon={Trophy} title="Primes mensuelles" text="Sur les ventes personnelles encaissées du mois. Désactivées, elles n'apparaissent pas chez les consultants." tone="#9b5c4d" />
             <label className={`flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-2.5 text-sm font-semibold transition ${model.primesEnabled ? "border-emerald-300 bg-emerald-50 text-emerald-800" : "border-line bg-cream text-navy/85"}`}>
               <input type="checkbox" name="primesEnabled" checked={model.primesEnabled} onChange={(e) => setModel((m) => ({ ...m, primesEnabled: e.target.checked }))} className="h-5 w-5 accent-emerald-700" />
               {model.primesEnabled ? "Primes activées" : "Primes désactivées"}

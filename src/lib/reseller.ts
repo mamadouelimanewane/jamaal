@@ -3,14 +3,14 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getSiteUrl } from "@/lib/site-url";
 
-/** Profil du revendeur connecté (null si la session n'est pas celle d'un revendeur). */
+/** Profil du consultant connecté (null si la session n'est pas celle d'un consultant). */
 const withSponsor = { sponsor: { select: { id: true, name: true, whatsapp: true, city: true } } } as const;
 
 export async function getReseller() {
   const session = await auth();
   if (!session?.user?.id) return null;
 
-  // Un administrateur peut consulter l'espace d'un revendeur (cookie posé par startViewAsReseller).
+  // Un administrateur peut consulter l'espace d'un consultant (cookie posé par startViewAsReseller).
   if (session.user.role === "ADMIN") {
     const viewAs = (await cookies()).get("jamaal_viewas")?.value;
     if (!viewAs) return null;
@@ -25,7 +25,7 @@ export async function getReseller() {
 
 export type Reseller = NonNullable<Awaited<ReturnType<typeof getReseller>>>;
 
-/** Liens personnels du revendeur (boutique, recrutement) avec son code d'attribution. */
+/** Liens personnels du consultant (boutique, recrutement) avec son code d'attribution. */
 export async function resellerLinks(slug: string | null) {
   const origin = await getSiteUrl();
   return {

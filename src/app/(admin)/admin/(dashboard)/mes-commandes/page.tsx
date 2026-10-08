@@ -24,7 +24,7 @@ export default async function MesCommandesPage() {
   });
 
   if (!user?.consultant) {
-    return <p className="text-sm text-navy/75">Aucun profil revendeur lié à ce compte.</p>;
+    return <p className="text-sm text-navy/75">Aucun profil consultant lié à ce compte.</p>;
   }
 
   return (

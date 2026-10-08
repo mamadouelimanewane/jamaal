@@ -59,10 +59,10 @@ const adminGroups = [
   {
     title: "Réseau",
     links: [
-      { href: "/admin/consultants", label: "Revendeurs / Consultants", icon: Users },
+      { href: "/admin/consultants", label: "Consultants", icon: Users },
       { href: "/admin/candidatures", label: "Candidatures", icon: Contact },
       { href: "/admin/messages", label: "Messages de contact", icon: Mail },
-      { href: "/admin/annonces", label: "Annonces aux revendeurs", icon: Megaphone },
+      { href: "/admin/annonces", label: "Annonces aux consultants", icon: Megaphone },
       { href: "/admin/whatsapp", label: "Centre WhatsApp", icon: Share2 },
       { href: "/admin/journal-whatsapp", label: "Journal WhatsApp", icon: Mail },
       { href: "/admin/livreurs", label: "Livreurs", icon: Bike },
@@ -108,7 +108,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (!session) redirect("/admin/login");
   const role = session.user?.role;
 
-  // Mode « voir l'espace d'un revendeur » (administrateur uniquement)
+  // Mode « voir l'espace d'un consultant » (administrateur uniquement)
   const viewAsId = role === "ADMIN" ? (await cookies()).get("jamaal_viewas")?.value : undefined;
   const viewingAs = viewAsId ? await prisma.consultant.findUnique({ where: { id: viewAsId }, select: { name: true } }) : null;
 

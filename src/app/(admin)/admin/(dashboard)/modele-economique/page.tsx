@@ -24,7 +24,7 @@ export default async function BusinessModelPage() {
         <div>
           <h1 className="font-serif-display text-2xl font-semibold text-navy">Modèle économique</h1>
           <p className="text-sm text-navy/75">
-            Prix, commissions du réseau et primes. Ces valeurs pilotent les prix du catalogue et les gains affichés aux revendeurs.
+            Prix, commissions du réseau et primes. Ces valeurs pilotent les prix du catalogue et les gains affichés aux consultants.
           </p>
         </div>
       </div>

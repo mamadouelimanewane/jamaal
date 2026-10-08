@@ -6,7 +6,7 @@ import { auth, signIn } from "@/lib/auth";
 import { BrandLogo } from "@/components/BrandLogo";
 
 export const metadata: Metadata = {
-  title: "Espace revendeur",
+  title: "Espace consultant",
   robots: { index: false },
 };
 
@@ -37,7 +37,7 @@ export default async function EspaceRevendeurPage({
   return (
     <div className="mx-auto max-w-md px-4 py-14 sm:px-6">
       <BrandLogo height={104} priority className="mx-auto mb-6" />
-      <p className="luxury-eyebrow">Espace revendeur</p>
+      <p className="luxury-eyebrow">Espace consultant</p>
       <h1 className="mt-2 font-serif-display text-3xl font-semibold text-navy">Connexion</h1>
       <p className="mt-3 text-sm text-navy/70">
         Retrouvez vos commandes, votre lien de vente personnel, vos commissions, votre équipe et vos
@@ -68,7 +68,7 @@ export default async function EspaceRevendeurPage({
       </form>
 
       <p className="mt-6 text-center text-sm text-navy/60">
-        Pas encore revendeur·se ?{" "}
+        Pas encore consultant·e ?{" "}
         <Link href="/devenir-consultant" className="font-semibold text-rose-dark hover:underline">
           Postuler
         </Link>

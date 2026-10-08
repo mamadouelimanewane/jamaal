@@ -82,7 +82,7 @@ export function notifyTeamWhatsApp(text: string) {
   });
 }
 
-/** Prévient un revendeur sur son WhatsApp (si son numéro est renseigné). */
+/** Prévient un consultant sur son WhatsApp (si son numéro est renseigné). */
 export function notifyResellerWhatsApp(consultantId: string, text: string) {
   later(async () => {
     const c = await prisma.consultant.findUnique({ where: { id: consultantId }, select: { whatsapp: true, active: true } });

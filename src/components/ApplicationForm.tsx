@@ -19,7 +19,7 @@ export function ApplicationForm({ sponsorCode = "" }: { sponsorCode?: string }) 
         <p className="font-serif-display text-2xl text-navy">Merci pour votre candidature !</p>
         <p className="mt-3 text-sm leading-relaxed text-navy/70">
           Notre équipe étudie votre demande et vous contacte sur WhatsApp ou par e-mail très
-          prochainement. Si elle est acceptée, vous recevrez un lien pour activer votre espace revendeur.
+          prochainement. Si elle est acceptée, vous recevrez un lien pour activer votre espace consultant.
         </p>
         {state.applicant && (
           <div className="mt-6 border-t border-line pt-5">
@@ -30,7 +30,7 @@ export function ApplicationForm({ sponsorCode = "" }: { sponsorCode?: string }) 
                   key={c.number}
                   href={whatsappLink(
                     c.number,
-                    `Bonjour JAMAAL, je viens de postuler pour devenir revendeur·se. Nom : ${state.applicant!.name} — Ville : ${state.applicant!.city} — Téléphone : ${state.applicant!.phone}.`
+                    `Bonjour JAMAAL, je viens de postuler pour devenir consultant·e. Nom : ${state.applicant!.name} — Ville : ${state.applicant!.city} — Téléphone : ${state.applicant!.phone}.`
                   )}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -81,7 +81,7 @@ export function ApplicationForm({ sponsorCode = "" }: { sponsorCode?: string }) 
         <textarea id="experience" name="experience" rows={2} maxLength={500} className={input} />
       </div>
       <div className="sm:col-span-2">
-        <label htmlFor="motivation" className={label}>Pourquoi souhaitez-vous devenir revendeur·se ? (facultatif)</label>
+        <label htmlFor="motivation" className={label}>Pourquoi souhaitez-vous devenir consultant·e ? (facultatif)</label>
         <textarea id="motivation" name="motivation" rows={3} maxLength={1000} className={input} />
       </div>
       <div className="sm:col-span-2">

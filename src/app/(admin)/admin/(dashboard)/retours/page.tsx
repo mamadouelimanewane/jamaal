@@ -30,7 +30,7 @@ export default async function AdminReturnsPage() {
         </a>
       </div>
       <p className="mt-1 text-sm text-navy/75">
-        Un remboursement validé est automatiquement déduit du chiffre d&apos;affaires et du classement des revendeurs.
+        Un remboursement validé est automatiquement déduit du chiffre d&apos;affaires et du classement des consultants.
       </p>
 
       <div className="mt-8 grid gap-8 lg:grid-cols-2">

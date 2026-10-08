@@ -12,7 +12,7 @@ const schema = z.object({
   body: z.string().trim().min(5, "Message trop court.").max(3000, "Message trop long."),
 });
 
-/** Publie une annonce visible par tous les revendeurs, et les prévient par notification. */
+/** Publie une annonce visible par tous les consultants, et les prévient par notification. */
 export async function createAnnouncement(_prev: AnnouncementState, formData: FormData): Promise<AnnouncementState> {
   await requireAdmin();
   const parsed = schema.safeParse({ title: formData.get("title") ?? "", body: formData.get("body") ?? "" });

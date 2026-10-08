@@ -144,10 +144,10 @@ export default async function AdminOrderDetailPage({
       </div>
 
       <form action={assignOrderLogistics.bind(null, id)} className="mt-6 rounded-2xl border border-line bg-white p-5">
-        <h2 className="mb-3 text-sm font-semibold text-navy">Logistique & revendeur</h2>
+        <h2 className="mb-3 text-sm font-semibold text-navy">Logistique & consultant</h2>
         <div className="grid gap-3">
           <div>
-            <label className="text-xs font-medium text-navy/85">Revendeur / consultant à l&apos;origine de la vente</label>
+            <label className="text-xs font-medium text-navy/85">Consultant à l&apos;origine de la vente</label>
             <select
               name="consultantId"
               defaultValue={order.consultantId ?? ""}

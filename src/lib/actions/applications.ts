@@ -67,12 +67,12 @@ export async function submitApplication(_prev: ApplicationState, formData: FormD
     await prisma.notification.createMany({
       data: admins.map((a) => ({
         userId: a.id,
-        title: "Nouvelle candidature revendeur",
-        message: `${d.name} (${d.city}) souhaite devenir revendeur·se.`,
+        title: "Nouvelle candidature consultant",
+        message: `${d.name} (${d.city}) souhaite devenir consultant·e.`,
       })),
     });
   }
-  notifyTeamWhatsApp(`Nouvelle candidature revendeur : ${d.name} (${d.city}), WhatsApp ${d.phone}. À traiter dans Admin > Candidatures.`);
+  notifyTeamWhatsApp(`Nouvelle candidature consultant : ${d.name} (${d.city}), WhatsApp ${d.phone}. À traiter dans Admin > Candidatures.`);
   revalidatePath("/admin/candidatures");
   return { ok: true, applicant: { name: d.name, city: d.city, phone: d.phone } };
 }
@@ -136,8 +136,8 @@ export async function approveApplication(id: string): Promise<ApproveResult> {
         body: JSON.stringify({
           from,
           to: [email],
-          subject: "Bienvenue chez JAMAAL — activez votre espace revendeur",
-          html: `<p>Bonjour ${esc(app.name)},</p><p>Votre candidature a été acceptée. Choisissez votre mot de passe (lien valable 7 jours) :</p><p><a href="${activationUrl}">Activer mon espace revendeur</a></p><p>Votre lien de vente personnel : ${siteUrl}/c/${slug}</p>`,
+          subject: "Bienvenue chez JAMAAL — activez votre espace consultant",
+          html: `<p>Bonjour ${esc(app.name)},</p><p>Votre candidature a été acceptée. Choisissez votre mot de passe (lien valable 7 jours) :</p><p><a href="${activationUrl}">Activer mon espace consultant</a></p><p>Votre lien de vente personnel : ${siteUrl}/c/${slug}</p>`,
         }),
       });
       emailed = res.ok;

@@ -11,7 +11,7 @@ export default async function MonProfilPage() {
   return (
     <div className="max-w-2xl">
       <h1 className="font-serif-display text-2xl font-semibold text-navy">Mon profil</h1>
-      <p className="mt-1 text-sm text-navy/75">Ces informations sont visibles par vos clients (liste des revendeurs, votre page personnelle).</p>
+      <p className="mt-1 text-sm text-navy/75">Ces informations sont visibles par vos clients (liste des consultants, votre page personnelle).</p>
 
       <div className="mt-6 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <ProfileForm name={me.name} city={me.city} whatsapp={me.whatsapp} />

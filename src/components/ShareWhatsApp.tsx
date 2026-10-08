@@ -6,8 +6,8 @@ const readRef = () => document.cookie.split("; ").find((c) => c.startsWith("jama
 const subscribe = () => () => {};
 
 /**
- * « Partager sur WhatsApp » : le lien partagé garde le code du revendeur (cookie d'attribution),
- * pour que la commande d'un ami soit rattachée au bon revendeur.
+ * « Partager sur WhatsApp » : le lien partagé garde le code du consultant (cookie d'attribution),
+ * pour que la commande d'un ami soit rattachée au bon consultant.
  */
 export function ShareWhatsApp({ name, slug, price }: { name: string; slug: string; price?: number | null }) {
   const ref = useSyncExternalStore(subscribe, readRef, () => "");

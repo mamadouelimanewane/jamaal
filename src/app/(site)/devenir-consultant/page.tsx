@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { ApplicationForm } from "@/components/ApplicationForm";
 
 export const metadata: Metadata = {
-  title: "Devenir revendeur·se JAMAAL",
+  title: "Devenir consultant·e JAMAAL",
   description:
     "Rejoignez le réseau JAMAAL, représentant exclusif de Chogan au Sénégal : parfums, beauté, bien-être et maison, avec votre propre vitrine en ligne.",
 };
@@ -27,11 +27,11 @@ export default async function DevenirConsultantPage({
     <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
       <p className="luxury-eyebrow">Rejoindre le réseau</p>
       <h1 className="mt-2 font-serif-display text-3xl font-semibold text-navy sm:text-4xl">
-        Devenir revendeur·se JAMAAL
+        Devenir consultant·e JAMAAL
       </h1>
       <p className="mt-4 text-sm leading-relaxed text-navy/70">
         JAMAAL est le représentant exclusif de Chogan au Sénégal. Rejoignez notre réseau de
-        revendeur·ses indépendant·es et proposez toute la gamme à votre entourage. Remplissez le
+        consultant·es indépendant·es et proposez toute la gamme à votre entourage. Remplissez le
         formulaire : l&apos;équipe étudie chaque candidature et vous répond rapidement.
       </p>
 
@@ -49,7 +49,7 @@ export default async function DevenirConsultantPage({
       </div>
 
       <p className="mt-6 text-center text-sm text-navy/60">
-        Déjà revendeur·se ?{" "}
+        Déjà consultant·e ?{" "}
         <Link href="/espace-revendeur" className="font-semibold text-rose-dark hover:underline">
           Accéder à mon espace
         </Link>

@@ -18,7 +18,7 @@ export const QUICK_REPLIES: { shortcut: string; label: string; text: string }[] 
   {
     shortcut: "/livraison",
     label: "Livraison",
-    text: "Nous livrons à Dakar et dans les grandes villes, ou vous pouvez retirer votre commande auprès de votre revendeur·se. Donnez-moi votre adresse ou votre quartier et je vous confirme le délai.",
+    text: "Nous livrons à Dakar et dans les grandes villes, ou vous pouvez retirer votre commande auprès de votre consultant·e. Donnez-moi votre adresse ou votre quartier et je vous confirme le délai.",
   },
   {
     shortcut: "/paiement",
@@ -32,7 +32,7 @@ export const QUICK_REPLIES: { shortcut: string; label: string; text: string }[] 
   },
   {
     shortcut: "/revendeur",
-    label: "Devenir revendeur·se",
+    label: "Devenir consultant·e",
     text: "Vous voulez gagner de l'argent en vendant Chogan avec JAMAAL ? Postulez ici : https://jamaal-nine.vercel.app/devenir-consultant — vous aurez votre propre boutique en ligne, vos commissions et un espace pour suivre vos ventes.",
   },
   {
@@ -59,7 +59,7 @@ export const SETUP_STEPS = [
   "Profil de l'entreprise : nom « JAMAAL », catégorie « Beauté, cosmétiques et soins personnels », description, adresse/zone de livraison, site web https://jamaal-nine.vercel.app, et le logo.",
   "Outils pour l'entreprise → Réponses rapides : ajoutez les messages ci-dessous (copiez-collez chaque texte avec son raccourci).",
   "Outils pour l'entreprise → Message d'accueil et Message d'absence : collez les deux textes ci-dessous.",
-  "Étiquettes : créez « Nouveau client », « Commande en cours », « Livré », « À relancer », « Revendeur·se » pour trier vos conversations.",
+  "Étiquettes : créez « Nouveau client », « Commande en cours », « Livré », « À relancer », « Consultant·e » pour trier vos conversations.",
   "Catalogue : ajoutez vos produits phares à la main (jusqu'à 500), ou importez le fichier du catalogue Chogan fourni par le Centre WhatsApp via Meta Commerce Manager.",
   "Liste de diffusion : envoyez vos nouveautés uniquement aux clients qui ont enregistré votre numéro (sinon le message n'est pas livré).",
   "Lien et QR code WhatsApp : Outils pour l'entreprise → Outils de vente → Lien court. Affichez-le sur vos flyers et votre vitrine.",

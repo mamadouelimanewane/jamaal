@@ -20,7 +20,7 @@ export async function GET() {
         { header: "Téléphone", key: "phone", width: 16 },
         { header: "Total (FCFA)", key: "total", width: 16 },
         { header: "Statut", key: "status", width: 14 },
-        { header: "Revendeur", key: "consultant", width: 20 },
+        { header: "Consultant", key: "consultant", width: 20 },
         { header: "Livreur", key: "livreur", width: 18 },
         { header: "Mode de livraison", key: "deliveryMode", width: 20 },
         { header: "Articles", key: "items", width: 50 },

@@ -13,7 +13,7 @@ const STATUS: Record<string, string> = {
   ECHEC: "bg-rose/20 text-rose-dark",
   RECU: "bg-amber-100 text-amber-800",
 };
-const KIND: Record<string, string> = { team: "Équipe", reseller: "Revendeur", test: "Test", inbound: "Reçu" };
+const KIND: Record<string, string> = { team: "Équipe", reseller: "Consultant", test: "Test", inbound: "Reçu" };
 
 export default async function JournalWhatsAppPage() {
   await requireAdmin();

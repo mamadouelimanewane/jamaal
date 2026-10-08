@@ -4,7 +4,7 @@ import { WHATSAPP_CONTACTS, whatsappLink } from "@/lib/contact";
 
 export const metadata: Metadata = {
   title: "Contact",
-  description: "Une question sur un produit, une commande ou notre réseau de revendeur·ses ? Écrivez-nous ou contactez-nous sur WhatsApp.",
+  description: "Une question sur un produit, une commande ou notre réseau de consultant·es ? Écrivez-nous ou contactez-nous sur WhatsApp.",
 };
 
 export default function ContactPage() {

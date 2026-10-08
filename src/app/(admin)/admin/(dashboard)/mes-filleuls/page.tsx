@@ -5,6 +5,8 @@ import { getReseller, resellerLinks, startOfMonth } from "@/lib/reseller";
 import { getBusinessModel } from "@/lib/business-model-store";
 import { sponsorRatesFor } from "@/lib/business-model";
 import { COMMISSIONABLE_ORDER } from "@/lib/commission";
+import { getNetworkDepth, titleForDepth } from "@/lib/network";
+import { NetworkTitleBadge } from "@/components/admin/NetworkTitleBadge";
 import { StatCard } from "@/components/admin/StatCard";
 import { CopyButton } from "@/components/admin/CopyButton";
 import { NotReseller } from "@/components/admin/NotReseller";
@@ -19,14 +21,18 @@ export default async function MesFilleulsPage() {
   const since = startOfMonth();
   const links = await resellerLinks(me.slug);
 
-  const [l1, model] = await Promise.all([
+  const [l1, model, depth] = await Promise.all([
     prisma.consultant.findMany({
       where: { sponsorId: me.id },
       orderBy: { createdAt: "desc" },
       select: { id: true, name: true, city: true, whatsapp: true, active: true, createdAt: true, _count: { select: { sponsored: true } } },
     }),
     getBusinessModel(),
+    getNetworkDepth(me.id),
   ]);
+  const myTitle = titleForDepth(depth);
+  const level1Title = titleForDepth(depth + 1);
+  const level2Title = titleForDepth(depth + 2);
   // 6 % si je suis un parrain sans parrain au-dessus, 3 % sinon (+ 3 % sur le niveau 2).
   const { level1: rate1, level2: rate2 } = sponsorRatesFor(!!me.sponsorId, model);
   const ids = l1.map((c) => c.id);
@@ -48,18 +54,22 @@ export default async function MesFilleulsPage() {
   const teamMonth = [...m.values()].reduce((s, v) => s + v.ca, 0);
   const l2Count = l1.reduce((s, c) => s + c._count.sponsored, 0);
   const pending = applications.filter((a) => a.status === "NOUVELLE").length;
-  const inviteMsg = `Bonjour ! Je suis revendeur·se JAMAAL, représentant exclusif de Chogan au Sénégal. Tu veux gagner de l'argent en vendant parfums, soins et produits maison ? Postule avec mon lien : ${links.recruit ?? ""}`;
+  const inviteMsg = `Bonjour ! Je suis consultant·e JAMAAL, représentant exclusif de Chogan au Sénégal. Tu veux gagner de l'argent en vendant parfums, soins et produits maison ? Postule avec mon lien : ${links.recruit ?? ""}`;
 
   return (
     <div className="max-w-6xl">
-      <h1 className="font-serif-display text-2xl font-semibold text-navy">Mes filleuls</h1>
+      <div className="flex flex-wrap items-center gap-3">
+        <h1 className="font-serif-display text-2xl font-semibold text-navy">Mes filleuls</h1>
+        <NetworkTitleBadge title={myTitle} />
+      </div>
       <p className="mt-1 text-sm text-navy/75">
-        Les revendeur·ses que vous avez recruté·es. Vous gagnez {rate1} % sur les ventes encaissées de vos filleuls directs et {rate2} % sur celles de leurs propres filleuls.
+        Vous êtes <strong>{myTitle}</strong>. Vos filleuls directs sont vos <strong>{level1Title}s</strong> : vous touchez {rate1} % sur leurs ventes encaissées.
+        {" "}Sur les ventes de leurs propres filleuls ({level2Title}s), vous touchez {rate2} %.
       </p>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Filleuls directs" value={l1.length} icon={Users} color="navy" />
-        <StatCard label="Filleuls de niveau 2" value={l2Count} icon={Users} color="purple" />
+        <StatCard label={`Mes ${level1Title}s`} value={l1.length} icon={Users} color="navy" />
+        <StatCard label={`Leurs filleuls (${level2Title}s)`} value={l2Count} icon={Users} color="purple" />
         <StatCard label="CA équipe ce mois-ci" value={formatPrice(teamMonth)} icon={Users} color="emerald" />
         <StatCard label="Candidatures en attente" value={pending} icon={UserPlus} color="amber" />
       </div>

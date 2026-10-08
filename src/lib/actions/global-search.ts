@@ -97,7 +97,7 @@ export async function globalAdminSearch(query: string): Promise<GlobalSearchResu
     results.push({
       type: "consultant",
       id: cons.id,
-      title: `Revendeur — ${cons.name}`,
+      title: `Consultant — ${cons.name}`,
       subtitle: `Ville: ${cons.city}`,
       href: `/admin/consultants/${cons.id}`,
     });
