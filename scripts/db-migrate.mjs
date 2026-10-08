@@ -19,6 +19,7 @@ import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { createHash } from "node:crypto";
 import path from "node:path";
 import pg from "pg";
+import "dotenv/config"; // en local : lit DATABASE_URL dans .env (sur Vercel, variables déjà présentes)
 
 const enabled = process.env.VERCEL === "1" || process.env.DB_MIGRATE === "1" || process.argv.includes("--run");
 if (!enabled) {
