@@ -46,7 +46,7 @@ export default async function InactiveClientsPage({
             <h1 className="font-serif-display text-2xl font-semibold text-navy">
               Relance CRM — Clients inactifs ({inactiveClients.length})
             </h1>
-            <p className="text-sm text-navy/60">
+            <p className="text-sm text-navy/75">
               Clients qui n&apos;ont pas passé de commande depuis plus de {daysLimit} jours.
             </p>
           </div>
@@ -78,7 +78,7 @@ export default async function InactiveClientsPage({
 
       <div className="mt-6 overflow-x-auto rounded-2xl border border-line bg-white">
         <table className="w-full text-sm">
-          <thead className="bg-cream text-left text-xs uppercase text-navy/50">
+          <thead className="bg-cream text-left text-xs uppercase text-navy/70">
             <tr>
               <th className="px-4 py-3">Client</th>
               <th className="px-4 py-3">Téléphone</th>
@@ -105,8 +105,8 @@ export default async function InactiveClientsPage({
                       {c.name}
                     </Link>
                   </td>
-                  <td className="px-4 py-3 text-navy/70">{c.phone}</td>
-                  <td className="px-4 py-3 text-navy/70">
+                  <td className="px-4 py-3 text-navy/85">{c.phone}</td>
+                  <td className="px-4 py-3 text-navy/85">
                     {lastOrder
                       ? new Date(lastOrder.createdAt).toLocaleDateString("fr-FR")
                       : "Aucune"}
@@ -132,8 +132,8 @@ export default async function InactiveClientsPage({
             })}
             {inactiveClients.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-navy/50">
-                  <UserX className="mx-auto mb-2 text-navy/30" size={32} />
+                <td colSpan={5} className="px-4 py-8 text-center text-navy/70">
+                  <UserX className="mx-auto mb-2 text-navy/55" size={32} />
                   Aucun client inactif trouvé pour cette période. Bravo !
                 </td>
               </tr>

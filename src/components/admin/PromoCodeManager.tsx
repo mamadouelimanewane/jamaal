@@ -55,7 +55,7 @@ export function PromoCodeManager({ consultantId, initialCodes }: PromoCodeManage
         <h2 className="mb-4 font-semibold text-navy">Générer un nouveau code promo</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wide text-navy/50 mb-1">Remise (%)</label>
+            <label className="block text-xs font-semibold uppercase tracking-wide text-navy/70 mb-1">Remise (%)</label>
             <input
               type="number"
               min={1}
@@ -66,7 +66,7 @@ export function PromoCodeManager({ consultantId, initialCodes }: PromoCodeManage
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wide text-navy/50 mb-1">Limite d&apos;utilisation (0=∞)</label>
+            <label className="block text-xs font-semibold uppercase tracking-wide text-navy/70 mb-1">Limite d&apos;utilisation (0=∞)</label>
             <input
               type="number"
               min={0}
@@ -76,7 +76,7 @@ export function PromoCodeManager({ consultantId, initialCodes }: PromoCodeManage
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wide text-navy/50 mb-1">Validité (jours)</label>
+            <label className="block text-xs font-semibold uppercase tracking-wide text-navy/70 mb-1">Validité (jours)</label>
             <input
               type="number"
               min={1}
@@ -86,7 +86,7 @@ export function PromoCodeManager({ consultantId, initialCodes }: PromoCodeManage
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wide text-navy/50 mb-1">Description (optionnel)</label>
+            <label className="block text-xs font-semibold uppercase tracking-wide text-navy/70 mb-1">Description (optionnel)</label>
             <input
               type="text"
               placeholder="Ex: Lancement Octobre"
@@ -112,7 +112,7 @@ export function PromoCodeManager({ consultantId, initialCodes }: PromoCodeManage
           <h2 className="font-semibold text-navy">Mes codes promo ({codes.length})</h2>
         </div>
         {codes.length === 0 ? (
-          <p className="px-5 py-8 text-center text-sm text-navy/40">Aucun code pour l&apos;instant. Générez votre premier code ci-dessus.</p>
+          <p className="px-5 py-8 text-center text-sm text-navy/65">Aucun code pour l&apos;instant. Générez votre premier code ci-dessus.</p>
         ) : (
           <div className="divide-y divide-line">
             {codes.map((c) => (
@@ -122,11 +122,11 @@ export function PromoCodeManager({ consultantId, initialCodes }: PromoCodeManage
                     <span className="font-mono text-xl font-bold text-navy tracking-widest">{c.code}</span>
                     <span className="rounded-full bg-rose/20 px-2 py-0.5 text-xs font-semibold text-rose-dark">-{c.discountPct}%</span>
                     {c.expiresAt && new Date(c.expiresAt) < new Date() && (
-                      <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-semibold text-red-600">Expiré</span>
+                      <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-600">Expiré</span>
                     )}
                   </div>
-                  {c.description && <p className="text-xs text-navy/60 mt-0.5">{c.description}</p>}
-                  <p className="text-xs text-navy/40 mt-0.5">
+                  {c.description && <p className="text-xs text-navy/75 mt-0.5">{c.description}</p>}
+                  <p className="text-xs text-navy/65 mt-0.5">
                     {c.usedCount}/{c.usageLimit === 0 ? "∞" : c.usageLimit} utilisations
                     {c.expiresAt && ` · Expire le ${new Date(c.expiresAt).toLocaleDateString("fr-FR")}`}
                   </p>
@@ -154,7 +154,7 @@ export function PromoCodeManager({ consultantId, initialCodes }: PromoCodeManage
                     <div className="rounded-xl border border-line bg-white p-3 shadow-sm">
                       <QRCodeSVG value={shareUrl(c.code)} size={160} />
                     </div>
-                    <p className="text-xs text-navy/50 break-all">{shareUrl(c.code)}</p>
+                    <p className="text-xs text-navy/70 break-all">{shareUrl(c.code)}</p>
                   </div>
                 )}
               </div>

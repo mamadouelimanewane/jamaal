@@ -90,7 +90,7 @@ export function CatalogShareCard({
             Luxury Cosmetics
           </p>
           <p className="mt-3 text-sm font-semibold text-navy">{consultantName}</p>
-          <p className="text-xs text-navy/50">{city}</p>
+          <p className="text-xs text-navy/70">{city}</p>
         </header>
 
         <ul className="mt-4 divide-y divide-line">
@@ -98,8 +98,8 @@ export function CatalogShareCard({
             <li key={i} className="flex items-start justify-between gap-3 py-3">
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-navy">{p.name}</p>
-                <p className="mt-0.5 line-clamp-2 text-xs text-navy/60">{p.shortDescription}</p>
-                <p className="mt-1 text-[10px] uppercase tracking-wide text-navy/40">{p.category}</p>
+                <p className="mt-0.5 line-clamp-2 text-xs text-navy/75">{p.shortDescription}</p>
+                <p className="mt-1 text-xs uppercase tracking-wide text-navy/65">{p.category}</p>
               </div>
               <p className="shrink-0 text-sm font-semibold text-navy">{p.priceLabel}</p>
             </li>
@@ -107,18 +107,18 @@ export function CatalogShareCard({
         </ul>
 
         {products.length > 12 && (
-          <p className="mt-2 text-center text-xs text-navy/40">
+          <p className="mt-2 text-center text-xs text-navy/65">
             + {products.length - 12} autres produits sur le site
           </p>
         )}
 
         <footer className="mt-6 border-t border-line pt-4 text-center">
-          <p className="text-xs text-navy/60">Commander via mon lien</p>
+          <p className="text-xs text-navy/75">Commander via mon lien</p>
           <p className="mt-1 break-all text-sm font-semibold text-navy">{personalLink}</p>
           {whatsapp && (
-            <p className="mt-2 text-xs text-navy/50">WhatsApp : {whatsapp}</p>
+            <p className="mt-2 text-xs text-navy/70">WhatsApp : {whatsapp}</p>
           )}
-          <p className="mt-3 text-[10px] text-navy/30">
+          <p className="mt-3 text-xs text-navy/55">
             Parfums inspirés des grandes maisons · Prix juste · JAMAAL
           </p>
         </footer>

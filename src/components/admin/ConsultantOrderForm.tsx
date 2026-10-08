@@ -16,7 +16,7 @@ interface LineItem {
 
 const inputClass =
   "mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-navy";
-const labelClass = "text-xs font-medium text-navy/70";
+const labelClass = "text-xs font-medium text-navy/85";
 
 export function ConsultantOrderForm() {
   const [query, setQuery] = useState("");
@@ -55,7 +55,7 @@ export function ConsultantOrderForm() {
       <div>
         <h2 className="mb-3 text-sm font-semibold text-navy">1. Ajouter des produits</h2>
         <div className="relative">
-          <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-navy/40" />
+          <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-navy/65" />
           <input
             value={query}
             onChange={(e) => search(e.target.value)}
@@ -65,7 +65,7 @@ export function ConsultantOrderForm() {
         </div>
 
         <div className="mt-2 flex max-h-72 flex-col gap-2 overflow-y-auto">
-          {isPending && <p className="text-xs text-navy/40">Recherche…</p>}
+          {isPending && <p className="text-xs text-navy/65">Recherche…</p>}
           {results.map((p) => {
             const volumes = p.volumes?.length ? p.volumes : [{ label: "Format unique", price: p.regularPrice ?? 0 }];
             return (
@@ -89,7 +89,7 @@ export function ConsultantOrderForm() {
           })}
         </div>
 
-        <h3 className="mb-2 mt-4 text-xs font-semibold uppercase tracking-wide text-navy/50">
+        <h3 className="mb-2 mt-4 text-xs font-semibold uppercase tracking-wide text-navy/70">
           Articles sélectionnés
         </h3>
         <ul className="flex flex-col gap-2">
@@ -106,7 +106,7 @@ export function ConsultantOrderForm() {
               </div>
             </li>
           ))}
-          {items.length === 0 && <p className="text-xs text-navy/40">Aucun article ajouté.</p>}
+          {items.length === 0 && <p className="text-xs text-navy/65">Aucun article ajouté.</p>}
         </ul>
         <div className="mt-2 flex justify-between border-t border-line pt-2 text-sm font-semibold text-navy">
           <span>Total</span>

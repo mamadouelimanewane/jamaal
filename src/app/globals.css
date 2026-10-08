@@ -127,3 +127,30 @@ body {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+/*
+ * Back-office : lisibilité d'abord.
+ * Fond plus soutenu pour détacher les cartes, bordures visibles, accent rosé assombri
+ * (contraste ≥ 4,5:1 sur blanc) et texte de base à 15 px. Le site public n'est pas concerné.
+ */
+.admin-ui {
+  --cream: #f1e9e4;
+  --line: #dccbc3;
+  --rose-dark: #9b5c4d;
+  --navy: #182845;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.admin-ui main .bg-white {
+  box-shadow: 0 1px 2px rgb(24 40 69 / 0.06), 0 4px 14px -6px rgb(24 40 69 / 0.08);
+}
+.admin-ui input:not([type="checkbox"]):not([type="radio"]),
+.admin-ui select,
+.admin-ui textarea {
+  font-size: 15px;
+}
+.admin-ui :focus-visible {
+  outline: 2px solid #9b5c4d;
+  outline-offset: 2px;
+}

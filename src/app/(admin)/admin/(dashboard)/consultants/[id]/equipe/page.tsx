@@ -80,7 +80,7 @@ export default async function EquipePage({ params }: { params: Promise<{ id: str
               Équipe — {consultant.name}
             </h1>
           </div>
-          <p className="text-xs text-navy/50 mt-0.5">
+          <p className="text-xs text-navy/70 mt-0.5">
             {consultant.sponsored.length} filleul(s) direct(s) · Vue arbre sur 2 niveaux
           </p>
         </div>
@@ -90,7 +90,7 @@ export default async function EquipePage({ params }: { params: Promise<{ id: str
       <div className="mb-6">
         <h2 className="mb-3 font-semibold text-navy">Arbre généalogique du réseau</h2>
         {consultant.sponsored.length === 0 ? (
-          <div className="rounded-2xl border border-line bg-white p-10 text-center text-navy/40 shadow-sm">
+          <div className="rounded-2xl border border-line bg-white p-10 text-center text-navy/65 shadow-sm">
             <Users size={36} className="mx-auto mb-2 opacity-30" />
             <p>Aucun filleul pour le moment.</p>
           </div>
@@ -105,10 +105,10 @@ export default async function EquipePage({ params }: { params: Promise<{ id: str
           <h2 className="font-semibold text-navy">Filleuls directs (N1)</h2>
         </div>
         {consultant.sponsored.length === 0 ? (
-          <p className="px-5 py-8 text-center text-sm text-navy/40">Aucun filleul enregistré.</p>
+          <p className="px-5 py-8 text-center text-sm text-navy/65">Aucun filleul enregistré.</p>
         ) : (
           <table className="w-full text-sm">
-            <thead className="bg-cream text-left text-xs uppercase text-navy/50">
+            <thead className="bg-cream text-left text-xs uppercase text-navy/70">
               <tr>
                 <th className="px-4 py-3">Nom</th>
                 <th className="px-4 py-3">Ville</th>
@@ -126,13 +126,13 @@ export default async function EquipePage({ params }: { params: Promise<{ id: str
                 return (
                   <tr key={s.id} className="hover:bg-cream/40 transition-colors">
                     <td className="px-4 py-3 font-medium text-navy">{s.name}</td>
-                    <td className="px-4 py-3 text-navy/60">{s.city}</td>
+                    <td className="px-4 py-3 text-navy/75">{s.city}</td>
                     <td className="px-4 py-3 font-semibold">{formatPrice(ca)}</td>
-                    <td className="px-4 py-3 text-navy/60">{s.sponsored.length}</td>
+                    <td className="px-4 py-3 text-navy/75">{s.sponsored.length}</td>
                     <td className="px-4 py-3">
                       <span
-                        className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
-                          s.active ? "bg-emerald-50 text-emerald-700" : "bg-cream text-navy/40"
+                        className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
+                          s.active ? "bg-emerald-50 text-emerald-700" : "bg-cream text-navy/65"
                         }`}
                       >
                         {s.active ? "Actif" : "Inactif"}

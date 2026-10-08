@@ -69,7 +69,7 @@ export function GlobalSearch() {
   return (
     <div className="relative w-full max-w-md">
       <div className="relative flex items-center">
-        <Search size={16} className="absolute left-3.5 text-white/40" />
+        <Search size={16} className="absolute left-3.5 text-white/65" />
         <input
           ref={inputRef}
           type="text"
@@ -82,7 +82,7 @@ export function GlobalSearch() {
           placeholder="Recherche globale (Cmd+K)..."
           className="w-full rounded-full border border-white/10 bg-white/10 py-1.5 pl-9 pr-10 text-xs text-white placeholder-white/40 outline-none transition focus:bg-white/15 focus:ring-1 focus:ring-rose"
         />
-        <kbd className="absolute right-3 hidden rounded border border-white/20 bg-white/5 px-1.5 py-0.5 text-[10px] font-mono text-white/40 sm:inline-block">
+        <kbd className="absolute right-3 hidden rounded border border-white/20 bg-white/5 px-1.5 py-0.5 text-xs font-mono text-white/65 sm:inline-block">
           ⌘K
         </kbd>
       </div>
@@ -92,11 +92,11 @@ export function GlobalSearch() {
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
           <div className="absolute top-full left-0 right-0 z-50 mt-2 max-h-96 overflow-y-auto rounded-2xl border border-line bg-white p-2 shadow-xl animate-fade-in">
             {loading ? (
-              <div className="flex items-center justify-center py-6 text-xs text-navy/50">
+              <div className="flex items-center justify-center py-6 text-xs text-navy/70">
                 <Loader2 size={16} className="mr-2 animate-spin" /> Recherche en cours...
               </div>
             ) : results.length === 0 ? (
-              <div className="py-6 text-center text-xs text-navy/50">
+              <div className="py-6 text-center text-xs text-navy/70">
                 Aucun résultat pour &quot;{query}&quot;.
               </div>
             ) : (
@@ -112,7 +112,7 @@ export function GlobalSearch() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-xs font-semibold text-navy">{r.title}</p>
-                      <p className="truncate text-[11px] text-navy/50">{r.subtitle}</p>
+                      <p className="truncate text-xs text-navy/70">{r.subtitle}</p>
                     </div>
                   </button>
                 ))}

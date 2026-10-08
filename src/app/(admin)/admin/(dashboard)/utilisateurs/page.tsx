@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 const inputClass =
   "mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-navy";
-const labelClass = "text-xs font-medium text-navy/70";
+const labelClass = "text-xs font-medium text-navy/85";
 
 export default async function AdminUsersPage() {
   const session = await auth();
@@ -27,7 +27,7 @@ export default async function AdminUsersPage() {
 
       <div className="mt-6 overflow-x-auto rounded-2xl border border-line bg-white">
         <table className="w-full text-sm">
-          <thead className="bg-cream text-left text-xs uppercase text-navy/50">
+          <thead className="bg-cream text-left text-xs uppercase text-navy/70">
             <tr>
               <th className="px-4 py-3">Nom</th>
               <th className="px-4 py-3">E-mail</th>
@@ -40,9 +40,9 @@ export default async function AdminUsersPage() {
             {users.map((u) => (
               <tr key={u.id} className="border-t border-line">
                 <td className="px-4 py-3 font-medium text-navy">{u.name}</td>
-                <td className="px-4 py-3 text-navy/70">{u.email}</td>
-                <td className="px-4 py-3 text-navy/70">{u.role}</td>
-                <td className="px-4 py-3 text-navy/70">
+                <td className="px-4 py-3 text-navy/85">{u.email}</td>
+                <td className="px-4 py-3 text-navy/85">{u.role}</td>
+                <td className="px-4 py-3 text-navy/85">
                   {u.consultant?.name ?? u.livreur?.name ?? "—"}
                 </td>
                 <td className="px-4 py-3 text-right">

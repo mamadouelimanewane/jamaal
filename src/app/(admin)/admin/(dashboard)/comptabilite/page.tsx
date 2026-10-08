@@ -50,7 +50,7 @@ export default async function AdminComptabilitePage() {
           Export complet (Excel)
         </a>
       </div>
-      <p className="mt-1 text-sm text-navy/60">
+      <p className="mt-1 text-sm text-navy/75">
         Suivi des revenus (nets des remboursements), des dépenses, des commissions et de la marge.
       </p>
 
@@ -74,7 +74,7 @@ export default async function AdminComptabilitePage() {
             defaultValue={rate}
             className="w-24 rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-navy"
           />
-          <span className="text-sm text-navy/60">% du CA généré par chaque revendeur</span>
+          <span className="text-sm text-navy/75">% du CA généré par chaque revendeur</span>
           <button className="w-full rounded-full bg-navy px-4 py-2 text-xs font-semibold text-white hover:bg-navy-light sm:ml-auto sm:w-fit">
             Enregistrer
           </button>
@@ -129,7 +129,7 @@ export default async function AdminComptabilitePage() {
           </div>
           <div className="overflow-x-auto rounded-2xl border border-line bg-white">
             <table className="w-full text-sm">
-              <thead className="bg-cream text-left text-xs uppercase text-navy/50">
+              <thead className="bg-cream text-left text-xs uppercase text-navy/70">
                 <tr>
                   <th className="px-4 py-3">Libellé</th>
                   <th className="px-4 py-3">Catégorie</th>
@@ -141,8 +141,8 @@ export default async function AdminComptabilitePage() {
                 {expenses.map((e) => (
                   <tr key={e.id} className="border-t border-line">
                     <td className="px-4 py-3 text-navy">{e.label}</td>
-                    <td className="px-4 py-3 text-navy/60">{e.category}</td>
-                    <td className="px-4 py-3 text-navy/70">{formatPrice(e.amount)}</td>
+                    <td className="px-4 py-3 text-navy/75">{e.category}</td>
+                    <td className="px-4 py-3 text-navy/85">{formatPrice(e.amount)}</td>
                     <td className="px-4 py-3 text-right">
                       <form action={deleteExpense.bind(null, e.id)} className="inline">
                         <button className="text-xs font-semibold text-rose-dark hover:underline">
@@ -154,7 +154,7 @@ export default async function AdminComptabilitePage() {
                 ))}
                 {expenses.length === 0 && (
                   <tr>
-                    <td colSpan={4} className="px-4 py-6 text-center text-navy/50">
+                    <td colSpan={4} className="px-4 py-6 text-center text-navy/70">
                       Aucune dépense enregistrée.
                     </td>
                   </tr>

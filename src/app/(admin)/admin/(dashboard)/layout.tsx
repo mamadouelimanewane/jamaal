@@ -120,7 +120,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     <>
       <Link href="/admin" className="px-2">
         <p className="font-serif-display text-lg font-semibold tracking-wide text-white">JAMAAL</p>
-        <p className="text-xs text-white/40">Back-office</p>
+        <p className="text-xs text-white/65">Back-office</p>
       </Link>
 
       <div className="mt-4 px-1">
@@ -131,7 +131,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         {role === "ADMIN" && !viewingAs &&
           adminGroups.map((group) => (
             <div key={group.title}>
-              <p className="mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-wider text-white/30">
+              <p className="mb-1.5 px-3 text-xs font-semibold uppercase tracking-wider text-white/60">
                 {group.title}
               </p>
               <div className="flex flex-col gap-0.5">
@@ -144,7 +144,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
         {role === "ADMIN" && !viewingAs && (
           <div>
-            <p className="mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-wider text-white/30">
+            <p className="mb-1.5 px-3 text-xs font-semibold uppercase tracking-wider text-white/60">
               Système
             </p>
             <div className="flex flex-col gap-0.5">
@@ -183,8 +183,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
       <div className="mt-auto border-t border-white/10 pt-4">
         <p className="px-2 text-xs font-medium text-white/80">{session.user?.name}</p>
-        <p className="px-2 text-xs text-white/40">{session.user?.email}</p>
-        <p className="px-2 text-[10px] uppercase tracking-wide text-rose">{role}</p>
+        <p className="px-2 text-xs text-white/65">{session.user?.email}</p>
+        <p className="px-2 text-xs uppercase tracking-wide text-rose">{role}</p>
         <form action={logoutAction}>
           <button className="mt-3 w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-rose-light transition hover:bg-white/5">
             Se déconnecter
@@ -192,7 +192,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         </form>
         <Link
           href="/"
-          className="mt-1 block rounded-lg px-3 py-2 text-sm font-medium text-white/40 transition hover:bg-white/5 hover:text-white/70"
+          className="mt-1 block rounded-lg px-3 py-2 text-sm font-medium text-white/65 transition hover:bg-white/5 hover:text-white/70"
         >
           ← Retour au site
         </Link>

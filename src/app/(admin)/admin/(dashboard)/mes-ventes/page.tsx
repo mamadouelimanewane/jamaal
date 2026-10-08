@@ -19,7 +19,7 @@ const STATUS: Record<string, { label: string; cls: string }> = {
   CONFIRMEE: { label: "Confirmée", cls: "bg-blue-100 text-blue-800" },
   EXPEDIEE: { label: "Expédiée", cls: "bg-purple-100 text-purple-800" },
   LIVREE: { label: "Livrée", cls: "bg-emerald-100 text-emerald-800" },
-  ANNULEE: { label: "Annulée", cls: "bg-navy/10 text-navy/60" },
+  ANNULEE: { label: "Annulée", cls: "bg-navy/10 text-navy/75" },
 };
 
 export default async function MesVentesPage({ searchParams }: { searchParams: Promise<{ periode?: string }> }) {
@@ -51,7 +51,7 @@ export default async function MesVentesPage({ searchParams }: { searchParams: Pr
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="font-serif-display text-2xl font-semibold text-navy">Mes ventes</h1>
-          <p className="mt-1 text-sm text-navy/60">Le chiffre d&apos;affaires généré par vos clients, via votre lien ou vos commandes saisies.</p>
+          <p className="mt-1 text-sm text-navy/75">Le chiffre d&apos;affaires généré par vos clients, via votre lien ou vos commandes saisies.</p>
         </div>
         <Link href="/admin/mes-commandes/nouvelle" className="rounded-full bg-navy px-4 py-2 text-sm font-semibold text-white hover:bg-navy-light">
           + Nouvelle vente
@@ -83,7 +83,7 @@ export default async function MesVentesPage({ searchParams }: { searchParams: Pr
           <ul className="mt-3 divide-y divide-line text-sm">
             {top.map(([name, qty]) => (
               <li key={name} className="flex items-center justify-between gap-3 py-2">
-                <span className="text-navy/80">{name}</span>
+                <span className="text-navy/90">{name}</span>
                 <span className="shrink-0 font-semibold text-navy">{qty} vendu{qty > 1 ? "s" : ""}</span>
               </li>
             ))}
@@ -93,7 +93,7 @@ export default async function MesVentesPage({ searchParams }: { searchParams: Pr
 
       <div className="mt-6 overflow-x-auto rounded-2xl border border-line bg-white">
         <table className="w-full text-sm">
-          <thead className="bg-cream text-left text-xs uppercase text-navy/50">
+          <thead className="bg-cream text-left text-xs uppercase text-navy/70">
             <tr>
               <th className="px-4 py-3">Date</th>
               <th className="px-4 py-3">Client</th>
@@ -106,12 +106,12 @@ export default async function MesVentesPage({ searchParams }: { searchParams: Pr
           <tbody>
             {orders.map((o) => (
               <tr key={o.id} className="border-t border-line align-top">
-                <td className="whitespace-nowrap px-4 py-3 text-xs text-navy/60">{o.createdAt.toLocaleDateString("fr-FR")}</td>
+                <td className="whitespace-nowrap px-4 py-3 text-xs text-navy/75">{o.createdAt.toLocaleDateString("fr-FR")}</td>
                 <td className="px-4 py-3">
                   <p className="font-semibold text-navy">{o.customerName}</p>
-                  {o.customerPhone && <p className="text-xs text-navy/50">{o.customerPhone}</p>}
+                  {o.customerPhone && <p className="text-xs text-navy/70">{o.customerPhone}</p>}
                 </td>
-                <td className="max-w-xs px-4 py-3 text-xs text-navy/70">
+                <td className="max-w-xs px-4 py-3 text-xs text-navy/85">
                   {o.items.map((i) => `${i.productName} ×${i.quantity}`).join(", ").slice(0, 120)}
                 </td>
                 <td className="whitespace-nowrap px-4 py-3 text-right font-semibold text-navy">{formatPrice(o.total)}</td>
@@ -124,7 +124,7 @@ export default async function MesVentesPage({ searchParams }: { searchParams: Pr
               </tr>
             ))}
             {orders.length === 0 && (
-              <tr><td colSpan={6} className="px-4 py-10 text-center text-navy/50">Aucune vente sur cette période. Partagez votre lien personnel (voir « Mon marketing ») pour démarrer.</td></tr>
+              <tr><td colSpan={6} className="px-4 py-10 text-center text-navy/70">Aucune vente sur cette période. Partagez votre lien personnel (voir « Mon marketing ») pour démarrer.</td></tr>
             )}
           </tbody>
         </table>

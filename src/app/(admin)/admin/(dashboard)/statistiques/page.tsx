@@ -54,7 +54,7 @@ export default async function AdminStatsPage() {
   return (
     <div>
       <h1 className="font-serif-display text-2xl font-semibold text-navy">Statistiques</h1>
-      <p className="mt-1 text-sm text-navy/60">Performance des 30 derniers jours.</p>
+      <p className="mt-1 text-sm text-navy/75">Performance des 30 derniers jours.</p>
 
       <div className="mt-6 rounded-2xl border border-line bg-white p-5">
         <h2 className="mb-4 text-sm font-semibold text-navy">Chiffre d&apos;affaires par jour</h2>

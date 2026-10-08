@@ -19,7 +19,7 @@ export function ResellerAccess({ consultantId, userEmail, defaultEmail, whatsapp
     return (
       <div className="max-w-[16rem] text-xs">
         <p className="font-semibold text-emerald-700">{result.created ? "Accès créé." : "Nouveau lien prêt."}</p>
-        <p className="mt-1 text-navy/60">Lien d&apos;activation (7 jours), à envoyer sur WhatsApp :</p>
+        <p className="mt-1 text-navy/75">Lien d&apos;activation (7 jours), à envoyer sur WhatsApp :</p>
         <input readOnly value={result.activationUrl} className="mt-1 w-full rounded-lg border border-line bg-cream px-2 py-1.5" />
         <div className="mt-1.5"><CopyButton text={result.activationUrl} label="Copier le lien" /></div>
       </div>
@@ -45,7 +45,7 @@ export function ResellerAccess({ consultantId, userEmail, defaultEmail, whatsapp
           </button>
           {login?.loginUrl ? (
             <div className="mt-2 rounded-lg border border-line bg-cream p-2">
-              <p className="text-navy/60">Lien de connexion (24 h, usage unique) :</p>
+              <p className="text-navy/75">Lien de connexion (24 h, usage unique) :</p>
               <input readOnly value={login.loginUrl} className="mt-1 w-full rounded border border-line bg-white px-2 py-1" />
               <div className="mt-1.5 flex flex-wrap items-center gap-2">
                 <CopyButton text={login.loginUrl} label="Copier" />
@@ -84,7 +84,7 @@ export function ResellerAccess({ consultantId, userEmail, defaultEmail, whatsapp
             <button type="button" disabled={pending || !email} onClick={() => run(email)} className="rounded-full bg-navy px-3 py-1.5 font-semibold text-white hover:bg-navy-light disabled:opacity-50">
               {pending ? "…" : "Créer l'accès"}
             </button>
-            <button type="button" onClick={() => setOpen(false)} className="font-semibold text-navy/60 hover:underline">Annuler</button>
+            <button type="button" onClick={() => setOpen(false)} className="font-semibold text-navy/75 hover:underline">Annuler</button>
           </div>
         </div>
       ) : (

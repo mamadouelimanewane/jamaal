@@ -41,7 +41,7 @@ export function LivreurOrderRow({
         <p className="font-medium text-navy">{customerName}</p>
         <span className="rounded-full bg-cream px-2.5 py-1 text-xs font-semibold text-navy">{status}</span>
       </div>
-      <p className="mt-1 text-xs text-navy/60">{address ?? "Adresse non renseignée"}</p>
+      <p className="mt-1 text-xs text-navy/75">{address ?? "Adresse non renseignée"}</p>
       <p className="mt-1 text-sm font-semibold text-navy">{formatPrice(total)}</p>
       <div className="mt-3 flex flex-wrap gap-2">
         {customerPhone && (

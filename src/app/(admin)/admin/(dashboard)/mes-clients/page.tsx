@@ -39,13 +39,13 @@ export default async function MesClientsPage() {
   return (
     <div className="max-w-5xl">
       <h1 className="font-serif-display text-2xl font-semibold text-navy">Mes clients ({clients.length})</h1>
-      <p className="mt-1 text-sm text-navy/60">
+      <p className="mt-1 text-sm text-navy/75">
         Les personnes qui ont commandé grâce à vous. Relancez-les sur WhatsApp : un client fidèle commande plusieurs fois.
       </p>
 
       <div className="mt-6 overflow-x-auto rounded-2xl border border-line bg-white">
         <table className="w-full text-sm">
-          <thead className="bg-cream text-left text-xs uppercase text-navy/50">
+          <thead className="bg-cream text-left text-xs uppercase text-navy/70">
             <tr>
               <th className="px-4 py-3">Client</th>
               <th className="px-4 py-3">Commandes</th>
@@ -64,11 +64,11 @@ export default async function MesClientsPage() {
                 <tr key={`${c.name}-${c.phone}`} className="border-t border-line">
                   <td className="px-4 py-3">
                     <p className="font-semibold text-navy">{c.name}</p>
-                    {c.phone && <p className="text-xs text-navy/50">{c.phone}</p>}
+                    {c.phone && <p className="text-xs text-navy/70">{c.phone}</p>}
                   </td>
                   <td className="px-4 py-3">{c.orders}</td>
                   <td className="whitespace-nowrap px-4 py-3 text-right font-semibold text-navy">{formatPrice(c.spent)}</td>
-                  <td className="px-4 py-3 text-xs text-navy/60">
+                  <td className="px-4 py-3 text-xs text-navy/75">
                     {c.last.toLocaleDateString("fr-FR")}
                     {inactive && <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 font-semibold text-amber-800">à relancer</span>}
                   </td>
@@ -88,7 +88,7 @@ export default async function MesClientsPage() {
               );
             })}
             {clients.length === 0 && (
-              <tr><td colSpan={5} className="px-4 py-10 text-center text-navy/50">Aucun client pour le moment.</td></tr>
+              <tr><td colSpan={5} className="px-4 py-10 text-center text-navy/70">Aucun client pour le moment.</td></tr>
             )}
           </tbody>
         </table>

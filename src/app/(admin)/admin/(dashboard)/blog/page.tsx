@@ -23,7 +23,7 @@ export default async function AdminBlogPage() {
 
       <div className="mt-6 overflow-x-auto rounded-2xl border border-line bg-white">
         <table className="w-full text-sm">
-          <thead className="bg-cream text-left text-xs uppercase text-navy/50">
+          <thead className="bg-cream text-left text-xs uppercase text-navy/70">
             <tr>
               <th className="px-4 py-3">Titre</th>
               <th className="px-4 py-3">Date</th>
@@ -35,12 +35,12 @@ export default async function AdminBlogPage() {
             {posts.map((p) => (
               <tr key={p.id} className="border-t border-line">
                 <td className="px-4 py-3 font-medium text-navy">{p.title}</td>
-                <td className="px-4 py-3 text-navy/70">{p.date.toLocaleDateString("fr-FR")}</td>
+                <td className="px-4 py-3 text-navy/85">{p.date.toLocaleDateString("fr-FR")}</td>
                 <td className="px-4 py-3">
                   {p.published ? (
                     <span className="text-xs font-semibold text-green-700">Publié</span>
                   ) : (
-                    <span className="text-xs font-semibold text-navy/40">Brouillon</span>
+                    <span className="text-xs font-semibold text-navy/65">Brouillon</span>
                   )}
                 </td>
                 <td className="px-4 py-3 text-right">

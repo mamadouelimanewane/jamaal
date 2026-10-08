@@ -1,5 +1,5 @@
 const styles: Record<string, string> = {
-  NONE: "bg-navy/10 text-navy/70",
+  NONE: "bg-navy/10 text-navy/85",
   PENDING: "bg-amber-100 text-amber-800",
   PAID: "bg-emerald-100 text-emerald-800",
   FAILED: "bg-rose-100 text-rose-800",
@@ -32,7 +32,7 @@ export function PaymentStatusBadge({
   const m = method || "COD";
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${styles[s] || styles.NONE}`}
+      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${styles[s] || styles.NONE}`}
     >
       {methodShort[m] || m}
       {s !== "NONE" && <> · {labels[s] || s}</>}

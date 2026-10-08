@@ -11,7 +11,7 @@ export function BarList({
   const barColor = color === "rose" ? "bg-rose" : color === "emerald" ? "bg-emerald-400" : "bg-navy";
 
   if (items.length === 0) {
-    return <p className="text-sm text-navy/50">Pas encore assez de données.</p>;
+    return <p className="text-sm text-navy/70">Pas encore assez de données.</p>;
   }
 
   return (
@@ -20,7 +20,7 @@ export function BarList({
         <div key={item.label}>
           <div className="mb-1 flex items-center justify-between text-xs">
             <span className="font-medium text-navy">{item.label}</span>
-            <span className="text-navy/60">{formatValue ? formatValue(item.value) : item.value}</span>
+            <span className="text-navy/75">{formatValue ? formatValue(item.value) : item.value}</span>
           </div>
           <div className="h-2 w-full overflow-hidden rounded-full bg-cream">
             <div

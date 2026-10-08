@@ -33,13 +33,13 @@ export default async function AccesPage({ searchParams }: { searchParams: Promis
           {invalid ? "Lien expiré ou déjà utilisé" : "Ouvrir mon espace JAMAAL"}
         </h1>
         {invalid ? (
-          <p className="mt-3 text-sm leading-6 text-navy/60">
+          <p className="mt-3 text-sm leading-6 text-navy/75">
             Ce lien de connexion ne fonctionne plus (il est valable 24 h et ne sert qu&apos;une fois). Demandez-en un nouveau à l&apos;équipe JAMAAL sur WhatsApp,
             ou connectez-vous avec votre mot de passe.
           </p>
         ) : (
           <>
-            <p className="mt-3 text-sm leading-6 text-navy/60">Appuyez sur le bouton pour accéder à votre espace, sans mot de passe.</p>
+            <p className="mt-3 text-sm leading-6 text-navy/75">Appuyez sur le bouton pour accéder à votre espace, sans mot de passe.</p>
             <form action={openAction} className="mt-6">
               <input type="hidden" name="token" value={token} />
               <button type="submit" className="w-full rounded-full bg-navy px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-navy-light">

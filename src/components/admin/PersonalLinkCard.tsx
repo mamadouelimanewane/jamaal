@@ -20,10 +20,10 @@ export function PersonalLinkCard({
   if (!slug) {
     return (
       <div className="rounded-2xl border border-dashed border-line bg-white p-5">
-        <p className="text-xs font-semibold uppercase tracking-wide text-navy/50">
+        <p className="text-xs font-semibold uppercase tracking-wide text-navy/70">
           Lien personnel
         </p>
-        <p className="mt-2 text-sm text-navy/60">
+        <p className="mt-2 text-sm text-navy/75">
           Votre lien n&apos;est pas encore configuré. Demandez à l&apos;administrateur d&apos;ajouter
           un slug sur votre profil consultant.
         </p>
@@ -51,10 +51,10 @@ export function PersonalLinkCard({
 
   return (
     <div className="rounded-2xl border border-line bg-white p-5">
-      <p className="text-xs font-semibold uppercase tracking-wide text-navy/50">
+      <p className="text-xs font-semibold uppercase tracking-wide text-navy/70">
         Votre lien personnel
       </p>
-      <p className="mt-1 text-sm text-navy/70">
+      <p className="mt-1 text-sm text-navy/85">
         Partagez ce lien : toute commande passée via ce lien vous sera automatiquement attribuée.
       </p>
 

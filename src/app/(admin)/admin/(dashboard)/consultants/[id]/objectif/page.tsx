@@ -57,7 +57,7 @@ export default async function ConsultantObjectifPage({
           <h1 className="font-serif-display text-2xl font-semibold text-navy">
             Objectif mensuel — {consultant.name}
           </h1>
-          <p className="text-sm text-navy/60">
+          <p className="text-sm text-navy/75">
             CA ce mois :{" "}
             <span className="font-semibold text-navy">
               {formatPrice(commission.monthlyRevenue)}
@@ -69,14 +69,14 @@ export default async function ConsultantObjectifPage({
       {/* Progression actuelle */}
       {currentTarget && (
         <div className="mt-5 rounded-2xl border border-line bg-white p-5">
-          <p className="text-xs font-semibold uppercase tracking-wider text-navy/50">
+          <p className="text-xs font-semibold uppercase tracking-wider text-navy/70">
             Objectif {MONTHS_FR[currentMonth - 1]} {currentYear}
           </p>
           <div className="mt-2 flex items-center justify-between text-sm">
             <span className="font-bold text-navy">
               {formatPrice(commission.monthlyRevenue)}
             </span>
-            <span className="text-navy/50">sur {formatPrice(currentTarget.targetRevenue)}</span>
+            <span className="text-navy/70">sur {formatPrice(currentTarget.targetRevenue)}</span>
           </div>
           <div className="mt-2 h-4 w-full overflow-hidden rounded-full bg-cream">
             <div
@@ -92,7 +92,7 @@ export default async function ConsultantObjectifPage({
           </div>
           <p
             className={`mt-1 text-right text-sm font-bold ${
-              targetProgress! >= 100 ? "text-emerald-600" : "text-navy/70"
+              targetProgress! >= 100 ? "text-emerald-600" : "text-navy/85"
             }`}
           >
             {targetProgress! >= 100
@@ -113,7 +113,7 @@ export default async function ConsultantObjectifPage({
         </h2>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-semibold text-navy/70">Année</label>
+            <label className="block text-xs font-semibold text-navy/85">Année</label>
             <input
               name="year"
               type="number"
@@ -123,7 +123,7 @@ export default async function ConsultantObjectifPage({
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-navy/70">Mois (1-12)</label>
+            <label className="block text-xs font-semibold text-navy/85">Mois (1-12)</label>
             <input
               name="month"
               type="number"
@@ -135,7 +135,7 @@ export default async function ConsultantObjectifPage({
             />
           </div>
           <div className="col-span-2">
-            <label className="block text-xs font-semibold text-navy/70">
+            <label className="block text-xs font-semibold text-navy/85">
               Objectif de CA (FCFA) *
             </label>
             <input
@@ -164,10 +164,10 @@ export default async function ConsultantObjectifPage({
           Historique des Objectifs
         </h2>
         {consultant.targets.length === 0 ? (
-          <p className="px-5 py-6 text-xs text-navy/40">Aucun objectif défini.</p>
+          <p className="px-5 py-6 text-xs text-navy/65">Aucun objectif défini.</p>
         ) : (
           <table className="w-full text-sm">
-            <thead className="bg-cream text-left text-xs uppercase text-navy/50">
+            <thead className="bg-cream text-left text-xs uppercase text-navy/70">
               <tr>
                 <th className="px-4 py-3">Mois</th>
                 <th className="px-4 py-3">Objectif de CA</th>

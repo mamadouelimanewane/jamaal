@@ -2,7 +2,7 @@ import type { Livreur } from "@prisma/client";
 
 const inputClass =
   "mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-navy";
-const labelClass = "text-xs font-medium text-navy/70";
+const labelClass = "text-xs font-medium text-navy/85";
 
 export function LivreurForm({
   action,
@@ -21,7 +21,7 @@ export function LivreurForm({
         <label className={labelClass}>Téléphone / lien WhatsApp (https://wa.me/…)</label>
         <input name="phone" required defaultValue={livreur?.phone} className={inputClass} />
       </div>
-      <label className="flex items-center gap-2 text-sm text-navy/70">
+      <label className="flex items-center gap-2 text-sm text-navy/85">
         <input type="checkbox" name="active" defaultChecked={livreur?.active ?? true} />
         Actif
       </label>

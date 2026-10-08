@@ -29,7 +29,7 @@ export default async function AdminReturnsPage() {
           Exporter Excel ↓
         </a>
       </div>
-      <p className="mt-1 text-sm text-navy/60">
+      <p className="mt-1 text-sm text-navy/75">
         Un remboursement validé est automatiquement déduit du chiffre d&apos;affaires et du classement des revendeurs.
       </p>
 
@@ -68,7 +68,7 @@ export default async function AdminReturnsPage() {
           <h2 className="mb-3 text-sm font-semibold text-navy">Historique</h2>
           <div className="overflow-x-auto rounded-2xl border border-line bg-white">
             <table className="w-full text-sm">
-              <thead className="bg-cream text-left text-xs uppercase text-navy/50">
+              <thead className="bg-cream text-left text-xs uppercase text-navy/70">
                 <tr>
                   <th className="px-4 py-3">Client</th>
                   <th className="px-4 py-3">Motif</th>
@@ -81,8 +81,8 @@ export default async function AdminReturnsPage() {
                 {returns.map((r) => (
                   <tr key={r.id} className="border-t border-line">
                     <td className="px-4 py-3 text-navy">{r.order.customerName}</td>
-                    <td className="px-4 py-3 text-navy/70">{r.reason}</td>
-                    <td className="px-4 py-3 text-navy/70">{formatPrice(r.amount)}</td>
+                    <td className="px-4 py-3 text-navy/85">{r.reason}</td>
+                    <td className="px-4 py-3 text-navy/85">{formatPrice(r.amount)}</td>
                     <td className="px-4 py-3">
                       <ReturnStatusSelect id={r.id} status={r.status} />
                     </td>
@@ -97,7 +97,7 @@ export default async function AdminReturnsPage() {
                 ))}
                 {returns.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="px-4 py-6 text-center text-navy/50">
+                    <td colSpan={5} className="px-4 py-6 text-center text-navy/70">
                       Aucun retour déclaré.
                     </td>
                   </tr>

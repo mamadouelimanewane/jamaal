@@ -53,7 +53,7 @@ export default async function MesFilleulsPage() {
   return (
     <div className="max-w-6xl">
       <h1 className="font-serif-display text-2xl font-semibold text-navy">Mes filleuls</h1>
-      <p className="mt-1 text-sm text-navy/60">
+      <p className="mt-1 text-sm text-navy/75">
         Les revendeur·ses que vous avez recruté·es. Vous gagnez {rate1} % sur les ventes encaissées de vos filleuls directs et {rate2} % sur celles de leurs propres filleuls.
       </p>
 
@@ -68,7 +68,7 @@ export default async function MesFilleulsPage() {
         <h2 className="font-serif-display text-lg font-semibold text-navy">Recruter un·e filleul·e</h2>
         {links.recruit ? (
           <>
-            <p className="mt-1 text-sm text-navy/60">Votre lien d&apos;invitation : la candidature est automatiquement rattachée à vous.</p>
+            <p className="mt-1 text-sm text-navy/75">Votre lien d&apos;invitation : la candidature est automatiquement rattachée à vous.</p>
             <input readOnly value={links.recruit} className="mt-3 w-full rounded-xl border border-line bg-cream px-3 py-2 text-xs" />
             <div className="mt-3 flex flex-wrap gap-2">
               <CopyButton text={links.recruit} label="Copier le lien" />
@@ -83,13 +83,13 @@ export default async function MesFilleulsPage() {
             </div>
           </>
         ) : (
-          <p className="mt-2 text-sm text-navy/60">Votre lien n&apos;est pas encore configuré : demandez à l&apos;équipe JAMAAL de renseigner votre identifiant (slug).</p>
+          <p className="mt-2 text-sm text-navy/75">Votre lien n&apos;est pas encore configuré : demandez à l&apos;équipe JAMAAL de renseigner votre identifiant (slug).</p>
         )}
       </div>
 
       <div className="mt-6 overflow-x-auto rounded-2xl border border-line bg-white">
         <table className="w-full text-sm">
-          <thead className="bg-cream text-left text-xs uppercase text-navy/50">
+          <thead className="bg-cream text-left text-xs uppercase text-navy/70">
             <tr>
               <th className="px-4 py-3">Filleul·e</th>
               <th className="px-4 py-3">Ville</th>
@@ -108,7 +108,7 @@ export default async function MesFilleulsPage() {
                 <tr key={c.id} className="border-t border-line">
                   <td className="px-4 py-3">
                     <p className="font-semibold text-navy">{c.name}</p>
-                    <p className="text-xs text-navy/50">Depuis le {c.createdAt.toLocaleDateString("fr-FR")}{!c.active && " · inactif"}</p>
+                    <p className="text-xs text-navy/70">Depuis le {c.createdAt.toLocaleDateString("fr-FR")}{!c.active && " · inactif"}</p>
                   </td>
                   <td className="px-4 py-3">{c.city}</td>
                   <td className="px-4 py-3">{mm?.n ?? 0}</td>
@@ -132,7 +132,7 @@ export default async function MesFilleulsPage() {
               );
             })}
             {l1.length === 0 && (
-              <tr><td colSpan={8} className="px-4 py-10 text-center text-navy/50">Aucun filleul pour le moment. Partagez votre lien d&apos;invitation !</td></tr>
+              <tr><td colSpan={8} className="px-4 py-10 text-center text-navy/70">Aucun filleul pour le moment. Partagez votre lien d&apos;invitation !</td></tr>
             )}
           </tbody>
         </table>
@@ -144,8 +144,8 @@ export default async function MesFilleulsPage() {
           <ul className="mt-3 divide-y divide-line text-sm">
             {applications.map((a) => (
               <li key={a.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
-                <span className="text-navy">{a.name} <span className="text-xs text-navy/50">· {a.city} · {a.createdAt.toLocaleDateString("fr-FR")}</span></span>
-                <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${a.status === "ACCEPTEE" ? "bg-emerald-100 text-emerald-800" : a.status === "REFUSEE" ? "bg-navy/10 text-navy/60" : "bg-amber-100 text-amber-800"}`}>
+                <span className="text-navy">{a.name} <span className="text-xs text-navy/70">· {a.city} · {a.createdAt.toLocaleDateString("fr-FR")}</span></span>
+                <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${a.status === "ACCEPTEE" ? "bg-emerald-100 text-emerald-800" : a.status === "REFUSEE" ? "bg-navy/10 text-navy/75" : "bg-amber-100 text-amber-800"}`}>
                   {a.status === "ACCEPTEE" ? "Acceptée" : a.status === "REFUSEE" ? "Refusée" : "En étude"}
                 </span>
               </li>
@@ -161,7 +161,7 @@ export default async function MesFilleulsPage() {
             {bonuses.map((b) => (
               <li key={b.id} className="flex items-center justify-between py-2">
                 <span className="text-navy">{b.sponsoree.name}</span>
-                <span className="font-semibold text-navy">{formatPrice(b.amount)} <span className="ml-2 text-xs font-normal text-navy/50">{b.status === "PENDING" ? "en attente" : "versé"}</span></span>
+                <span className="font-semibold text-navy">{formatPrice(b.amount)} <span className="ml-2 text-xs font-normal text-navy/70">{b.status === "PENDING" ? "en attente" : "versé"}</span></span>
               </li>
             ))}
           </ul>

@@ -101,7 +101,7 @@ async function AdminOverview() {
           Export complet (Excel)
         </a>
       </div>
-      <p className="mt-1 text-sm text-navy/60">Vue d&apos;ensemble de l&apos;activité JAMAAL.</p>
+      <p className="mt-1 text-sm text-navy/75">Vue d&apos;ensemble de l&apos;activité JAMAAL.</p>
 
       <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-3">
         {cards.map((c) => (
@@ -119,11 +119,11 @@ async function AdminOverview() {
       <div className="mt-10">
         <h2 className="mb-4 font-serif-display text-lg font-semibold text-navy">Commandes récentes</h2>
         {recentOrders.length === 0 ? (
-          <p className="text-sm text-navy/60">Aucune commande pour le moment.</p>
+          <p className="text-sm text-navy/75">Aucune commande pour le moment.</p>
         ) : (
           <div className="overflow-x-auto rounded-2xl border border-line bg-white">
             <table className="w-full text-sm">
-              <thead className="bg-cream text-left text-xs uppercase text-navy/50">
+              <thead className="bg-cream text-left text-xs uppercase text-navy/70">
                 <tr>
                   <th className="px-4 py-3">Client</th>
                   <th className="px-4 py-3">Statut</th>
@@ -141,7 +141,7 @@ async function AdminOverview() {
                     </td>
                     <td className="px-4 py-3">{statusLabels[o.status] ?? o.status}</td>
                     <td className="px-4 py-3">{formatPrice(o.total)}</td>
-                    <td className="px-4 py-3 text-navy/60">{o.createdAt.toLocaleDateString("fr-FR")}</td>
+                    <td className="px-4 py-3 text-navy/75">{o.createdAt.toLocaleDateString("fr-FR")}</td>
                   </tr>
                 ))}
               </tbody>
@@ -156,7 +156,7 @@ async function AdminOverview() {
 async function ConsultantOverview({ userId }: { userId: string }) {
   const user = await prisma.user.findUnique({ where: { id: userId }, include: { consultant: true } });
   if (!user?.consultant) {
-    return <p className="text-sm text-navy/60">Aucun profil revendeur lié à ce compte pour le moment.</p>;
+    return <p className="text-sm text-navy/75">Aucun profil revendeur lié à ce compte pour le moment.</p>;
   }
   const consultantId = user.consultant.id;
 
@@ -186,7 +186,7 @@ async function ConsultantOverview({ userId }: { userId: string }) {
         </h1>
         <RankBadge rank={rankInfo.rank} />
       </div>
-      <p className="mt-1 text-sm text-navy/60">
+      <p className="mt-1 text-sm text-navy/75">
         Votre espace revendeur JAMAAL — CA de ce mois-ci : {formatPrice(rankInfo.monthlyRevenue)}
         {myPosition >= 0 && ` · #${myPosition + 1} au classement du mois`}.
       </p>
@@ -200,10 +200,10 @@ async function ConsultantOverview({ userId }: { userId: string }) {
 
       <div className="mt-10 grid gap-4 sm:grid-cols-2">
         <div className="rounded-2xl border border-line bg-white p-5">
-          <p className="text-xs font-semibold uppercase tracking-wide text-navy/50">Commission ({commission.rate}%)</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-navy/70">Commission ({commission.rate}%)</p>
           <p className="mt-2 text-2xl font-semibold text-navy">{formatPrice(commission.monthlyCommission)}</p>
-          <p className="text-xs text-navy/50">ce mois-ci</p>
-          <p className="mt-3 text-sm text-navy/70">
+          <p className="text-xs text-navy/70">ce mois-ci</p>
+          <p className="mt-3 text-sm text-navy/85">
             Total gagné depuis le début : <span className="font-semibold">{formatPrice(commission.lifetimeCommission)}</span>
           </p>
         </div>
@@ -211,7 +211,7 @@ async function ConsultantOverview({ userId }: { userId: string }) {
         <div className="rounded-2xl border border-line bg-white p-5">
           {progress.nextRank ? (
             <>
-              <p className="text-xs font-semibold uppercase tracking-wide text-navy/50">
+              <p className="text-xs font-semibold uppercase tracking-wide text-navy/70">
                 Vers le rang {RANK_LABELS[progress.nextRank]}
               </p>
               <div className="mt-3">
@@ -224,7 +224,7 @@ async function ConsultantOverview({ userId }: { userId: string }) {
                   color="amber"
                 />
               </div>
-              <p className="mt-2 text-sm text-navy/70">
+              <p className="mt-2 text-sm text-navy/85">
                 Il vous manque {formatPrice(progress.revenueNeeded)} de CA{" "}
                 {progress.sponsoredNeeded > 0 && <>ou {progress.sponsoredNeeded} filleul(s) actif(s) de plus</>} pour
                 passer {RANK_LABELS[progress.nextRank]}.
@@ -232,7 +232,7 @@ async function ConsultantOverview({ userId }: { userId: string }) {
             </>
           ) : (
             <>
-              <p className="text-xs font-semibold uppercase tracking-wide text-navy/50">Rang</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-navy/70">Rang</p>
               <p className="mt-3 text-sm font-semibold text-amber-700">
                 🥇 Vous êtes au rang maximum ce mois-ci, bravo !
               </p>
@@ -249,7 +249,7 @@ async function ConsultantOverview({ userId }: { userId: string }) {
               key={`${h.year}-${h.month}`}
               className="flex min-w-[84px] flex-col items-center gap-2 rounded-xl border border-line bg-white p-3"
             >
-              <span className="text-xs capitalize text-navy/50">{h.label}</span>
+              <span className="text-xs capitalize text-navy/70">{h.label}</span>
               <RankBadge rank={h.rank} />
             </div>
           ))}
@@ -258,11 +258,11 @@ async function ConsultantOverview({ userId }: { userId: string }) {
 
       <div className="mt-10">
         <h2 className="mb-1 font-serif-display text-lg font-semibold text-navy">Mon équipe</h2>
-        <p className="mb-4 text-sm text-navy/60">
+        <p className="mb-4 text-sm text-navy/75">
           Les revendeurs que vous avez parrainés. Un filleul actif ce mois-ci vous fait progresser dans le classement.
         </p>
         {team.length === 0 ? (
-          <p className="text-sm text-navy/50">
+          <p className="text-sm text-navy/70">
             Vous n&apos;avez pas encore de filleul. Parlez de JAMAAL autour de vous sur WhatsApp !
           </p>
         ) : (
@@ -276,13 +276,13 @@ async function ConsultantOverview({ userId }: { userId: string }) {
                 >
                   <div>
                     <p className="text-sm font-medium text-navy">{member.name}</p>
-                    <p className="text-xs text-navy/50">{member.city}</p>
+                    <p className="text-xs text-navy/70">{member.city}</p>
                   </div>
                   <div className="flex items-center gap-3">
                     {info && info.monthlyRevenue > 0 ? (
                       <span className="text-xs text-emerald-700">Actif ce mois-ci</span>
                     ) : (
-                      <span className="text-xs text-navy/40">Pas encore de vente ce mois-ci</span>
+                      <span className="text-xs text-navy/65">Pas encore de vente ce mois-ci</span>
                     )}
                     <RankBadge rank={info?.rank ?? null} />
                   </div>
@@ -299,7 +299,7 @@ async function ConsultantOverview({ userId }: { userId: string }) {
 async function LivreurOverview({ userId }: { userId: string }) {
   const user = await prisma.user.findUnique({ where: { id: userId }, include: { livreur: true } });
   if (!user?.livreur) {
-    return <p className="text-sm text-navy/60">Aucun profil livreur lié à ce compte pour le moment.</p>;
+    return <p className="text-sm text-navy/75">Aucun profil livreur lié à ce compte pour le moment.</p>;
   }
   const livreurId = user.livreur.id;
 
@@ -314,7 +314,7 @@ async function LivreurOverview({ userId }: { userId: string }) {
       <h1 className="font-serif-display text-2xl font-semibold text-navy">
         Bonjour {user.livreur.name}
       </h1>
-      <p className="mt-1 text-sm text-navy/60">Vos livraisons JAMAAL.</p>
+      <p className="mt-1 text-sm text-navy/75">Vos livraisons JAMAAL.</p>
 
       <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-3">
         <StatCard label="Livraisons assignées" value={assigned} icon={Truck} color="navy" href="/admin/mes-livraisons" />

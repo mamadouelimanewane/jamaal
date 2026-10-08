@@ -87,7 +87,7 @@ export function ReceiptDownload({
           Envoyer sur WhatsApp
         </button>
       </div>
-      <p className="mt-2 max-w-sm text-xs text-navy/50">
+      <p className="mt-2 max-w-sm text-xs text-navy/70">
         Sur mobile, « Envoyer sur WhatsApp » ouvre directement le partage de l&apos;image. Sur ordinateur,
         l&apos;image est téléchargée puis WhatsApp Web s&apos;ouvre pour que vous l&apos;joigniez.
       </p>

@@ -20,7 +20,7 @@ export default async function MesLivraisonsPage() {
   });
 
   if (!user?.livreur) {
-    return <p className="text-sm text-navy/60">Aucun profil livreur lié à ce compte.</p>;
+    return <p className="text-sm text-navy/75">Aucun profil livreur lié à ce compte.</p>;
   }
 
   const orders = user.livreur.orders.filter((o) => o.status !== "ANNULEE");
@@ -34,7 +34,7 @@ export default async function MesLivraisonsPage() {
         <LiveTrackingToggle />
       </div>
       {user.livreur.lastSeenAt && (
-        <p className="mt-1 text-xs text-navy/50">
+        <p className="mt-1 text-xs text-navy/70">
           Dernière position partagée : {user.livreur.lastSeenAt.toLocaleString("fr-FR")}
         </p>
       )}
@@ -54,7 +54,7 @@ export default async function MesLivraisonsPage() {
             status={o.status}
           />
         ))}
-        {active.length === 0 && <p className="text-sm text-navy/50">Aucune livraison en attente.</p>}
+        {active.length === 0 && <p className="text-sm text-navy/70">Aucune livraison en attente.</p>}
       </ul>
 
       {done.length > 0 && (

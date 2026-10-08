@@ -51,7 +51,7 @@ export default async function CommissionPaymentPage({
           <h1 className="font-serif-display text-2xl font-semibold text-navy">
             Commissions — {consultant.name}
           </h1>
-          <p className="text-sm text-navy/60">
+          <p className="text-sm text-navy/75">
             Solde net restant dû :{" "}
             <span className="font-bold text-rose-dark">{formatPrice(netDue)}</span>
           </p>
@@ -67,7 +67,7 @@ export default async function CommissionPaymentPage({
           { label: "Total Brut Dû", value: totalGross, color: "text-navy font-bold" },
         ].map((item) => (
           <div key={item.label} className="text-center">
-            <p className="text-xs font-semibold uppercase tracking-wider text-navy/50">
+            <p className="text-xs font-semibold uppercase tracking-wider text-navy/70">
               {item.label}
             </p>
             <p className={`mt-1 text-lg font-bold ${item.color}`}>
@@ -79,13 +79,13 @@ export default async function CommissionPaymentPage({
 
       <div className="mt-3 grid grid-cols-2 gap-3 rounded-2xl border border-emerald-200 bg-emerald-50/50 p-5">
         <div className="text-center">
-          <p className="text-xs font-semibold uppercase tracking-wider text-navy/50">
+          <p className="text-xs font-semibold uppercase tracking-wider text-navy/70">
             Total Payé
           </p>
           <p className="mt-1 text-lg font-bold text-emerald-700">{formatPrice(totalPaid)}</p>
         </div>
         <div className="text-center">
-          <p className="text-xs font-semibold uppercase tracking-wider text-navy/50">
+          <p className="text-xs font-semibold uppercase tracking-wider text-navy/70">
             Net Restant Dû
           </p>
           <p className={`mt-1 text-lg font-bold ${netDue > 0 ? "text-rose-dark" : "text-emerald-600"}`}>
@@ -105,7 +105,7 @@ export default async function CommissionPaymentPage({
         </h2>
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="sm:col-span-2">
-            <label className="block text-xs font-semibold text-navy/70">
+            <label className="block text-xs font-semibold text-navy/85">
               Période concernée *
             </label>
             <input
@@ -116,7 +116,7 @@ export default async function CommissionPaymentPage({
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-navy/70">
+            <label className="block text-xs font-semibold text-navy/85">
               Montant versé (FCFA) *
             </label>
             <input
@@ -130,7 +130,7 @@ export default async function CommissionPaymentPage({
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-navy/70">
+            <label className="block text-xs font-semibold text-navy/85">
               Note / moyen de paiement
             </label>
             <input
@@ -154,19 +154,19 @@ export default async function CommissionPaymentPage({
           <h2 className="font-semibold text-navy">
             Historique des Versements ({consultant.commissionPayments.length})
           </h2>
-          <span className="text-xs text-navy/50">
+          <span className="text-xs text-navy/70">
             Total payé : {formatPrice(totalPaid)}
           </span>
         </div>
         {consultant.commissionPayments.length === 0 ? (
-          <div className="px-5 py-8 text-center text-sm text-navy/40">
-            <TrendingUp className="mx-auto mb-2 text-navy/20" size={28} />
+          <div className="px-5 py-8 text-center text-sm text-navy/65">
+            <TrendingUp className="mx-auto mb-2 text-navy/45" size={28} />
             Aucun versement enregistré pour ce revendeur.
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-cream text-left text-xs uppercase text-navy/50">
+              <thead className="bg-cream text-left text-xs uppercase text-navy/70">
                 <tr>
                   <th className="px-4 py-3">Période</th>
                   <th className="px-4 py-3">Montant</th>
@@ -182,8 +182,8 @@ export default async function CommissionPaymentPage({
                     <td className="px-4 py-3 font-bold text-emerald-700">
                       {formatPrice(p.amount)}
                     </td>
-                    <td className="px-4 py-3 text-navy/60">{p.note ?? "—"}</td>
-                    <td className="px-4 py-3 text-navy/60">
+                    <td className="px-4 py-3 text-navy/75">{p.note ?? "—"}</td>
+                    <td className="px-4 py-3 text-navy/75">
                       {p.paidAt.toLocaleDateString("fr-FR")}
                     </td>
                     <td className="px-4 py-3 text-right">

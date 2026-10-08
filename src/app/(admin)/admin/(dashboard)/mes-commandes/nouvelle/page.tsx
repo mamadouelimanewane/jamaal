@@ -11,7 +11,7 @@ export default async function NewConsultantOrderPage() {
       <h1 className="font-serif-display text-2xl font-semibold text-navy">
         Nouvelle commande pour mon client
       </h1>
-      <p className="mt-1 text-sm text-navy/60">
+      <p className="mt-1 text-sm text-navy/75">
         Choisissez les produits, renseignez votre client et décidez qui livre.
       </p>
       <ConsultantOrderForm />

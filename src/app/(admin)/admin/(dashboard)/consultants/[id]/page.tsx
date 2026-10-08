@@ -117,16 +117,16 @@ export default async function ConsultantProfilePage({
               </h1>
               <RankBadge rank={rankInfo.rank} />
               {consultant.active ? (
-                <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
+                <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700">
                   Actif
                 </span>
               ) : (
-                <span className="rounded-full bg-cream px-2 py-0.5 text-[10px] font-semibold text-navy/40">
+                <span className="rounded-full bg-cream px-2 py-0.5 text-xs font-semibold text-navy/65">
                   Inactif
                 </span>
               )}
             </div>
-            <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-navy/60">
+            <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-navy/75">
               <span className="flex items-center gap-1">
                 <MapPin size={11} />
                 {consultant.city}
@@ -253,7 +253,7 @@ export default async function ConsultantProfilePage({
             className="rounded-2xl border border-line bg-white p-5 shadow-sm"
           >
             <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold uppercase tracking-wider text-navy/50">
+              <p className="text-xs font-semibold uppercase tracking-wider text-navy/70">
                 {kpi.label}
               </p>
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-cream">
@@ -261,7 +261,7 @@ export default async function ConsultantProfilePage({
               </div>
             </div>
             <p className="mt-3 text-xl font-bold text-navy">{kpi.value}</p>
-            <p className="mt-0.5 text-xs text-navy/50">{kpi.sub}</p>
+            <p className="mt-0.5 text-xs text-navy/70">{kpi.sub}</p>
           </div>
         ))}
       </div>
@@ -274,7 +274,7 @@ export default async function ConsultantProfilePage({
         </h2>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="border-b border-line text-left text-xs uppercase text-navy/50">
+            <thead className="border-b border-line text-left text-xs uppercase text-navy/70">
               <tr>
                 <th className="pb-2 pr-4">Niveau</th>
                 <th className="pb-2 pr-4">Taux</th>
@@ -288,25 +288,25 @@ export default async function ConsultantProfilePage({
               <tr>
                 <td className="py-2.5 pr-4 font-medium text-navy">Ventes directes</td>
                 <td className="py-2.5 pr-4">{commission.rate}%</td>
-                <td className="py-2.5 pr-4 text-navy/70">{formatPrice(commission.monthlyRevenue)}</td>
+                <td className="py-2.5 pr-4 text-navy/85">{formatPrice(commission.monthlyRevenue)}</td>
                 <td className="py-2.5 pr-4 font-semibold text-emerald-700">{formatPrice(commission.monthlyCommission)}</td>
-                <td className="py-2.5 pr-4 text-navy/70">{formatPrice(commission.lifetimeRevenue)}</td>
+                <td className="py-2.5 pr-4 text-navy/85">{formatPrice(commission.lifetimeRevenue)}</td>
                 <td className="py-2.5 font-semibold text-emerald-700">{formatPrice(commission.lifetimeCommission)}</td>
               </tr>
               <tr>
                 <td className="py-2.5 pr-4 font-medium text-navy">Filleuls N1</td>
                 <td className="py-2.5 pr-4">{commission.sponsorRate}%</td>
-                <td className="py-2.5 pr-4 text-navy/70">{formatPrice(commission.monthlyTeamRevenue)}</td>
+                <td className="py-2.5 pr-4 text-navy/85">{formatPrice(commission.monthlyTeamRevenue)}</td>
                 <td className="py-2.5 pr-4 font-semibold text-blue-600">{formatPrice(commission.monthlySponsorCommission)}</td>
-                <td className="py-2.5 pr-4 text-navy/70">{formatPrice(commission.lifetimeTeamRevenue)}</td>
+                <td className="py-2.5 pr-4 text-navy/85">{formatPrice(commission.lifetimeTeamRevenue)}</td>
                 <td className="py-2.5 font-semibold text-blue-600">{formatPrice(commission.lifetimeSponsorCommission)}</td>
               </tr>
               <tr>
                 <td className="py-2.5 pr-4 font-medium text-navy">Filleuls N2</td>
                 <td className="py-2.5 pr-4">{commission.sponsorL2Rate}%</td>
-                <td className="py-2.5 pr-4 text-navy/70">{formatPrice(commission.monthlyL2Revenue)}</td>
+                <td className="py-2.5 pr-4 text-navy/85">{formatPrice(commission.monthlyL2Revenue)}</td>
                 <td className="py-2.5 pr-4 font-semibold text-purple-600">{formatPrice(commission.monthlyL2Commission)}</td>
-                <td className="py-2.5 pr-4 text-navy/70">{formatPrice(commission.lifetimeL2Revenue)}</td>
+                <td className="py-2.5 pr-4 text-navy/85">{formatPrice(commission.lifetimeL2Revenue)}</td>
                 <td className="py-2.5 font-semibold text-purple-600">{formatPrice(commission.lifetimeL2Commission)}</td>
               </tr>
               <tr className="bg-cream/50">
@@ -332,11 +332,11 @@ export default async function ConsultantProfilePage({
                 key={m.label}
                 className="flex items-center justify-between rounded-xl bg-cream/50 px-3 py-2"
               >
-                <span className="text-xs font-medium capitalize text-navy/70">
+                <span className="text-xs font-medium capitalize text-navy/85">
                   {m.label}
                 </span>
                 <div className="flex items-center gap-3">
-                  <span className="text-xs text-navy/50">
+                  <span className="text-xs text-navy/70">
                     {formatPrice(m.monthlyRevenue)}
                   </span>
                   <RankBadge rank={m.rank} />
@@ -382,7 +382,7 @@ export default async function ConsultantProfilePage({
                   <span className="font-medium text-navy">
                     {formatPrice(commission.monthlyRevenue)}
                   </span>
-                  <span className="text-navy/50">
+                  <span className="text-navy/70">
                     sur {formatPrice(currentTarget)}
                   </span>
                 </div>
@@ -398,12 +398,12 @@ export default async function ConsultantProfilePage({
                     style={{ width: `${targetProgress}%` }}
                   />
                 </div>
-                <p className="mt-1 text-right text-xs font-bold text-navy/70">
+                <p className="mt-1 text-right text-xs font-bold text-navy/85">
                   {targetProgress}%
                 </p>
               </div>
             ) : (
-              <p className="mt-2 text-xs text-navy/40">
+              <p className="mt-2 text-xs text-navy/65">
                 Aucun objectif fixé.{" "}
                 <Link
                   href={`/admin/consultants/${id}/objectif`}
@@ -428,7 +428,7 @@ export default async function ConsultantProfilePage({
               </Link>
             </div>
             {consultant.sponsored.length === 0 ? (
-              <p className="mt-2 text-xs text-navy/40">Aucun filleul enregistré.</p>
+              <p className="mt-2 text-xs text-navy/65">Aucun filleul enregistré.</p>
             ) : (
               <div className="mt-3 space-y-2">
                 {consultant.sponsored.slice(0, 6).map((s) => {
@@ -442,9 +442,9 @@ export default async function ConsultantProfilePage({
                         className="font-medium text-navy hover:underline"
                       >
                         {s.name}{" "}
-                        <span className="text-navy/40">({s.city})</span>
+                        <span className="text-navy/65">({s.city})</span>
                       </Link>
-                      <span className="font-semibold text-navy/70">
+                      <span className="font-semibold text-navy/85">
                         {formatPrice(rev)}
                       </span>
                     </div>
@@ -469,7 +469,7 @@ export default async function ConsultantProfilePage({
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-cream text-left text-xs uppercase text-navy/50">
+            <thead className="bg-cream text-left text-xs uppercase text-navy/70">
               <tr>
                 <th className="px-4 py-3">Client</th>
                 <th className="px-4 py-3">Date</th>
@@ -482,7 +482,7 @@ export default async function ConsultantProfilePage({
             <tbody>
               {consultant.orders.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-4 py-6 text-center text-navy/40">
+                  <td colSpan={6} className="px-4 py-6 text-center text-navy/65">
                     Aucune commande
                   </td>
                 </tr>
@@ -491,18 +491,18 @@ export default async function ConsultantProfilePage({
                 <tr key={o.id} className="border-t border-line">
                   <td className="px-4 py-3">
                     <p className="font-medium text-navy">{o.customerName}</p>
-                    <p className="text-xs text-navy/50">{o.customerPhone ?? ""}</p>
+                    <p className="text-xs text-navy/70">{o.customerPhone ?? ""}</p>
                   </td>
-                  <td className="px-4 py-3 text-navy/60">
+                  <td className="px-4 py-3 text-navy/75">
                     {o.createdAt.toLocaleDateString("fr-FR")}
                   </td>
-                  <td className="px-4 py-3 text-navy/60">{o.items.length} art.</td>
+                  <td className="px-4 py-3 text-navy/75">{o.items.length} art.</td>
                   <td className="px-4 py-3 font-semibold text-navy">
                     {formatPrice(o.total)}
                   </td>
                   <td className="px-4 py-3">
                     <span
-                      className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                      className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${
                         o.status === "LIVREE"
                           ? "bg-emerald-50 text-emerald-700"
                           : o.status === "ANNULEE"
@@ -533,7 +533,7 @@ export default async function ConsultantProfilePage({
         <div className="flex items-center justify-between border-b border-line px-5 py-4">
           <div>
             <h2 className="font-semibold text-navy">Versements de Commission</h2>
-            <p className="text-xs text-navy/50">
+            <p className="text-xs text-navy/70">
               Total payé : {formatPrice(totalPaid)} · Net restant dû :{" "}
               <span className="font-semibold text-rose-dark">{formatPrice(netDue)}</span>
             </p>
@@ -546,10 +546,10 @@ export default async function ConsultantProfilePage({
           </Link>
         </div>
         {consultant.commissionPayments.length === 0 ? (
-          <p className="px-5 py-6 text-xs text-navy/40">Aucun versement enregistré.</p>
+          <p className="px-5 py-6 text-xs text-navy/65">Aucun versement enregistré.</p>
         ) : (
           <table className="w-full text-sm">
-            <thead className="bg-cream text-left text-xs uppercase text-navy/50">
+            <thead className="bg-cream text-left text-xs uppercase text-navy/70">
               <tr>
                 <th className="px-4 py-3">Période</th>
                 <th className="px-4 py-3">Montant</th>
@@ -564,8 +564,8 @@ export default async function ConsultantProfilePage({
                   <td className="px-4 py-3 font-bold text-emerald-700">
                     {formatPrice(p.amount)}
                   </td>
-                  <td className="px-4 py-3 text-navy/60">{p.note ?? "—"}</td>
-                  <td className="px-4 py-3 text-navy/60">
+                  <td className="px-4 py-3 text-navy/75">{p.note ?? "—"}</td>
+                  <td className="px-4 py-3 text-navy/75">
                     {p.paidAt.toLocaleDateString("fr-FR")}
                   </td>
                 </tr>

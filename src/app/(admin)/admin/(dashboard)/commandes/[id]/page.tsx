@@ -51,7 +51,7 @@ export default async function AdminOrderDetailPage({
           <h1 className="font-serif-display text-2xl font-semibold text-navy">
             Commande de {order.customerName}
           </h1>
-          <p className="mt-1 text-sm text-navy/60">
+          <p className="mt-1 text-sm text-navy/75">
             Passée le {order.createdAt.toLocaleDateString("fr-FR")} à{" "}
             {order.createdAt.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
           </p>
@@ -69,9 +69,9 @@ export default async function AdminOrderDetailPage({
 
       <div className="mt-6 rounded-2xl border border-line bg-white p-5">
         <h2 className="mb-3 text-sm font-semibold text-navy">Coordonnées client</h2>
-        <p className="text-sm text-navy/70">Téléphone : {order.customerPhone ?? "—"}</p>
-        <p className="text-sm text-navy/70">E-mail : {order.customerEmail ?? "—"}</p>
-        <p className="text-sm text-navy/70">Adresse : {order.address ?? "—"}</p>
+        <p className="text-sm text-navy/85">Téléphone : {order.customerPhone ?? "—"}</p>
+        <p className="text-sm text-navy/85">E-mail : {order.customerEmail ?? "—"}</p>
+        <p className="text-sm text-navy/85">Adresse : {order.address ?? "—"}</p>
         {order.customerPhone && (
           <a
             href={`https://wa.me/${order.customerPhone.replace(/\D/g, "")}`}
@@ -92,7 +92,7 @@ export default async function AdminOrderDetailPage({
         <ul className="flex flex-col gap-2">
           {order.items.map((item) => (
             <li key={item.id} className="flex justify-between text-sm">
-              <span className="text-navy/80">
+              <span className="text-navy/90">
                 {item.productName} — {item.volumeLabel} × {item.quantity}
               </span>
               <span className="font-medium text-navy">{formatPrice(item.price * item.quantity)}</span>
@@ -105,10 +105,10 @@ export default async function AdminOrderDetailPage({
         </div>
       </div>
 
-      {order.giftWrap && <div className="mt-4 rounded-xl border border-rose/30 bg-rose/5 p-4"><p className="text-sm font-semibold text-navy">Préparation cadeau</p>{order.giftMessage && <p className="mt-1 text-sm text-navy/70">Message : {order.giftMessage}</p>}</div>}
+      {order.giftWrap && <div className="mt-4 rounded-xl border border-rose/30 bg-rose/5 p-4"><p className="text-sm font-semibold text-navy">Préparation cadeau</p>{order.giftMessage && <p className="mt-1 text-sm text-navy/85">Message : {order.giftMessage}</p>}</div>}
 
       <form action={changeStatus} className="mt-6 flex flex-wrap items-center gap-3 rounded-2xl border border-line bg-white p-5">
-        <label className="text-sm font-medium text-navy/70">Statut</label>
+        <label className="text-sm font-medium text-navy/85">Statut</label>
         <select name="status" defaultValue={order.status} className="rounded-lg border border-line px-3 py-2 text-sm">
           {statuses.map((s) => (
             <option key={s} value={s}>
@@ -125,7 +125,7 @@ export default async function AdminOrderDetailPage({
       <div className="mt-6 rounded-2xl border border-line bg-white p-5">
         <h2 className="mb-3 text-sm font-semibold text-navy">Historique horodaté des statuts</h2>
         {order.statusHistory.length === 0 ? (
-          <p className="text-xs text-navy/50">Aucun historique d&apos;étape enregistré pour l&apos;instant.</p>
+          <p className="text-xs text-navy/70">Aucun historique d&apos;étape enregistré pour l&apos;instant.</p>
         ) : (
           <div className="relative border-l-2 border-line pl-4 space-y-3">
             {order.statusHistory.map((h) => (
@@ -134,7 +134,7 @@ export default async function AdminOrderDetailPage({
                 <span className="font-semibold text-navy">
                   {statusLabels[h.status] ?? h.status}
                 </span>
-                <span className="ml-2 text-navy/50">
+                <span className="ml-2 text-navy/70">
                   {h.createdAt.toLocaleDateString("fr-FR")} à {h.createdAt.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
                 </span>
               </div>
@@ -147,7 +147,7 @@ export default async function AdminOrderDetailPage({
         <h2 className="mb-3 text-sm font-semibold text-navy">Logistique & revendeur</h2>
         <div className="grid gap-3">
           <div>
-            <label className="text-xs font-medium text-navy/70">Revendeur / consultant à l&apos;origine de la vente</label>
+            <label className="text-xs font-medium text-navy/85">Revendeur / consultant à l&apos;origine de la vente</label>
             <select
               name="consultantId"
               defaultValue={order.consultantId ?? ""}
@@ -163,7 +163,7 @@ export default async function AdminOrderDetailPage({
           </div>
 
           <div>
-            <label className="text-xs font-medium text-navy/70">Mode de livraison</label>
+            <label className="text-xs font-medium text-navy/85">Mode de livraison</label>
             <select
               name="deliveryMode"
               defaultValue={order.deliveryMode}
@@ -175,7 +175,7 @@ export default async function AdminOrderDetailPage({
           </div>
 
           <div>
-            <label className="text-xs font-medium text-navy/70">Livreur assigné</label>
+            <label className="text-xs font-medium text-navy/85">Livreur assigné</label>
             <select
               name="livreurId"
               defaultValue={order.livreurId ?? ""}
@@ -192,7 +192,7 @@ export default async function AdminOrderDetailPage({
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
-              <label className="text-xs font-medium text-navy/70">Latitude livraison</label>
+              <label className="text-xs font-medium text-navy/85">Latitude livraison</label>
               <input
                 name="deliveryLat"
                 type="number"
@@ -202,7 +202,7 @@ export default async function AdminOrderDetailPage({
               />
             </div>
             <div>
-              <label className="text-xs font-medium text-navy/70">Longitude livraison</label>
+              <label className="text-xs font-medium text-navy/85">Longitude livraison</label>
               <input
                 name="deliveryLng"
                 type="number"

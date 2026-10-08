@@ -70,7 +70,7 @@ export function OnboardingChecklist({
   if (!ready) {
     return (
       <div className="rounded-2xl border border-line bg-white p-5">
-        <p className="text-sm text-navy/50">Chargement de votre progression…</p>
+        <p className="text-sm text-navy/70">Chargement de votre progression…</p>
       </div>
     );
   }
@@ -80,7 +80,7 @@ export function OnboardingChecklist({
       <div className="flex items-center justify-between gap-3">
         <div>
           <h2 className="text-sm font-semibold text-navy">Démarrage consultant</h2>
-          <p className="mt-0.5 text-xs text-navy/50">
+          <p className="mt-0.5 text-xs text-navy/70">
             {doneCount}/{total} étapes · {pct}%
           </p>
         </div>
@@ -101,13 +101,13 @@ export function OnboardingChecklist({
             >
               {step.auto ? (
                 <span className="mt-0.5 shrink-0 text-emerald-600">
-                  {done ? <CheckCircle2 size={18} /> : <Circle size={18} className="text-navy/30" />}
+                  {done ? <CheckCircle2 size={18} /> : <Circle size={18} className="text-navy/55" />}
                 </span>
               ) : (
                 <button
                   type="button"
                   onClick={() => toggle(step.id)}
-                  className="mt-0.5 shrink-0 text-navy/40 hover:text-emerald-600"
+                  className="mt-0.5 shrink-0 text-navy/65 hover:text-emerald-600"
                   aria-label={done ? "Marquer non fait" : "Marquer fait"}
                 >
                   {done ? (
@@ -118,10 +118,10 @@ export function OnboardingChecklist({
                 </button>
               )}
               <div className="min-w-0 flex-1">
-                <p className={`text-sm font-medium ${done ? "text-navy/50 line-through" : "text-navy"}`}>
+                <p className={`text-sm font-medium ${done ? "text-navy/70 line-through" : "text-navy"}`}>
                   {step.title}
                 </p>
-                <p className="text-xs text-navy/50">{step.description}</p>
+                <p className="text-xs text-navy/70">{step.description}</p>
                 {step.href && !done && (
                   <Link href={step.href} className="mt-1 inline-block text-xs font-semibold text-rose-dark hover:underline">
                     Y aller →

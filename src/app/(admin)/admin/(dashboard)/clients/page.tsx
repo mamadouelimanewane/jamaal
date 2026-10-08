@@ -40,7 +40,7 @@ export default async function AdminClientsPage({
           </a>
         </div>
       </div>
-      <p className="mt-1 text-sm text-navy/60">
+      <p className="mt-1 text-sm text-navy/75">
         Fiches créées automatiquement à chaque commande, pour suivre l&apos;historique de vos clients.
       </p>
 
@@ -56,7 +56,7 @@ export default async function AdminClientsPage({
 
       <div className="mt-6 overflow-x-auto rounded-2xl border border-line bg-white">
         <table className="w-full text-sm">
-          <thead className="bg-cream text-left text-xs uppercase text-navy/50">
+          <thead className="bg-cream text-left text-xs uppercase text-navy/70">
             <tr>
               <th className="px-4 py-3">Nom</th>
               <th className="px-4 py-3">Téléphone</th>
@@ -73,9 +73,9 @@ export default async function AdminClientsPage({
               return (
                 <tr key={c.id} className="border-t border-line">
                   <td className="px-4 py-3 font-medium text-navy">{c.name}</td>
-                  <td className="px-4 py-3 text-navy/70">{c.phone}</td>
-                  <td className="px-4 py-3 text-navy/70">{c.orders.length}</td>
-                  <td className="px-4 py-3 text-navy/70">{formatPrice(total)}</td>
+                  <td className="px-4 py-3 text-navy/85">{c.phone}</td>
+                  <td className="px-4 py-3 text-navy/85">{c.orders.length}</td>
+                  <td className="px-4 py-3 text-navy/85">{formatPrice(total)}</td>
                   <td className="px-4 py-3 text-right">
                     <Link href={`/admin/clients/${c.id}`} className="text-xs font-semibold text-navy hover:underline">
                       Voir la fiche
@@ -86,7 +86,7 @@ export default async function AdminClientsPage({
             })}
             {clients.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-navy/50">
+                <td colSpan={5} className="px-4 py-6 text-center text-navy/70">
                   Aucun client pour le moment.
                 </td>
               </tr>
