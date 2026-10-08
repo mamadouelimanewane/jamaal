@@ -27,8 +27,9 @@ const pts = (n: number) => n.toLocaleString("fr-FR", { maximumFractionDigits: 1 
 /** Couleurs de la barre de répartition (distinctes et lisibles sur blanc). */
 const SEGMENTS = {
   purchase: { label: "Achat chez Chogan", color: "#8a93ad" },
-  seller: { label: "Vendeur", color: "#2f6f9f" },
-  sponsors: { label: "Réseau (Parrain, Leader)", color: "#86b1d1" },
+  seller: { label: "Consultant (vendeur)", color: "#2f6f9f" },
+  parrain: { label: "Parrain direct", color: "#6fa3c9" },
+  leader: { label: "Leader", color: "#a9c9e2" },
   costs: { label: "Expédition et frais", color: "#d4a93c" },
   net: { label: "Marge JAMAAL", color: "#9b5c4d" },
 } as const;
@@ -106,12 +107,16 @@ function SectionTitle({ icon: Icon, title, text, tone }: { icon: typeof Tag; tit
 }
 
 /** Barre « où va le prix de vente » : la pièce maîtresse de la page. */
-function PriceSplit({ margin, publicPrice }: { margin: ReturnType<typeof productMargin>; publicPrice: number }) {
-  const [sale, purchase, , seller, sponsors, , costs, net] = margin.lines.map((l) => Math.abs(l.amount));
+function PriceSplit({ margin, publicPrice, model }: { margin: ReturnType<typeof productMargin>; publicPrice: number; model: BusinessModel }) {
+  const [sale, purchase, , seller, , , costs, net] = margin.lines.map((l) => Math.abs(l.amount));
+  // Chaîne complète : vente d'un Consultant, son Parrain direct et le Leader touchent leur part.
+  const parrain = (sale * model.sponsorSharedPct) / 100;
+  const leader = (sale * model.grandSponsorPct) / 100;
   const parts = [
     { ...SEGMENTS.purchase, value: purchase },
     { ...SEGMENTS.seller, value: seller },
-    { ...SEGMENTS.sponsors, value: sponsors },
+    { ...SEGMENTS.parrain, value: parrain },
+    { ...SEGMENTS.leader, value: leader },
     { ...SEGMENTS.costs, value: costs },
     ...(margin.net > 0 ? [{ ...SEGMENTS.net, value: net }] : []),
   ];
@@ -144,7 +149,8 @@ function PriceSplit({ margin, publicPrice }: { margin: ReturnType<typeof product
         })}
       </div>
 
-      <ul className="mt-4 grid gap-y-2 text-sm sm:flex sm:flex-wrap sm:gap-x-7">
+      <p className="mt-2 text-xs text-navy/70">Exemple : vente d&apos;un Consultant (vendeur final), avec son Parrain direct et son Leader.</p>
+      <ul className="mt-3 grid gap-y-2 text-sm sm:flex sm:flex-wrap sm:gap-x-7">
         {parts.map((p) => (
           <li key={p.label} className="flex items-center gap-2 sm:whitespace-nowrap">
             <span className="h-3 w-3 shrink-0 rounded-sm" style={{ background: p.color }} />
@@ -158,6 +164,68 @@ function PriceSplit({ margin, publicPrice }: { margin: ReturnType<typeof product
           <CircleAlert size={18} /> Avec ces réglages, JAMAAL perd {fcfa(-margin.net)} sur chaque vente.
         </p>
       )}
+    </div>
+  );
+}
+
+
+type Seller = "Consultant" | "Parrain" | "Leader";
+
+/** Chaîne JAMAAL → Leader → Parrain direct → Consultant : qui touche quoi selon le vendeur. */
+function CommissionChain({ sale, net, model }: { sale: number; net: number; model: BusinessModel }) {
+  const [seller, setSeller] = useState<Seller>("Consultant");
+  const amount = (rate: number) => (sale * rate) / 100;
+  // Part réseau non distribuée (pas de parrain au-dessus du vendeur) : elle reste à JAMAAL.
+  const fullEnvelope = model.sponsorSharedPct + model.grandSponsorPct;
+  const rates: Record<"Leader" | "Parrain" | "Consultant", { rate: number; role: string } | null> =
+    seller === "Consultant"
+      ? { Leader: { rate: model.grandSponsorPct, role: "sur la vente de son Consultant" }, Parrain: { rate: model.sponsorSharedPct, role: "parrain direct du vendeur" }, Consultant: { rate: model.sellerPct, role: "vend" } }
+      : seller === "Parrain"
+        ? { Leader: { rate: model.sponsorAlonePct, role: "parrain direct du vendeur" }, Parrain: { rate: model.sellerPct, role: "vend" }, Consultant: null }
+        : { Leader: { rate: model.sellerPct, role: "vend" }, Parrain: null, Consultant: null };
+  const paidNetwork = (rates.Leader?.rate ?? 0) + (rates.Parrain?.rate ?? 0) + (rates.Consultant?.rate ?? 0) - model.sellerPct;
+  const jamaal = net + amount(fullEnvelope - paidNetwork);
+  const steps: { key: string; title: string; detail: string; value: number | null; rate?: number; color: string }[] = [
+    { key: "JAMAAL", title: "JAMAAL", detail: "marge après achat, frais et commissions", value: jamaal, color: "#9b5c4d" },
+    { key: "Leader", title: "Leader", detail: rates.Leader?.role ?? "", value: rates.Leader ? amount(rates.Leader.rate) : null, rate: rates.Leader?.rate, color: SEGMENTS.leader.color },
+    { key: "Parrain", title: "Parrain direct", detail: rates.Parrain?.role ?? "pas dans cette vente", value: rates.Parrain ? amount(rates.Parrain.rate) : null, rate: rates.Parrain?.rate, color: SEGMENTS.parrain.color },
+    { key: "Consultant", title: "Consultant (vendeur final)", detail: rates.Consultant?.role ?? "pas dans cette vente", value: rates.Consultant ? amount(rates.Consultant.rate) : null, rate: rates.Consultant?.rate, color: SEGMENTS.seller.color },
+  ];
+
+  return (
+    <div className="mt-6 rounded-xl border border-line bg-cream/40 p-4 sm:p-5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h3 className="text-base font-semibold text-ink">La chaîne : qui touche quoi</h3>
+        <div className="flex items-center gap-2 text-sm">
+          <span className="whitespace-nowrap font-medium text-navy/80">Qui vend ?</span>
+          <div className="flex rounded-xl border border-line bg-white p-1 font-semibold" role="group" aria-label="Qui vend ?">
+            {(["Consultant", "Parrain", "Leader"] as const).map((s) => (
+              <button key={s} type="button" onClick={() => setSeller(s)} aria-pressed={seller === s} className={`rounded-lg px-3 py-1.5 transition ${seller === s ? "bg-navy text-white" : "text-navy/80 hover:bg-cream"}`}>
+                {s}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+      <ol className="mt-4 grid gap-2 sm:grid-cols-4">
+        {steps.map((st, i) => (
+          <li key={st.key} className={`relative rounded-xl border bg-white p-3.5 ${st.value === null ? "border-dashed border-line opacity-55" : "border-line"}`}>
+            <div className="flex items-center gap-2">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white" style={{ background: st.color }}>{i + 1}</span>
+              <span className="text-sm font-semibold text-ink">{st.title}</span>
+            </div>
+            <p className="mt-2 text-xl font-semibold text-ink">{st.value === null ? "—" : fcfa(st.value)}</p>
+            <p className="text-xs text-navy/75">{st.rate !== undefined ? `${pts(st.rate)} % · ` : ""}{st.detail}</p>
+          </li>
+        ))}
+      </ol>
+      <p className="mt-3 text-xs text-navy/75">
+        {seller === "Consultant"
+          ? `Le Consultant vend : il touche ${pts(model.sellerPct)} %, son Parrain direct ${pts(model.sponsorSharedPct)} % et le Leader ${pts(model.grandSponsorPct)} %.`
+          : seller === "Parrain"
+            ? `Le Parrain vend : il touche ${pts(model.sellerPct)} % et son Leader ${pts(model.sponsorAlonePct)} %.${fullEnvelope > model.sponsorAlonePct ? ` Le reste de l'enveloppe réseau (${pts(fullEnvelope - model.sponsorAlonePct)} %) reste à JAMAAL.` : ""}`
+            : `Le Leader vend : il touche ${pts(model.sellerPct)} %. Personne au-dessus de lui : l'enveloppe réseau (${pts(fullEnvelope)} %) reste à JAMAAL.`}
+      </p>
     </div>
   );
 }
@@ -217,7 +285,12 @@ export function BusinessModelEditor({
             )}
           </div>
         </div>
-        {shown ? <PriceSplit margin={shown} publicPrice={examplePrice} /> : <p className="text-base text-red-700">Complétez tous les réglages pour voir la répartition.</p>}
+        {shown ? (
+          <>
+            <PriceSplit margin={shown} publicPrice={examplePrice} model={live} />
+            <CommissionChain sale={shown.sale} net={shown.net} model={live} />
+          </>
+        ) : <p className="text-base text-red-700">Complétez tous les réglages pour voir la répartition.</p>}
 
         {a && b && (
           <details className="group mt-6 rounded-xl border border-line">
@@ -269,8 +342,8 @@ export function BusinessModelEditor({
           <section className={card}>
             <SectionTitle icon={Percent} title="Commissions" text="En % du prix de vente, hors livraison, sur les ventes encaissées." tone="#2f6f9f" />
             <div className="mt-5 flex flex-col gap-4">
-              <NumberField label="Vendeur (sur ses propres ventes)" name="sellerPct" value={model.sellerPct} onChange={set} suffix="%" />
-              <NumberField label="Leader, sur les ventes de ses Parrains" name="sponsorAlonePct" value={model.sponsorAlonePct} onChange={set} suffix="%" hint="Le parrain direct du vendeur touche toute l'enveloppe quand personne n'est au-dessus de lui." />
+              <NumberField label="Vendeur (Consultant, Parrain ou Leader, sur ses propres ventes)" name="sellerPct" value={model.sellerPct} onChange={set} suffix="%" />
+              <NumberField label="Leader, sur les ventes de ses Parrains" name="sponsorAlonePct" value={model.sponsorAlonePct} onChange={set} suffix="%" hint="Le Leader est le parrain direct du Parrain : il touche toute l'enveloppe." />
               <p className="-mb-1 text-sm font-medium text-ink">Sur les ventes d&apos;un Consultant (vendeur final), l&apos;enveloppe est partagée :</p>
               <div className="grid grid-cols-2 gap-3">
                 <NumberField label="Parrain direct" name="sponsorSharedPct" value={model.sponsorSharedPct} onChange={set} suffix="%" />
