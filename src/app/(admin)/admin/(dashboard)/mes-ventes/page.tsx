@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LiveRefresh } from "@/components/admin/LiveRefresh";
 import { Banknote, Receipt, ShoppingBag, TrendingUp } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/currency";
@@ -50,7 +51,7 @@ export default async function MesVentesPage({ searchParams }: { searchParams: Pr
     <div className="max-w-6xl">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="font-serif-display text-2xl font-semibold text-navy">Mes ventes</h1>
+          <div className="flex flex-wrap items-center justify-between gap-3"><h1 className="font-serif-display text-2xl font-semibold text-navy">Mes ventes</h1><LiveRefresh /></div>
           <p className="mt-1 text-sm text-navy/75">Le chiffre d&apos;affaires généré par vos clients, via votre lien ou vos commandes saisies.</p>
         </div>
         <Link href="/admin/mes-commandes/nouvelle" className="rounded-full bg-navy px-4 py-2 text-sm font-semibold text-white hover:bg-navy-light">

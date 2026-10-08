@@ -1,4 +1,5 @@
 import { MessageCircle, UserPlus, Users } from "lucide-react";
+import { LiveRefresh } from "@/components/admin/LiveRefresh";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/currency";
 import { getReseller, resellerLinks, startOfMonth } from "@/lib/reseller";
@@ -61,6 +62,7 @@ export default async function MesFilleulsPage() {
       <div className="flex flex-wrap items-center gap-3">
         <h1 className="font-serif-display text-2xl font-semibold text-navy">Mes filleuls</h1>
         <NetworkTitleBadge title={myTitle} />
+        <span className="ml-auto"><LiveRefresh /></span>
       </div>
       <p className="mt-1 text-sm text-navy/75">
         Vous êtes <strong>{myTitle}</strong>. Vos filleuls directs sont vos <strong>{level1Title}s</strong> : vous touchez {rate1} % sur leurs ventes encaissées.
@@ -68,7 +70,7 @@ export default async function MesFilleulsPage() {
       </p>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label={`Mes ${level1Title}s`} value={l1.length} icon={Users} color="navy" />
+        <StatCard label={`Mes ${level1Title}s`} value={model.maxDirectRecruits > 0 ? `${l1.length} / ${model.maxDirectRecruits}` : l1.length} icon={Users} color="navy" />
         <StatCard label={`Leurs filleuls (${level2Title}s)`} value={l2Count} icon={Users} color="purple" />
         <StatCard label="CA équipe ce mois-ci" value={formatPrice(teamMonth)} icon={Users} color="emerald" />
         <StatCard label="Candidatures en attente" value={pending} icon={UserPlus} color="amber" />

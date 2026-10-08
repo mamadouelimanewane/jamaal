@@ -3,7 +3,8 @@
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { getPaymentProvider, type PaymentProviderId } from "@/lib/payment";
+import { getAvailablePaymentProviders, getPaymentProvider, type PaymentProviderId } from "@/lib/payment";
+import { getBusinessModel } from "@/lib/business-model-store";
 import { rateLimit, clientIpFromHeaders } from "@/lib/rate-limit";
 
 /**
@@ -40,7 +41,8 @@ export async function initiatePayment(
   }
 
   const provider = getPaymentProvider(method);
-  if (!provider || !provider.available) {
+  const offered = getAvailablePaymentProviders(await getBusinessModel()).some((p) => p.id === method);
+  if (!provider || !provider.available || !offered) {
     throw new Error("Mode de paiement indisponible.");
   }
 

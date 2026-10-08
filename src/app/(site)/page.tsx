@@ -32,7 +32,7 @@ export default async function Home() {
       <div className="mx-auto grid max-w-7xl grid-cols-1 divide-y divide-[#eadfda] px-5 sm:grid-cols-3 sm:divide-x sm:divide-y-0 sm:px-8 lg:px-12">
         <div className="flex items-center justify-center gap-3 py-4 sm:py-5"><Sparkles size={16} className="text-[#9c6254]"/><span className="text-[9px] uppercase tracking-[0.15em] text-navy/70">Extraits à 30 %</span></div>
         <div className="flex items-center justify-center gap-3 py-4 sm:py-5"><ShieldCheck size={16} className="text-[#9c6254]"/><span className="text-[9px] uppercase tracking-[0.15em] text-navy/70">Conseil parfum personnalisé</span></div>
-        <div className="flex items-center justify-center gap-3 py-4 sm:py-5"><Truck size={16} className="text-[#9c6254]"/><span className="text-[9px] uppercase tracking-[0.15em] text-navy/70">Paiement à la livraison</span></div>
+        <div className="flex items-center justify-center gap-3 py-4 sm:py-5"><Truck size={16} className="text-[#9c6254]"/><span className="text-[9px] uppercase tracking-[0.15em] text-navy/70">Paiement Wave &amp; Orange Money</span></div>
       </div>
     </section>
 

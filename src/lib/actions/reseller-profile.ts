@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getReseller } from "@/lib/reseller";
+import { normalizeWalletNumber } from "@/lib/payouts/providers";
 
 export type ProfileState = { ok: boolean; error?: string };
 
@@ -32,5 +33,30 @@ export async function updateOwnProfile(_prev: ProfileState, formData: FormData):
   ]);
   revalidatePath("/admin/mon-profil");
   revalidatePath("/consultants");
+  return { ok: true };
+}
+
+export type WalletState = { ok: boolean; error?: string };
+
+/** Le membre choisit le wallet (Wave ou Orange Money) sur lequel recevoir ses commissions. */
+export async function updateOwnWallet(_prev: WalletState, formData: FormData): Promise<WalletState> {
+  const me = await getReseller();
+  if (!me) return { ok: false, error: "Session invalide." };
+  if (me.viewAs) return { ok: false, error: "Mode consultation : modification impossible." };
+
+  const provider = String(formData.get("walletProvider") ?? "");
+  const raw = String(formData.get("walletNumber") ?? "").trim();
+  if (!provider && !raw) {
+    await prisma.consultant.update({ where: { id: me.id }, data: { walletProvider: null, walletNumber: null } });
+    revalidatePath("/admin/mon-profil");
+    return { ok: true };
+  }
+  if (provider !== "WAVE" && provider !== "ORANGE_MONEY") return { ok: false, error: "Choisissez Wave ou Orange Money." };
+  const number = normalizeWalletNumber(raw);
+  if (!number) return { ok: false, error: "Numéro invalide : indiquez un numéro mobile sénégalais (ex. 77 123 45 67)." };
+
+  await prisma.consultant.update({ where: { id: me.id }, data: { walletProvider: provider, walletNumber: number } });
+  revalidatePath("/admin/mon-profil");
+  revalidatePath("/admin/mes-gains");
   return { ok: true };
 }

@@ -26,6 +26,7 @@ const ADMIN_ONLY_PREFIXES = [
   "/admin/coupons",
   "/admin/reglages",
   "/admin/modele-economique",
+  "/admin/versements",
 ];
 
 /**

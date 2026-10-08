@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getOrderConfirmation } from "@/lib/actions/orders";
 import { formatPrice } from "@/lib/currency";
 import { ReorderButton } from "@/components/ReorderButton";
+import { PayOrderButton } from "@/components/PayOrderButton";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -53,11 +54,13 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
           {isPaid
             ? "Votre paiement a bien été reçu. Nous préparons votre commande."
             : isCanceled
-              ? "Le paiement a été annulé. Votre commande reste enregistrée — vous pouvez régler à la livraison ou réessayer."
+              ? "Le paiement a été annulé. Votre commande reste enregistrée : réglez-la avec le bouton ci-dessous, ou contactez-nous sur WhatsApp."
               : isPending
                 ? "Si vous avez finalisé le paiement, la confirmation peut prendre quelques instants. Cette page se mettra à jour."
                 : "Votre commande a bien été enregistrée. Notre équipe ou votre consultant vous contactera très vite pour confirmer la livraison et le règlement."}
         </p>
+
+        {!isPaid && <PayOrderButton orderId={order.id} />}
 
         <div className="mt-6 rounded-xl bg-navy/5 px-4 py-3 text-left text-sm">
           <div className="flex justify-between">

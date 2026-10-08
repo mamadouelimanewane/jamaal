@@ -10,6 +10,6 @@ export const applicationSchema = z.object({
   country: text(60).default("Sénégal"),
   experience: text(500).optional().default(""),
   motivation: text(1000).optional().default(""),
-  sponsorCode: text(48).optional().default(""),
+  sponsorCode: text(48).min(2, "Le code de parrainage est obligatoire : demandez-le à la personne qui vous a présenté JAMAAL."),
   acceptTerms: z.literal(true, { error: "Vous devez accepter d'être recontacté·e." }),
 });

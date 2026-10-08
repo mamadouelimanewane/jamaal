@@ -41,14 +41,9 @@ export default function CartPage() {
     { id: string; name: string; city: string; slug?: string | null }[]
   >([]);
   const [refLocked, setRefLocked] = useState(false);
-  const [paymentOptions, setPaymentOptions] = useState<PaymentOption[]>([
-    {
-      id: "cod",
-      label: "Paiement à la livraison",
-      description: "Réglez en espèces ou mobile money à la livraison.",
-    },
-  ]);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentProviderId>("cod");
+  // Moyens de paiement autorisés et configurés (Wave, Orange Money…), chargés depuis le serveur.
+  const [paymentOptions, setPaymentOptions] = useState<PaymentOption[] | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentProviderId | null>(null);
 
   // Le panier est conservé dans le navigateur : on y remet les prix actuels du catalogue.
   useEffect(() => {
@@ -81,12 +76,12 @@ export default function CartPage() {
         }
       }
     });
-    listPaymentOptions().then((opts) => {
-      if (opts.length) {
+    listPaymentOptions()
+      .then((opts) => {
         setPaymentOptions(opts);
-        setPaymentMethod(opts[0].id);
-      }
-    });
+        if (opts.length) setPaymentMethod(opts[0].id);
+      })
+      .catch(() => setPaymentOptions([]));
   }, []);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -97,6 +92,10 @@ export default function CartPage() {
     }
     if (!acceptCgv) {
       setError("Vous devez accepter les Conditions Générales de Vente.");
+      return;
+    }
+    if (!paymentMethod) {
+      setError("Aucun moyen de paiement n'est disponible pour le moment.");
       return;
     }
 
@@ -277,11 +276,19 @@ export default function CartPage() {
                 {giftWrap && <textarea maxLength={300} placeholder="Message cadeau (facultatif, 300 caractères maximum)" value={giftMessage} onChange={(e) => setGiftMessage(e.target.value)} rows={3} className="mt-3 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm" />}
               </div>
 
-              <PaymentMethodSelector
-                options={paymentOptions}
-                value={paymentMethod}
-                onChange={setPaymentMethod}
-              />
+              {paymentOptions === null ? (
+                <p className="text-sm text-navy/70">Chargement des moyens de paiement…</p>
+              ) : paymentOptions.length && paymentMethod ? (
+                <PaymentMethodSelector
+                  options={paymentOptions}
+                  value={paymentMethod}
+                  onChange={setPaymentMethod}
+                />
+              ) : (
+                <p role="alert" className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-900">
+                  Le paiement en ligne (Wave, Orange Money) n&apos;est pas encore disponible. Contactez-nous sur WhatsApp pour passer votre commande.
+                </p>
+              )}
 
               <label className="flex items-start gap-2 text-xs text-navy/70">
                 <input
@@ -303,20 +310,16 @@ export default function CartPage() {
 
             <button
               type="submit"
-              disabled={submitting}
+              disabled={submitting || !paymentMethod}
               className="mt-5 w-full rounded-full bg-navy py-3 text-sm font-semibold text-white transition hover:bg-navy-light disabled:opacity-60"
             >
-              {submitting
-                ? "Envoi…"
-                : paymentMethod === "cod"
-                  ? "Passer la commande"
-                  : "Payer et commander"}
+              {submitting ? "Envoi…" : paymentMethod === "cod" ? "Passer la commande" : "Payer et commander"}
             </button>
 
             <p className="mt-3 text-center text-[11px] text-navy/40">
               {paymentMethod === "cod"
-                ? "Règlement à la livraison ou via votre consultant."
-                : "Vous serez redirigé vers la page de paiement sécurisée."}
+                ? "Règlement à la livraison."
+                : "Vous serez redirigé vers Wave ou Orange Money pour payer en toute sécurité."}
             </p>
           </form>
         </div>

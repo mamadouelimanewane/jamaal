@@ -46,3 +46,14 @@ export function depthFromLoaded(c: { sponsorId: string | null; sponsor?: { spons
   if (!c.sponsorId) return 0;
   return c.sponsor?.sponsorId ? 2 : 1;
 }
+
+/**
+ * Le parrain peut-il accueillir un nouveau filleul direct ? (limite du modèle économique,
+ * 0 = illimitée). `excludeId` : membre déjà rattaché qu'on ne compte pas (modification).
+ */
+export async function sponsorCapacity(sponsorId: string, max: number, excludeId?: string) {
+  const count = await prisma.consultant.count({
+    where: { sponsorId, ...(excludeId ? { id: { not: excludeId } } : {}) },
+  });
+  return { ok: max <= 0 || count < max, count, max };
+}

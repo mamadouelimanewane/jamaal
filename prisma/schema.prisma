@@ -335,6 +335,10 @@ model Consultant {
   slug      String?  @unique
   createdAt DateTime @default(now())
 
+  /// Wallet de versement des commissions : "WAVE" ou "ORANGE_MONEY", et numéro (+221…).
+  walletProvider String?
+  walletNumber   String?
+
   sponsorId String?
   sponsor   Consultant?  @relation("ConsultantSponsor", fields: [sponsorId], references: [id], onDelete: SetNull)
   sponsored Consultant[] @relation("ConsultantSponsor")
@@ -343,6 +347,8 @@ model Consultant {
   orders Order[]
 
   commissionPayments CommissionPayment[]
+  commissionEntries  CommissionEntry[]
+  payouts            Payout[]
   targets            MonthlyTarget[]
 
   // Parrainage & codes promo
@@ -605,4 +611,46 @@ model WhatsAppMessage {
 
   @@index([createdAt])
   @@index([providerId])
+}
+
+/// Commission due à un membre sur une commande (une ligne par bénéficiaire et par niveau).
+model CommissionEntry {
+  id           String     @id @default(cuid())
+  consultantId String
+  consultant   Consultant @relation(fields: [consultantId], references: [id], onDelete: Cascade)
+  orderId      String
+  /// "VENTE" (vendeur), "NIVEAU_1" (parrain direct), "NIVEAU_2" (grand-parrain)
+  level        String
+  rate         Float
+  base         Int
+  amount       Int
+  /// "A_VERSER", "VERSE", "ANNULE"
+  status       String     @default("A_VERSER")
+  payoutId     String?
+  payout       Payout?    @relation(fields: [payoutId], references: [id], onDelete: SetNull)
+  createdAt    DateTime   @default(now())
+
+  @@unique([orderId, consultantId, level])
+  @@index([consultantId, status])
+}
+
+/// Versement de commissions sur le wallet Wave / Orange Money d'un membre.
+model Payout {
+  id           String            @id @default(cuid())
+  consultantId String
+  consultant   Consultant        @relation(fields: [consultantId], references: [id], onDelete: Cascade)
+  amount       Int
+  /// "WAVE" ou "ORANGE_MONEY"
+  provider     String
+  walletNumber String
+  /// "EN_COURS", "VERSE", "ECHEC"
+  status       String            @default("EN_COURS")
+  providerRef  String?
+  error        String?
+  entries      CommissionEntry[]
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  @@index([consultantId])
+  @@index([status])
 }

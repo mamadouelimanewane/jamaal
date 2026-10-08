@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LiveEarnings } from "@/components/admin/LiveEarnings";
 import {
   Package,
   ShoppingCart,
@@ -190,6 +191,10 @@ async function ConsultantOverview({ userId }: { userId: string }) {
         Votre espace consultant JAMAAL — CA de ce mois-ci : {formatPrice(rankInfo.monthlyRevenue)}
         {myPosition >= 0 && ` · #${myPosition + 1} au classement du mois`}.
       </p>
+
+      <div className="mt-6">
+        <LiveEarnings consultantId={consultantId} />
+      </div>
 
       <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard label="Mes commandes" value={orderCount} icon={ShoppingCart} color="navy" href="/admin/mes-commandes" />
