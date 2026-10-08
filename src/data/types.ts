@@ -40,6 +40,8 @@ export interface VolumeOption {
 export interface Product {
   id: string;
   number?: number;
+  /** Code produit Chogan (ex. 001M, 060, BSF016). */
+  choganCode?: string;
   slug: string;
   name: string;
   category: CategorySlug;

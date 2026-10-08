@@ -100,7 +100,10 @@ model PasswordResetToken {
 
 model Product {
   id                String           @id @default(cuid())
+  /// Numéro de fiche Chogan (productDetail/…).
   number            Int?
+  /// Code produit Chogan (« Cod. » : 001M, 060, BSF016…).
+  choganCode        String?
   slug              String           @unique
   name              String
   category          String
@@ -133,6 +136,7 @@ model Product {
   reviews           Review[]
 
   @@index([category])
+  @@index([choganCode])
 }
 
 /// Suivi du stock par variante (volume) d'un produit, en complément du champ
