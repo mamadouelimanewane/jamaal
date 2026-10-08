@@ -328,7 +328,7 @@ export function BusinessModelEditor({
         )}
       </section>
 
-      <form action={saveAction} className="flex flex-col gap-6">
+      <form action={saveAction} noValidate className="flex flex-col gap-6">
         <div className="grid gap-6 lg:grid-cols-3">
           <section className={card}>
             <SectionTitle icon={Tag} title="Prix" text="En % du prix public Chogan." tone="#8a93ad" />
@@ -387,8 +387,8 @@ export function BusinessModelEditor({
                   const update = (patch: Partial<PrimeTier>) => setTiers((all) => all.map((x, j) => (j === i ? { ...x, ...patch } : x)));
                   return (
                     <tr key={i} className="border-t border-line align-middle">
-                      <td className="py-2.5 pr-3"><input name="tierThreshold" type="number" min={1} step={1000} value={t.threshold} onChange={(e) => update({ threshold: Number(e.target.value) })} className={input} aria-label="Ventes du mois" /></td>
-                      <td className="py-2.5 pr-3"><input name="tierAmount" type="number" min={0} step={500} value={t.amount} onChange={(e) => update({ amount: Number(e.target.value) })} className={input} aria-label="Prime" /></td>
+                      <td className="py-2.5 pr-3"><input name="tierThreshold" type="number" min={0} step="any" value={t.threshold} onChange={(e) => update({ threshold: Number(e.target.value) })} className={input} aria-label="Ventes du mois" /></td>
+                      <td className="py-2.5 pr-3"><input name="tierAmount" type="number" min={0} step="any" value={t.amount} onChange={(e) => update({ amount: Number(e.target.value) })} className={input} aria-label="Prime" /></td>
                       <td className="py-2.5 pr-3"><input name="tierExtra" value={t.extra ?? ""} onChange={(e) => update({ extra: e.target.value })} placeholder="Aucun" className={input} aria-label="Avantage en plus" /></td>
                       <td className="py-2.5 pr-3">
                         <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold ${covered ? "bg-emerald-50 text-emerald-800" : "bg-red-50 text-red-800"}`}>
