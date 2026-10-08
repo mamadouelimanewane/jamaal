@@ -12,7 +12,7 @@ import { getSiteUrl } from "@/lib/site-url";
 import { notifyTeamWhatsApp } from "@/lib/whatsapp";
 import { requireAdmin } from "./auth-guard";
 import { getBusinessModel } from "@/lib/business-model-store";
-import { sponsorCapacity } from "@/lib/network";
+import { sponsorCapacity, sponsorRefusal } from "@/lib/network";
 
 export type ApplicationState = {
   ok: boolean;
@@ -51,7 +51,7 @@ export async function submitApplication(_prev: ApplicationState, formData: FormD
   const { maxDirectRecruits } = await getBusinessModel();
   const capacity = await sponsorCapacity(sponsor.id, maxDirectRecruits);
   if (!capacity.ok) {
-    return { ok: false, error: `${sponsor.name} a déjà ${capacity.max} filleuls directs, le maximum. Demandez le code d'un membre de son équipe.` };
+    return { ok: false, error: sponsorRefusal(sponsor.name, capacity) };
   }
 
   // Pas de doublon en attente pour le même e-mail.
@@ -115,7 +115,7 @@ export async function approveApplication(id: string): Promise<ApproveResult> {
   if (!sponsor) return { ok: false, error: "Pas de parrain actif pour cette candidature : rattachez-la à un membre (code de parrainage) avant de l'accepter." };
   const { maxDirectRecruits } = await getBusinessModel();
   const capacity = await sponsorCapacity(sponsor.id, maxDirectRecruits);
-  if (!capacity.ok) return { ok: false, error: `${sponsor.name} a déjà ${capacity.max} filleuls directs (maximum). Rattachez cette candidature à un membre de son équipe.` };
+  if (!capacity.ok) return { ok: false, error: `${sponsorRefusal(sponsor.name, capacity)} Rattachez cette candidature à un autre membre.` };
   const slug = await uniqueConsultantSlug(app.name);
   const token = randomBytes(32).toString("base64url");
   // Mot de passe aléatoire inutilisable tant que le lien d'activation n'a pas été utilisé.

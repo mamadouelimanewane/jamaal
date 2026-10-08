@@ -1,12 +1,9 @@
-import { prisma } from "@/lib/prisma";
 import { ConsultantForm } from "@/components/admin/ConsultantForm";
 import { createConsultant } from "@/lib/actions/consultants";
+import { sponsorOptionsList } from "@/lib/network";
 
 export default async function NewConsultantPage() {
-  const sponsorOptions = await prisma.consultant.findMany({
-    orderBy: { name: "asc" },
-    select: { id: true, name: true, city: true },
-  });
+  const sponsorOptions = await sponsorOptionsList();
 
   return (
     <div>

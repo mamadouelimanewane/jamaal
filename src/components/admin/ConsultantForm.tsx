@@ -11,7 +11,7 @@ export function ConsultantForm({
 }: {
   action: (formData: FormData) => void;
   consultant?: Consultant & { slug?: string | null };
-  sponsorOptions: { id: string; name: string; city: string }[];
+  sponsorOptions: { id: string; name: string; city: string; title?: string }[];
 }) {
   return (
     <form action={action} className="mt-6 grid max-w-lg gap-4">
@@ -49,14 +49,14 @@ export function ConsultantForm({
         <input type="email" name="email" defaultValue={consultant?.email ?? ""} className={inputClass} />
       </div>
       <div>
-        <label className={labelClass}>Parrain (qui l&apos;a sponsorisé)</label>
+        <label className={labelClass}>Parrain (Leader ou Parrain direct qui l&apos;a recruté)</label>
         <select name="sponsorId" defaultValue={consultant?.sponsorId ?? ""} className={inputClass}>
-          <option value="">— Aucun —</option>
+          <option value="">— Aucun : Leader rattaché directement à JAMAAL —</option>
           {sponsorOptions
             .filter((s) => s.id !== consultant?.id)
             .map((s) => (
               <option key={s.id} value={s.id}>
-                {s.name} ({s.city})
+                {s.name} ({s.city}){s.title ? ` · ${s.title}` : ""}
               </option>
             ))}
         </select>

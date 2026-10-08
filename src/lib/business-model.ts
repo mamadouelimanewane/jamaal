@@ -27,11 +27,11 @@ export type BusinessModel = {
   priceRounding: number;
   /** Commission du vendeur, en % du prix de vente. */
   sellerPct: number;
-  /** Part du parrain direct quand personne n'est au-dessus de lui (ex. Consultant sur la vente d'un Leader). */
+  /** Part du parrain direct quand personne n'est au-dessus de lui (ex. Leader sur la vente d'un Parrain). */
   sponsorAlonePct: number;
-  /** Part du parrain direct quand il a lui-même un parrain (ex. Leader sur la vente d'un Parrain). */
+  /** Part du parrain direct quand il a lui-même un parrain (ex. Parrain direct sur la vente d'un Consultant). */
   sponsorSharedPct: number;
-  /** Part du grand-parrain (ex. Consultant sur la vente d'un Parrain). */
+  /** Part du grand-parrain (ex. Leader sur la vente d'un Consultant). */
   grandSponsorPct: number;
   /** Expédition Italie → Dakar, en % du prix public. */
   shippingPct: number;
