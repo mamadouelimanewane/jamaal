@@ -72,7 +72,7 @@ export default async function ConsultantCodesPage({ params }: { params: Promise<
       </div>
 
       {/* Codes promo personnalisés */}
-      <PromoCodeManager consultantId={id} initialCodes={promoCodes as any} />
+      <PromoCodeManager consultantId={id} initialCodes={promoCodes} />
     </div>
   );
 }

@@ -5,7 +5,6 @@ import { ArrowLeft, Users } from "lucide-react";
 import { formatPrice } from "@/lib/currency";
 import { getConsultantRank } from "@/lib/ranking";
 import { getConsultantCommission } from "@/lib/commission";
-import { RankBadge } from "@/components/admin/RankBadge";
 import { TeamTree } from "@/components/admin/TeamTree";
 
 export const dynamic = "force-dynamic";

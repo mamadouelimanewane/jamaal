@@ -47,7 +47,7 @@ export async function createOrder(
   // 0. Rate limiting
   const h = await headers();
   const ip = clientIpFromHeaders(h);
-  const limited = rateLimit(`order:${ip}`, { limit: 5, windowMs: 60_000 });
+  const limited = await rateLimit(`order:${ip}`, { limit: 5, windowMs: 60_000 });
   if (!limited.ok) {
     throw new Error(
       `Trop de tentatives. Réessayez dans ${limited.retryAfterSec} seconde(s).`

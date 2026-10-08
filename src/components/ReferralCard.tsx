@@ -10,7 +10,7 @@ interface ReferralCardProps {
   rewardPoints: number;
 }
 
-export function ReferralCard({ code, referrerId, usedAt, rewardPoints }: ReferralCardProps) {
+export function ReferralCard({ code, usedAt, rewardPoints }: ReferralCardProps) {
   const [copied, setCopied] = useState(false);
   const shareUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? "https://jamaal-nine.vercel.app"}/?ref=${code}`;
 

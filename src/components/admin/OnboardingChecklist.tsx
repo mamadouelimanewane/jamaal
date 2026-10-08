@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import Link from "next/link";
 import { CheckCircle2, Circle } from "lucide-react";
 import { onboardingSteps, type OnboardingStepId } from "@/data/onboarding";
@@ -9,31 +9,53 @@ const STORAGE_KEY = "jamaal-onboarding-manual";
 
 type ManualState = Partial<Record<OnboardingStepId, boolean>>;
 
+const LOCAL_EVENT = "jamaal-onboarding-change";
+
+function subscribeStorage(onChange: () => void) {
+  window.addEventListener("storage", onChange);
+  window.addEventListener(LOCAL_EVENT, onChange);
+  return () => {
+    window.removeEventListener("storage", onChange);
+    window.removeEventListener(LOCAL_EVENT, onChange);
+  };
+}
+
+function readStorage(): string {
+  try {
+    return localStorage.getItem(STORAGE_KEY) ?? "{}";
+  } catch {
+    return "{}";
+  }
+}
+
+function parseManual(raw: string | null): ManualState {
+  if (!raw) return {};
+  try {
+    return JSON.parse(raw) as ManualState;
+  } catch {
+    return {};
+  }
+}
+
 export function OnboardingChecklist({
   autoCompleted,
 }: {
   /** Étapes auto validées côté serveur */
   autoCompleted: Partial<Record<OnboardingStepId, boolean>>;
 }) {
-  const [manual, setManual] = useState<ManualState>({});
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setManual(JSON.parse(raw));
-    } catch {
-      /* ignore */
-    }
-    setReady(true);
-  }, []);
+  // null côté serveur (et pendant l'hydratation), puis la valeur du localStorage.
+  const raw = useSyncExternalStore(subscribeStorage, readStorage, () => null);
+  const ready = raw !== null;
+  const manual = parseManual(raw);
 
   function toggle(id: OnboardingStepId) {
-    setManual((prev) => {
-      const next = { ...prev, [id]: !prev[id] };
+    const next = { ...manual, [id]: !manual[id] };
+    try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-      return next;
-    });
+    } catch {
+      /* stockage indisponible */
+    }
+    window.dispatchEvent(new Event(LOCAL_EVENT));
   }
 
   function isDone(id: OnboardingStepId, auto: boolean) {

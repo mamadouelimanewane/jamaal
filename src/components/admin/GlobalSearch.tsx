@@ -30,13 +30,9 @@ export function GlobalSearch() {
   }, []);
 
   useEffect(() => {
-    if (!query.trim()) {
-      setResults([]);
-      setLoading(false);
-      return;
-    }
+    // Sans requête, rien n'est affiché (voir le rendu) : inutile de toucher à l'état ici.
+    if (!query.trim()) return;
 
-    setLoading(true);
     const timer = setTimeout(async () => {
       try {
         const res = await globalAdminSearch(query);
@@ -79,7 +75,10 @@ export function GlobalSearch() {
           type="text"
           value={query}
           onFocus={() => setOpen(true)}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            setLoading(e.target.value.trim().length > 0);
+          }}
           placeholder="Recherche globale (Cmd+K)..."
           className="w-full rounded-full border border-white/10 bg-white/10 py-1.5 pl-9 pr-10 text-xs text-white placeholder-white/40 outline-none transition focus:bg-white/15 focus:ring-1 focus:ring-rose"
         />

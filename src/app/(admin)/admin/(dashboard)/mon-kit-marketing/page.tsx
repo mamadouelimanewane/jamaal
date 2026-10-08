@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { Download, Image as ImageIcon, FileText, Copy, MessageCircle } from "lucide-react";
+import { Download, Image as ImageIcon, MessageCircle } from "lucide-react";
 import Image from "next/image";
 
 export const dynamic = "force-dynamic";
@@ -74,8 +74,8 @@ export default async function KitMarketingPage() {
         <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-emerald-700/80">
           <li>Publiez maximum 3 à 4 statuts par jour pour ne pas lasser vos contacts.</li>
           <li>Accompagnez toujours la photo du parfum avec un court texte inspirant.</li>
-          <li>Rappelez régulièrement à vos clients qu'ils gagnent des points de fidélité à chaque achat avec vous.</li>
-          <li>Faites des relances douces : "Coucou, je passe une commande JAMAAL demain, tu veux que j'ajoute un parfum pour toi ?"</li>
+          <li>Rappelez régulièrement à vos clients qu&apos;ils gagnent des points de fidélité à chaque achat avec vous.</li>
+          <li>Faites des relances douces : « Coucou, je passe une commande JAMAAL demain, tu veux que j&apos;ajoute un parfum pour toi ? »</li>
         </ul>
       </div>
     </div>

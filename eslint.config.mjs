@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Anciens correctifs d'intégration conservés pour mémoire, hors application.
+    "docs/**",
   ]),
 ]);
 

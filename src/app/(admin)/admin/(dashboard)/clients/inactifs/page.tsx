@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { formatPrice } from "@/lib/currency";
 import { ArrowLeft, UserX, MessageCircle } from "lucide-react";
 
 export const dynamic = "force-dynamic";

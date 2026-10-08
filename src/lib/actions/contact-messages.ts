@@ -22,7 +22,7 @@ export async function submitContactMessage(_prev: ContactState, formData: FormDa
   if (String(formData.get("website") ?? "").trim()) return { ok: true };
 
   const h = await headers();
-  const limited = rateLimit(`contact:${clientIpFromHeaders(h)}`, { limit: 3, windowMs: 10 * 60_000 });
+  const limited = await rateLimit(`contact:${clientIpFromHeaders(h)}`, { limit: 3, windowMs: 10 * 60_000 });
   if (!limited.ok) return { ok: false, error: `Trop de messages. Réessayez dans ${limited.retryAfterSec} s.` };
 
   const parsed = contactSchema.safeParse({

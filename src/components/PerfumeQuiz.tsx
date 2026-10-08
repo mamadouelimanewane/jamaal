@@ -8,7 +8,6 @@ import {
   genderCategory,
   type QuizAnswers,
   type QuizFamily,
-  type QuizGender,
 } from "@/data/perfume-quiz";
 
 export interface QuizProduct {
