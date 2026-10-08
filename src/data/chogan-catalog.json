@@ -11578,5 +11578,25 @@
   "colorTo": "#d9a99d",
   "photo": "https://cdn.chogangroupspa.com/images/prodotti/big/PR17733056101Cofanetto-Essenziali-_-sleeve-aperte.jpg",
   "isOfficial": true
+ },
+ {
+  "id": "chogan-13311",
+  "number": 13311,
+  "slug": "rebel-icon-parfum-unisexe-luxury-13311",
+  "name": "Rebel Icon Parfum unisexe luxury",
+  "category": "parfum-unisexe",
+  "shortDescription": "Rebel Icon Parfum unisexe luxury — 50 ml. Produit Chogan, distribué au Sénégal par JAMAAL.",
+  "longDescription": [
+   "Rebel Icon Parfum unisexe luxury. Format : 50 ml.",
+   "Produit officiel de la gamme Chogan, distribué au Sénégal par JAMAAL, représentant exclusif."
+  ],
+  "publicPrice": 34110,
+  "regularPrice": 42600,
+  "reviewCount": 0,
+  "rating": 4.6,
+  "colorFrom": "#1d2f4f",
+  "colorTo": "#d9a99d",
+  "photo": "https://cdn.chogangroupspa.com/images/prodotti/big/PR17634708680PR16982200610.jpg",
+  "isOfficial": true
  }
 ]
