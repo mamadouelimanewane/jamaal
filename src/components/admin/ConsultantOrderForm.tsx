@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { startTransition as dispatch, useActionState, useState, useTransition } from "react";
 import { Search, Plus, Trash2 } from "lucide-react";
 import { searchProductsForOrder, type ProductSearchResult } from "@/lib/actions/product-search";
-import { createConsultantOrder } from "@/lib/actions/consultant-orders";
+import { createConsultantOrder, type ConsultantOrderState } from "@/lib/actions/consultant-orders";
 import { formatPrice } from "@/lib/currency";
 import { ConsultantDeliveryFields } from "./ConsultantDeliveryFields";
 
@@ -31,6 +31,7 @@ export function ConsultantOrderForm({
   const [results, setResults] = useState<ProductSearchResult[]>([]);
   const [items, setItems] = useState<LineItem[]>([]);
   const [isPending, startTransition] = useTransition();
+  const [state, submitAction, submitting] = useActionState(createConsultantOrder, { ok: false } as ConsultantOrderState);
 
   function search(value: string) {
     setQuery(value);
@@ -57,7 +58,15 @@ export function ConsultantOrderForm({
   const total = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
 
   return (
-    <form action={createConsultantOrder} className="mt-6 grid gap-6 lg:grid-cols-2">
+    <form
+      // Envoi manuel : un envoi par « action » viderait les champs après une erreur de saisie.
+      onSubmit={(e) => {
+        e.preventDefault();
+        const fd = new FormData(e.currentTarget);
+        dispatch(() => submitAction(fd));
+      }}
+      className="mt-6 grid gap-6 lg:grid-cols-2"
+    >
       <input type="hidden" name="items" value={JSON.stringify(items)} />
 
       <div>
@@ -140,12 +149,13 @@ export function ConsultantOrderForm({
 
           <ConsultantDeliveryFields productsTotal={total} depot={depot} vendor={vendor} customerPhone={customerPhone} />
 
+          {state.error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-800">{state.error}</p>}
           <button
             type="submit"
-            disabled={items.length === 0}
+            disabled={items.length === 0 || submitting}
             className="mt-2 w-fit rounded-full bg-navy px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-navy-light disabled:opacity-50"
           >
-            Enregistrer la commande
+            {submitting ? "Enregistrement…" : "Enregistrer la commande"}
           </button>
         </div>
       </div>

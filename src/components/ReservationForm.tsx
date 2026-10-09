@@ -102,7 +102,7 @@ export function ReservationForm({
       if (method) {
         try {
           const pay = await initiatePayment(res.id, method);
-          if (pay.redirect && pay.url) {
+          if (!pay.error && pay.redirect && pay.url) {
             window.location.href = pay.url;
             return;
           }

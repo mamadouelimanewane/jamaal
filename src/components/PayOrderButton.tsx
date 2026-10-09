@@ -24,7 +24,10 @@ export function PayOrderButton({ orderId, label = "Payer" }: { orderId: string; 
     setError(null);
     try {
       const res = await initiatePayment(orderId, method);
-      if (res.redirect && res.url) window.location.assign(res.url);
+      if (res.error) {
+        setError(res.error);
+        setBusy(null);
+      } else if (res.redirect && res.url) window.location.assign(res.url);
       else setBusy(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Le paiement n'a pas pu démarrer.");
