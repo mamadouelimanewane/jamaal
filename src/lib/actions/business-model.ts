@@ -50,8 +50,19 @@ export async function saveBusinessModelAction(_prev: BusinessModelState, formDat
   input.primesEnabled = formData.get("primesEnabled") === "on";
 
   // Réseau, paiements et versements
-  const maxRecruits = readNumber(formData, "maxDirectRecruits");
-  input.maxDirectRecruits = Number.isFinite(maxRecruits) && maxRecruits >= 0 ? Math.round(maxRecruits) : 10;
+  for (const key of ["maxParrainsPerLeader", "maxConsultantsPerParrain"] as const) {
+    const v = readNumber(formData, key);
+    if (!Number.isFinite(v) || v < 0) return { ok: false, error: "Limite d'équipe invalide." };
+    input[key] = Math.round(v);
+  }
+  input.teamPrimesEnabled = formData.get("teamPrimesEnabled") === "on";
+  for (const [prefix, key] of [["leader", "leaderTeamTiers"], ["parrain", "parrainTeamTiers"]] as const) {
+    const th = formData.getAll(`${prefix}TierThreshold`);
+    const am = formData.getAll(`${prefix}TierAmount`);
+    input[key] = th
+      .map((t, i) => ({ threshold: Math.round(Number(String(t).replace(/\s/g, ""))), amount: Math.round(Number(String(am[i] ?? "").replace(/\s/g, ""))) }))
+      .filter((t) => Number.isFinite(t.threshold) && t.threshold > 0 && Number.isFinite(t.amount) && t.amount >= 0);
+  }
   const minPayout = readNumber(formData, "minPayout");
   input.minPayout = Number.isFinite(minPayout) && minPayout > 0 ? Math.round(minPayout) : 0;
   input.acceptWave = formData.get("acceptWave") === "on";
@@ -94,7 +105,7 @@ export async function saveBusinessModelAction(_prev: BusinessModelState, formDat
   await saveBusinessModel(next);
   await logActivity(session, "Modification du modèle économique", "Setting", "business_model");
 
-  for (const path of ["/admin/modele-economique", "/admin/mes-gains", "/admin/mes-filleuls", "/admin/comptabilite", "/admin"]) {
+  for (const path of ["/admin/modele-economique", "/admin/mes-gains", "/admin/mes-filleuls", "/admin/primes-equipe", "/admin/comptabilite", "/admin"]) {
     revalidatePath(path);
   }
   return { ok: true, message: "Modèle économique enregistré. Les commissions affichées utilisent déjà ces taux." };

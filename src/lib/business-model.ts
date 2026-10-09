@@ -42,8 +42,18 @@ export type BusinessModel = {
   primeTiers: PrimeTier[];
   /** Bonus du 1er du classement mensuel (FCFA, 0 = aucun). */
   topSellerBonus: number;
-  /** Nombre maximal de filleuls directs par membre (0 = illimité). */
+  /** Ancien réglage unique (remplacé par les limites par rang ci-dessous). */
   maxDirectRecruits: number;
+  /** Parrains au maximum dans l'équipe directe d'un Leader (0 = illimité). */
+  maxParrainsPerLeader: number;
+  /** Consultants au maximum dans l'équipe d'un Parrain (0 = illimité). */
+  maxConsultantsPerParrain: number;
+  /** Primes d'équipe (CA du mois de l'équipe), versées à la clôture du mois. */
+  teamPrimesEnabled: boolean;
+  /** Leader : CA du mois de toute son équipe (Parrains et leurs Consultants). */
+  leaderTeamTiers: PrimeTier[];
+  /** Parrain : CA du mois de ses Consultants. */
+  parrainTeamTiers: PrimeTier[];
   /** Moyens de paiement acceptés au panier (s'ils sont configurés). */
   acceptWave: boolean;
   acceptOrangeMoney: boolean;
@@ -90,6 +100,19 @@ export const DEFAULT_BUSINESS_MODEL: BusinessModel = {
   ],
   topSellerBonus: 25_000,
   maxDirectRecruits: 10,
+  maxParrainsPerLeader: 10,
+  maxConsultantsPerParrain: 20,
+  teamPrimesEnabled: false,
+  leaderTeamTiers: [
+    { threshold: 1_000_000, amount: 15_000 },
+    { threshold: 2_500_000, amount: 40_000 },
+    { threshold: 5_000_000, amount: 90_000 },
+  ],
+  parrainTeamTiers: [
+    { threshold: 500_000, amount: 7_500 },
+    { threshold: 1_000_000, amount: 15_000 },
+    { threshold: 2_000_000, amount: 35_000 },
+  ],
   acceptWave: true,
   acceptOrangeMoney: true,
   acceptCard: false,
@@ -107,6 +130,17 @@ export const DEFAULT_BUSINESS_MODEL: BusinessModel = {
   deliveryFreeAbove: 0,
   livreurSharePct: 70,
 };
+
+function normalizeTiers(list: unknown[]): PrimeTier[] {
+  return list
+    .map((t) => ({
+      threshold: Math.max(0, Math.round(Number((t as PrimeTier)?.threshold) || 0)),
+      amount: Math.max(0, Math.round(Number((t as PrimeTier)?.amount) || 0)),
+      extra: typeof (t as PrimeTier)?.extra === "string" && (t as PrimeTier).extra!.trim() ? (t as PrimeTier).extra!.trim() : undefined,
+    }))
+    .filter((t) => t.threshold > 0)
+    .sort((a, b) => a.threshold - b.threshold);
+}
 
 /** Fusionne une valeur enregistrée (éventuellement partielle ou ancienne) avec les valeurs par défaut. */
 export function normalizeBusinessModel(raw: unknown): BusinessModel {
@@ -128,6 +162,8 @@ export function normalizeBusinessModel(raw: unknown): BusinessModel {
   num("miscPct", 0, 100);
   num("topSellerBonus", 0, 100_000_000);
   num("maxDirectRecruits", 0, 1000);
+  num("maxParrainsPerLeader", 0, 1000);
+  num("maxConsultantsPerParrain", 0, 1000);
   num("minPayout", 0, 10_000_000);
   num("depotLat", -90, 90);
   const lng = Number(r.depotLng);
@@ -139,20 +175,13 @@ export function normalizeBusinessModel(raw: unknown): BusinessModel {
   num("deliveryMaxKm", 0, 2000);
   num("deliveryFreeAbove", 0, 100_000_000);
   num("livreurSharePct", 0, 100);
-  for (const key of ["primesEnabled", "acceptWave", "acceptOrangeMoney", "acceptCard", "acceptCashOnDelivery", "payoutsEnabled"] as const) {
+  for (const key of ["primesEnabled", "teamPrimesEnabled", "acceptWave", "acceptOrangeMoney", "acceptCard", "acceptCashOnDelivery", "payoutsEnabled"] as const) {
     if (typeof r[key] === "boolean") base[key] = r[key] as boolean;
   }
   if (r.payoutTrigger === "PAID" || r.payoutTrigger === "DELIVERED") base.payoutTrigger = r.payoutTrigger;
-  if (Array.isArray(r.primeTiers)) {
-    base.primeTiers = r.primeTiers
-      .map((t) => ({
-        threshold: Math.max(0, Math.round(Number((t as PrimeTier)?.threshold) || 0)),
-        amount: Math.max(0, Math.round(Number((t as PrimeTier)?.amount) || 0)),
-        extra: typeof (t as PrimeTier)?.extra === "string" && (t as PrimeTier).extra!.trim() ? (t as PrimeTier).extra!.trim() : undefined,
-      }))
-      .filter((t) => t.threshold > 0)
-      .sort((a, b) => a.threshold - b.threshold);
-  }
+  if (Array.isArray(r.primeTiers)) base.primeTiers = normalizeTiers(r.primeTiers);
+  if (Array.isArray(r.leaderTeamTiers)) base.leaderTeamTiers = normalizeTiers(r.leaderTeamTiers);
+  if (Array.isArray(r.parrainTeamTiers)) base.parrainTeamTiers = normalizeTiers(r.parrainTeamTiers);
   return base;
 }
 
@@ -217,9 +246,8 @@ export function productMargin(
   };
 }
 
-/** Palier atteint et palier suivant pour un montant de ventes personnelles encaissées. */
-export function primeStatus(monthlySales: number, model: BusinessModel) {
-  const tiers = model.primeTiers;
+/** Palier atteint et palier suivant pour un montant de ventes (personnelles par défaut, ou d'équipe). */
+export function primeStatus(monthlySales: number, model: BusinessModel, tiers: PrimeTier[] = model.primeTiers) {
   let reached: PrimeTier | null = null;
   for (const t of tiers) if (monthlySales >= t.threshold) reached = t;
   const next = tiers.find((t) => monthlySales < t.threshold) ?? null;

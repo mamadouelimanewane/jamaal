@@ -9,6 +9,9 @@ import {
   getConsultantRankHistory,
 } from "@/lib/ranking";
 import { RankBadge } from "@/components/admin/RankBadge";
+import { RankForm } from "@/components/admin/TeamControls";
+import { getBusinessModel } from "@/lib/business-model-store";
+import { titleFromLoaded, titleLabel, TITLE_RANK } from "@/lib/network";
 import {
   TrendingUp,
   ShoppingCart,
@@ -43,12 +46,12 @@ export default async function ConsultantProfilePage({
 }) {
   const { id } = await params;
 
-  const [consultant, rankInfo, commission, rankHistory] = await Promise.all([
+  const [consultant, rankInfo, commission, rankHistory, model] = await Promise.all([
     prisma.consultant.findUnique({
       where: { id },
       include: {
         user: { select: { email: true, id: true } },
-        sponsor: { select: { id: true, name: true, city: true } },
+        sponsor: { select: { id: true, name: true, city: true, sponsorId: true } },
         sponsored: {
           select: {
             id: true,
@@ -75,6 +78,7 @@ export default async function ConsultantProfilePage({
     getConsultantRank(id),
     getConsultantCommission(id),
     getConsultantRankHistory(id, 6),
+    getBusinessModel(),
   ]);
 
   if (!consultant) notFound();
@@ -218,6 +222,21 @@ export default async function ConsultantProfilePage({
             Payer commission
           </Link>
         </div>
+      </div>
+
+      {/* ── Rang dans le réseau ── */}
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line bg-white p-4">
+        <div>
+          <p className="text-sm font-semibold text-ink">
+            Rang : {titleLabel(titleFromLoaded(consultant))}
+            {!consultant.rank && <span className="ml-1 font-normal text-navy/65">(déduit de sa place dans la chaîne)</span>}
+          </p>
+          <p className="text-xs text-navy/70">
+            {consultant.sponsor ? `Dans l'équipe de ${consultant.sponsor.name}.` : consultant.rank && consultant.rank !== "LEADER" ? "Membre libre : sans équipe pour l'instant (un Leader ou un Parrain peut le rattacher avec son code)." : "Sommet de son équipe."}{" "}
+            Un Leader dirige jusqu&apos;à {model.maxParrainsPerLeader || "∞"} Parrains, un Parrain jusqu&apos;à {model.maxConsultantsPerParrain || "∞"} Consultants.
+          </p>
+        </div>
+        <RankForm consultantId={consultant.id} current={TITLE_RANK[titleFromLoaded(consultant)]} />
       </div>
 
       {/* ── KPI Cards ── */}

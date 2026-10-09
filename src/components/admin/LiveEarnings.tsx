@@ -5,7 +5,7 @@ import { COMMISSIONABLE_ORDER, commissionBase } from "@/lib/commission";
 import { WALLET_LABELS } from "@/lib/payouts/providers";
 import { LiveRefresh } from "./LiveRefresh";
 
-const LEVEL_LABEL: Record<string, string> = { VENTE: "Ma vente", NIVEAU_1: "Vente de mon filleul", NIVEAU_2: "Vente dans mon équipe" };
+const LEVEL_LABEL: Record<string, string> = { VENTE: "Ma vente", NIVEAU_1: "Vente de mon filleul", NIVEAU_2: "Vente dans mon équipe", PRIME_LEADER: "Prime d'équipe (Leader)", PRIME_PARRAIN: "Prime d'équipe (Parrain)" };
 
 function startOfToday() {
   const d = new Date();
@@ -46,7 +46,7 @@ export async function LiveEarnings({ consultantId }: { consultantId: string }) {
         at: e.createdAt,
         key: `e-${e.id}`,
         title: `${LEVEL_LABEL[e.level] ?? e.level}${who ? ` · ${who}` : ""}`,
-        detail: `${e.rate} % de ${formatPrice(e.base)}`,
+        detail: e.level.startsWith("PRIME_") ? `CA de l'équipe : ${formatPrice(e.base)} (${e.orderId.replace("PRIME-EQUIPE-", "")})` : `${e.rate} % de ${formatPrice(e.base)}`,
         amount: `+ ${formatPrice(e.amount)}`,
         tone: e.status === "ANNULE" ? "text-navy/60 line-through" : "text-emerald-700",
         status: e.status === "VERSE" ? "versé" : e.status === "ANNULE" ? "annulé" : "à verser",

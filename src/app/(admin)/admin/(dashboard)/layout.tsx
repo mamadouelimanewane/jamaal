@@ -64,6 +64,7 @@ const adminGroups = [
     title: "Réseau",
     links: [
       { href: "/admin/consultants", label: "Consultants", icon: Users },
+      { href: "/admin/primes-equipe", label: "Primes d'équipe", icon: Banknote },
       { href: "/admin/candidatures", label: "Candidatures", icon: Contact },
       { href: "/admin/messages", label: "Messages de contact", icon: Mail },
       { href: "/admin/annonces", label: "Annonces aux consultants", icon: Megaphone },
@@ -91,7 +92,7 @@ const consultantLinks = [
   { href: "/admin/mes-ventes", label: "Mes ventes", icon: BarChart3 },
   { href: "/admin/mes-commandes", label: "Mes commandes", icon: ShoppingCart },
   { href: "/admin/mes-clients", label: "Mes clients", icon: Contact },
-  { href: "/admin/mes-filleuls", label: "Mes filleuls", icon: UsersRound },
+  { href: "/admin/mes-filleuls", label: "Mon équipe", icon: UsersRound },
   { href: "/admin/mes-gains", label: "Mes gains", icon: Banknote },
   { href: "/admin/mon-marketing", label: "Mon marketing", icon: Share2 },
   { href: "/admin/ma-communication", label: "Ma communication", icon: Megaphone },

@@ -4,7 +4,8 @@ import { formatPrice } from "@/lib/currency";
 import { getConsultantCommission, COMMISSIONABLE_ORDER, commissionBase } from "@/lib/commission";
 import { getBusinessModel } from "@/lib/business-model-store";
 import { primeStatus } from "@/lib/business-model";
-import { getNetworkDepth, titleForDepth } from "@/lib/network";
+import { getMemberTitle, recruitTitleFor } from "@/lib/network";
+import { salesBetween } from "@/lib/team";
 import Link from "next/link";
 import { WALLET_LABELS } from "@/lib/payouts/providers";
 import { LiveEarnings } from "@/components/admin/LiveEarnings";
@@ -21,17 +22,21 @@ export default async function MesGainsPage() {
 
   const [info, model] = await Promise.all([getConsultantCommission(me.id), getBusinessModel()]);
   const prime = primeStatus(info.monthlyRevenue, model);
-  const depth = await getNetworkDepth(me.id);
+  const myTitle = await getMemberTitle(me.id);
   const [walletPending, walletPayouts] = await Promise.all([
     prisma.commissionEntry.aggregate({ where: { consultantId: me.id, status: "A_VERSER" }, _sum: { amount: true } }),
     prisma.payout.findMany({ where: { consultantId: me.id }, orderBy: { createdAt: "desc" }, take: 5 }),
   ]);
-  const level1 = `${titleForDepth(depth + 1)}s`;
+  const level1 = `${recruitTitleFor(myTitle) ?? "filleul"}s`;
   const level2 = `filleuls de mes ${level1}`;
   const l1 = await prisma.consultant.findMany({ where: { sponsorId: me.id }, select: { id: true } });
   const l1Ids = l1.map((c) => c.id);
   const l2 = l1Ids.length ? await prisma.consultant.findMany({ where: { sponsorId: { in: l1Ids } }, select: { id: true } }) : [];
   const l2Ids = l2.map((c) => c.id);
+  // Prime d'équipe du mois en cours (Leader : toute l'équipe ; Parrain : ses Consultants).
+  const teamTiers = myTitle === "Leader" ? model.leaderTeamTiers : myTitle === "Parrain" ? model.parrainTeamTiers : [];
+  const teamSalesMonth = model.teamPrimesEnabled && teamTiers.length ? await salesBetween(myTitle === "Leader" ? [...l1Ids, ...l2Ids] : l1Ids, startOfMonth(), startOfMonth(1)) : 0;
+  const teamPrime = primeStatus(teamSalesMonth, model, teamTiers);
 
   const from = startOfMonth(-5);
   const [orders, payments, bonuses, target] = await Promise.all([
@@ -168,6 +173,30 @@ export default async function MesGainsPage() {
             ))}
           </ul>
           {model.topSellerBonus > 0 && <p className="mt-3 text-xs text-navy/75">Bonus de {formatPrice(model.topSellerBonus)} pour le 1er du classement mensuel (chiffre d&apos;affaires client).</p>}
+        </div>
+      )}
+
+      {model.teamPrimesEnabled && teamTiers.length > 0 && (
+        <div className="mt-6 rounded-2xl border border-line bg-white p-5">
+          <h2 className="flex items-center gap-2 font-serif-display text-lg font-semibold text-navy"><Trophy size={18} /> Prime d&apos;équipe du mois ({myTitle})</h2>
+          <p className="mt-1 text-sm text-navy/80">
+            Ventes encaissées de {myTitle === "Leader" ? "toute votre équipe (Parrains et leurs Consultants)" : "vos Consultants"} ce mois-ci : <strong className="text-navy">{formatPrice(teamSalesMonth)}</strong>.
+            {teamPrime.reached ? <> Palier atteint : prime de <strong className="text-emerald-700">{formatPrice(teamPrime.reached.amount)}</strong>, versée à la clôture du mois.</> : " Aucun palier atteint pour l'instant."}
+          </p>
+          {teamPrime.next && (
+            <>
+              <div className="mt-3 h-3 overflow-hidden rounded-full bg-navy/10"><div className="h-full rounded-full bg-emerald-600" style={{ width: `${teamPrime.progress}%` }} /></div>
+              <p className="mt-2 text-xs text-navy/75">Encore <strong className="text-navy">{formatPrice(teamPrime.remaining)}</strong> pour la prime de {formatPrice(teamPrime.next.amount)}.</p>
+            </>
+          )}
+          <ul className="mt-4 grid gap-2 text-xs sm:grid-cols-3">
+            {teamTiers.map((t) => (
+              <li key={t.threshold} className={`rounded-xl border px-3 py-2 ${teamSalesMonth >= t.threshold ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-line text-navy/85"}`}>
+                <span className="block font-semibold">{formatPrice(t.threshold)} de CA d&apos;équipe</span>
+                Prime {formatPrice(t.amount)}
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 

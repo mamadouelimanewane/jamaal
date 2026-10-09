@@ -12,7 +12,7 @@
     "db:seed": "tsx prisma/seed.ts",
     "postinstall": "prisma generate",
     "test": "tsx --test 'src/**/__tests__/*.test.ts'",
-    "test:db": "DB_TEST=1 SEARCH_DB_TEST=1 tsx --test 'src/**/__tests__/*.db.test.ts'"
+    "test:db": "DB_TEST=1 SEARCH_DB_TEST=1 tsx --test --test-concurrency=1 'src/**/__tests__/*.db.test.ts'"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",

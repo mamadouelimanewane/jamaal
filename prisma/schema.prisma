@@ -390,6 +390,8 @@ model Consultant {
   deliveryLat     Float?
   deliveryLng     Float?
 
+  /// Rang attribué par l'admin : "LEADER", "PARRAIN" ou "CONSULTANT". Vide : déduit de la place dans la chaîne.
+  rank      String?
   sponsorId String?
   sponsor   Consultant?  @relation("ConsultantSponsor", fields: [sponsorId], references: [id], onDelete: SetNull)
   sponsored Consultant[] @relation("ConsultantSponsor")
