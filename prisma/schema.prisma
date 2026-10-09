@@ -273,6 +273,15 @@ model Order {
   deliveryPlace       String?
   /// Stock de la commande : RESERVE (retiré du stock) ou LIBERE (remis en stock après annulation)
   stockState    String?
+  /// Réservation d'un produit en rupture : acompte payé d'avance, solde à l'arrivée du stock.
+  isReservation      Boolean   @default(false)
+  depositAmount      Int       @default(0)
+  depositPaidAt      DateTime?
+  /// ACOMPTE_ATTENDU → RESERVEE (acompte payé) → DISPONIBLE (stock arrivé, client prévenu) → SOLDEE, ou ANNULEE
+  reservationStatus  String?
+  /// Délai annoncé au client au moment de la réservation (ex. « 15 à 21 jours »).
+  reservationDelay   String?
+  reservationReadyAt DateTime?
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
   items         OrderItem[]
@@ -327,6 +336,7 @@ model Order {
   @@index([customerId])
   @@index([deliveryZoneId])
   @@index([couponId])
+  @@index([isReservation, reservationStatus])
 }
 
 model OrderItem {

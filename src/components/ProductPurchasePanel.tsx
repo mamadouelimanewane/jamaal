@@ -1,14 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { Minus, Plus, ShieldCheck, ShoppingBag } from "lucide-react";
+import Link from "next/link";
+import { CalendarClock, Minus, Plus, ShieldCheck, ShoppingBag } from "lucide-react";
 import type { Product } from "@/data/types";
 import { useCartStore } from "@/lib/cart-store";
 import { formatPrice } from "@/lib/currency";
+import { depositFor, type ReservationSettings } from "@/lib/reservation";
 
 const LOW = 5;
 
-export function ProductPurchasePanel({ product }: { product: Product }) {
+export function ProductPurchasePanel({ product, reservation }: { product: Product; reservation?: ReservationSettings | null }) {
   const volumes = product.volumes ?? [{ label: "Format unique", price: product.regularPrice ?? 0 }];
   const stockOf = (label: string) => product.availability?.[label] ?? Infinity;
   // Format proposé d'office : le premier disponible.
@@ -20,11 +22,14 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
   const volume = volumes[volumeIdx];
   const stock = stockOf(volume.label);
   const out = stock <= 0;
-  const maxQty = Math.max(1, Math.min(20, Number.isFinite(stock) ? stock : 20));
+  // Format en rupture : réservation possible (avec acompte) si elle est proposée.
+  const reservable = out && !!reservation?.enabled;
+  const maxQty = reservable ? 20 : Math.max(1, Math.min(20, Number.isFinite(stock) ? stock : 20));
 
   function choose(i: number) {
     setVolumeIdx(i);
-    setQuantity((q) => Math.min(q, Math.max(1, Math.min(20, Number.isFinite(stockOf(volumes[i].label)) ? stockOf(volumes[i].label) : 20))));
+    const st = stockOf(volumes[i].label);
+    setQuantity((q) => Math.min(q, st <= 0 ? 20 : Math.max(1, Math.min(20, Number.isFinite(st) ? st : 20))));
   }
 
   function handleAdd() {
@@ -52,8 +57,11 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
         {s <= 0 && <span className={`mt-0.5 text-[8px] font-semibold uppercase tracking-wide ${selected ? "text-white/80" : "text-red-700/80"}`}>Rupture</span>}
       </button>;
     })}</div></fieldset>
-    <div className="flex items-center justify-between border-y border-[#eadfda] py-4"><span className="text-[9px] font-semibold uppercase tracking-[0.16em] text-navy/60">Quantité</span><div className="flex items-center gap-4"><button type="button" disabled={out} onClick={() => setQuantity((current) => Math.max(1, current - 1))} aria-label="Réduire la quantité" className="flex h-8 w-8 items-center justify-center border border-[#e3d3cd] text-navy transition hover:border-navy disabled:opacity-40"><Minus size={13}/></button><span aria-live="polite" className="min-w-4 text-center text-sm">{quantity}</span><button type="button" disabled={out || quantity >= maxQty} onClick={() => setQuantity((current) => Math.min(maxQty, current + 1))} aria-label="Augmenter la quantité" className="flex h-8 w-8 items-center justify-center border border-[#e3d3cd] text-navy transition hover:border-navy disabled:opacity-40"><Plus size={13}/></button></div></div>
-    <button type="button" onClick={handleAdd} disabled={out} className="inline-flex min-h-14 w-full items-center justify-center gap-3 bg-[#1d2f4f] px-6 text-[10px] font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-[#14213b] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#9c6254] disabled:cursor-not-allowed disabled:bg-navy/35"><ShoppingBag size={16}/>{out ? "Format en rupture" : added ? "Ajouté à votre panier" : "Ajouter au panier"}</button>
+    <div className="flex items-center justify-between border-y border-[#eadfda] py-4"><span className="text-[9px] font-semibold uppercase tracking-[0.16em] text-navy/60">Quantité</span><div className="flex items-center gap-4"><button type="button" disabled={out && !reservable} onClick={() => setQuantity((current) => Math.max(1, current - 1))} aria-label="Réduire la quantité" className="flex h-8 w-8 items-center justify-center border border-[#e3d3cd] text-navy transition hover:border-navy disabled:opacity-40"><Minus size={13}/></button><span aria-live="polite" className="min-w-4 text-center text-sm">{quantity}</span><button type="button" disabled={(out && !reservable) || quantity >= maxQty} onClick={() => setQuantity((current) => Math.min(maxQty, current + 1))} aria-label="Augmenter la quantité" className="flex h-8 w-8 items-center justify-center border border-[#e3d3cd] text-navy transition hover:border-navy disabled:opacity-40"><Plus size={13}/></button></div></div>
+    {reservable && reservation ? <div className="space-y-3">
+      <p className="flex items-start gap-2 bg-[#f6efe9] px-4 py-3 text-xs leading-5 text-navy/80"><CalendarClock size={16} className="mt-0.5 shrink-0 text-[#9c6254]"/><span>Réservez ce format : disponible sous <strong>{reservation.delayLabel}</strong>. Acompte de {reservation.depositPercent} % soit <strong>{formatPrice(depositFor(volume.price * quantity, reservation.depositPercent))}</strong>, le solde à l&apos;arrivée{reservation.refundable ? " ; acompte remboursé si vous annulez avant l'arrivée" : ""}.</span></p>
+      <Link href={`/reserver/${product.slug}?format=${encodeURIComponent(volume.label)}&qte=${quantity}`} className="inline-flex min-h-14 w-full items-center justify-center gap-3 bg-[#9c6254] px-6 text-[10px] font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-[#7f4d42]"><CalendarClock size={16}/>Réserver ce format</Link>
+    </div> : <button type="button" onClick={handleAdd} disabled={out} className="inline-flex min-h-14 w-full items-center justify-center gap-3 bg-[#1d2f4f] px-6 text-[10px] font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-[#14213b] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#9c6254] disabled:cursor-not-allowed disabled:bg-navy/35"><ShoppingBag size={16}/>{out ? "Format en rupture" : added ? "Ajouté à votre panier" : "Ajouter au panier"}</button>}
     <div className="flex items-center justify-center gap-2 text-[9px] uppercase tracking-[0.12em] text-navy/50"><ShieldCheck size={14} className="text-[#9c6254]"/>Paiement sécurisé · Livraison à votre convenance</div>
   </div>;
 }

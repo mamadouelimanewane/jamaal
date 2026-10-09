@@ -4,6 +4,7 @@ import { getOrderConfirmation } from "@/lib/actions/orders";
 import { formatPrice } from "@/lib/currency";
 import { ReorderButton } from "@/components/ReorderButton";
 import { PayOrderButton } from "@/components/PayOrderButton";
+import { amountDue, RESERVATION_LABELS, type ReservationStatus } from "@/lib/reservation";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -34,12 +35,15 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
   const isPaid = paymentStatus === "PAYE" || sp.paid === "1";
   const isCanceled = sp.canceled === "1" && !isPaid;
   const isPending = paymentStatus === "EN_ATTENTE" && !isPaid;
+  const due = amountDue(order);
+  const resa = order.isReservation ? ((order.reservationStatus ?? "ACOMPTE_ATTENDU") as ReservationStatus) : null;
+  const balance = Math.max(0, order.total - order.depositAmount);
 
   return (
     <div className="mx-auto max-w-lg px-4 py-16">
       <div className="rounded-2xl border border-line bg-white p-8 text-center shadow-sm">
         <p className="text-xs font-semibold uppercase tracking-widest text-rose-dark">
-          {isPaid
+          {resa ? `Réservation · ${RESERVATION_LABELS[resa]}` : isPaid
             ? "Paiement confirmé"
             : isCanceled
               ? "Paiement annulé"
@@ -51,7 +55,17 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
           Merci, {order.customerName} !
         </h1>
         <p className="mt-3 text-sm leading-relaxed text-navy/70">
-          {isPaid
+          {resa ? (
+            resa === "ACOMPTE_ATTENDU"
+              ? `Votre réservation est enregistrée. Réglez l'acompte de ${formatPrice(order.depositAmount)} pour la confirmer ; nous commandons alors votre produit (délai annoncé : ${order.reservationDelay ?? "quelques semaines"}).`
+              : resa === "RESERVEE"
+                ? `Acompte reçu, merci ! Votre produit est commandé (délai annoncé : ${order.reservationDelay ?? "quelques semaines"}). Nous vous prévenons sur WhatsApp dès son arrivée.`
+                : resa === "DISPONIBLE"
+                  ? `Votre produit est arrivé ! Reste à régler : ${formatPrice(balance)}, en ligne ci-dessous ou ${order.deliveryMode === "LIVRAISON_JAMAAL" ? "à la livraison" : "au retrait"}.`
+                  : resa === "SOLDEE"
+                    ? "Réservation soldée : votre commande suit son cours."
+                    : "Cette réservation a été annulée."
+          ) : isPaid
             ? "Votre paiement a bien été reçu. Nous préparons votre commande."
             : isCanceled
               ? "Le paiement a été annulé. Votre commande reste enregistrée : réglez-la avec le bouton ci-dessous, ou contactez-nous sur WhatsApp."
@@ -60,7 +74,11 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
                 : "Votre commande a bien été enregistrée. Notre équipe ou votre consultant vous contactera très vite pour confirmer la livraison et le règlement."}
         </p>
 
-        {!isPaid && <PayOrderButton orderId={order.id} />}
+        {resa ? (
+          due && due.amount > 0 && <PayOrderButton orderId={order.id} label={due.part === "ACOMPTE" ? `Payer l'acompte (${formatPrice(due.amount)})` : `Payer le solde (${formatPrice(due.amount)})`} />
+        ) : (
+          !isPaid && <PayOrderButton orderId={order.id} />
+        )}
 
         <div className="mt-6 rounded-xl bg-navy/5 px-4 py-3 text-left text-sm">
           <div className="flex justify-between">
@@ -73,7 +91,19 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
             <span className="text-navy/60">Total</span>
             <span className="font-semibold text-navy">{formatPrice(order.total)}</span>
           </div>
-          <div className="mt-2 flex justify-between">
+          {resa && (
+            <>
+              <div className="mt-2 flex justify-between">
+                <span className="text-navy/60">Acompte</span>
+                <span className="font-semibold text-navy">{formatPrice(order.depositAmount)} · {order.depositPaidAt ? <span className="text-emerald-700">payé</span> : <span className="text-amber-700">à payer</span>}</span>
+              </div>
+              <div className="mt-2 flex justify-between">
+                <span className="text-navy/60">Solde à l&apos;arrivée</span>
+                <span className="font-semibold text-navy">{formatPrice(balance)}</span>
+              </div>
+            </>
+          )}
+          {!resa && <div className="mt-2 flex justify-between">
             <span className="text-navy/60">Paiement</span>
             <span className="font-semibold text-navy">
               {paymentMethodLabels[paymentMethod] ?? paymentMethod}
@@ -92,7 +122,7 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
                   : paymentStatusLabels[paymentStatus] ?? paymentStatus}
               </span>
             </span>
-          </div>
+          </div>}
           {order.consultant && (
             <div className="mt-2 flex justify-between">
               <span className="text-navy/60">Consultant·e</span>

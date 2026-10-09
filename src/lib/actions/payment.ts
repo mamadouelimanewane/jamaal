@@ -2,6 +2,7 @@
 
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { amountDue } from "@/lib/reservation";
 import { prisma } from "@/lib/prisma";
 import { getAvailablePaymentProviders, getPaymentProvider, type PaymentProviderId } from "@/lib/payment";
 import { getBusinessModel } from "@/lib/business-model-store";
@@ -32,12 +33,23 @@ export async function initiatePayment(
       customerPhone: true,
       customerEmail: true,
       paymentStatus: true,
+      isReservation: true,
+      depositAmount: true,
+      depositPaidAt: true,
+      reservationStatus: true,
     },
   });
 
   if (!order) throw new Error("Commande introuvable.");
   if ((order as { paymentStatus?: string }).paymentStatus === "PAYE") {
     throw new Error("Cette commande est déjà payée.");
+  }
+  const due = amountDue(order);
+  if (!due || due.amount <= 0) {
+    throw new Error(order.isReservation && order.reservationStatus === "RESERVEE" ? "Acompte reçu : le solde se règle à l'arrivée du produit." : "Rien à payer pour cette commande.");
+  }
+  if (due.part === "ACOMPTE" && method === "cod") {
+    throw new Error("L'acompte de réservation se paie en ligne (Wave ou Orange Money).");
   }
 
   const provider = getPaymentProvider(method);
@@ -53,13 +65,13 @@ export async function initiatePayment(
 
   const result = await provider.createPayment({
     orderId: order.id,
-    amount: order.total,
+    amount: due.amount,
     customerName: order.customerName,
     customerPhone: order.customerPhone,
     customerEmail: order.customerEmail,
     successUrl: `${origin.replace(/\/$/, "")}/commande/${order.id}?paid=1`,
     cancelUrl: `${origin.replace(/\/$/, "")}/commande/${order.id}?canceled=1`,
-    description: `Commande JAMAAL ${order.id.slice(-8).toUpperCase()}`,
+    description: `${due.part === "ACOMPTE" ? "Acompte réservation" : due.part === "SOLDE" ? "Solde réservation" : "Commande"} JAMAAL ${order.id.slice(-8).toUpperCase()}`,
   });
 
   // Persister méthode + ref

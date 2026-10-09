@@ -17,6 +17,8 @@ import { createOrderSchema } from "@/lib/validations/order";
 import { rateLimit, clientIpFromHeaders } from "@/lib/rate-limit";
 import { getBusinessModel } from "@/lib/business-model-store";
 import { isValidPoint, newDeliveryCode, quoteDelivery } from "@/lib/delivery";
+import { depositFor } from "@/lib/reservation";
+import { getReservationSettings } from "@/lib/reservation-store";
 
 export interface CheckoutItem {
   productId: string;
@@ -62,6 +64,20 @@ export type CreateOrderResult = { ok: true; id: string } | { ok: false; error: s
  * Next.js masque les messages des erreurs levées par une action serveur (le client ne verrait
  * qu'un code d'erreur au lieu de « stock insuffisant », « prix modifié »…).
  */
+/**
+ * Réservation d'un format en rupture : même parcours qu'une commande (prix, livraison, client),
+ * sans prise de stock ; le client paie un acompte, le solde à l'arrivée du produit.
+ */
+export async function createReservation(
+  customer: CheckoutCustomer,
+  item: CheckoutItem,
+  consultantId: string | null,
+  acceptCgv: boolean,
+  delivery: CheckoutDelivery
+): Promise<CreateOrderResult> {
+  return createOrder(customer, [item], consultantId, acceptCgv, false, "", delivery, true);
+}
+
 export async function createOrder(...args: Parameters<typeof placeOrder>): Promise<CreateOrderResult> {
   try {
     return { ok: true, id: await placeOrder(...args) };
@@ -79,7 +95,8 @@ async function placeOrder(
   acceptCgv: boolean = false,
   giftWrap: boolean = false,
   giftMessage: string = "",
-  delivery: CheckoutDelivery = { mode: "RETRAIT" }
+  delivery: CheckoutDelivery = { mode: "RETRAIT" },
+  reservation: boolean = false
 ) {
   // 0. Rate limiting
   const h = await headers();
@@ -180,6 +197,32 @@ async function placeOrder(
     });
   }
 
+  // 3 ter. Réservation : un seul article, réellement en rupture ; acompte sur le prix des produits.
+  let reservationData: {
+    isReservation?: boolean;
+    depositAmount?: number;
+    reservationStatus?: string;
+    reservationDelay?: string;
+    stockState?: string;
+  } = {};
+  if (reservation) {
+    const settings = await getReservationSettings();
+    if (!settings.enabled) throw new Error("La réservation n'est pas proposée pour le moment.");
+    if (serverItems.length !== 1) throw new Error("Une réservation porte sur un seul produit.");
+    const it = serverItems[0];
+    if (it.quantity < 1 || it.quantity > 20) throw new Error("Quantité invalide (20 au maximum).");
+    const ref = await resolveStockRef(prisma, it.productId, it.volumeLabel);
+    const available = ref ? (ref.variantId ? (await prisma.productVariant.findUnique({ where: { id: ref.variantId }, select: { stock: true } }))?.stock : (await prisma.product.findUnique({ where: { id: it.productId }, select: { stock: true } }))?.stock) ?? 0 : 0;
+    if (available > 0) throw new Error("Ce format est de nouveau disponible : ajoutez-le directement au panier.");
+    reservationData = {
+      isReservation: true,
+      depositAmount: depositFor(total, settings.depositPercent),
+      reservationStatus: "ACOMPTE_ATTENDU",
+      reservationDelay: settings.delayLabel,
+      stockState: "ATTENTE",
+    };
+  }
+
   // 3 bis. Livraison : frais recalculés côté serveur à partir de la position du client.
   const productsTotal = total;
   let deliveryData: {
@@ -216,7 +259,8 @@ async function placeOrder(
       deliveryFee: quote.fee,
       deliveryDistanceKm: quote.distanceKm,
       deliveryCode: newDeliveryCode(),
-      deliveryStatus: "A_PREPARER",
+      // Réservation : la livraison démarre à l'arrivée du produit.
+      deliveryStatus: reservation ? undefined : "A_PREPARER",
       livreurShare: quote.livreurShare,
       deliveryApprox: delivery.approx === true,
       deliveryPlace: String(delivery.place ?? "").trim().slice(0, 120) || null,
@@ -263,6 +307,7 @@ async function placeOrder(
       customerId,
       consultantId: validConsultantId,
       ...deliveryData,
+      ...reservationData,
       items: {
         create: serverItems.map((i, k) => ({
           productId: i.productId,
@@ -275,7 +320,7 @@ async function placeOrder(
       },
     },
   });
-  const stockAlerts = await reserveStock(tx, serverItems, true, { orderId: order.id });
+  const stockAlerts = reservation ? [] : await reserveStock(tx, serverItems, true, { orderId: order.id });
   return { order, stockAlerts };
   });
 
@@ -299,8 +344,10 @@ async function placeOrder(
       data: admins.map((a) => ({
         userId: a.id,
         orderId: order.id,
-        title: "Nouvelle commande",
-        message: `${data.customer.name} — ${total.toLocaleString("fr-FR")} FCFA`,
+        title: reservation ? "Nouvelle réservation" : "Nouvelle commande",
+        message: reservation
+          ? `${data.customer.name} réserve ${serverItems[0].productName} (${serverItems[0].volumeLabel} × ${serverItems[0].quantity}) — acompte ${(reservationData.depositAmount ?? 0).toLocaleString("fr-FR")} FCFA`
+          : `${data.customer.name} — ${total.toLocaleString("fr-FR")} FCFA`,
       })),
     });
   }
@@ -323,7 +370,8 @@ async function placeOrder(
     }
   }
 
-  notifyTeamWhatsApp(`Nouvelle commande ${total.toLocaleString("fr-FR")} FCFA de ${data.customer.name}${validConsultantId ? " (via un consultant)" : ""}. Détail : Admin > Commandes.`);
+  if (reservation) notifyTeamWhatsApp(`Nouvelle réservation : ${serverItems[0].productName} (${serverItems[0].volumeLabel} × ${serverItems[0].quantity}) pour ${data.customer.name}. À commander chez Chogan. Détail : Admin > Réservations.`);
+  else notifyTeamWhatsApp(`Nouvelle commande ${total.toLocaleString("fr-FR")} FCFA de ${data.customer.name}${validConsultantId ? " (via un consultant)" : ""}. Détail : Admin > Commandes.`);
   if (validConsultantId) {
     notifyResellerWhatsApp(validConsultantId, `Bonne nouvelle ! Nouvelle commande de ${data.customer.name} : ${total.toLocaleString("fr-FR")} FCFA, rattachée à vous. Suivez-la dans « Mes ventes ».`);
   }
@@ -422,6 +470,13 @@ export async function getOrderConfirmation(id: string) {
       giftWrap: true,
       giftMessage: true,
       paidAt: true,
+      deliveryMode: true,
+      deliveryFee: true,
+      isReservation: true,
+      depositAmount: true,
+      depositPaidAt: true,
+      reservationStatus: true,
+      reservationDelay: true,
       consultant: { select: { name: true, city: true, whatsapp: true } },
       items: {
         select: {

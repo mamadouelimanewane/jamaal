@@ -3,6 +3,7 @@ import { after } from "next/server";
 import { runPayoutsForOrder } from "@/lib/payouts/engine";
 import { prisma } from "@/lib/prisma";
 import { awardLoyaltyForOrder } from "@/lib/loyalty-award";
+import { amountDue } from "@/lib/reservation";
 
 type Method = "WAVE" | "ORANGE_MONEY" | "STRIPE";
 
@@ -28,9 +29,17 @@ export async function markOrderPaid(
     console.error("[payment] méthode inattendue", orderId, order.paymentMethod, opts.method);
     return false;
   }
-  if (opts.amount != null && opts.amount !== order.total) {
-    console.error("[payment] montant inattendu", orderId, opts.amount, order.total);
+  const due = amountDue(order);
+  if (!due) return true; // rien à encaisser (réservation annulée ou soldée)
+  if (opts.amount != null && opts.amount !== due.amount) {
+    console.error("[payment] montant inattendu", orderId, opts.amount, due.amount);
     return false;
+  }
+
+  // Réservation : l'acompte réserve le produit, sans clôturer le paiement ni verser de commission.
+  if (due.part === "ACOMPTE") {
+    await markDepositPaid(orderId, opts.externalRef ?? null);
+    return true;
   }
 
   const res = await prisma.order.updateMany({
@@ -40,6 +49,7 @@ export async function markOrderPaid(
       paidAt: new Date(),
       ...(opts.externalRef ? { paymentRef: opts.externalRef } : {}),
       ...(order.status === "EN_ATTENTE" ? { status: "CONFIRMEE" } : {}),
+      ...(order.isReservation ? { reservationStatus: "SOLDEE" } : {}),
     },
   });
   if (res.count === 0) return true; // un autre appel concurrent a déjà traité
@@ -55,6 +65,32 @@ export async function markOrderPaid(
 
   revalidatePath(`/commande/${orderId}`);
   revalidatePath("/admin/commandes");
+  revalidatePath(`/admin/commandes/${orderId}`);
+  return true;
+}
+
+/** Acompte de réservation reçu (paiement en ligne ou saisie de l'admin). Idempotent. */
+export async function markDepositPaid(orderId: string, externalRef: string | null = null): Promise<boolean> {
+  const res = await prisma.order.updateMany({
+    where: { id: orderId, isReservation: true, depositPaidAt: null, reservationStatus: "ACOMPTE_ATTENDU" },
+    data: { depositPaidAt: new Date(), reservationStatus: "RESERVEE", ...(externalRef ? { paymentRef: externalRef } : {}) },
+  });
+  if (res.count === 0) return false;
+  const order = await prisma.order.findUnique({ where: { id: orderId }, select: { customerName: true, depositAmount: true, items: { select: { productName: true, volumeLabel: true, quantity: true } } } });
+  const admins = await prisma.user.findMany({ where: { role: "ADMIN" }, select: { id: true } });
+  if (order && admins.length) {
+    const it = order.items[0];
+    await prisma.notification.createMany({
+      data: admins.map((a) => ({
+        userId: a.id,
+        orderId,
+        title: "Acompte de réservation reçu",
+        message: `${order.customerName} : ${order.depositAmount.toLocaleString("fr-FR")} FCFA pour ${it ? `${it.productName} (${it.volumeLabel} × ${it.quantity})` : "sa réservation"}. À commander chez Chogan.`,
+      })),
+    });
+  }
+  revalidatePath(`/commande/${orderId}`);
+  revalidatePath("/admin/reservations");
   revalidatePath(`/admin/commandes/${orderId}`);
   return true;
 }

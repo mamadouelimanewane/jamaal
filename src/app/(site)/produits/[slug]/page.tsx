@@ -8,6 +8,7 @@ import { getCategory } from "@/lib/db-categories";
 import { ProductVisual } from "@/components/ProductVisual";
 import { StarRating } from "@/components/StarRating";
 import { ProductPurchasePanel } from "@/components/ProductPurchasePanel";
+import { getReservationSettings } from "@/lib/reservation-store";
 import { ShareWhatsApp } from "@/components/ShareWhatsApp";
 import { ProductCard } from "@/components/ProductCard";
 
@@ -41,7 +42,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   const { slug } = await params;
   const product = await loadProduct(slug);
   if (!product) notFound();
-  const category = await getCategory(product.category);
+  const [category, reservation] = await Promise.all([getCategory(product.category), getReservationSettings()]);
   const related = (await getProductsByCategory(product.category)).filter((item) => item.id !== product.id).slice(0, 4);
 
   return <main className="mx-auto max-w-[1440px] px-5 pb-20 pt-6 sm:px-8 lg:px-12">
@@ -74,7 +75,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           {product.reviewCount > 0 && <div className="mt-3"><StarRating rating={product.rating} count={product.reviewCount}/></div>}
           <p className="mt-5 text-sm leading-7 text-navy/65">{product.shortDescription}</p>
           <div className="my-7 border-t border-[#eadfda]"/>
-          <ProductPurchasePanel product={product}/>
+          <ProductPurchasePanel product={product} reservation={reservation}/>
           <ShareWhatsApp name={product.name} slug={product.slug} price={product.regularPrice ?? null}/>
           <div className="mt-6 grid grid-cols-2 gap-3 border-y border-[#eadfda] py-4 text-[9px] uppercase tracking-[0.12em] text-navy/60"><span>Extrait concentré à 30 %</span><span className="text-right">Paiement Wave · Orange Money</span></div>
 

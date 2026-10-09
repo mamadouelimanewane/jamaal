@@ -1,3 +1,4 @@
+import { balanceOf } from "@/lib/reservation";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -72,7 +73,7 @@ export default async function MesLivraisonsPage() {
             customerPhone={o.deliveryContactPhone ?? o.customerPhone}
             forCustomer={o.deliveryTarget === "VENDEUR" ? o.customerName : null}
             address={o.address}
-            total={o.total}
+            total={balanceOf(o)}
             paid={o.paymentStatus === "PAYE"}
             status={(o.deliveryStatus ?? "ASSIGNEE") as DeliveryStatus}
             lat={o.deliveryLat}

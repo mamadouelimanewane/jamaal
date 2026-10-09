@@ -60,6 +60,7 @@ export default async function AdminOrdersPage() {
                   <Link href={`/admin/commandes/${o.id}`} className="font-medium text-navy hover:underline">
                     {o.customerName}
                   </Link>
+                  {o.isReservation && <span className="ml-2 rounded-full bg-[#f6e7e1] px-2 py-0.5 text-[11px] font-semibold text-[#7f4d42]">Réservation</span>}
                   <p className="text-xs text-navy/70">{o.customerPhone ?? o.customerEmail ?? ""}</p>
                 </td>
                 <td className="px-4 py-3 text-navy/85">{o.items.length}</td>
