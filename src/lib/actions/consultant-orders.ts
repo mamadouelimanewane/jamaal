@@ -21,7 +21,26 @@ export interface ConsultantOrderItem {
   quantity: number;
 }
 
-export async function createConsultantOrder(formData: FormData) {
+export type ConsultantOrderState = { ok: boolean; error?: string };
+
+/**
+ * Formulaire « Nouvelle commande » du vendeur. Les erreurs de saisie sont renvoyées au
+ * formulaire : en production, Next.js masque le message d'une erreur levée et affiche une
+ * page « A server error occurred ».
+ */
+export async function createConsultantOrder(_prev: ConsultantOrderState, formData: FormData): Promise<ConsultantOrderState> {
+  let orderId: string;
+  try {
+    orderId = await placeConsultantOrder(formData);
+  } catch (e) {
+    const internal = !(e instanceof Error) || /^PrismaClient/.test(e.constructor.name);
+    if (internal) console.error("[commande vendeur]", e);
+    return { ok: false, error: internal ? "La commande n'a pas pu être enregistrée, réessayez." : e.message };
+  }
+  redirect(`/admin/mes-commandes/${orderId}`);
+}
+
+async function placeConsultantOrder(formData: FormData): Promise<string> {
   const { consultant } = await requireConsultantProfile();
 
   // Articles : seuls l'identifiant, le format et la quantité viennent du formulaire ; les prix
@@ -124,6 +143,6 @@ export async function createConsultantOrder(formData: FormData) {
   revalidatePath("/admin/commandes");
   revalidatePath("/admin/livraisons");
   revalidatePath("/admin/produits");
-  redirect(`/admin/mes-commandes/${order.id}`);
+  return order.id;
 }
 

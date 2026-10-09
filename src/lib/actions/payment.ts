@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { amountDue } from "@/lib/reservation";
 import { prisma } from "@/lib/prisma";
 import { getAvailablePaymentProviders, getPaymentProvider, type PaymentProviderId } from "@/lib/payment";
+import type { CreatePaymentResult } from "@/lib/payment/types";
 import { getBusinessModel } from "@/lib/business-model-store";
 import { rateLimit, clientIpFromHeaders } from "@/lib/rate-limit";
 
@@ -13,7 +14,18 @@ import { rateLimit, clientIpFromHeaders } from "@/lib/rate-limit";
  * - COD → retourne { redirect: false }
  * - Wave / OM / Stripe → { redirect: true, url }
  */
-export async function initiatePayment(
+export async function initiatePayment(orderId: string, method: PaymentProviderId): Promise<CreatePaymentResult & { error?: string }> {
+  // Erreurs renvoyées en clair : en production, Next.js masque le message d'une erreur levée.
+  try {
+    return await startPayment(orderId, method);
+  } catch (e) {
+    const internal = !(e instanceof Error) || /^PrismaClient/.test(e.constructor.name);
+    if (internal) console.error("[paiement]", e);
+    return { redirect: false, error: internal ? "Le paiement n'a pas pu démarrer, réessayez." : e.message };
+  }
+}
+
+async function startPayment(
   orderId: string,
   method: PaymentProviderId
 ) {

@@ -177,6 +177,11 @@ export default function CartPage() {
       clear();
 
       const pay = await initiatePayment(id, paymentMethod);
+      if (pay.error) {
+        // La commande est enregistrée : le paiement pourra être relancé depuis sa page.
+        router.push(`/commande/${id}?canceled=1`);
+        return;
+      }
       if (pay.redirect && pay.url) {
         window.location.href = pay.url;
         return;
