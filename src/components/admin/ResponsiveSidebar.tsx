@@ -7,9 +7,12 @@ import { Menu, X } from "lucide-react";
 export function ResponsiveSidebar({
   sidebar,
   children,
+  headerExtra,
 }: {
   sidebar: React.ReactNode;
   children: React.ReactNode;
+  /** Élément toujours visible dans la barre du haut sur téléphone (ex. solde du wallet). */
+  headerExtra?: React.ReactNode;
 }) {
   const pathname = usePathname();
   // Le menu mobile est lié à la page où il a été ouvert : il se referme tout seul en changeant de page.
@@ -21,6 +24,7 @@ export function ResponsiveSidebar({
     <div className="admin-ui min-h-screen bg-cream lg:flex">
       <header className="sticky top-0 z-30 flex items-center justify-between border-b border-white/10 bg-navy px-4 py-3 lg:hidden shadow-sm">
         <p className="font-serif-display text-lg font-semibold tracking-wide text-white">JAMAAL</p>
+        <div className="ml-auto mr-2">{headerExtra}</div>
         <button
           onClick={() => setOpen(true)}
           aria-label="Ouvrir le menu"

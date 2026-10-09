@@ -12,7 +12,7 @@ export function WalletForm({ provider, number, holder }: { provider: string | nu
   return (
     <form action={action} className="grid gap-4 sm:grid-cols-2">
       <fieldset className="sm:col-span-2">
-        <legend className="text-sm font-medium text-ink">Recevoir mes commissions sur</legend>
+        <legend className="text-sm font-medium text-ink">Recevoir mes retraits sur</legend>
         <div className="mt-2 flex flex-wrap gap-3">
           {[
             { id: "WAVE", label: "Wave" },
@@ -35,9 +35,9 @@ export function WalletForm({ provider, number, holder }: { provider: string | nu
         <span className="mt-1 block text-xs font-normal text-navy/65">Le compte doit être à votre nom : JAMAAL vérifie ce nom avant le premier versement.</span>
       </label>
       {state.error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-800 sm:col-span-2">{state.error}</p>}
-      {state.ok && <p role="status" className="rounded-xl bg-emerald-50 px-4 py-2 text-sm text-emerald-800 sm:col-span-2">Wallet enregistré. Vos prochaines commissions y seront versées.</p>}
+      {state.ok && <p role="status" className="rounded-xl bg-emerald-50 px-4 py-2 text-sm text-emerald-800 sm:col-span-2">Compte enregistré : vos retraits y seront envoyés.</p>}
       <button type="submit" disabled={pending} className="rounded-full bg-navy px-6 py-2.5 text-sm font-semibold text-white hover:bg-navy-light disabled:opacity-60 sm:col-span-2 sm:w-fit">
-        {pending ? "Enregistrement…" : "Enregistrer mon wallet"}
+        {pending ? "Enregistrement…" : "Enregistrer mon compte"}
       </button>
     </form>
   );

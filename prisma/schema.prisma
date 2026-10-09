@@ -37,6 +37,7 @@ enum PaymentMethod {
   WAVE
   ORANGE_MONEY
   STRIPE
+  WALLET
 }
 
 enum PaymentStatus {
@@ -794,4 +795,33 @@ model ProtocolSignature {
   consultantId  String?
 
   @@index([consultantId])
+}
+
+/// Wallet JAMAAL d'un revendeur (consultant) ou d'un livreur : registre de mouvements.
+/// Solde = mouvements VALIDE + retraits EN_ATTENTE (bloqués jusqu'au versement).
+model WalletTransaction {
+  id          String   @id @default(cuid())
+  /// "CONSULTANT" ou "LIVREUR"
+  ownerType   String
+  ownerId     String
+  /// Montant signé (FCFA) : crédit > 0, débit < 0
+  amount      Int
+  /// COMMISSION, PRIME, LIVRAISON, DEPOT, RETRAIT, PAIEMENT, ANNULATION, AJUSTEMENT
+  kind        String
+  /// EN_ATTENTE, VALIDE, ECHEC, ANNULE
+  status      String   @default("VALIDE")
+  provider    String?
+  phone       String?
+  providerRef String?
+  /// Origine unique (commission, gain de livraison…) : un même gain n'est crédité qu'une fois.
+  sourceId    String?  @unique
+  orderId     String?
+  note        String?
+  error       String?
+  createdBy   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([ownerType, ownerId, status])
+  @@index([status, kind])
 }

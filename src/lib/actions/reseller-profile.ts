@@ -60,5 +60,6 @@ export async function updateOwnWallet(_prev: WalletState, formData: FormData): P
   await prisma.consultant.update({ where: { id: me.id }, data: { walletProvider: provider, walletNumber: number, walletHolderName: holder } });
   revalidatePath("/admin/mon-profil");
   revalidatePath("/admin/mes-gains");
+  revalidatePath("/admin/mon-wallet");
   return { ok: true };
 }

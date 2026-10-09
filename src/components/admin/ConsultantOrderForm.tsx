@@ -22,9 +22,11 @@ const labelClass = "text-xs font-medium text-navy/85";
 export function ConsultantOrderForm({
   depot,
   vendor,
+  walletBalance = 0,
 }: {
   depot: { lat: number; lng: number; label: string };
   vendor: { address: string | null; lat: number | null; lng: number | null };
+  walletBalance?: number;
 }) {
   const [query, setQuery] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
@@ -149,6 +151,13 @@ export function ConsultantOrderForm({
 
           <ConsultantDeliveryFields productsTotal={total} depot={depot} vendor={vendor} customerPhone={customerPhone} />
 
+          <label className={`flex items-start gap-3 rounded-xl border px-4 py-3 text-sm ${walletBalance > 0 ? "border-emerald-200 bg-emerald-50 text-emerald-950" : "border-line bg-cream/50 text-navy/70"}`}>
+            <input type="checkbox" name="payWithWallet" disabled={walletBalance <= 0} className="mt-0.5 h-4 w-4 accent-emerald-700" />
+            <span>
+              <strong>Payer avec mon wallet</strong> · solde {walletBalance.toLocaleString("fr-FR")} F
+              <span className="block text-xs">La commande est réglée tout de suite (produits{" "}+ livraison) : votre client n&apos;a rien à payer à la livraison.</span>
+            </span>
+          </label>
           {state.error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-800">{state.error}</p>}
           <button
             type="submit"

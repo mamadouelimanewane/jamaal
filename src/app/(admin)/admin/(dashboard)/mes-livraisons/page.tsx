@@ -1,4 +1,6 @@
 import { balanceOf } from "@/lib/reservation";
+import { WalletHero } from "@/components/admin/WalletWidgets";
+import { walletBalance } from "@/lib/wallet";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -40,7 +42,7 @@ export default async function MesLivraisonsPage() {
     }),
     prisma.livreurEarning.aggregate({ where: { livreurId: livreur.id, createdAt: { gte: month }, status: { not: "ANNULE" } }, _sum: { amount: true }, _count: true }),
     prisma.livreurEarning.aggregate({ where: { livreurId: livreur.id, status: { in: ["A_VERSER", "EN_COURS"] } }, _sum: { amount: true } }),
-    prisma.livreurEarning.aggregate({ where: { livreurId: livreur.id, status: "VERSE", createdAt: { gte: month } }, _sum: { amount: true } }),
+    prisma.livreurEarning.aggregate({ where: { livreurId: livreur.id, status: { in: ["VERSE", "WALLET"] }, createdAt: { gte: month } }, _sum: { amount: true } }),
   ]);
 
   return (
@@ -57,9 +59,13 @@ export default async function MesLivraisonsPage() {
         {livreur.lastSeenAt ? ` Dernière position : ${livreur.lastSeenAt.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}.` : ""}
       </p>
 
+      <div className="mt-5">
+        <WalletHero compact {...(await walletBalance({ type: "LIVREUR", id: livreur.id }))} />
+      </div>
+
       <div className="mt-5 grid grid-cols-3 gap-3">
         <div className="rounded-xl border border-line bg-white px-4 py-3"><p className="text-sm text-navy/80">Livrées ce mois</p><p className="text-xl font-semibold text-ink">{earnedMonth._count}</p></div>
-        <div className="rounded-xl border border-line bg-white px-4 py-3"><p className="text-sm text-navy/80">Gagné ce mois</p><p className="text-xl font-semibold text-ink">{formatPrice(earnedMonth._sum.amount ?? 0)}</p><p className="text-xs text-navy/75">dont {formatPrice(paid._sum.amount ?? 0)} versés</p></div>
+        <div className="rounded-xl border border-line bg-white px-4 py-3"><p className="text-sm text-navy/80">Gagné ce mois</p><p className="text-xl font-semibold text-ink">{formatPrice(earnedMonth._sum.amount ?? 0)}</p><p className="text-xs text-navy/75">dont {formatPrice(paid._sum.amount ?? 0)} sur le wallet</p></div>
         <div className="rounded-xl border border-line bg-white px-4 py-3"><p className="text-sm text-navy/80">À recevoir</p><p className="text-xl font-semibold text-ink">{formatPrice(pending._sum.amount ?? 0)}</p></div>
       </div>
 
@@ -89,11 +95,12 @@ export default async function MesLivraisonsPage() {
       </ul>
 
       <section className="mt-8 rounded-2xl border border-line bg-white p-5">
-        <h2 className="text-lg font-semibold text-ink">Mon wallet</h2>
+        <h2 className="text-lg font-semibold text-ink">Mon compte Wave / Orange Money</h2>
         <p className="mt-1 text-sm text-navy/80">
+          Votre part de chaque livraison est créditée sur votre wallet JAMAAL.{" "}
           {livreur.walletNumber
-            ? `Vos gains sont versés sur ${WALLET_LABELS[livreur.walletProvider as "WAVE"] ?? livreur.walletProvider} ${livreur.walletNumber}.`
-            : "Indiquez votre numéro Wave ou Orange Money pour recevoir votre part de chaque livraison."}
+            ? `Vos retraits sont envoyés sur ${WALLET_LABELS[livreur.walletProvider as "WAVE"] ?? livreur.walletProvider} ${livreur.walletNumber}.`
+            : "Indiquez votre numéro Wave ou Orange Money pour pouvoir retirer votre argent."}
         </p>
         <div className="mt-3"><LivreurWalletForm provider={livreur.walletProvider} number={livreur.walletNumber} /></div>
       </section>

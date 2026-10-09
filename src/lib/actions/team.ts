@@ -8,7 +8,7 @@ import { getBusinessModel } from "@/lib/business-model-store";
 import { getReseller } from "@/lib/reseller";
 import { isRank } from "@/lib/network";
 import { addToTeam, computeTeamPrimes, monthKey, monthRange, primeRef, removeFromTeam, setMemberRank, TeamError } from "@/lib/team";
-import { processPayouts } from "@/lib/payouts/engine";
+import { creditCommissionEntries } from "@/lib/wallet";
 
 export type TeamActionResult = { ok: boolean; message?: string; error?: string };
 
@@ -83,13 +83,13 @@ export async function closeTeamPrimesAction(_prev: TeamActionResult, formData: F
     data: rows.map((r) => ({ consultantId: r.consultantId, orderId: primeRef(key), level: r.title === "Leader" ? "PRIME_LEADER" : "PRIME_PARRAIN", rate: 0, base: r.teamSales, amount: r.amount })),
     skipDuplicates: true,
   });
-  if (created.count) await processPayouts(rows.map((r) => r.consultantId), model);
+  if (created.count) await creditCommissionEntries({ orderId: primeRef(key) });
   await logActivity(session, `Primes d'équipe ${key} : ${created.count} prime(s)`, "Setting");
   refresh();
   return {
     ok: true,
     message: created.count
-      ? `${created.count} prime(s) d'équipe enregistrée(s) pour ${range.label}, versées sur les wallets configurés (sinon « à verser »).`
+      ? `${created.count} prime(s) d'équipe enregistrée(s) pour ${range.label}, créditée(s) sur les wallets JAMAAL des membres.`
       : `Les primes de ${range.label} étaient déjà enregistrées.`,
   };
 }
