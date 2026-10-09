@@ -85,7 +85,7 @@ export function StockTableRow({ row }: { row: StockRow }) {
               {mode !== "set" && (
                 <label className="text-xs font-medium text-navy/80">
                   Motif
-                  <select name="kind" className={`${field} mt-1 block`}>
+                  <select key={mode} name="kind" defaultValue={kinds[0].id} className={`${field} mt-1 block`}>
                     {kinds.map((k) => <option key={k.id} value={k.id}>{k.label}</option>)}
                   </select>
                 </label>
