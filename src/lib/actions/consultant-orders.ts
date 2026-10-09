@@ -12,6 +12,10 @@ import { LOYALTY_REDEEM_VALUE_FCFA } from "@/lib/loyalty";
 import { priceItemsFromCatalog } from "@/lib/order-pricing";
 import { getBusinessModel } from "@/lib/business-model-store";
 import { isValidPoint, newDeliveryCode, quoteDelivery } from "@/lib/delivery";
+import { debitForOrder, walletBalance, WalletError } from "@/lib/wallet";
+import { runPayoutsForOrder } from "@/lib/payouts/engine";
+import { after } from "next/server";
+import type { Prisma } from "@prisma/client";
 
 export interface ConsultantOrderItem {
   productId: string;
@@ -103,6 +107,14 @@ async function placeConsultantOrder(formData: FormData): Promise<string> {
     };
   }
 
+  // Paiement avec le wallet du vendeur : solde vérifié avant tout (montant maximal, avant remise fidélité).
+  const payWithWallet = formData.get("payWithWallet") === "on";
+  if (payWithWallet) {
+    const { balance } = await walletBalance({ type: "CONSULTANT", id: consultant.id });
+    const max = productsTotal + Number(deliveryData.deliveryFee ?? 0);
+    if (balance < max) throw new WalletError(`Solde du wallet insuffisant : ${balance.toLocaleString("fr-FR")} F pour ${max.toLocaleString("fr-FR")} F. Rechargez votre wallet ou choisissez un autre paiement.`);
+  }
+
   let discountAmount = 0;
   const customerId = customerPhone
     ? await upsertCustomerFromOrder({ name: customerName, phone: customerPhone, address: clientAddress })
@@ -119,8 +131,7 @@ async function placeConsultantOrder(formData: FormData): Promise<string> {
   }
   const total = productsTotal - discountAmount + Number(deliveryData.deliveryFee ?? 0);
 
-  const order = await prisma.order.create({
-    data: {
+  const orderData = {
       customerName,
       customerPhone: customerPhone || null,
       address,
@@ -133,8 +144,17 @@ async function placeConsultantOrder(formData: FormData): Promise<string> {
       statusHistory: { create: { status: "CONFIRMEE" } },
       items: { create: items },
       ...(deliveryData.deliveryStatus ? { deliveryEvents: { create: { status: "A_PREPARER", note: `${deliveryNote} · ${deliveryData.deliveryDistanceKm} km du dépôt` } } } : {}),
-    },
-  });
+      ...(payWithWallet ? { paymentMethod: "WALLET" as const, paymentStatus: "PAYE" as const, paidAt: new Date(), paymentRef: "wallet" } : {}),
+  } satisfies Prisma.OrderUncheckedCreateInput;
+  const order = payWithWallet
+    ? await prisma.$transaction(async (tx) => {
+        const o = await tx.order.create({ data: orderData });
+        await debitForOrder(tx, { type: "CONSULTANT", id: consultant.id }, o.id, total, null);
+        return o;
+      })
+    : await prisma.order.create({ data: orderData });
+  // Payée par le wallet : les commissions de la chaîne sont enregistrées tout de suite.
+  if (payWithWallet) after(() => runPayoutsForOrder(order.id));
 
   await notifySponsorOnFirstSale(consultant.id);
   await decrementStockAndAlert(items, { orderId: order.id, userId: null });

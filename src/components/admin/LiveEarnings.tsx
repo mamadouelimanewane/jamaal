@@ -1,3 +1,4 @@
+import { walletBalance } from "@/lib/wallet";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/currency";
@@ -20,11 +21,11 @@ export async function LiveEarnings({ consultantId }: { consultantId: string }) {
   const today = startOfToday();
   const month = new Date(today.getFullYear(), today.getMonth(), 1);
 
-  const [todayOrders, todayEntries, monthEntries, pending, paidMonth, entries, payouts, member] = await Promise.all([
+  const [todayOrders, todayEntries, monthEntries, pending, , entries, payouts, member] = await Promise.all([
     prisma.order.findMany({ where: { consultantId, createdAt: { gte: today }, status: { not: "ANNULEE" } }, select: { total: true, deliveryFee: true } }),
     prisma.commissionEntry.aggregate({ where: { consultantId, createdAt: { gte: today }, status: { not: "ANNULE" } }, _sum: { amount: true } }),
     prisma.commissionEntry.aggregate({ where: { consultantId, createdAt: { gte: month }, status: { not: "ANNULE" } }, _sum: { amount: true } }),
-    prisma.commissionEntry.aggregate({ where: { consultantId, status: "A_VERSER" }, _sum: { amount: true } }),
+    walletBalance({ type: "CONSULTANT", id: consultantId }),
     prisma.payout.aggregate({ where: { consultantId, status: "VERSE", createdAt: { gte: month } }, _sum: { amount: true } }),
     prisma.commissionEntry.findMany({ where: { consultantId }, orderBy: { createdAt: "desc" }, take: 8 }),
     prisma.payout.findMany({ where: { consultantId }, orderBy: { createdAt: "desc" }, take: 5 }),
@@ -49,7 +50,7 @@ export async function LiveEarnings({ consultantId }: { consultantId: string }) {
         detail: e.level.startsWith("PRIME_") ? `CA de l'équipe : ${formatPrice(e.base)} (${e.orderId.replace("PRIME-EQUIPE-", "")})` : `${e.rate} % de ${formatPrice(e.base)}`,
         amount: `+ ${formatPrice(e.amount)}`,
         tone: e.status === "ANNULE" ? "text-navy/60 line-through" : "text-emerald-700",
-        status: e.status === "VERSE" ? "versé" : e.status === "ANNULE" ? "annulé" : "à verser",
+        status: e.status === "VERSE" ? "versé" : e.status === "WALLET" ? "sur le wallet" : e.status === "ANNULE" ? "annulé" : "à verser",
       };
     }),
     ...payouts.map((p) => ({
@@ -68,8 +69,8 @@ export async function LiveEarnings({ consultantId }: { consultantId: string }) {
   const tiles = [
     { label: "Ventes aujourd'hui", value: `${todayOrders.length}`, sub: `${formatPrice(todayOrders.reduce((s, o) => s + commissionBase(o), 0))} · ${paidToday} payée(s)` },
     { label: "Gagné aujourd'hui", value: formatPrice(todayEntries._sum.amount ?? 0), sub: "commissions des ventes payées" },
-    { label: "Gagné ce mois-ci", value: formatPrice(monthEntries._sum.amount ?? 0), sub: `dont ${formatPrice(paidMonth._sum.amount ?? 0)} déjà versés` },
-    { label: "En attente de versement", value: formatPrice(pending._sum.amount ?? 0), sub: member?.walletNumber ? "versé automatiquement" : "indiquez votre wallet" },
+    { label: "Gagné ce mois-ci", value: formatPrice(monthEntries._sum.amount ?? 0), sub: "crédité sur votre wallet" },
+    { label: "Solde du wallet", value: formatPrice(pending.balance), sub: member?.walletNumber ? "à retirer quand vous voulez" : "indiquez votre compte Wave / Orange Money" },
   ];
 
   return (

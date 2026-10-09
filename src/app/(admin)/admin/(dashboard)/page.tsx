@@ -1,3 +1,5 @@
+import { WalletHero } from "@/components/admin/WalletWidgets";
+import { walletBalance } from "@/lib/wallet";
 import Link from "next/link";
 import { LiveEarnings } from "@/components/admin/LiveEarnings";
 import {
@@ -193,6 +195,10 @@ async function ConsultantOverview({ userId }: { userId: string }) {
       </p>
 
       <div className="mt-6">
+        <WalletHero {...(await walletBalance({ type: "CONSULTANT", id: consultantId }))} />
+      </div>
+
+      <div className="mt-6">
         <LiveEarnings consultantId={consultantId} />
       </div>
 
@@ -320,6 +326,10 @@ async function LivreurOverview({ userId }: { userId: string }) {
         Bonjour {user.livreur.name}
       </h1>
       <p className="mt-1 text-sm text-navy/75">Vos livraisons JAMAAL.</p>
+
+      <div className="mt-6">
+        <WalletHero {...(await walletBalance({ type: "LIVREUR", id: livreurId }))} />
+      </div>
 
       <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-3">
         <StatCard label="Livraisons assignées" value={assigned} icon={Truck} color="navy" href="/admin/mes-livraisons" />

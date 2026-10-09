@@ -2,6 +2,7 @@
  * Module livraison : étapes, géolocalisation, code de remise, part du livreur.
  * Fichier serveur uniquement (appelé par les actions protégées admin / livreur).
  */
+import { creditLivreurEarnings } from "@/lib/wallet";
 import { after } from "next/server";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
@@ -157,7 +158,8 @@ export async function recordLivreurEarning(orderId: string) {
   const order = await prisma.order.findUnique({ where: { id: orderId }, select: { livreurId: true, livreurShare: true, deliveryStatus: true } });
   if (!order?.livreurId || order.deliveryStatus !== "LIVREE" || order.livreurShare <= 0) return;
   await prisma.livreurEarning.createMany({ data: [{ livreurId: order.livreurId, orderId, amount: order.livreurShare }], skipDuplicates: true });
-  await payLivreurs([order.livreurId]);
+  // Créditée sur le wallet JAMAAL du livreur, qu'il retire vers Wave / Orange Money quand il veut.
+  await creditLivreurEarnings({ orderId });
 }
 
 /** Verse les gains « à verser » des livreurs (wallet renseigné et prestataire configuré). */

@@ -159,3 +159,43 @@ body {
 @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
 @keyframes slideDown { from { opacity: 0; transform: translateY(-10px) } to { opacity: 1; transform: none } }
 @media (prefers-reduced-motion: reduce) { [class*="animate-[slideDown"], [class*="animate-[fadeIn"] { animation: none !important } }
+
+/* ---------- Back-office sur téléphone ---------- */
+/* Les colonnes de grille et de flex ne s'élargissent plus au-delà de l'écran (texte ou formulaire long). */
+.admin-ui main .grid > *,
+.admin-ui main .flex > :not(svg) { min-width: 0; }
+.admin-ui main select,
+.admin-ui main input:not([type="checkbox"]):not([type="radio"]),
+.admin-ui main textarea { max-width: 100%; }
+
+/* Tableaux : sur téléphone, chaque ligne devient une carte (libellé de colonne à gauche, valeur à droite).
+   Les libellés sont recopiés de l'en-tête par <AutoTableLabels />. Exception : class « keep-table ». */
+@media (max-width: 639px) {
+  .admin-ui main table:not(.keep-table) { display: block; width: 100%; min-width: 0 !important; }
+  .admin-ui main table:not(.keep-table) thead { display: none; }
+  .admin-ui main table:not(.keep-table) tbody,
+  .admin-ui main table:not(.keep-table) tfoot { display: block; }
+  .admin-ui main table:not(.keep-table) tr { display: block; padding: 0.75rem 1rem; border-top: 1px solid var(--line, #eadfda); }
+  .admin-ui main table:not(.keep-table) tbody tr:first-child { border-top: 0; }
+  .admin-ui main table:not(.keep-table) td,
+  .admin-ui main table:not(.keep-table) th { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem; padding: 0.3rem 0 !important; text-align: right; white-space: normal; border: 0; min-width: 0 !important; max-width: 100%; overflow-wrap: anywhere; }
+  .admin-ui main table:not(.keep-table) td > * { min-width: 0; }
+  .admin-ui main table:not(.keep-table) td[data-label]::before {
+    content: attr(data-label);
+    flex: 0 0 auto;
+    max-width: 45%;
+    text-align: left;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: rgb(29 47 79 / 0.6);
+  }
+  /* Première cellule (nom, produit…) : titre de la carte, sans libellé. */
+  .admin-ui main table:not(.keep-table) td:first-child { display: block; text-align: left; font-size: 0.95rem; }
+  .admin-ui main table:not(.keep-table) td:first-child::before { display: none; }
+  .admin-ui main table:not(.keep-table) td[colspan] { display: block; text-align: center; }
+  .admin-ui main table:not(.keep-table) td[colspan]::before { display: none; }
+  .admin-ui main table:not(.keep-table) td:empty { display: none; }
+  .admin-ui main .overflow-x-auto:has(> table:not(.keep-table)) { overflow-x: visible; }
+}

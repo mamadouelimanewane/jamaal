@@ -37,6 +37,10 @@ import { SidebarNavLink } from "@/components/admin/SidebarNavLink";
 import { GlobalSearch } from "@/components/admin/GlobalSearch";
 import { InstallApp } from "@/components/admin/InstallApp";
 import { FormErrorBanner } from "@/components/admin/FormErrorBanner";
+import { AutoTableLabels } from "@/components/admin/AutoTableLabels";
+import { WalletPill } from "@/components/admin/WalletWidgets";
+import { viewerWallet } from "@/lib/wallet-owner";
+import { walletBalance } from "@/lib/wallet";
 import { Suspense } from "react";
 
 const adminGroups = [
@@ -93,6 +97,7 @@ const adminGroups = [
 
 const consultantLinks = [
   { href: "/admin", label: "Tableau de bord", icon: LayoutDashboard },
+  { href: "/admin/mon-wallet", label: "Mon wallet", icon: Wallet },
   { href: "/admin/mes-ventes", label: "Mes ventes", icon: BarChart3 },
   { href: "/admin/mes-commandes", label: "Mes commandes", icon: ShoppingCart },
   { href: "/admin/mes-clients", label: "Mes clients", icon: Contact },
@@ -106,6 +111,7 @@ const consultantLinks = [
 
 const livreurLinks = [
   { href: "/admin", label: "Tableau de bord", icon: LayoutDashboard },
+  { href: "/admin/mon-wallet", label: "Mon wallet", icon: Wallet },
   { href: "/admin/mes-livraisons", label: "Mes livraisons", icon: Truck },
 ];
 
@@ -123,6 +129,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const viewAsId = role === "ADMIN" ? (await cookies()).get("jamaal_viewas")?.value : undefined;
   const viewingAs = viewAsId ? await prisma.consultant.findUnique({ where: { id: viewAsId }, select: { name: true } }) : null;
 
+  // Wallet du revendeur ou du livreur : solde affiché en permanence (menu et barre du haut).
+  const myWallet = role === "ADMIN" && !viewingAs ? null : await viewerWallet();
+  const walletBal = myWallet ? (await walletBalance(myWallet.owner)).balance : null;
+
   const unreadCount = session.user?.id
     ? await prisma.notification.count({ where: { userId: session.user.id, read: false } })
     : 0;
@@ -133,6 +143,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
         <p className="font-serif-display text-lg font-semibold tracking-wide text-white">JAMAAL</p>
         <p className="text-xs text-white/65">Back-office</p>
       </Link>
+
+      {walletBal !== null && (
+        <div className="mt-4 px-1">
+          <WalletPill balance={walletBal} />
+        </div>
+      )}
 
       <div className="mt-4 px-1">
         <GlobalSearch />
@@ -161,6 +177,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <div className="flex flex-col gap-0.5">
               <SidebarNavLink href="/admin/notifications" label="Notifications" icon={<Bell size={16} />} badge={unreadCount} />
               <SidebarNavLink href="/admin/utilisateurs" label="Utilisateurs" icon={<UserCog size={16} />} />
+              <SidebarNavLink href="/admin/wallets" label="Wallets des membres" icon={<Wallet size={16} />} />
               <SidebarNavLink href="/admin/versements" label="Versements" icon={<Wallet size={16} />} />
               <SidebarNavLink href="/admin/modele-economique" label="Modèle économique" icon={<Calculator size={16} />} />
               <SidebarNavLink href="/admin/reglages" label="Réglages & Fidélité" icon={<Settings size={16} />} />
@@ -213,7 +230,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   );
 
   return (
-    <ResponsiveSidebar sidebar={sidebarContent}>
+    <ResponsiveSidebar sidebar={sidebarContent} headerExtra={walletBal !== null ? <WalletPill balance={walletBal} /> : null}>
       {viewingAs && (
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-rose bg-rose/10 px-4 py-3 text-sm text-navy">
           <span>Vous consultez l&apos;espace de <strong>{viewingAs.name}</strong> (mode administrateur).</span>
@@ -223,6 +240,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         </div>
       )}
       <Suspense fallback={null}><FormErrorBanner /></Suspense>
+      <AutoTableLabels />
       {children}
     </ResponsiveSidebar>
   );

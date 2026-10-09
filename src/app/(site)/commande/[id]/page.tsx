@@ -15,6 +15,7 @@ const paymentMethodLabels: Record<string, string> = {
   A_LA_LIVRAISON: "À la livraison",
   WAVE: "Wave",
   ORANGE_MONEY: "Orange Money",
+  WALLET: "Wallet JAMAAL",
   STRIPE: "Carte bancaire",
 };
 

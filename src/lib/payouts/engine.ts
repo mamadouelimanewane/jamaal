@@ -16,6 +16,7 @@ import { prisma } from "@/lib/prisma";
 import { getBusinessModel } from "@/lib/business-model-store";
 import { sponsorRatesFor, type BusinessModel } from "@/lib/business-model";
 import { commissionBase } from "@/lib/commission";
+import { creditCommissionEntries, reverseWalletCreditsForOrder } from "@/lib/wallet";
 import { isWalletProvider, payoutProvidersConfig, refreshWave, sendPayout, WALLET_LABELS, type PayoutResult } from "./providers";
 
 export type Level = "VENTE" | "NIVEAU_1" | "NIVEAU_2";
@@ -88,6 +89,7 @@ export async function recordCommissionsForOrder(orderId: string, model?: Busines
 /** Annule les commissions pas encore versées d'une commande (commande annulée). */
 export async function cancelCommissionsForOrder(orderId: string) {
   await prisma.commissionEntry.updateMany({ where: { orderId, status: "A_VERSER", payoutId: null }, data: { status: "ANNULE" } });
+  await reverseWalletCreditsForOrder(orderId);
 }
 
 async function settle(payoutId: string, consultantId: string, amount: number, provider: string, result: PayoutResult) {
@@ -164,7 +166,9 @@ export async function runPayoutsForOrder(orderId: string) {
   try {
     const model = await getBusinessModel();
     const members = await recordCommissionsForOrder(orderId, model);
-    if (members.length) await processPayouts(members, model);
+    // Les commissions sont créditées sur le wallet JAMAAL des membres, qui les retirent quand ils veulent.
+    if (members.length) await creditCommissionEntries({ orderId });
+    refreshPages();
   } catch (error) {
     console.error("[payouts] commande", orderId, error);
   }
