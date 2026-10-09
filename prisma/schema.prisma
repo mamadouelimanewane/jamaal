@@ -385,6 +385,12 @@ model Consultant {
   /// Wallet de versement des commissions : "WAVE" ou "ORANGE_MONEY", et numéro (+221…).
   walletProvider String?
   walletNumber   String?
+  /// Nom du titulaire du compte Wave / Orange Money (vérifié avant le premier versement).
+  walletHolderName String?
+  /// Adresse et pièce d'identité reprises de la candidature acceptée.
+  address        String?
+  idType         String?
+  idNumber       String?
   /// Adresse où le consultant se fait livrer quand il achète pour le compte d'un client.
   deliveryAddress String?
   deliveryLat     Float?
@@ -625,6 +631,14 @@ model ConsultantApplication {
   status       ApplicationStatus @default(NOUVELLE)
   adminNote    String?
   consultantId String?
+  /// Adresse complète et pièce d'identité (photos privées, visibles des seuls admins).
+  address      String?
+  idType       String?
+  idNumber     String?
+  idFront      Bytes?
+  idBack       Bytes?
+  idMime       String?
+  signature    ProtocolSignature?
   createdAt    DateTime          @default(now())
   processedAt  DateTime?
 
@@ -756,4 +770,28 @@ model GeocodeCache {
   label     String?
   source    String?
   createdAt DateTime @default(now())
+}
+
+/// Protocole de partenariat signé à l'écran (candidature ou membre déjà en place).
+model ProtocolSignature {
+  id            String                  @id @default(cuid())
+  version       Int
+  /// Texte exact signé (empreinte SHA-256 + copie, pour reproduire le PDF).
+  textHash      String
+  text          String
+  signerName    String
+  idType        String?
+  idNumber      String?
+  address       String?
+  phone         String?
+  /// Signature dessinée (PNG).
+  image         Bytes
+  ip            String?
+  userAgent     String?
+  signedAt      DateTime                @default(now())
+  applicationId String?                 @unique
+  application   ConsultantApplication?  @relation(fields: [applicationId], references: [id], onDelete: SetNull)
+  consultantId  String?
+
+  @@index([consultantId])
 }

@@ -26,7 +26,7 @@ export default async function VersementsPage() {
   ]);
   const config = payoutProvidersConfig();
   const members = pendingByMember.length
-    ? await prisma.consultant.findMany({ where: { id: { in: pendingByMember.map((p) => p.consultantId) } }, select: { id: true, name: true, walletProvider: true, walletNumber: true } })
+    ? await prisma.consultant.findMany({ where: { id: { in: pendingByMember.map((p) => p.consultantId) } }, select: { id: true, name: true, walletProvider: true, walletNumber: true, walletHolderName: true } })
     : [];
   const byId = new Map(members.map((m) => [m.id, m]));
   const pendingTotal = pendingByMember.reduce((s, p) => s + (p._sum.amount ?? 0), 0);
@@ -93,6 +93,7 @@ export default async function VersementsPage() {
                   <li key={p.consultantId} className="flex flex-wrap items-center justify-between gap-2 py-2.5">
                     <span className="text-ink">{m?.name ?? "—"}</span>
                     <span className="text-sm text-navy/80">{m?.walletNumber ? `${WALLET_LABELS[m.walletProvider as "WAVE"] ?? m.walletProvider} ${m.walletNumber}` : "Pas de wallet"}</span>
+                    {m?.walletNumber && <span className={`block text-xs ${m.walletHolderName && m.walletHolderName.toLowerCase() !== m.name.toLowerCase() ? "font-semibold text-amber-800" : "text-navy/65"}`}>Titulaire : {m.walletHolderName ?? "non renseigné"}{m.walletHolderName && m.walletHolderName.toLowerCase() !== m.name.toLowerCase() ? " (différent du nom du membre)" : ""}</span>}
                     <span className="font-semibold text-ink">{formatPrice(p._sum.amount ?? 0)}</span>
                   </li>
                 );

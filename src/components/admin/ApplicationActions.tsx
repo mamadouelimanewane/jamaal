@@ -8,7 +8,8 @@ import { approveApplication, rejectApplication, type ApproveResult } from "@/lib
  * rafraîchit la liste et le statut passe à ACCEPTEE ; le lien d'activation (état local) doit
  * rester affiché jusqu'à ce que l'admin l'ait copié.
  */
-export function ApplicationActions({ id, status }: { id: string; status: string }) {
+export function ApplicationActions({ id, status, complete = true }: { id: string; status: string; complete?: boolean }) {
+  const [override, setOverride] = useState(false);
   const [pending, start] = useTransition();
   const [result, setResult] = useState<ApproveResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -39,14 +40,21 @@ export function ApplicationActions({ id, status }: { id: string; status: string 
 
   return (
     <div className="flex flex-col items-start gap-1">
+      {!complete && (
+        <label className="flex max-w-[200px] items-start gap-1.5 text-[11px] text-amber-900">
+          <input type="checkbox" checked={override} onChange={(e) => setOverride(e.target.checked)} className="mt-0.5" />
+          Ancienne candidature : valider sans dossier complet
+        </label>
+      )}
       <div className="flex gap-2">
         <button
           type="button"
-          disabled={pending}
+          disabled={pending || (!complete && !override)}
+          title={!complete && !override ? "Dossier incomplet : pièce d'identité et protocole signé requis" : undefined}
           className="rounded-full bg-navy px-3 py-1.5 text-xs font-semibold text-white hover:bg-navy-light disabled:opacity-50"
           onClick={() =>
             start(async () => {
-              const r = await approveApplication(id);
+              const r = await approveApplication(id, { allowIncomplete: !complete && override });
               if (r.ok) setResult(r);
               else setError(r.error ?? "Erreur");
             })

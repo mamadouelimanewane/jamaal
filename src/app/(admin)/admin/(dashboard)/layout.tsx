@@ -27,6 +27,7 @@ import { Calculator,
   UsersRound,
   GalleryHorizontal,
   CalendarClock,
+  FileSignature,
 } from "lucide-react";
 import { auth, signOut } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -66,6 +67,7 @@ const adminGroups = [
       { href: "/admin/consultants", label: "Consultants", icon: Users },
       { href: "/admin/primes-equipe", label: "Primes d'équipe", icon: Banknote },
       { href: "/admin/candidatures", label: "Candidatures", icon: Contact },
+      { href: "/admin/protocole", label: "Protocole de partenariat", icon: FileSignature },
       { href: "/admin/messages", label: "Messages de contact", icon: Mail },
       { href: "/admin/annonces", label: "Annonces aux consultants", icon: Megaphone },
       { href: "/admin/whatsapp", label: "Centre WhatsApp", icon: Share2 },
@@ -97,6 +99,7 @@ const consultantLinks = [
   { href: "/admin/mon-marketing", label: "Mon marketing", icon: Share2 },
   { href: "/admin/ma-communication", label: "Ma communication", icon: Megaphone },
   { href: "/admin/mon-profil", label: "Mon profil", icon: UserCircle },
+  { href: "/admin/mon-protocole", label: "Mon protocole", icon: FileSignature },
 ];
 
 const livreurLinks = [

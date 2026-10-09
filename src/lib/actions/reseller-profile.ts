@@ -47,7 +47,7 @@ export async function updateOwnWallet(_prev: WalletState, formData: FormData): P
   const provider = String(formData.get("walletProvider") ?? "");
   const raw = String(formData.get("walletNumber") ?? "").trim();
   if (!provider && !raw) {
-    await prisma.consultant.update({ where: { id: me.id }, data: { walletProvider: null, walletNumber: null } });
+    await prisma.consultant.update({ where: { id: me.id }, data: { walletProvider: null, walletNumber: null, walletHolderName: null } });
     revalidatePath("/admin/mon-profil");
     return { ok: true };
   }
@@ -55,7 +55,9 @@ export async function updateOwnWallet(_prev: WalletState, formData: FormData): P
   const number = normalizeWalletNumber(raw);
   if (!number) return { ok: false, error: "Numéro invalide : indiquez un numéro mobile sénégalais (ex. 77 123 45 67)." };
 
-  await prisma.consultant.update({ where: { id: me.id }, data: { walletProvider: provider, walletNumber: number } });
+  const holder = String(formData.get("walletHolderName") ?? "").trim().replace(/\s+/g, " ").slice(0, 100);
+  if (holder.length < 3) return { ok: false, error: "Indiquez le nom du titulaire du compte, tel qu'il apparaît chez l'opérateur." };
+  await prisma.consultant.update({ where: { id: me.id }, data: { walletProvider: provider, walletNumber: number, walletHolderName: holder } });
   revalidatePath("/admin/mon-profil");
   revalidatePath("/admin/mes-gains");
   return { ok: true };
