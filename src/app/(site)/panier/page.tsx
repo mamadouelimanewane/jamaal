@@ -7,6 +7,7 @@ import { Minus, Plus, Trash2 } from "lucide-react";
 import { useCartStore } from "@/lib/cart-store";
 import { formatPrice } from "@/lib/currency";
 import { createOrder } from "@/lib/actions/orders";
+import { locateFromText } from "@/lib/actions/delivery-quote";
 import { getCartPrices } from "@/lib/actions/cart";
 import { DeliveryChooser, type DeliveryChoice } from "@/components/DeliveryChooser";
 import { getActiveConsultantsForCheckout } from "@/lib/actions/public-data";
@@ -37,6 +38,9 @@ export default function CartPage() {
   const [error, setError] = useState<string | null>(null);
   const [customer, setCustomer] = useState({ name: "", phone: "", email: "", address: "" });
   const [consultantId, setConsultantId] = useState("");
+  // Destinataire : le client lui-même, ou une autre personne (cadeau, famille…).
+  const [forOther, setForOther] = useState(false);
+  const [recipient, setRecipient] = useState({ name: "", phone: "" });
   const [acceptCgv, setAcceptCgv] = useState(false);
   const [giftWrap, setGiftWrap] = useState(false);
   const [giftMessage, setGiftMessage] = useState("");
@@ -103,7 +107,22 @@ export default function CartPage() {
     }
     if (delivery.mode === "LIVRAISON") {
       if (delivery.lat == null || delivery.lng == null) {
-        setError("Indiquez votre position de livraison (bouton « Utiliser ma position » ou touchez la carte).");
+        // Pas de repère : on tente de localiser l'adresse écrite, puis on laisse vérifier les frais.
+        if (customer.address.trim()) {
+          setSubmitting(true);
+          const r = await locateFromText(customer.address).catch(() => null);
+          setSubmitting(false);
+          if (r?.ok) {
+            setDelivery({ mode: "LIVRAISON", lat: r.lat, lng: r.lng, quote: null, approx: r.approx, place: r.label });
+            setError("Position estimée à partir de votre adresse : vérifiez le repère et les frais, puis validez à nouveau.");
+            return;
+          }
+        }
+        setError("Indiquez la position de livraison : « Utiliser ma position », collez un lien ou une adresse, ou touchez la carte.");
+        return;
+      }
+      if (forOther && (!recipient.name.trim() || recipient.phone.replace(/\D/g, "").length < 8)) {
+        setError("Indiquez le nom et le téléphone de la personne qui reçoit le colis.");
         return;
       }
       if (delivery.quote && !delivery.quote.ok) {
@@ -138,7 +157,17 @@ export default function CartPage() {
         acceptCgv,
         giftWrap,
         giftMessage,
-        delivery.mode === "LIVRAISON" ? { mode: "LIVRAISON", lat: delivery.lat, lng: delivery.lng } : { mode: "RETRAIT" }
+        delivery.mode === "LIVRAISON"
+          ? {
+              mode: "LIVRAISON",
+              lat: delivery.lat,
+              lng: delivery.lng,
+              approx: delivery.approx === true,
+              place: delivery.place ?? null,
+              recipientName: forOther ? recipient.name : null,
+              recipientPhone: forOther ? recipient.phone : null,
+            }
+          : { mode: "RETRAIT" }
       );
       if (!res.ok) {
         setError(res.error);
@@ -281,7 +310,23 @@ export default function CartPage() {
                 className="rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-navy"
               />
 
-              <DeliveryChooser productsTotal={total()} value={delivery} onChange={setDelivery} />
+              {delivery.mode === "LIVRAISON" && (
+                <fieldset className="space-y-2 rounded-xl border border-line px-3 py-2.5">
+                  <legend className="px-1 text-sm font-semibold text-navy">Qui reçoit le colis ?</legend>
+                  <div className="flex flex-wrap gap-4 text-sm">
+                    <label className="flex items-center gap-2"><input type="radio" name="recipient" checked={!forOther} onChange={() => setForOther(false)} /> Moi-même</label>
+                    <label className="flex items-center gap-2"><input type="radio" name="recipient" checked={forOther} onChange={() => setForOther(true)} /> Une autre personne</label>
+                  </div>
+                  {forOther && (
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      <input placeholder="Nom du destinataire" value={recipient.name} onChange={(e) => setRecipient((r) => ({ ...r, name: e.target.value }))} className="rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-navy" />
+                      <input placeholder="Téléphone du destinataire" inputMode="tel" value={recipient.phone} onChange={(e) => setRecipient((r) => ({ ...r, phone: e.target.value }))} className="rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-navy" />
+                    </div>
+                  )}
+                </fieldset>
+              )}
+
+              <DeliveryChooser productsTotal={total()} value={delivery} onChange={setDelivery} recipientPhone={forOther ? recipient.phone : customer.phone} />
 
               {consultants.length > 0 && (
                 <div>

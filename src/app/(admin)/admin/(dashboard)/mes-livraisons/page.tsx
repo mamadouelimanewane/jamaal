@@ -79,6 +79,9 @@ export default async function MesLivraisonsPage() {
             lng={o.deliveryLng}
             distanceKm={o.deliveryDistanceKm}
             share={o.livreurShare}
+            approx={o.deliveryApprox}
+            place={o.deliveryPlace}
+            orderedBy={o.deliveryTarget !== "VENDEUR" && o.deliveryContactName && o.deliveryContactName !== o.customerName ? o.customerName : null}
           />
         ))}
         {orders.length === 0 && <p className="rounded-2xl border border-line bg-white p-5 text-[15px] text-navy/80">Aucune livraison en cours. Les nouvelles livraisons attribuées apparaissent ici automatiquement.</p>}

@@ -19,6 +19,8 @@ export async function OrderDeliveryPanel({ orderId }: { orderId: string }) {
       deliveryTarget: true,
       deliveryContactName: true,
       deliveryContactPhone: true,
+      deliveryApprox: true,
+      deliveryPlace: true,
       livreur: { select: { name: true, phone: true } },
       deliveryEvents: { orderBy: { createdAt: "asc" }, include: { livreur: { select: { name: true } } } },
     },
@@ -40,6 +42,11 @@ export async function OrderDeliveryPanel({ orderId }: { orderId: string }) {
         <div className="flex justify-between"><dt className="text-navy/80">Distance</dt><dd className="text-ink">{order.deliveryDistanceKm != null ? `${order.deliveryDistanceKm} km` : "—"}</dd></div>
         <div className="flex justify-between"><dt className="text-navy/80">Frais / part livreur</dt><dd className="text-ink">{formatPrice(order.deliveryFee)} / {formatPrice(order.livreurShare)}</dd></div>
       </dl>
+      {order.deliveryApprox && (
+        <p className="mt-3 rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-950">
+          <strong>Position approximative</strong>{order.deliveryPlace ? ` (${order.deliveryPlace})` : ""} : estimée à partir d&apos;une adresse écrite. Le livreur doit appeler le destinataire avant de partir.
+        </p>
+      )}
       {(status === "A_PREPARER" || status === "ECHEC") && (
         <p className="mt-3 text-sm"><Link href="/admin/livraisons" className="font-semibold text-rose-dark hover:underline">Attribuer un livreur dans « Livraisons »</Link></p>
       )}

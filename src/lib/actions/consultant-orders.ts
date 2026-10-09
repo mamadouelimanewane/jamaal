@@ -79,6 +79,8 @@ export async function createConsultantOrder(formData: FormData) {
       deliveryCode: newDeliveryCode(),
       deliveryStatus: "A_PREPARER",
       livreurShare: quote.livreurShare,
+      deliveryApprox: formData.get("deliveryApprox") === "1",
+      deliveryPlace: String(formData.get("deliveryPlace") ?? "").trim().slice(0, 120) || null,
     };
   }
 
