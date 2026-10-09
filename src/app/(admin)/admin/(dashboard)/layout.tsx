@@ -36,6 +36,8 @@ import { SidebarNavLink } from "@/components/admin/SidebarNavLink";
 
 import { GlobalSearch } from "@/components/admin/GlobalSearch";
 import { InstallApp } from "@/components/admin/InstallApp";
+import { FormErrorBanner } from "@/components/admin/FormErrorBanner";
+import { Suspense } from "react";
 
 const adminGroups = [
   {
@@ -220,6 +222,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           </form>
         </div>
       )}
+      <Suspense fallback={null}><FormErrorBanner /></Suspense>
       {children}
     </ResponsiveSidebar>
   );

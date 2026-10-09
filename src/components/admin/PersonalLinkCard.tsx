@@ -32,12 +32,8 @@ export function PersonalLinkCard({
   }
 
   const path = `/c/${slug}`;
-  const fullUrl =
-    typeof window !== "undefined"
-      ? `${window.location.origin}${path}`
-      : siteOrigin
-        ? `${siteOrigin.replace(/\/$/, "")}${path}`
-        : path;
+  // Même adresse côté serveur et navigateur (sinon erreur d'hydratation) : origine fournie par le serveur.
+  const fullUrl = siteOrigin ? `${siteOrigin.replace(/\/$/, "")}${path}` : path;
 
   async function copy() {
     try {

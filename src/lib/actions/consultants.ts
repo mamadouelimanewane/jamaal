@@ -1,5 +1,7 @@
 "use server";
 
+import { backWithError } from "@/lib/form-error";
+
 import { revalidatePath } from "next/cache";
 import { getBusinessModel } from "@/lib/business-model-store";
 import { sponsorCapacity } from "@/lib/network";
@@ -82,7 +84,7 @@ async function consultantDataFromForm(formData: FormData, existingId?: string) {
   };
 }
 
-export async function createConsultant(formData: FormData) {
+async function createConsultantImpl(formData: FormData) {
   await requireAdmin();
   await prisma.consultant.create({ data: await consultantDataFromForm(formData) });
   revalidatePath("/admin/consultants");
@@ -90,7 +92,7 @@ export async function createConsultant(formData: FormData) {
   redirect("/admin/consultants");
 }
 
-export async function updateConsultant(id: string, formData: FormData) {
+async function updateConsultantImpl(id: string, formData: FormData) {
   await requireAdmin();
   await prisma.consultant.update({
     where: { id },
@@ -101,9 +103,34 @@ export async function updateConsultant(id: string, formData: FormData) {
   redirect("/admin/consultants");
 }
 
-export async function deleteConsultant(id: string) {
+async function deleteConsultantImpl(id: string) {
   await requireAdmin();
   await prisma.consultant.delete({ where: { id } });
   revalidatePath("/admin/consultants");
   revalidatePath("/consultants");
+}
+
+// Actions appelées par les formulaires : erreurs affichées sur la page, jamais une page d'erreur.
+export async function createConsultant(formData: FormData): Promise<void> {
+  try {
+    await createConsultantImpl(formData);
+  } catch (e) {
+    await backWithError(e, "/admin/consultants");
+  }
+}
+
+export async function updateConsultant(id: string, formData: FormData): Promise<void> {
+  try {
+    await updateConsultantImpl(id, formData);
+  } catch (e) {
+    await backWithError(e, "/admin/consultants");
+  }
+}
+
+export async function deleteConsultant(id: string): Promise<void> {
+  try {
+    await deleteConsultantImpl(id);
+  } catch (e) {
+    await backWithError(e, "/admin/consultants");
+  }
 }

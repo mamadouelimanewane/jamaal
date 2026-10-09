@@ -2,15 +2,19 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/currency";
 import { BrandLogo } from "@/components/BrandLogo";
+import { PrintButton } from "@/components/admin/PrintButton";
 
 export const dynamic = "force-dynamic";
 
 export default async function OrderInvoicePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ print?: string }>;
 }) {
   const { id } = await params;
+  const sp = await searchParams;
   const order = await prisma.order.findUnique({
     where: { id },
     include: {
@@ -34,13 +38,7 @@ export default async function OrderInvoicePage({
         >
           ← Retour à la commande
         </a>
-        <button
-          onClick={() => {}}
-          className="rounded-full bg-navy px-5 py-2 text-sm font-semibold text-white shadow hover:bg-navy-light"
-          /* Note: Sur une page serveur, on peut mettre un composant client pour window.print() ou un script simple */
-        >
-          🖨️ Imprimer / Enregistrer en PDF
-        </button>
+        <PrintButton auto={sp.print === "true"} />
       </div>
 
       {/* Printable invoice card */}

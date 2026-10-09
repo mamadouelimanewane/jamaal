@@ -442,9 +442,7 @@ export async function assignOrderLogistics(id: string, formData: FormData) {
 export async function livreurUpdateOrderStatus(id: string, status: OrderStatus) {
   const { livreur } = await requireLivreurProfile();
   const order = await prisma.order.findUnique({ where: { id } });
-  if (!order || order.livreurId !== livreur.id) {
-    throw new Error("Cette commande ne vous est pas assignée");
-  }
+  if (!order || order.livreurId !== livreur.id) return;
   await prisma.order.update({ where: { id }, data: { status } });
   if (status === "LIVREE") {
     await notifyConsultantOfDelivery(id);
