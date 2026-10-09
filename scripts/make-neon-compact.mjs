@@ -35,7 +35,7 @@ const sql = [
   "INSERT INTO \"Product\" (\"id\",\"slug\",\"name\",\"category\",\"topNotes\",\"heartNotes\",\"baseNotes\",\"shortDescription\",\"longDescription\",\"regularPrice\",\"reviewCount\",\"rating\",\"colorFrom\",\"colorTo\",\"photo\",\"isOfficial\",\"stock\",\"lowStockThreshold\",\"updatedAt\")",
   "SELECT v.id, v.slug, v.name, v.cat, '{}'::text[], '{}'::text[], '{}'::text[],",
   "  base.n || CASE WHEN v.fmt <> '' THEN ' — ' || v.fmt ELSE '' END || '. Produit Chogan, distribué au Sénégal par JAMAAL.',",
-  "  ARRAY[base.n || '.' || CASE WHEN v.fmt <> '' THEN ' Format : ' || v.fmt || '.' ELSE '' END, 'Produit officiel de la gamme Chogan, distribué au Sénégal par JAMAAL, représentant exclusif.'],",
+  "  ARRAY[base.n || '.' || CASE WHEN v.fmt <> '' THEN ' Format : ' || v.fmt || '.' ELSE '' END, 'Produit officiel de la gamme Chogan, distribué au Sénégal par JAMAAL, revendeur officiel de la marque CHOGAN (Italie).'],",
   "  v.price, 0, 4.6, '#1d2f4f', '#d9a99d', '" + CDN + "' || v.img, true, 25, 5, now()",
   "FROM (VALUES",
   rows.join(",\n"),

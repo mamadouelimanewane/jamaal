@@ -1,12 +1,14 @@
 import { ArrowRight, ShieldCheck, Sparkles, Truck } from "lucide-react";
 import Link from "next/link";
-import { HeroSlider } from "@/components/HeroSlider";
+import { HomeCarousel } from "@/components/HomeCarousel";
+import { AllRanges } from "@/components/AllRanges";
+import { getHomeSlides, withResolvedImages } from "@/lib/home-carousel";
 import { SearchBanner } from "@/components/SearchBanner";
 import { CategorySection } from "@/components/CategorySection";
 import { FragranceCollections } from "@/components/FragranceCollections";
 import { InspiredBySection } from "@/components/InspiredBySection";
 import { BlogSection } from "@/components/BlogSection";
-import { getBestsellers, getProductBySlug } from "@/lib/db-products";
+import { getBestsellers } from "@/lib/db-products";
 
 export const dynamic = "force-dynamic";
 
@@ -17,20 +19,20 @@ const otherUniverses = [
 ];
 
 export default async function Home() {
-  const [femme, homme, unisexe, campaign] = await Promise.all([
+  const [femme, homme, unisexe, slides] = await Promise.all([
     getBestsellers("parfum-femme", 4),
     getBestsellers("parfum-homme", 4),
     getBestsellers("parfum-unisexe", 4),
-    getProductBySlug("amphera-parfum-femme-luxury-extrait-30-16201"),
+    getHomeSlides().then((all) => withResolvedImages(all.filter((s) => s.active))),
   ]);
-  const featured = campaign ?? femme[0] ?? homme[0];
 
   return <>
-    <HeroSlider featuredProduct={featured}/>
+    <HomeCarousel slides={slides}/>
+    <AllRanges/>
 
     <section aria-label="Les attentions JAMAAL" className="border-b border-[#eadfda] bg-[#fdfbfa]">
       <div className="mx-auto grid max-w-7xl grid-cols-1 divide-y divide-[#eadfda] px-5 sm:grid-cols-3 sm:divide-x sm:divide-y-0 sm:px-8 lg:px-12">
-        <div className="flex items-center justify-center gap-3 py-4 sm:py-5"><Sparkles size={16} className="text-[#9c6254]"/><span className="text-[9px] uppercase tracking-[0.15em] text-navy/70">Extraits à 30 %</span></div>
+        <div className="flex items-center justify-center gap-3 py-4 sm:py-5"><Sparkles size={16} className="text-[#9c6254]"/><span className="text-[9px] uppercase tracking-[0.15em] text-navy/70">Revendeur officiel CHOGAN (Italie)</span></div>
         <div className="flex items-center justify-center gap-3 py-4 sm:py-5"><ShieldCheck size={16} className="text-[#9c6254]"/><span className="text-[9px] uppercase tracking-[0.15em] text-navy/70">Conseil parfum personnalisé</span></div>
         <div className="flex items-center justify-center gap-3 py-4 sm:py-5"><Truck size={16} className="text-[#9c6254]"/><span className="text-[9px] uppercase tracking-[0.15em] text-navy/70">Paiement Wave &amp; Orange Money</span></div>
       </div>

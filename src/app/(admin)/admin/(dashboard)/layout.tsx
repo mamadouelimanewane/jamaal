@@ -25,6 +25,7 @@ import { Calculator,
   UserCircle,
   Share2,
   UsersRound,
+  GalleryHorizontal,
 } from "lucide-react";
 import { auth, signOut } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -45,6 +46,7 @@ const adminGroups = [
       { href: "/admin/produits", label: "Produits", icon: Package },
       { href: "/admin/stocks", label: "Stocks & mouvements", icon: Package },
       { href: "/admin/categories", label: "Catégories", icon: Tags },
+      { href: "/admin/accueil", label: "Page d'accueil", icon: GalleryHorizontal },
     ],
   },
   {

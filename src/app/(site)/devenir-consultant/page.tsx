@@ -5,7 +5,7 @@ import { ApplicationForm } from "@/components/ApplicationForm";
 export const metadata: Metadata = {
   title: "Devenir consultant·e JAMAAL",
   description:
-    "Rejoignez le réseau JAMAAL, représentant exclusif de Chogan au Sénégal : parfums, beauté, bien-être et maison, avec votre propre vitrine en ligne.",
+    "Rejoignez le réseau JAMAAL, revendeur officiel de la marque CHOGAN (Italie) : parfums, beauté, bien-être et maison, avec votre propre vitrine en ligne.",
 };
 
 const perks = [
@@ -30,7 +30,7 @@ export default async function DevenirConsultantPage({
         Devenir consultant·e JAMAAL
       </h1>
       <p className="mt-4 text-sm leading-relaxed text-navy/70">
-        JAMAAL est le représentant exclusif de Chogan au Sénégal. Rejoignez notre réseau de
+        JAMAAL est le revendeur officiel de la marque CHOGAN (Italie). Rejoignez notre réseau de
         consultant·es indépendant·es et proposez toute la gamme à votre entourage. Remplissez le
         formulaire : l&apos;équipe étudie chaque candidature et vous répond rapidement.
       </p>

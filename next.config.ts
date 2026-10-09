@@ -9,7 +9,10 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   images: {
     // Photos produits de démonstration servies par le CDN Chogan.
-    remotePatterns: [{ protocol: "https", hostname: "cdn.chogangroupspa.com", pathname: "/images/prodotti/**" }],
+    remotePatterns: [
+      { protocol: "https", hostname: "cdn.chogangroupspa.com", pathname: "/images/prodotti/**" },
+      { protocol: "https", hostname: "*.public.blob.vercel-storage.com" },
+    ],
   },
   async headers() {
     return [
