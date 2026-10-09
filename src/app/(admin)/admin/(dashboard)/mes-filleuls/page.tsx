@@ -6,7 +6,8 @@ import { getReseller, resellerLinks, startOfMonth } from "@/lib/reseller";
 import { getBusinessModel } from "@/lib/business-model-store";
 import { sponsorRatesFor } from "@/lib/business-model";
 import { COMMISSIONABLE_ORDER } from "@/lib/commission";
-import { canSponsorAtDepth, getNetworkDepth, titleForDepth, titleLabel } from "@/lib/network";
+import { canSponsor, getMemberTitle, recruitTitleFor, teamLimitFor, titleFromLoaded, titleLabel } from "@/lib/network";
+import { AddMemberForm, RemoveMemberButton } from "@/components/admin/TeamControls";
 import { NetworkTitleBadge } from "@/components/admin/NetworkTitleBadge";
 import { StatCard } from "@/components/admin/StatCard";
 import { CopyButton } from "@/components/admin/CopyButton";
@@ -22,19 +23,19 @@ export default async function MesFilleulsPage() {
   const since = startOfMonth();
   const links = await resellerLinks(me.slug);
 
-  const [l1, model, depth] = await Promise.all([
+  const [l1, model, myTitle] = await Promise.all([
     prisma.consultant.findMany({
       where: { sponsorId: me.id },
       orderBy: { createdAt: "desc" },
-      select: { id: true, name: true, city: true, whatsapp: true, active: true, createdAt: true, _count: { select: { sponsored: true } } },
+      select: { id: true, name: true, city: true, whatsapp: true, active: true, createdAt: true, rank: true, sponsorId: true, sponsor: { select: { sponsorId: true } }, _count: { select: { sponsored: true } } },
     }),
     getBusinessModel(),
-    getNetworkDepth(me.id),
+    getMemberTitle(me.id),
   ]);
-  const myTitle = titleForDepth(depth);
-  const level1Title = titleForDepth(depth + 1);
-  const level2Title = titleForDepth(depth + 2);
-  const finalSeller = !canSponsorAtDepth(depth);
+  const level1Title = recruitTitleFor(myTitle) ?? "Consultant";
+  const level2Title = recruitTitleFor(level1Title) ?? "Consultant";
+  const finalSeller = !canSponsor(myTitle);
+  const limit = teamLimitFor(myTitle, model);
   // 6 % si je suis un parrain sans parrain au-dessus, 3 % sinon (+ 3 % sur le niveau 2).
   const { level1: rate1, level2: rate2 } = sponsorRatesFor(!!me.sponsorId, model);
   const ids = l1.map((c) => c.id);
@@ -61,7 +62,7 @@ export default async function MesFilleulsPage() {
   return (
     <div className="max-w-6xl">
       <div className="flex flex-wrap items-center gap-3">
-        <h1 className="font-serif-display text-2xl font-semibold text-navy">Mes filleuls</h1>
+        <h1 className="font-serif-display text-2xl font-semibold text-navy">Mon équipe</h1>
         <NetworkTitleBadge title={myTitle} />
         <span className="ml-auto"><LiveRefresh /></span>
       </div>
@@ -71,14 +72,15 @@ export default async function MesFilleulsPage() {
         ) : (
           <>
             Vous êtes <strong>{titleLabel(myTitle)}</strong>. Vos filleuls directs sont vos <strong>{level1Title}s</strong> : vous touchez {rate1} % sur leurs ventes encaissées.
-            {level2Title !== level1Title && canSponsorAtDepth(depth + 1) ? <>{" "}Sur les ventes de leurs propres filleuls ({level2Title}s), vous touchez {rate2} %.</> : null}
+            {myTitle === "Leader" ? <>{" "}Sur les ventes de leurs Consultants, vous touchez {rate2} %.</> : null}
+            {limit > 0 ? <>{" "}Votre équipe compte au plus <strong>{limit} {level1Title}s</strong>.</> : null}
           </>
         )}
       </p>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label={`Mes ${level1Title}s`} value={model.maxDirectRecruits > 0 ? `${l1.length} / ${model.maxDirectRecruits}` : l1.length} icon={Users} color="navy" />
-        <StatCard label={`Leurs filleuls (${level2Title}s)`} value={l2Count} icon={Users} color="purple" />
+        <StatCard label={`Mes ${level1Title}s`} value={limit > 0 ? `${l1.length} / ${limit}` : l1.length} icon={Users} color="navy" />
+        <StatCard label={myTitle === "Leader" ? `Leurs ${level2Title}s` : "Leurs filleuls"} value={l2Count} icon={Users} color="purple" />
         <StatCard label="CA équipe ce mois-ci" value={formatPrice(teamMonth)} icon={Users} color="emerald" />
         <StatCard label="Candidatures en attente" value={pending} icon={UserPlus} color="amber" />
       </div>
@@ -107,6 +109,17 @@ export default async function MesFilleulsPage() {
           <p className="mt-2 text-sm text-navy/75">Votre lien n&apos;est pas encore configuré : demandez à l&apos;équipe JAMAAL de renseigner votre identifiant (slug).</p>
         )}
       </div>
+
+      {!finalSeller && (
+        <div className="mt-6 rounded-2xl border border-line bg-white p-5">
+          <h2 className="font-serif-display text-lg font-semibold text-navy">Ajouter un membre libre</h2>
+          <p className="mt-1 text-sm text-navy/75">
+            Un membre qui n&apos;a plus d&apos;équipe peut vous rejoindre : saisissez son code (identifiant JAMAAL, visible dans son profil).
+            Il rejoint votre équipe comme {level1Title}.
+          </p>
+          <AddMemberForm recruitTitle={level1Title} />
+        </div>
+      )}
 
       <div className="mt-6 overflow-x-auto rounded-2xl border border-line bg-white">
         <table className="w-full text-sm">
@@ -137,7 +150,9 @@ export default async function MesFilleulsPage() {
                   <td className="whitespace-nowrap px-4 py-3 text-right font-semibold text-emerald-700">{formatPrice(Math.round(((mm?.ca ?? 0) * rate1) / 100))}</td>
                   <td className="whitespace-nowrap px-4 py-3 text-right">{formatPrice(l.get(c.id) ?? 0)}</td>
                   <td className="px-4 py-3">{c._count.sponsored}</td>
-                  <td className="px-4 py-3 text-right">
+                  <td className="space-y-1 px-4 py-3 text-right">
+                    <span className="block text-xs text-navy/70">{titleFromLoaded({ ...c, sponsor: { sponsorId: me.sponsorId } })}</span>
+                    {!me.viewAs && <RemoveMemberButton memberId={c.id} name={c.name} />}
                     {c.whatsapp && (
                       <a
                         href={c.whatsapp.startsWith("http") ? c.whatsapp : `https://wa.me/${digits(c.whatsapp)}`}

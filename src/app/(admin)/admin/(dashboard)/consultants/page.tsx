@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { depthFromLoaded, titleForDepth } from "@/lib/network";
+import { titleFromLoaded } from "@/lib/network";
 import { NetworkTitleBadge } from "@/components/admin/NetworkTitleBadge";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/currency";
@@ -95,7 +95,7 @@ export default async function AdminConsultantsPage() {
                     >
                       {c.name}
                     </a>
-                    <span className="ml-2 align-middle"><NetworkTitleBadge title={titleForDepth(depthFromLoaded(c))} /></span>
+                    <span className="ml-2 align-middle"><NetworkTitleBadge title={titleFromLoaded(c)} />{!c.sponsorId && c.rank && c.rank !== "LEADER" && <span className="ml-1.5 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-900">libre</span>}</span>
                   </td>
                   <td className="px-4 py-3 text-navy/85">{c.city}</td>
                   <td className="px-4 py-3 text-navy/85">{c.sponsor?.name ?? "—"}</td>

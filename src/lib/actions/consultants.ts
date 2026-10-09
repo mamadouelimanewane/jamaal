@@ -63,12 +63,11 @@ async function consultantDataFromForm(formData: FormData, existingId?: string) {
   // Un membre ne peut pas être son propre parrain, et chaque parrain a un nombre limité de filleuls.
   if (sponsorId && sponsorId === existingId) throw new Error("Un consultant ne peut pas être son propre parrain.");
   if (sponsorId) {
-    const { maxDirectRecruits } = await getBusinessModel();
-    const capacity = await sponsorCapacity(sponsorId, maxDirectRecruits, existingId);
+    const capacity = await sponsorCapacity(sponsorId, await getBusinessModel(), existingId);
     if (!capacity.ok) {
       throw new Error(capacity.finalSeller
         ? "Ce parrain est Consultant (vendeur final) : il ne peut pas avoir de filleuls. Choisissez un Leader ou un Parrain."
-        : `Ce parrain a déjà ${capacity.max} filleuls directs (maximum fixé dans le Modèle économique).`);
+        : `Ce ${capacity.title} a déjà ${capacity.max} ${capacity.title === "Leader" ? "Parrains" : "Consultants"} dans son équipe (maximum fixé dans le Modèle économique).`);
     }
   }
 

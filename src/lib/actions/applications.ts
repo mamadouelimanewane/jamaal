@@ -12,7 +12,7 @@ import { getSiteUrl } from "@/lib/site-url";
 import { notifyTeamWhatsApp } from "@/lib/whatsapp";
 import { requireAdmin } from "./auth-guard";
 import { getBusinessModel } from "@/lib/business-model-store";
-import { sponsorCapacity, sponsorRefusal } from "@/lib/network";
+import { sponsorCapacity, sponsorRefusal, TITLE_RANK } from "@/lib/network";
 
 export type ApplicationState = {
   ok: boolean;
@@ -48,8 +48,7 @@ export async function submitApplication(_prev: ApplicationState, formData: FormD
   const sponsorCode = d.sponsorCode.toLowerCase();
   const sponsor = await prisma.consultant.findFirst({ where: { slug: sponsorCode, active: true }, select: { id: true, name: true } });
   if (!sponsor) return { ok: false, error: "Ce code de parrainage n'existe pas ou n'est plus actif. Vérifiez-le auprès de votre parrain." };
-  const { maxDirectRecruits } = await getBusinessModel();
-  const capacity = await sponsorCapacity(sponsor.id, maxDirectRecruits);
+  const capacity = await sponsorCapacity(sponsor.id, await getBusinessModel());
   if (!capacity.ok) {
     return { ok: false, error: sponsorRefusal(sponsor.name, capacity) };
   }
@@ -113,8 +112,7 @@ export async function approveApplication(id: string): Promise<ApproveResult> {
     ? await prisma.consultant.findFirst({ where: { slug: app.sponsorCode, active: true }, select: { id: true, name: true } })
     : null;
   if (!sponsor) return { ok: false, error: "Pas de parrain actif pour cette candidature : rattachez-la à un membre (code de parrainage) avant de l'accepter." };
-  const { maxDirectRecruits } = await getBusinessModel();
-  const capacity = await sponsorCapacity(sponsor.id, maxDirectRecruits);
+  const capacity = await sponsorCapacity(sponsor.id, await getBusinessModel());
   if (!capacity.ok) return { ok: false, error: `${sponsorRefusal(sponsor.name, capacity)} Rattachez cette candidature à un autre membre.` };
   const slug = await uniqueConsultantSlug(app.name);
   const token = randomBytes(32).toString("base64url");
@@ -123,7 +121,7 @@ export async function approveApplication(id: string): Promise<ApproveResult> {
 
   await prisma.$transaction(async (tx) => {
     const consultant = await tx.consultant.create({
-      data: { name: app.name, city: app.city, whatsapp: app.phone, email, active: true, slug, sponsorId: sponsor.id },
+      data: { name: app.name, city: app.city, whatsapp: app.phone, email, active: true, slug, sponsorId: sponsor.id, rank: capacity.recruitTitle ? TITLE_RANK[capacity.recruitTitle] : null },
     });
     const user = await tx.user.create({
       data: { email, name: app.name, passwordHash, role: "CONSULTANT", consultantId: consultant.id },

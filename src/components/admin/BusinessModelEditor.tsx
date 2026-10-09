@@ -46,6 +46,8 @@ type NumKey =
   | "miscPct"
   | "topSellerBonus"
   | "maxDirectRecruits"
+  | "maxParrainsPerLeader"
+  | "maxConsultantsPerParrain"
   | "minPayout"
   | "deliveryBaseFee"
   | "deliveryIncludedKm"
@@ -241,6 +243,8 @@ export function BusinessModelEditor({
 }) {
   const [model, setModel] = useState<BusinessModel>(saved);
   const [tiers, setTiers] = useState<PrimeTier[]>(saved.primeTiers);
+  const [leaderTiers, setLeaderTiers] = useState<PrimeTier[]>(saved.leaderTeamTiers);
+  const [parrainTiers, setParrainTiers] = useState<PrimeTier[]>(saved.parrainTeamTiers);
   const [examplePrice, setExamplePrice] = useState(23_000);
   const [scenarioCost, setScenarioCost] = useState(10);
   const [scenario, setScenario] = useState<"A" | "B">("A");
@@ -249,7 +253,7 @@ export function BusinessModelEditor({
 
   const set = (key: NumKey, v: number) => setModel((m) => ({ ...m, [key]: v }));
   const valid = Object.values(model).every((v) => typeof v !== "number" || Number.isFinite(v));
-  const live = { ...model, primeTiers: tiers };
+  const live = { ...model, primeTiers: tiers, leaderTeamTiers: leaderTiers, parrainTeamTiers: parrainTiers };
 
   const a = valid ? productMargin(examplePrice, live) : null;
   const b = valid ? productMargin(examplePrice, live, { costPct: scenarioCost }) : null;
@@ -417,10 +421,57 @@ export function BusinessModelEditor({
         </section>
 
         <section className={card}>
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <SectionTitle icon={Trophy} title="Primes d'équipe" text="Leader : sur le CA du mois de toute son équipe. Parrain : sur le CA de ses Consultants. Calculées et versées à la clôture du mois (Admin › Primes d'équipe)." tone="#1f4f7a" />
+            <label className={`flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-2.5 text-sm font-semibold transition ${model.teamPrimesEnabled ? "border-emerald-300 bg-emerald-50 text-emerald-800" : "border-line bg-cream text-navy/85"}`}>
+              <input type="checkbox" name="teamPrimesEnabled" checked={model.teamPrimesEnabled} onChange={(e) => setModel((m) => ({ ...m, teamPrimesEnabled: e.target.checked }))} className="h-5 w-5 accent-emerald-700" />
+              {model.teamPrimesEnabled ? "Primes d'équipe activées" : "Primes d'équipe désactivées"}
+            </label>
+          </div>
+          <div className="mt-5 grid gap-6 lg:grid-cols-2">
+            {([
+              ["Leader", "leader", leaderTiers, setLeaderTiers],
+              ["Parrain", "parrain", parrainTiers, setParrainTiers],
+            ] as const).map(([title, prefix, list, setList]) => (
+              <div key={prefix}>
+                <p className="text-sm font-semibold text-ink">{title} : CA d&apos;équipe du mois → prime</p>
+                <table className="mt-2 w-full text-[15px]">
+                  <tbody>
+                    {list.map((t, i) => {
+                      const margin = shown ? t.threshold * shown.netRateOfSale : 0;
+                      const covered = margin >= t.amount;
+                      const update = (patch: Partial<PrimeTier>) => setList((all) => all.map((x, j) => (j === i ? { ...x, ...patch } : x)));
+                      return (
+                        <tr key={i} className="border-t border-line align-middle">
+                          <td className="py-2 pr-2"><input name={`${prefix}TierThreshold`} type="number" min={0} step="any" value={t.threshold} onChange={(e) => update({ threshold: Number(e.target.value) })} className={input} aria-label={`CA d'équipe (${title})`} /></td>
+                          <td className="py-2 pr-2"><input name={`${prefix}TierAmount`} type="number" min={0} step="any" value={t.amount} onChange={(e) => update({ amount: Number(e.target.value) })} className={input} aria-label={`Prime (${title})`} /></td>
+                          <td className="py-2 pr-2">
+                            <span title={`Marge JAMAAL sur ce CA : ${fcfa(margin)}`} className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${covered ? "bg-emerald-50 text-emerald-800" : "bg-red-50 text-red-800"}`}>
+                              {covered ? <CircleCheck size={14} /> : <CircleAlert size={14} />}
+                              {t.threshold > 0 ? `${((t.amount / t.threshold) * 100).toLocaleString("fr-FR", { maximumFractionDigits: 1 })} % du CA` : "—"}
+                            </span>
+                          </td>
+                          <td className="py-2 text-right"><button type="button" onClick={() => setList((all) => all.filter((_, j) => j !== i))} aria-label="Supprimer ce palier" className="rounded-lg p-2 text-navy/70 hover:bg-red-50 hover:text-red-700"><Trash2 size={16} /></button></td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+                <button type="button" onClick={() => setList((all) => [...all, { threshold: (all.at(-1)?.threshold ?? 0) + 500_000, amount: 0 }])} className="mt-2 inline-flex items-center gap-2 rounded-xl border border-line bg-white px-3 py-2 text-sm font-semibold text-ink hover:bg-cream">
+                  <Plus size={15} /> Ajouter un palier
+                </button>
+              </div>
+            ))}
+          </div>
+          <p className="mt-4 text-sm text-navy/75">Vert : la prime reste sous la marge nette de JAMAAL sur ce chiffre d&apos;affaires (scénario choisi en haut de page). Avec une marge d&apos;environ 4 %, restez prudents.</p>
+        </section>
+
+        <section className={card}>
           <SectionTitle icon={CreditCard} title="Réseau, paiements et versements" text="Règles d'inscription, moyens de paiement acceptés au panier et versement des commissions." tone="#1f7a55" />
           <div className="mt-5 grid gap-6 lg:grid-cols-3">
             <div className="flex flex-col gap-4">
-              <NumberField label="Filleuls directs maximum par membre" name="maxDirectRecruits" value={model.maxDirectRecruits} onChange={set} step="1" hint="0 = illimité. Au-delà, le candidat doit utiliser le code d'un membre de l'équipe." />
+              <NumberField label="Parrains maximum par Leader" name="maxParrainsPerLeader" value={model.maxParrainsPerLeader} onChange={set} step="1" hint="0 = illimité." />
+              <NumberField label="Consultants maximum par Parrain" name="maxConsultantsPerParrain" value={model.maxConsultantsPerParrain} onChange={set} step="1" hint="0 = illimité. Au-delà, le candidat doit utiliser le code d'un autre membre." />
               <p className="text-sm text-navy/80">Le code de parrainage est obligatoire pour toute candidature.</p>
             </div>
             <fieldset>
