@@ -78,7 +78,7 @@ export function Footer({ categories }: { categories: Category[] }) {
         </div>
 
         <div className="mt-10 flex flex-col items-center justify-between gap-2 border-t border-white/10 pt-6 text-xs text-white/50 sm:flex-row">
-          <p>© {new Date().getFullYear()} JAMAAL Luxury Cosmetics. Tous droits réservés.</p>
+          <p>© {new Date().getFullYear()} JAMAAL Luxury Cosmetics, revendeur officiel de la marque CHOGAN (Italie). Tous droits réservés.</p>
           <div className="flex gap-4">
             <Link href="/mentions-legales" className="hover:text-white">
               Mentions légales

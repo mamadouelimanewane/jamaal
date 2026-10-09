@@ -3,7 +3,7 @@ export const QUICK_REPLIES: { shortcut: string; label: string; text: string }[] 
   {
     shortcut: "/bienvenue",
     label: "Premier contact",
-    text: "Bonjour et bienvenue chez JAMAAL ! 🌸 Nous sommes les représentants exclusifs de Chogan au Sénégal : parfums, soins, maquillage, nutrition et produits pour la maison. Dites-moi ce que vous cherchez et je vous conseille avec plaisir.",
+    text: "Bonjour et bienvenue chez JAMAAL ! 🌸 Nous sommes revendeur officiel de la marque CHOGAN (Italie) : parfums, soins, maquillage, nutrition et produits pour la maison. Dites-moi ce que vous cherchez et je vous conseille avec plaisir.",
   },
   {
     shortcut: "/catalogue",
@@ -49,7 +49,7 @@ export const QUICK_REPLIES: { shortcut: string; label: string; text: string }[] 
 
 /** Message d'accueil et d'absence pour l'application WhatsApp Business. */
 export const GREETING =
-  "Bonjour ! Bienvenue chez JAMAAL, représentant exclusif de Chogan au Sénégal. 🌸 Comment pouvons-nous vous aider ?";
+  "Bonjour ! Bienvenue chez JAMAAL, revendeur officiel de la marque CHOGAN (Italie). 🌸 Comment pouvons-nous vous aider ?";
 export const AWAY =
   "Merci pour votre message ! Nous sommes actuellement indisponibles et vous répondrons dès que possible. En attendant, découvrez toute la gamme : https://jamaal-nine.vercel.app/collections";
 

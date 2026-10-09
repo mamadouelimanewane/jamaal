@@ -23,6 +23,7 @@ const ADMIN_ONLY_PREFIXES = [
   "/admin/retours",
   "/admin/historique",
   "/admin/stocks",
+  "/admin/accueil",
   "/admin/coupons",
   "/admin/reglages",
   "/admin/modele-economique",

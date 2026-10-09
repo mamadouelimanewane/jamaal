@@ -80,7 +80,7 @@ const out = rows.map((r) => {
     shortDescription: `${r.name}${r.format ? ` — ${r.format}` : ""}. Produit Chogan, distribué au Sénégal par JAMAAL.`,
     longDescription: [
       `${r.name}.${detail}`,
-      "Produit officiel de la gamme Chogan, distribué au Sénégal par JAMAAL, représentant exclusif.",
+      "Produit officiel de la gamme Chogan, distribué au Sénégal par JAMAAL, revendeur officiel de la marque CHOGAN (Italie).",
     ],
     publicPrice: publicXof(r.eur),
     regularPrice: priceXof(r.eur),

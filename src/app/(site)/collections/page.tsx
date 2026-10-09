@@ -23,7 +23,7 @@ export default async function CollectionsIndexPage() {
     <main className="min-h-[70vh]">
       <section className="bg-[#f8f1ee] px-5 py-11 sm:px-8 sm:py-16 lg:px-12">
         <div className="mx-auto max-w-7xl">
-          <p className="luxury-eyebrow">Représentant exclusif Chogan</p>
+          <p className="luxury-eyebrow">Revendeur officiel CHOGAN (Italie)</p>
           <h1 className="mt-3 font-serif-display text-3xl font-medium text-navy sm:text-5xl">Toute la gamme</h1>
           <p className="mt-4 max-w-2xl text-sm leading-7 text-navy/60">
             Parfums, beauté, bien-être, nutrition et maison : retrouvez l&apos;ensemble des produits Chogan, disponibles au Sénégal avec JAMAAL.

@@ -56,7 +56,7 @@ export default async function MesFilleulsPage() {
   const teamMonth = [...m.values()].reduce((s, v) => s + v.ca, 0);
   const l2Count = l1.reduce((s, c) => s + c._count.sponsored, 0);
   const pending = applications.filter((a) => a.status === "NOUVELLE").length;
-  const inviteMsg = `Bonjour ! Je fais partie du réseau JAMAAL, représentant exclusif de Chogan au Sénégal. Tu veux gagner de l'argent en vendant parfums, soins et produits maison ? Postule avec mon lien : ${links.recruit ?? ""}`;
+  const inviteMsg = `Bonjour ! Je fais partie du réseau JAMAAL, revendeur officiel de la marque CHOGAN (Italie). Tu veux gagner de l'argent en vendant parfums, soins et produits maison ? Postule avec mon lien : ${links.recruit ?? ""}`;
 
   return (
     <div className="max-w-6xl">
