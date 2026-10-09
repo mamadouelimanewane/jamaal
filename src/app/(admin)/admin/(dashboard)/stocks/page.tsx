@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ReservationsBanner } from "@/components/admin/ReservationsBanner";
 import { AlertTriangle, ArrowDownToLine, Boxes, ClipboardList, History, PackageX, Search, Wallet } from "lucide-react";
 import { requireAdminPage } from "@/lib/admin-page-guard";
 import { getStockRows, stockTotals, type StockRow } from "@/lib/inventory-report";
@@ -73,6 +74,7 @@ export default async function AdminStockPage({ searchParams }: { searchParams: P
 
   return (
     <div className="space-y-6">
+      <ReservationsBanner />
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[.2em] text-rose-dark">Inventaire JAMAAL</p>

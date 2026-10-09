@@ -7,6 +7,8 @@ import { OrderStatus } from "@prisma/client";
 import { CopyTrackingLink } from "@/components/admin/CopyTrackingLink";
 import { OrderSplit } from "@/components/admin/OrderSplit";
 import { OrderDeliveryPanel } from "@/components/admin/OrderDeliveryPanel";
+import { ReservationActions } from "@/components/admin/ReservationActions";
+import { RESERVATION_LABELS, type ReservationStatus } from "@/lib/reservation";
 
 const statuses: OrderStatus[] = ["EN_ATTENTE", "CONFIRMEE", "EXPEDIEE", "LIVREE", "ANNULEE"];
 const statusLabels: Record<string, string> = {
@@ -123,6 +125,21 @@ export default async function AdminOrderDetailPage({
         </button>
       </form>
 
+      {order.isReservation && (
+        <div className="mt-6 rounded-2xl border border-[#e3c9bf] bg-[#fbf4f1] p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-base font-semibold text-ink">Réservation · {RESERVATION_LABELS[(order.reservationStatus ?? "ACOMPTE_ATTENDU") as ReservationStatus]}</h2>
+              <p className="mt-1 text-sm text-navy/80">
+                Acompte {formatPrice(order.depositAmount)} {order.depositPaidAt ? `payé le ${order.depositPaidAt.toLocaleDateString("fr-FR")}` : "non payé"} · solde {formatPrice(Math.max(0, order.total - order.depositAmount))}
+                {order.reservationDelay ? ` · délai annoncé ${order.reservationDelay}` : ""}
+              </p>
+            </div>
+            <ReservationActions orderId={order.id} status={order.reservationStatus ?? "ACOMPTE_ATTENDU"} canServe />
+          </div>
+          <p className="mt-2 text-xs text-navy/70">Vue d&apos;ensemble et quantités à commander : <a href="/admin/reservations" className="font-semibold text-rose-dark hover:underline">Réservations</a>.</p>
+        </div>
+      )}
       <OrderDeliveryPanel orderId={order.id} />
       <OrderSplit orderId={order.id} />
 

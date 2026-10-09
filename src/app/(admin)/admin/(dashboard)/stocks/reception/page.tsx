@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ReservationsBanner } from "@/components/admin/ReservationsBanner";
 import { ArrowLeft } from "lucide-react";
 import { requireAdminPage } from "@/lib/admin-page-guard";
 import { BatchStockForm } from "@/components/admin/BatchStockForm";
@@ -15,6 +16,7 @@ export default async function StockReceptionPage() {
         <h1 className="mt-1 font-serif-display text-3xl font-semibold text-navy">Réception et inventaire</h1>
         <p className="mt-1 text-[15px] text-navy/75">Saisissez tout un bon de livraison ou tout un comptage d&apos;un coup. Chaque ligne est vérifiée puis tracée dans l&apos;historique.</p>
       </header>
+      <ReservationsBanner />
       <section className="rounded-2xl border border-line bg-white p-5 sm:p-6">
         <BatchStockForm />
       </section>

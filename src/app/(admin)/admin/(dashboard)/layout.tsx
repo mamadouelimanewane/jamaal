@@ -26,6 +26,7 @@ import { Calculator,
   Share2,
   UsersRound,
   GalleryHorizontal,
+  CalendarClock,
 } from "lucide-react";
 import { auth, signOut } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -53,6 +54,7 @@ const adminGroups = [
     title: "Ventes",
     links: [
       { href: "/admin/commandes", label: "Commandes", icon: ShoppingCart },
+      { href: "/admin/reservations", label: "Réservations", icon: CalendarClock },
       { href: "/admin/retours", label: "Retours & remboursements", icon: Undo2 },
       { href: "/admin/coupons", label: "Codes promo", icon: Tags },
       { href: "/admin/clients", label: "Clients (CRM)", icon: Contact },
