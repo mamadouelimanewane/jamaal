@@ -37,6 +37,11 @@ export function LivreurDeliveryCard(props: {
   lng: number | null;
   distanceKm: number | null;
   share: number;
+  /** Position estimée à partir d'une adresse floue : appeler avant de partir. */
+  approx?: boolean;
+  place?: string | null;
+  /** Commande passée par quelqu'un d'autre que le destinataire. */
+  orderedBy?: string | null;
 }) {
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -64,10 +69,18 @@ export function LivreurDeliveryCard(props: {
         <div>
           <p className="text-lg font-semibold text-ink">{props.customerName}</p>
           {props.forCustomer && <p className="text-sm font-medium text-amber-800">Consultant·e JAMAAL · commande pour {props.forCustomer}</p>}
+          {props.orderedBy && <p className="text-sm font-medium text-navy/80">Commandé par {props.orderedBy}</p>}
           <p className="text-[15px] text-navy/85">{props.address ?? "Adresse non renseignée"}</p>
         </div>
         <span className="rounded-full bg-cream px-3 py-1 text-sm font-semibold text-ink">{DELIVERY_LABELS[props.status]}</span>
       </div>
+
+      {props.approx && (
+        <p className="mt-3 flex items-start gap-2 rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-950">
+          <TriangleAlert size={16} className="mt-0.5 shrink-0" />
+          <span><strong>Position approximative</strong>{props.place ? ` (${props.place})` : ""} — appelez le destinataire avant de partir pour confirmer l&apos;endroit exact.</span>
+        </p>
+      )}
 
       <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-sm text-navy/85">
         {props.distanceKm != null && <span>{props.distanceKm.toLocaleString("fr-FR")} km du dépôt</span>}

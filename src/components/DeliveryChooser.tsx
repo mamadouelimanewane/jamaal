@@ -3,20 +3,34 @@
 import { useEffect, useRef, useState } from "react";
 import { LocateFixed, MapPin, Store } from "lucide-react";
 import { DeliveryMap } from "@/components/maps/DeliveryMap";
+import { ApproxNotice, LocationInput } from "@/components/maps/LocationInput";
 import { getCartDeliveryInfo, quoteDeliveryForCart, type CartDeliveryInfo } from "@/lib/actions/delivery-quote";
 import type { DeliveryQuote } from "@/lib/delivery";
 import { formatPrice } from "@/lib/currency";
 
 export type DeliveryChoice =
   | { mode: "RETRAIT" }
-  | { mode: "LIVRAISON"; lat: number | null; lng: number | null; quote: DeliveryQuote | null };
+  | {
+      mode: "LIVRAISON";
+      lat: number | null;
+      lng: number | null;
+      quote: DeliveryQuote | null;
+      /** Position estimée à partir d'une adresse floue (le livreur appellera pour confirmer). */
+      approx?: boolean;
+      /** Lieu trouvé (« Sacré-Cœur 3, Dakar »), affiché au livreur. */
+      place?: string | null;
+    };
 
 /** Choix de la remise au panier : livraison géolocalisée (frais selon la distance) ou retrait. */
-export function DeliveryChooser({ productsTotal, value, onChange }: { productsTotal: number; value: DeliveryChoice; onChange: (v: DeliveryChoice) => void }) {
+export function DeliveryChooser({ productsTotal, value, onChange, recipientPhone }: { productsTotal: number; value: DeliveryChoice; onChange: (v: DeliveryChoice) => void; recipientPhone?: string | null }) {
   const [info, setInfo] = useState<CartDeliveryInfo | null>(null);
   const [locating, setLocating] = useState(false);
   const [geoError, setGeoError] = useState<string | null>(null);
   const seq = useRef(0);
+  const latest = useRef(value);
+  useEffect(() => {
+    latest.current = value;
+  });
 
   useEffect(() => {
     getCartDeliveryInfo().then(setInfo).catch(() => setInfo(null));
@@ -31,7 +45,8 @@ export function DeliveryChooser({ productsTotal, value, onChange }: { productsTo
     const id = ++seq.current;
     quoteDeliveryForCart(lat, lng, productsTotal)
       .then((quote) => {
-        if (id === seq.current) onChange({ mode: "LIVRAISON", lat, lng, quote });
+        const cur = latest.current;
+        if (id === seq.current && cur.mode === "LIVRAISON") onChange({ ...cur, lat, lng, quote });
       })
       .catch(() => {});
     // onChange est stable côté parent ; on ne relance que si la position ou le montant changent.
@@ -48,7 +63,7 @@ export function DeliveryChooser({ productsTotal, value, onChange }: { productsTo
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setLocating(false);
-        onChange({ mode: "LIVRAISON", lat: pos.coords.latitude, lng: pos.coords.longitude, quote: null });
+        onChange({ mode: "LIVRAISON", lat: pos.coords.latitude, lng: pos.coords.longitude, quote: null, approx: false, place: null });
       },
       () => {
         setLocating(false);
@@ -66,7 +81,7 @@ export function DeliveryChooser({ productsTotal, value, onChange }: { productsTo
       <legend className="text-sm font-semibold text-navy">Livraison</legend>
       <div className="flex flex-col gap-2">
         <label className={option(value.mode === "LIVRAISON")}>
-          <input type="radio" name="deliveryMode" checked={value.mode === "LIVRAISON"} onChange={() => onChange({ mode: "LIVRAISON", lat, lng, quote: null })} className="mt-1" />
+          <input type="radio" name="deliveryMode" checked={value.mode === "LIVRAISON"} onChange={() => onChange({ mode: "LIVRAISON", lat, lng, quote: null, approx: false, place: null })} className="mt-1" />
           <span><span className="flex items-center gap-1.5 font-semibold text-navy"><MapPin size={15} /> Livraison chez moi</span><span className="text-navy/75">Frais selon la distance</span></span>
         </label>
         <label className={option(value.mode === "RETRAIT")}>
@@ -80,18 +95,27 @@ export function DeliveryChooser({ productsTotal, value, onChange }: { productsTo
           <button type="button" onClick={locate} disabled={locating} className="inline-flex items-center gap-2 rounded-full bg-navy px-4 py-2 text-sm font-semibold text-white hover:bg-navy-light disabled:opacity-60">
             <LocateFixed size={16} /> {locating ? "Localisation…" : "Utiliser ma position"}
           </button>
-          <p className="text-xs text-navy/75">Ou touchez la carte à l&apos;endroit de la livraison ; vous pouvez déplacer le repère.</p>
           {geoError && <p role="alert" className="text-xs text-rose-dark">{geoError}</p>}
+          <p className="text-xs text-navy/75">
+            Vous n&apos;êtes pas sur place ? Collez la localisation reçue sur WhatsApp, un lien Google Maps, un Plus Code, ou écrivez
+            simplement l&apos;adresse (« Sacré-Cœur 3, près de la pharmacie »).
+          </p>
+          <LocationInput
+            recipientPhone={recipientPhone}
+            onLocated={(l) => onChange({ mode: "LIVRAISON", lat: l.lat, lng: l.lng, quote: null, approx: l.approx, place: l.label })}
+          />
+          <p className="text-xs text-navy/75">Ou touchez la carte à l&apos;endroit de la livraison ; vous pouvez déplacer le repère.</p>
           {info && (
             <DeliveryMap
               height={260}
-              onMove={(la, ln) => onChange({ mode: "LIVRAISON", lat: la, lng: ln, quote: null })}
+              onMove={(la, ln) => onChange({ mode: "LIVRAISON", lat: la, lng: ln, quote: null, approx: false, place: value.place ?? null })}
               points={[
                 { id: "depot", kind: "depot", lat: info.depot.lat, lng: info.depot.lng, label: info.depot.label },
                 ...(lat != null && lng != null ? [{ id: "client", kind: "client" as const, lat, lng, label: "Livraison ici", draggable: true }] : []),
               ]}
             />
           )}
+          {value.approx && lat != null && <ApproxNotice label={value.place || "adresse"} />}
           {value.quote && (
             value.quote.ok ? (
               <p className="rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-900">

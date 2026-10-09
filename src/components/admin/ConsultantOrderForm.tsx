@@ -27,6 +27,7 @@ export function ConsultantOrderForm({
   vendor: { address: string | null; lat: number | null; lng: number | null };
 }) {
   const [query, setQuery] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
   const [results, setResults] = useState<ProductSearchResult[]>([]);
   const [items, setItems] = useState<LineItem[]>([]);
   const [isPending, startTransition] = useTransition();
@@ -130,14 +131,14 @@ export function ConsultantOrderForm({
           </div>
           <div>
             <label className={labelClass}>Téléphone (WhatsApp)</label>
-            <input name="customerPhone" required className={inputClass} />
+            <input name="customerPhone" required value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} className={inputClass} />
           </div>
           <div>
             <label className={labelClass}>Adresse du client</label>
             <textarea name="address" rows={2} placeholder="Quartier, rue, repère" className={inputClass} />
           </div>
 
-          <ConsultantDeliveryFields productsTotal={total} depot={depot} vendor={vendor} />
+          <ConsultantDeliveryFields productsTotal={total} depot={depot} vendor={vendor} customerPhone={customerPhone} />
 
           <button
             type="submit"

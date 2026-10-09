@@ -267,6 +267,10 @@ model Order {
   address       String?
   status        OrderStatus @default(EN_ATTENTE)
   total         Int
+  /// Position déduite d'une adresse approximative : le livreur doit la confirmer par téléphone.
+  deliveryApprox      Boolean  @default(false)
+  /// Lieu reconnu pour une adresse approximative (ex. « Sacré-Cœur 3, Dakar »).
+  deliveryPlace       String?
   /// Stock de la commande : RESERVE (retiré du stock) ou LIBERE (remis en stock après annulation)
   stockState    String?
   createdAt     DateTime    @default(now())
@@ -730,4 +734,14 @@ model LivreurEarning {
   updatedAt   DateTime @updatedAt
 
   @@index([livreurId, status])
+}
+
+/// Adresses « floues » déjà localisées (évite de rappeler le service de géocodage).
+model GeocodeCache {
+  query     String   @id
+  lat       Float?
+  lng       Float?
+  label     String?
+  source    String?
+  createdAt DateTime @default(now())
 }

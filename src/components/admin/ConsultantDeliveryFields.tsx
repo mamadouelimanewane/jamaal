@@ -3,12 +3,13 @@
 import { useEffect, useRef, useState } from "react";
 import { House, LocateFixed, Store, UserRound } from "lucide-react";
 import { DeliveryMap } from "@/components/maps/DeliveryMap";
+import { ApproxNotice, LocationInput } from "@/components/maps/LocationInput";
 import { quoteDeliveryForCart } from "@/lib/actions/delivery-quote";
 import type { DeliveryQuote } from "@/lib/delivery";
 import { formatPrice } from "@/lib/currency";
 
 type Target = "RETRAIT" | "CLIENT" | "VENDEUR";
-type Point = { lat: number; lng: number } | null;
+type Point = { lat: number; lng: number; approx?: boolean; place?: string | null } | null;
 
 const field = "mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-navy";
 
@@ -20,10 +21,12 @@ export function ConsultantDeliveryFields({
   productsTotal,
   depot,
   vendor,
+  customerPhone = "",
 }: {
   productsTotal: number;
   depot: { lat: number; lng: number; label: string };
   vendor: { address: string | null; lat: number | null; lng: number | null };
+  customerPhone?: string;
 }) {
   const savedPoint: Point = vendor.lat != null && vendor.lng != null ? { lat: vendor.lat, lng: vendor.lng } : null;
   const [target, setTarget] = useState<Target>("CLIENT");
@@ -58,7 +61,7 @@ export function ConsultantDeliveryFields({
     <fieldset className="min-w-0 space-y-3">
       <legend className="text-sm font-semibold text-navy">3. Livraison</legend>
       <input type="hidden" name="deliveryTarget" value={target} />
-      {point && <><input type="hidden" name="deliveryLat" value={point.lat} /><input type="hidden" name="deliveryLng" value={point.lng} /></>}
+      {point && <><input type="hidden" name="deliveryLat" value={point.lat} /><input type="hidden" name="deliveryLng" value={point.lng} /><input type="hidden" name="deliveryApprox" value={point.approx ? "1" : ""} /><input type="hidden" name="deliveryPlace" value={point.place ?? ""} /></>}
 
       <label className={option("CLIENT")}>
         <input type="radio" checked={target === "CLIENT"} onChange={() => { setTarget("CLIENT"); setQuote(null); }} className="mt-1" />
@@ -90,8 +93,10 @@ export function ConsultantDeliveryFields({
           <button type="button" onClick={locate} className="inline-flex items-center gap-2 rounded-full bg-navy px-4 py-2 text-sm font-semibold text-white hover:bg-navy-light">
             <LocateFixed size={16} /> {target === "CLIENT" ? "Je suis chez le client : utiliser ma position" : "Utiliser ma position"}
           </button>
-          <p className="text-xs text-navy/75">Ou touchez la carte à l&apos;endroit de la livraison ; le repère se déplace.</p>
           {geoError && <p role="alert" className="text-xs text-rose-dark">{geoError}</p>}
+          <p className="text-xs text-navy/75">Pas sur place ? Collez la localisation WhatsApp du client, un lien Maps, un Plus Code ou son adresse, même approximative.</p>
+          <LocationInput recipientPhone={target === "CLIENT" ? customerPhone : null} onLocated={(l) => setPoint({ lat: l.lat, lng: l.lng, approx: l.approx, place: l.label })} />
+          <p className="text-xs text-navy/75">Ou touchez la carte à l&apos;endroit de la livraison ; le repère se déplace.</p>
           <DeliveryMap
             height={260}
             onMove={(lat, lng) => setPoint({ lat, lng })}
@@ -100,6 +105,7 @@ export function ConsultantDeliveryFields({
               ...(point ? [{ id: "dest", kind: "client" as const, ...point, label: target === "CLIENT" ? "Chez le client" : "Chez moi", draggable: true }] : []),
             ]}
           />
+          {point?.approx && <ApproxNotice label={point.place || "adresse"} />}
           {!point && <p className="text-sm text-amber-900">Placez le point de livraison pour calculer les frais.</p>}
           {point && quote && (quote.ok ? (
             <p className="rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-900">{quote.distanceKm.toLocaleString("fr-FR")} km du dépôt · frais de livraison <strong>{quote.free ? "offerts" : formatPrice(quote.fee)}</strong>, ajoutés au total.</p>

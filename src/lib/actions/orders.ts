@@ -31,6 +31,13 @@ export interface CheckoutDelivery {
   mode: "LIVRAISON" | "RETRAIT";
   lat?: number | null;
   lng?: number | null;
+  /** Position estimée à partir d'une adresse floue. */
+  approx?: boolean;
+  /** Lieu trouvé par la recherche d'adresse. */
+  place?: string | null;
+  /** Destinataire, quand le colis est pour quelqu'un d'autre. */
+  recipientName?: string | null;
+  recipientPhone?: string | null;
 }
 
 export interface CheckoutCustomer {
@@ -184,6 +191,10 @@ async function placeOrder(
     deliveryCode?: string;
     deliveryStatus?: string;
     livreurShare?: number;
+    deliveryApprox?: boolean;
+    deliveryPlace?: string | null;
+    deliveryContactName?: string | null;
+    deliveryContactPhone?: string | null;
   } = { deliveryMode: "RETRAIT_CONSULTANT" };
   if (delivery?.mode === "LIVRAISON") {
     const point = { lat: Number(delivery.lat), lng: Number(delivery.lng) };
@@ -191,6 +202,12 @@ async function placeOrder(
     if (!data.customer.address) throw new Error("Précisez votre adresse de livraison (quartier, repère).");
     const quote = quoteDelivery(point, productsTotal, await getBusinessModel());
     if (!quote.ok) throw new Error(quote.error);
+    const recipientName = String(delivery.recipientName ?? "").trim().slice(0, 80);
+    const recipientPhone = String(delivery.recipientPhone ?? "").trim().slice(0, 30);
+    if (recipientName || recipientPhone) {
+      if (!recipientName) throw new Error("Indiquez le nom de la personne qui reçoit le colis.");
+      if (recipientPhone.replace(/\D/g, "").length < 8 || !/^[+\d\s().-]+$/.test(recipientPhone)) throw new Error("Numéro du destinataire invalide.");
+    }
     total += quote.fee;
     deliveryData = {
       deliveryMode: "LIVRAISON_JAMAAL",
@@ -201,6 +218,10 @@ async function placeOrder(
       deliveryCode: newDeliveryCode(),
       deliveryStatus: "A_PREPARER",
       livreurShare: quote.livreurShare,
+      deliveryApprox: delivery.approx === true,
+      deliveryPlace: String(delivery.place ?? "").trim().slice(0, 120) || null,
+      deliveryContactName: recipientName || null,
+      deliveryContactPhone: recipientPhone || null,
     };
   }
 
