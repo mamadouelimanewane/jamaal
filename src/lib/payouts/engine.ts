@@ -129,7 +129,7 @@ export async function processPayouts(consultantIds?: string[], model?: BusinessM
   let skipped = 0;
   for (const p of pending) {
     const amount = p._sum.amount ?? 0;
-    const member = await prisma.consultant.findUnique({ where: { id: p.consultantId }, select: { id: true, name: true, walletProvider: true, walletNumber: true } });
+    const member = await prisma.consultant.findUnique({ where: { id: p.consultantId }, select: { id: true, name: true, walletProvider: true, walletNumber: true, walletHolderName: true } });
     if (!member || !isWalletProvider(member.walletProvider) || !member.walletNumber || !config[member.walletProvider] || amount <= 0 || amount < m.minPayout) {
       skipped += 1;
       continue;
@@ -150,7 +150,7 @@ export async function processPayouts(consultantIds?: string[], model?: BusinessM
     }
     await prisma.payout.update({ where: { id: payout.id }, data: { amount: total } });
 
-    const result = await sendPayout(member.walletProvider, { reference: payout.id, amount: total, mobile: member.walletNumber, name: member.name });
+    const result = await sendPayout(member.walletProvider, { reference: payout.id, amount: total, mobile: member.walletNumber, name: member.walletHolderName || member.name });
     await settle(payout.id, member.id, total, member.walletProvider, result);
     if (result.status !== "ECHEC") sent += 1;
   }

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { ApplicationForm } from "@/components/ApplicationForm";
+import { getProtocol } from "@/lib/protocol-store";
 
 export const metadata: Metadata = {
   title: "Devenir consultant·e JAMAAL",
@@ -45,7 +46,7 @@ export default async function DevenirConsultantPage({
       </ul>
 
       <div className="mt-10 rounded-2xl border border-line bg-white p-5 sm:p-8">
-        <ApplicationForm sponsorCode={sponsorCode} />
+        <ApplicationForm sponsorCode={sponsorCode} protocol={await getProtocol()} />
       </div>
 
       <p className="mt-6 text-center text-sm text-navy/60">

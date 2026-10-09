@@ -12,4 +12,8 @@ export const applicationSchema = z.object({
   motivation: text(1000).optional().default(""),
   sponsorCode: text(48).min(2, "Le code de parrainage est obligatoire : demandez-le à la personne qui vous a présenté JAMAAL."),
   acceptTerms: z.literal(true, { error: "Vous devez accepter d'être recontacté·e." }),
+  address: text(300).min(8, "Indiquez votre adresse complète (quartier, rue, ville)."),
+  idType: z.enum(["CNI", "PASSEPORT", "CEDEAO"], { error: "Choisissez le type de pièce d'identité." }),
+  idNumber: text(30).regex(/^[A-Za-z0-9 -]{5,30}$/, "Numéro de pièce d'identité invalide."),
+  acceptProtocol: z.literal(true, { error: "Lisez le protocole de partenariat et cochez « Lu et approuvé »." }),
 });

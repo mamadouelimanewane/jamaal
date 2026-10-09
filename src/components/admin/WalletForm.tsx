@@ -7,7 +7,7 @@ const initial: WalletState = { ok: false };
 const field = "mt-1.5 w-full rounded-xl border border-line bg-white px-4 py-2.5 text-[15px] outline-none focus:border-navy focus:ring-4 focus:ring-navy/10";
 
 /** Wallet de réception des commissions (Wave ou Orange Money). */
-export function WalletForm({ provider, number }: { provider: string | null; number: string | null }) {
+export function WalletForm({ provider, number, holder }: { provider: string | null; number: string | null; holder?: string | null }) {
   const [state, action, pending] = useActionState(updateOwnWallet, initial);
   return (
     <form action={action} className="grid gap-4 sm:grid-cols-2">
@@ -25,9 +25,14 @@ export function WalletForm({ provider, number }: { provider: string | null; numb
           ))}
         </div>
       </fieldset>
-      <label className="text-sm font-medium text-ink sm:col-span-2">
+      <label className="text-sm font-medium text-ink">
         Numéro du wallet
         <input name="walletNumber" defaultValue={number ?? ""} inputMode="tel" placeholder="77 123 45 67" className={field} />
+      </label>
+      <label className="text-sm font-medium text-ink">
+        Nom du titulaire du compte
+        <input name="walletHolderName" defaultValue={holder ?? ""} maxLength={100} autoComplete="name" placeholder="Tel qu'enregistré chez Wave / Orange Money" className={field} />
+        <span className="mt-1 block text-xs font-normal text-navy/65">Le compte doit être à votre nom : JAMAAL vérifie ce nom avant le premier versement.</span>
       </label>
       {state.error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-800 sm:col-span-2">{state.error}</p>}
       {state.ok && <p role="status" className="rounded-xl bg-emerald-50 px-4 py-2 text-sm text-emerald-800 sm:col-span-2">Wallet enregistré. Vos prochaines commissions y seront versées.</p>}
