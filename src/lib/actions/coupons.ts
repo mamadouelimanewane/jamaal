@@ -1,5 +1,7 @@
 "use server";
 
+import { backWithError } from "@/lib/form-error";
+
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
@@ -23,7 +25,7 @@ function couponDataFromForm(formData: FormData, usedCount = 0) {
   return { code, type: typeRaw as CouponType, value, active: formData.get("active") === "on", expiresAt, usageLimit };
 }
 
-export async function createCoupon(formData: FormData) {
+async function createCouponImpl(formData: FormData) {
   const session = await requireAdmin();
   const coupon = await prisma.coupon.create({ data: couponDataFromForm(formData) });
   await logActivity(session, "Création code promo", "Coupon", coupon.id);
@@ -31,7 +33,7 @@ export async function createCoupon(formData: FormData) {
   redirect("/admin/coupons");
 }
 
-export async function updateCoupon(id: string, formData: FormData) {
+async function updateCouponImpl(id: string, formData: FormData) {
   const session = await requireAdmin();
   const existing = await prisma.coupon.findUniqueOrThrow({ where: { id }, select: { usedCount: true } });
   await prisma.coupon.update({ where: { id }, data: couponDataFromForm(formData, existing.usedCount) });
@@ -40,11 +42,36 @@ export async function updateCoupon(id: string, formData: FormData) {
   redirect("/admin/coupons");
 }
 
-export async function deleteCoupon(id: string) {
+async function deleteCouponImpl(id: string) {
   const session = await requireAdmin();
   const existing = await prisma.coupon.findUniqueOrThrow({ where: { id }, select: { usedCount: true } });
   if (existing.usedCount > 0) await prisma.coupon.update({ where: { id }, data: { active: false } });
   else await prisma.coupon.delete({ where: { id } });
   await logActivity(session, existing.usedCount > 0 ? "Désactivation code promo" : "Suppression code promo", "Coupon", id);
   revalidatePath("/admin/coupons");
+}
+
+// Actions appelées par les formulaires : erreurs affichées sur la page, jamais une page d'erreur.
+export async function createCoupon(formData: FormData): Promise<void> {
+  try {
+    await createCouponImpl(formData);
+  } catch (e) {
+    await backWithError(e, "/admin/coupons");
+  }
+}
+
+export async function updateCoupon(id: string, formData: FormData): Promise<void> {
+  try {
+    await updateCouponImpl(id, formData);
+  } catch (e) {
+    await backWithError(e, "/admin/coupons");
+  }
+}
+
+export async function deleteCoupon(id: string): Promise<void> {
+  try {
+    await deleteCouponImpl(id);
+  } catch (e) {
+    await backWithError(e, "/admin/coupons");
+  }
 }

@@ -1,5 +1,7 @@
 "use server";
 
+import { backWithError } from "@/lib/form-error";
+
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
@@ -7,7 +9,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "./auth-guard";
 import { Role } from "@prisma/client";
 
-export async function createUser(formData: FormData) {
+async function createUserImpl(formData: FormData) {
   await requireAdmin();
   const email = String(formData.get("email") ?? "").trim();
   const name = String(formData.get("name") ?? "").trim();
@@ -31,9 +33,26 @@ export async function createUser(formData: FormData) {
   redirect("/admin/utilisateurs");
 }
 
-export async function deleteUser(id: string) {
+async function deleteUserImpl(id: string) {
   const session = await requireAdmin();
   if (session.user?.id === id) throw new Error("Vous ne pouvez pas supprimer votre propre compte");
   await prisma.user.delete({ where: { id } });
   revalidatePath("/admin/utilisateurs");
+}
+
+// Actions appelées par les formulaires : erreurs affichées sur la page, jamais une page d'erreur.
+export async function createUser(formData: FormData): Promise<void> {
+  try {
+    await createUserImpl(formData);
+  } catch (e) {
+    await backWithError(e, "/admin/utilisateurs");
+  }
+}
+
+export async function deleteUser(id: string): Promise<void> {
+  try {
+    await deleteUserImpl(id);
+  } catch (e) {
+    await backWithError(e, "/admin/utilisateurs");
+  }
 }

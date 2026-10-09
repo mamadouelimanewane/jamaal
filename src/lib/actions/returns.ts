@@ -1,12 +1,14 @@
 "use server";
 
+import { backWithError } from "@/lib/form-error";
+
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "./auth-guard";
 import type { ReturnStatus } from "@prisma/client";
 
-export async function createReturn(formData: FormData) {
+async function createReturnImpl(formData: FormData) {
   await requireAdmin();
   const orderId = String(formData.get("orderId") ?? "");
   const reason = String(formData.get("reason") ?? "").trim();
@@ -19,7 +21,7 @@ export async function createReturn(formData: FormData) {
   redirect("/admin/retours");
 }
 
-export async function updateReturnStatus(id: string, status: ReturnStatus) {
+async function updateReturnStatusImpl(id: string, status: ReturnStatus) {
   await requireAdmin();
   await prisma.return.update({
     where: { id },
@@ -30,9 +32,34 @@ export async function updateReturnStatus(id: string, status: ReturnStatus) {
   revalidatePath("/admin/statistiques");
 }
 
-export async function deleteReturn(id: string) {
+async function deleteReturnImpl(id: string) {
   await requireAdmin();
   await prisma.return.delete({ where: { id } });
   revalidatePath("/admin/retours");
   revalidatePath("/admin/comptabilite");
+}
+
+// Actions appelées par les formulaires : erreurs affichées sur la page, jamais une page d'erreur.
+export async function createReturn(formData: FormData): Promise<void> {
+  try {
+    await createReturnImpl(formData);
+  } catch (e) {
+    await backWithError(e, "/admin/retours");
+  }
+}
+
+export async function updateReturnStatus(id: string, status: ReturnStatus): Promise<void> {
+  try {
+    await updateReturnStatusImpl(id, status);
+  } catch (e) {
+    await backWithError(e, "/admin/retours");
+  }
+}
+
+export async function deleteReturn(id: string): Promise<void> {
+  try {
+    await deleteReturnImpl(id);
+  } catch (e) {
+    await backWithError(e, "/admin/retours");
+  }
 }

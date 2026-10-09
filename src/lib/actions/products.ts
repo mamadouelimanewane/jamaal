@@ -1,5 +1,7 @@
 "use server";
 
+import { backWithError } from "@/lib/form-error";
+
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
@@ -115,7 +117,7 @@ async function productDataFromForm(formData: FormData) {
   };
 }
 
-export async function createProduct(formData: FormData) {
+async function createProductImpl(formData: FormData) {
   const session = await requireAdmin();
   const formats = parseFormats(formData.get("formats")) ?? [];
   const data = await productDataFromForm(formData);
@@ -129,7 +131,7 @@ export async function createProduct(formData: FormData) {
   redirect("/admin/produits");
 }
 
-export async function updateProduct(id: string, formData: FormData) {
+async function updateProductImpl(id: string, formData: FormData) {
   const session = await requireAdmin();
   const formats = parseFormats(formData.get("formats"));
   const data = await productDataFromForm(formData);
@@ -155,11 +157,36 @@ export async function updateProduct(id: string, formData: FormData) {
   redirect("/admin/produits");
 }
 
-export async function deleteProduct(id: string) {
+async function deleteProductImpl(id: string) {
   const session = await requireAdmin();
   const product = await prisma.product.delete({ where: { id } });
   invalidateSearchIndex();
   await logActivity(session, "Suppression produit", "Product", id);
   revalidatePath("/admin/produits");
   revalidatePath(`/collections/${product.category}`);
+}
+
+// Actions appelées par les formulaires : erreurs affichées sur la page, jamais une page d'erreur.
+export async function createProduct(formData: FormData): Promise<void> {
+  try {
+    await createProductImpl(formData);
+  } catch (e) {
+    await backWithError(e, "/admin/produits");
+  }
+}
+
+export async function updateProduct(id: string, formData: FormData): Promise<void> {
+  try {
+    await updateProductImpl(id, formData);
+  } catch (e) {
+    await backWithError(e, "/admin/produits");
+  }
+}
+
+export async function deleteProduct(id: string): Promise<void> {
+  try {
+    await deleteProductImpl(id);
+  } catch (e) {
+    await backWithError(e, "/admin/produits");
+  }
 }

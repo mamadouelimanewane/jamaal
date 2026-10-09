@@ -5,6 +5,7 @@ import { formatPrice } from "@/lib/currency";
 import { salesScripts, SCRIPT_CATEGORIES } from "@/data/sales-scripts";
 import { ScriptCard } from "@/components/admin/ScriptCard";
 import { CatalogShareCard } from "@/components/admin/CatalogShareCard";
+import { getSiteUrl } from "@/lib/site-url";
 import { PersonalLinkCard } from "@/components/admin/PersonalLinkCard";
 
 export const dynamic = "force-dynamic";
@@ -73,7 +74,7 @@ export default async function OutilsVentePage() {
       </p>
 
       <div className="mt-8">
-        <PersonalLinkCard slug={slug} siteOrigin={process.env.NEXT_PUBLIC_SITE_URL} />
+        <PersonalLinkCard slug={slug} siteOrigin={await getSiteUrl()} />
       </div>
 
       {/* Scripts */}
