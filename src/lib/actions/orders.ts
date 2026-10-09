@@ -48,7 +48,24 @@ export interface CheckoutCustomer {
  * - Vérifie le stock avant création
  * - Attache le consultant (ref cookie ou choix manuel)
  */
-export async function createOrder(
+export type CreateOrderResult = { ok: true; id: string } | { ok: false; error: string };
+
+/**
+ * Passe la commande du panier. Renvoie le message d'erreur au lieu de le lever : en production,
+ * Next.js masque les messages des erreurs levées par une action serveur (le client ne verrait
+ * qu'un code d'erreur au lieu de « stock insuffisant », « prix modifié »…).
+ */
+export async function createOrder(...args: Parameters<typeof placeOrder>): Promise<CreateOrderResult> {
+  try {
+    return { ok: true, id: await placeOrder(...args) };
+  } catch (e) {
+    const internal = !(e instanceof Error) || /^PrismaClient/.test(e.constructor.name);
+    if (internal) console.error("[commande]", e);
+    return { ok: false, error: internal ? "Une erreur est survenue, merci de réessayer." : e.message };
+  }
+}
+
+async function placeOrder(
   customer: CheckoutCustomer,
   items: CheckoutItem[],
   consultantId?: string | null,

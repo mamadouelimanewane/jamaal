@@ -120,7 +120,7 @@ export default function CartPage() {
     setError(null);
 
     try {
-      const id = await createOrder(
+      const res = await createOrder(
         {
           name: customer.name,
           phone: customer.phone,
@@ -140,6 +140,11 @@ export default function CartPage() {
         giftMessage,
         delivery.mode === "LIVRAISON" ? { mode: "LIVRAISON", lat: delivery.lat, lng: delivery.lng } : { mode: "RETRAIT" }
       );
+      if (!res.ok) {
+        setError(res.error);
+        return;
+      }
+      const id = res.id;
       clear();
 
       const pay = await initiatePayment(id, paymentMethod);
