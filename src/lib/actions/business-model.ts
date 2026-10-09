@@ -109,25 +109,35 @@ export async function applyCatalogPricingAction(): Promise<BusinessModelState> {
   const model = await getBusinessModel();
   const products = await prisma.product.findMany({
     where: { publicPrice: { gt: 0 } },
-    select: { id: true, publicPrice: true, regularPrice: true },
+    select: { id: true, publicPrice: true, regularPrice: true, volumes: true },
   });
 
+  type Volume = { label?: string; price?: number; publicPrice?: number; code?: string };
   const changes = products
-    .map((p) => ({ id: p.id, price: salePriceFromPublic(p.publicPrice!, model), previous: p.regularPrice }))
-    .filter((p) => p.price !== p.previous);
+    .map((p) => {
+      const price = salePriceFromPublic(p.publicPrice!, model);
+      // Formats (70 ml, 30 ml, 15 ml…) : chacun repricé depuis son propre prix public.
+      const volumes = Array.isArray(p.volumes) ? (p.volumes as Volume[]) : null;
+      const nextVolumes = volumes?.map((v) => (v.publicPrice ? { ...v, price: salePriceFromPublic(v.publicPrice, model) } : v)) ?? null;
+      const volumesChanged = !!volumes && JSON.stringify(nextVolumes) !== JSON.stringify(volumes);
+      return { id: p.id, price, changed: price !== p.regularPrice || volumesChanged, volumes: volumesChanged ? nextVolumes : undefined };
+    })
+    .filter((p) => p.changed);
 
   // Par lots, pour ne pas dépasser les limites de transaction de Neon.
   for (let i = 0; i < changes.length; i += 100) {
-    await prisma.$transaction(changes.slice(i, i + 100).map((c) => prisma.product.update({ where: { id: c.id }, data: { regularPrice: c.price } })));
-    invalidateSearchIndex();
+    await prisma.$transaction(
+      changes.slice(i, i + 100).map((c) => prisma.product.update({ where: { id: c.id }, data: { regularPrice: c.price, ...(c.volumes ? { volumes: c.volumes } : {}) } }))
+    );
   }
+  invalidateSearchIndex();
   await logActivity(session, `Mise à jour des prix (${changes.length} produits, vente = ${model.salePct} % du prix public)`, "Product");
 
   revalidatePath("/", "layout");
   return {
     ok: true,
     message: changes.length
-      ? `${changes.length} prix mis à jour sur ${products.length} produits ayant un prix public.`
+      ? `${changes.length} prix mis à jour sur ${products.length} produits ayant un prix public (formats compris).`
       : `Aucun changement : les ${products.length} produits sont déjà au bon prix.`,
   };
 }

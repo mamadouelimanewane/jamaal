@@ -151,6 +151,8 @@ model ProductVariant {
   productId         String
   product           Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
   volumeLabel       String
+  /// Code Chogan du format (ex. 301M pour le 30 ml, T001M pour la recharge 15 ml).
+  code              String?
   stock             Int             @default(0)
   lowStockThreshold Int             @default(5)
   orderItems        OrderItem[]
@@ -171,10 +173,18 @@ model StockMovement {
   previousStock Int
   nextStock     Int
   reason        String
+  /// VENTE, ANNULATION, RECEPTION, INVENTAIRE, PERTE, RETOUR, AJUSTEMENT
+  kind          String          @default("AJUSTEMENT")
+  /// Commande à l'origine du mouvement (ventes et annulations)
+  orderId       String?
+  /// Référence libre : bon de livraison Chogan, numéro d'inventaire…
+  reference     String?
   createdAt     DateTime        @default(now())
 
   @@index([productId, createdAt])
   @@index([variantId, createdAt])
+  @@index([orderId])
+  @@index([kind, createdAt])
 }
 
 model Review {
@@ -257,6 +267,8 @@ model Order {
   address       String?
   status        OrderStatus @default(EN_ATTENTE)
   total         Int
+  /// Stock de la commande : RESERVE (retiré du stock) ou LIBERE (remis en stock après annulation)
+  stockState    String?
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
   items         OrderItem[]

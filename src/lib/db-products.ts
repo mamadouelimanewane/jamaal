@@ -40,8 +40,15 @@ export async function getProductsByCategory(category: string): Promise<Product[]
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
-  const row = await prisma.product.findUnique({ where: { slug } });
-  return row ? toUiProduct(row) : null;
+  const row = await prisma.product.findUnique({ where: { slug }, include: { variants: { select: { volumeLabel: true, stock: true } } } });
+  if (!row) return null;
+  const product = toUiProduct(row);
+  // Disponibilité par format : stock du format s'il existe, sinon stock du produit.
+  const labels = product.volumes?.length ? product.volumes.map((v) => v.label) : ["Format unique"];
+  product.availability = Object.fromEntries(
+    labels.map((label) => [label, row.variants.length ? Math.max(0, row.variants.find((v) => v.volumeLabel === label)?.stock ?? 0) : Math.max(0, row.stock)])
+  );
+  return product;
 }
 
 /** Coffrets, kits et sets du catalogue Chogan (pour la page Coffrets). */
