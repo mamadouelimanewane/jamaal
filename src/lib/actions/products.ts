@@ -7,6 +7,7 @@ import { requireAdmin } from "./auth-guard";
 import { logActivity } from "@/lib/activity-log";
 import { uploadProductImage } from "@/lib/upload";
 import { invalidateSearchIndex } from "@/lib/search-index";
+import { Prisma } from "@prisma/client";
 
 function splitList(value: FormDataEntryValue | null): string[] {
   return String(value ?? "")
@@ -22,53 +23,57 @@ function splitLines(value: FormDataEntryValue | null): string[] {
     .filter(Boolean);
 }
 
-function parseVolumes(value: FormDataEntryValue | null) {
-  const lines = splitLines(value);
-  const volumes = lines
-    .map((line) => {
-      const [label, price] = line.split("|").map((s) => s.trim());
-      const parsedPrice = Number(price);
-      if (!label || !Number.isFinite(parsedPrice)) return null;
-      return { label, price: parsedPrice };
-    })
-    .filter((v): v is { label: string; price: number } => v !== null);
-  return volumes.length ? volumes : undefined;
-}
+type FormatInput = { label: string; code: string | null; price: number; publicPrice: number | null; threshold: number };
 
-function parseVariantStock(value: FormDataEntryValue | null) {
-  const lines = splitLines(value);
-  return lines
-    .map((line) => {
-      const [label, stock, threshold] = line.split("|").map((s) => s.trim());
-      const parsedStock = Number(stock);
-      if (!label || !Number.isFinite(parsedStock)) return null;
-      return { label, stock: parsedStock, threshold: threshold ? Number(threshold) || 5 : 5 };
-    })
-    .filter((v): v is { label: string; stock: number; threshold: number } => v !== null);
-}
-
-async function syncVariantStock(productId: string, formData: FormData, userId: string | null) {
-  const variants = parseVariantStock(formData.get("variantStock"));
-  const labels = variants.map((v) => v.label);
-  const removed = await prisma.productVariant.findMany({ where: { productId, volumeLabel: { notIn: labels.length ? labels : ["__none__"] } } });
-  for (const variant of removed) {
-    if (variant.stock > 0) await prisma.stockMovement.create({ data: { productId, variantId: variant.id, userId, delta: -variant.stock, previousStock: variant.stock, nextStock: 0, reason: "Retrait du format depuis la fiche produit" } });
+/** Formats saisis dans la fiche produit (champ caché JSON du FormatsEditor). */
+function parseFormats(value: FormDataEntryValue | null): FormatInput[] | null {
+  if (value === null) return null; // champ absent : on ne touche pas aux formats
+  let raw: unknown;
+  try {
+    raw = JSON.parse(String(value) || "[]");
+  } catch {
+    throw new Error("Formats illisibles.");
   }
-  await prisma.productVariant.deleteMany({ where: { productId, volumeLabel: { notIn: labels.length ? labels : ["__none__"] } } });
+  if (!Array.isArray(raw)) throw new Error("Formats illisibles.");
+  const seen = new Set<string>();
+  return raw.map((r) => {
+    const label = String((r as { label?: unknown }).label ?? "").trim().slice(0, 40);
+    const price = Math.round(Number((r as { price?: unknown }).price));
+    const pub = Number((r as { publicPrice?: unknown }).publicPrice);
+    const threshold = Math.max(0, Math.round(Number((r as { threshold?: unknown }).threshold) || 0));
+    const code = String((r as { code?: unknown }).code ?? "").trim().toUpperCase().slice(0, 40) || null;
+    if (!label) throw new Error("Chaque format doit avoir un nom (ex. 70 ml).");
+    if (seen.has(label)) throw new Error(`Le format « ${label} » est saisi deux fois.`);
+    seen.add(label);
+    if (!Number.isFinite(price) || price <= 0) throw new Error(`Prix de vente manquant pour le format « ${label} ».`);
+    return { label, code, price, publicPrice: Number.isFinite(pub) && pub > 0 ? Math.round(pub) : null, threshold };
+  });
+}
 
-  for (const variant of variants) {
-    const existing = await prisma.productVariant.findUnique({ where: { productId_volumeLabel: { productId, volumeLabel: variant.label } } });
+function volumesJson(formats: FormatInput[]) {
+  return formats.map((f) => ({ label: f.label, price: f.price, ...(f.publicPrice ? { publicPrice: f.publicPrice } : {}), ...(f.code ? { code: f.code } : {}) }));
+}
+
+/** Refuse de retirer un format qui a encore du stock (il faut d'abord le sortir dans Stocks). */
+async function assertRemovable(productId: string, formats: FormatInput[]) {
+  const labels = formats.map((f) => f.label);
+  const blocked = await prisma.productVariant.findMany({ where: { productId, stock: { gt: 0 }, volumeLabel: { notIn: labels.length ? labels : ["__aucun__"] } } });
+  if (blocked.length) throw new Error(`Le format « ${blocked[0].volumeLabel} » a encore ${blocked[0].stock} unité(s) en stock : sortez-les d'abord dans Stocks.`);
+}
+
+/** Aligne les formats en stock (ProductVariant) sur les formats de la fiche. */
+async function syncFormats(productId: string, formats: FormatInput[]) {
+  const labels = formats.map((f) => f.label);
+  await prisma.productVariant.deleteMany({ where: { productId, stock: { lte: 0 }, volumeLabel: { notIn: labels.length ? labels : ["__aucun__"] } } });
+  for (const f of formats) {
     await prisma.productVariant.upsert({
-      where: { productId_volumeLabel: { productId, volumeLabel: variant.label } },
-      update: { stock: variant.stock, lowStockThreshold: variant.threshold },
-      create: { productId, volumeLabel: variant.label, stock: variant.stock, lowStockThreshold: variant.threshold },
-    });
-    const previousStock = existing?.stock ?? 0;
-    if (variant.stock !== previousStock) await prisma.stockMovement.create({
-      data: { productId, variantId: existing?.id ?? (await prisma.productVariant.findUniqueOrThrow({ where: { productId_volumeLabel: { productId, volumeLabel: variant.label } }, select: { id: true } })).id, userId, delta: variant.stock - previousStock, previousStock, nextStock: variant.stock, reason: existing ? "Ajustement depuis la fiche produit" : "Stock initial du format" },
+      where: { productId_volumeLabel: { productId, volumeLabel: f.label } },
+      update: { code: f.code, lowStockThreshold: f.threshold },
+      create: { productId, volumeLabel: f.label, code: f.code, lowStockThreshold: f.threshold, stock: 0 },
     });
   }
 }
+
 async function productDataFromForm(formData: FormData) {
   const testerPrice = formData.get("testerPrice");
   const regularPrice = formData.get("regularPrice");
@@ -97,7 +102,7 @@ async function productDataFromForm(formData: FormData) {
     shortDescription: String(formData.get("shortDescription") ?? "").trim(),
     longDescription: splitLines(formData.get("longDescription")),
     testerPrice: testerPrice ? Number(testerPrice) : null,
-    volumes: parseVolumes(formData.get("volumes")) ?? undefined,
+
     regularPrice: regularPrice ? Number(regularPrice) : null,
     publicPrice: Number.isFinite(publicPrice) && publicPrice > 0 ? Math.round(publicPrice) : null,
     badge: badge || null,
@@ -112,11 +117,12 @@ async function productDataFromForm(formData: FormData) {
 
 export async function createProduct(formData: FormData) {
   const session = await requireAdmin();
+  const formats = parseFormats(formData.get("formats")) ?? [];
   const data = await productDataFromForm(formData);
-  const product = await prisma.product.create({ data });
+  const product = await prisma.product.create({ data: { ...data, ...(formats.length ? { volumes: volumesJson(formats), stock: 0 } : {}) } });
   invalidateSearchIndex();
-  await syncVariantStock(product.id, formData, session.user?.id ?? null);
-  if (data.stock > 0) await prisma.stockMovement.create({ data: { productId: product.id, userId: session.user?.id ?? null, delta: data.stock, previousStock: 0, nextStock: data.stock, reason: "Stock initial du produit" } });
+  if (formats.length) await syncFormats(product.id, formats);
+  if (!formats.length && data.stock > 0) await prisma.stockMovement.create({ data: { productId: product.id, userId: session.user?.id ?? null, delta: data.stock, previousStock: 0, nextStock: data.stock, kind: "RECEPTION", reason: "Stock initial du produit" } });
   await logActivity(session, "Création produit", "Product", product.id);
   revalidatePath("/admin/produits");
   revalidatePath(`/collections/${data.category}`);
@@ -125,12 +131,20 @@ export async function createProduct(formData: FormData) {
 
 export async function updateProduct(id: string, formData: FormData) {
   const session = await requireAdmin();
+  const formats = parseFormats(formData.get("formats"));
   const data = await productDataFromForm(formData);
-  const previous = await prisma.product.findUnique({ where: { id } });
-  await prisma.product.update({ where: { id }, data });
+  const previous = await prisma.product.findUnique({ where: { id }, include: { variants: { select: { id: true } } } });
+  if (formats) await assertRemovable(id, formats);
+  const hasFormats = formats ? formats.length > 0 : !!previous?.variants.length;
+  // Produit à formats : le stock se tient par format, la fiche ne le modifie pas.
+  const { stock, ...rest } = data;
+  await prisma.product.update({
+    where: { id },
+    data: { ...rest, ...(hasFormats ? {} : { stock }), ...(formats ? { volumes: formats.length ? volumesJson(formats) : Prisma.DbNull } : {}) },
+  });
   invalidateSearchIndex();
-  await syncVariantStock(id, formData, session.user?.id ?? null);
-  if (previous && data.stock !== previous.stock) await prisma.stockMovement.create({ data: { productId: id, userId: session.user?.id ?? null, delta: data.stock - previous.stock, previousStock: previous.stock, nextStock: data.stock, reason: "Ajustement depuis la fiche produit" } });
+  if (formats) await syncFormats(id, formats);
+  if (!hasFormats && previous && stock !== previous.stock) await prisma.stockMovement.create({ data: { productId: id, userId: session.user?.id ?? null, delta: stock - previous.stock, previousStock: previous.stock, nextStock: stock, kind: "AJUSTEMENT", reason: "Ajustement depuis la fiche produit" } });
   await logActivity(session, "Modification produit", "Product", id);
   revalidatePath("/admin/produits");
   revalidatePath(`/collections/${data.category}`);

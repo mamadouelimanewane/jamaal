@@ -12,7 +12,7 @@ import { cancelCommissionsForOrder, runPayoutsForOrder } from "@/lib/payouts/eng
 import { recordLivreurEarning } from "@/lib/delivery-engine";
 import { after } from "next/server";
 import { notifyResellerWhatsApp, notifyTeamWhatsApp } from "@/lib/whatsapp";
-import { reserveStock, sendLowStockAlerts } from "@/lib/stock";
+import { reserveStock, resolveStockRef, sendLowStockAlerts, syncOrderStock, UNIQUE_FORMAT } from "@/lib/stock";
 import { createOrderSchema } from "@/lib/validations/order";
 import { rateLimit, clientIpFromHeaders } from "@/lib/rate-limit";
 import { getBusinessModel } from "@/lib/business-model-store";
@@ -116,15 +116,15 @@ export async function createOrder(
   for (const item of data.items) {
     const product = productMap.get(item.productId)!;
 
-    if (product.stock < item.quantity) {
-      throw new Error(
-        `Stock insuffisant pour « ${product.name} » (disponible : ${product.stock}).`
-      );
-    }
-
+    // Le stock (par format) est contrôlé et retiré dans la transaction de création, plus bas.
     // Prix serveur : on accepte le prix client s'il correspond à un volume connu,
     // sinon on refuse (évite la manipulation).
     const volumes = (product.volumes as { label: string; price: number }[] | null) ?? [];
+    // Ancien panier (« Format unique » au prix du format principal) : rattaché au format principal.
+    if (volumes.length && item.volumeLabel === UNIQUE_FORMAT && item.price === product.regularPrice) {
+      const main = volumes.find((v) => v.price === product.regularPrice) ?? volumes[0];
+      item.volumeLabel = main.label;
+    }
     const matchedVolume = volumes.find(
       (v) => v.label === item.volumeLabel && v.price === item.price
     );
@@ -212,7 +212,7 @@ export async function createOrder(
 
   // 6. Commande + réservation du stock dans une même transaction (anti-survente)
   const { order, stockAlerts } = await prisma.$transaction(async (tx) => {
-  const stockAlerts = await reserveStock(tx, serverItems, true);
+  const variantIds = await Promise.all(serverItems.map(async (i) => (await resolveStockRef(tx, i.productId, i.volumeLabel))?.variantId ?? null));
   const order = await tx.order.create({
     data: {
       customerName: data.customer.name,
@@ -226,8 +226,9 @@ export async function createOrder(
       consultantId: validConsultantId,
       ...deliveryData,
       items: {
-        create: serverItems.map((i) => ({
+        create: serverItems.map((i, k) => ({
           productId: i.productId,
+          variantId: variantIds[k],
           productName: i.productName,
           volumeLabel: i.volumeLabel,
           price: i.price,
@@ -236,6 +237,7 @@ export async function createOrder(
       },
     },
   });
+  const stockAlerts = await reserveStock(tx, serverItems, true, { orderId: order.id });
   return { order, stockAlerts };
   });
 
@@ -310,6 +312,9 @@ async function onOrderStatusChanged(id: string, status: OrderStatus) {
     });
   }
   if (status === "ANNULEE") await cancelCommissionsForOrder(id);
+  // Stock : remis à l'annulation, repris si la commande est réactivée (une seule fois).
+  await syncOrderStock(id);
+  revalidatePath("/admin/stocks");
 }
 
 export async function updateOrderStatus(id: string, status: OrderStatus) {

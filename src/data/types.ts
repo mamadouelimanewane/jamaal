@@ -45,6 +45,8 @@ export interface Product {
   /** Parfum de grande marque dont s'inspire la fragrance, et sa marque. */
   inspiredBy?: string;
   inspiredBrand?: string;
+  /** Stock disponible par format (libellé → quantité), sur la fiche produit. */
+  availability?: Record<string, number>;
   slug: string;
   name: string;
   category: CategorySlug;

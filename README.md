@@ -81,6 +81,10 @@ Les scripts de `import/neon/` sont l'historique des imports faits à la main ; i
 - `src/lib/business-model.ts` — modèle économique (prix, commissions, paiements, versements)
 - `src/lib/payouts/` — commissions par commande et versements sur wallet Wave / Orange Money
 - `src/lib/network.ts` — chaîne JAMAAL → Leader → Parrain direct → Consultant (vendeur final, ne parraine pas) et limite de filleuls
+- `src/lib/stock.ts`, `src/lib/inventory-report.ts` — stocks par format (70 / 30 / 15 ml…) : ventes, annulations
+  (remise en stock unique), réceptions, inventaires et pertes tracés dans `StockMovement` ; Admin > Stocks
+  (tableau, réception / inventaire en lot, historique, export Excel)
+- `npm test` (tests du moteur de recherche et des stocks) ; `npm run test:db` sur une base de test (`DATABASE_URL`)
 - `src/lib/delivery.ts`, `src/lib/delivery-engine.ts` — livraison : frais selon la distance au dépôt,
   étapes géolocalisées, code de remise, part du livreur ; cartes Leaflet / OpenStreetMap
   (`src/components/maps/DeliveryMap.tsx`)

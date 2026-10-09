@@ -116,7 +116,7 @@ export async function createConsultantOrder(formData: FormData) {
   });
 
   await notifySponsorOnFirstSale(consultant.id);
-  await decrementStockAndAlert(items);
+  await decrementStockAndAlert(items, { orderId: order.id, userId: null });
 
   revalidatePath("/admin/mes-commandes");
   revalidatePath("/admin/commandes");

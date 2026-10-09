@@ -1,16 +1,23 @@
 import { getCategories } from "@/lib/db-categories";
-import type { Product } from "@prisma/client";
+import type { Product, ProductVariant } from "@prisma/client";
+import { FormatsEditor, type FormatRow } from "./FormatsEditor";
 
 const inputClass =
   "mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-navy";
 const labelClass = "text-xs font-medium text-navy/85";
 
-function volumesToText(volumes: unknown): string {
-  if (!Array.isArray(volumes)) return "";
-  return volumes
-    .map((v) => (v && typeof v === "object" ? `${(v as { label: string }).label}|${(v as { price: number }).price}` : ""))
-    .filter(Boolean)
-    .join("\n");
+function formatsOf(product?: Product & { variants?: ProductVariant[] }): FormatRow[] {
+  const volumes = (Array.isArray(product?.volumes) ? product!.volumes : []) as { label?: string; price?: number; publicPrice?: number; code?: string }[];
+  const variants = product?.variants ?? [];
+  const rows: FormatRow[] = volumes
+    .filter((v) => v && v.label)
+    .map((v) => {
+      const variant = variants.find((x) => x.volumeLabel === v.label);
+      return { label: v.label!, code: v.code ?? variant?.code ?? "", price: v.price ?? "", publicPrice: v.publicPrice ?? "", threshold: variant?.lowStockThreshold ?? 3, stock: variant?.stock ?? 0 };
+    });
+  // Formats ayant un stock mais absents des prix (cas ancien) : affichés pour ne pas les perdre.
+  for (const v of variants) if (!rows.some((r) => r.label === v.volumeLabel)) rows.push({ label: v.volumeLabel, code: v.code ?? "", price: "", publicPrice: "", threshold: v.lowStockThreshold, stock: v.stock });
+  return rows;
 }
 
 export async function ProductForm({
@@ -18,7 +25,7 @@ export async function ProductForm({
   product,
 }: {
   action: (formData: FormData) => void;
-  product?: Product;
+  product?: Product & { variants?: ProductVariant[] };
 }) {
   const categories = await getCategories();
   return (
@@ -142,13 +149,14 @@ export async function ProductForm({
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
-          <label className={labelClass}>Stock disponible</label>
+          <label className={labelClass}>Stock disponible{product?.variants?.length ? " (géré par format, dans Stocks)" : ""}</label>
           <input
             type="number"
             name="stock"
             min={0}
             defaultValue={product?.stock ?? 0}
-            className={inputClass}
+            disabled={!!product?.variants?.length}
+            className={`${inputClass} disabled:bg-cream disabled:text-navy/50`}
           />
         </div>
         <div>
@@ -164,15 +172,8 @@ export async function ProductForm({
       </div>
 
       <div>
-        <label className={labelClass}>
-          Volumes / variantes — une ligne par variante, format « Label|Prix » (ex: 50ml|45000)
-        </label>
-        <textarea
-          name="volumes"
-          rows={3}
-          defaultValue={volumesToText(product?.volumes)}
-          className={inputClass}
-        />
+        <p className={labelClass}>Formats et prix (70 ml, 30 ml, 15 ml…) — laissez vide pour un produit à format unique</p>
+        <div className="mt-1"><FormatsEditor initial={formatsOf(product)} /></div>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
