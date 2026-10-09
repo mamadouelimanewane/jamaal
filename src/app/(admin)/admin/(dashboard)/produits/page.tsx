@@ -16,7 +16,7 @@ export default async function AdminProductsPage({
       ? { OR: [{ name: { contains: q, mode: "insensitive" } }, { choganCode: { startsWith: q, mode: "insensitive" } }, ...(/^\d+$/.test(q) ? [{ number: Number(q) }] : [])] }
       : undefined,
     orderBy: { createdAt: "desc" },
-    take: 300,
+    take: 2000,
   });
 
   const filtered = stock === "bas" ? products.filter((p) => p.stock <= p.lowStockThreshold) : products;
