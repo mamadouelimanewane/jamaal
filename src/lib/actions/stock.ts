@@ -147,3 +147,46 @@ export async function batchStockAction(_prev: StockActionState, formData: FormDa
   refresh();
   return { ok: true, message: `${parsed.length} article(s) enregistré(s).`, lines: summary };
 }
+
+/**
+ * Remise à zéro de tout le stock (avant la saisie des marchandises réellement reçues).
+ * Chaque format non nul reçoit un mouvement « Inventaire » tracé, puis tous les stocks passent à 0.
+ */
+export async function resetAllStockAction(_prev: StockActionState, formData: FormData): Promise<StockActionState> {
+  const session = await requireAdmin();
+  if (String(formData.get("confirm") ?? "").trim().toUpperCase() !== "ZERO") {
+    return { ok: false, error: "Tapez ZERO dans la case de confirmation pour remettre tout le stock à zéro." };
+  }
+  const reference = String(formData.get("reference") ?? "").trim().slice(0, 80) || "Remise à zéro du stock";
+  const userId = session.user?.id ?? null;
+  let formats = 0, units = 0;
+  try {
+    await prisma.$transaction(
+      async (tx) => {
+        const variants = await tx.productVariant.findMany({ where: { stock: { not: 0 } }, select: { id: true, productId: true, stock: true } });
+        // Produits à format unique : le stock est porté par le produit lui-même.
+        const singles = await tx.product.findMany({ where: { stock: { not: 0 }, variants: { none: {} } }, select: { id: true, stock: true } });
+        const rows = [
+          ...variants.map((v) => ({ productId: v.productId, variantId: v.id as string | null, stock: v.stock })),
+          ...singles.map((p) => ({ productId: p.id, variantId: null as string | null, stock: p.stock })),
+        ];
+        if (rows.length) {
+          await tx.stockMovement.createMany({
+            data: rows.map((r) => ({ productId: r.productId, variantId: r.variantId, userId, delta: -r.stock, previousStock: r.stock, nextStock: 0, kind: "INVENTAIRE", reference, reason: `Remise à zéro · ${reference}`.slice(0, 200) })),
+          });
+        }
+        await tx.productVariant.updateMany({ where: { stock: { not: 0 } }, data: { stock: 0 } });
+        await tx.product.updateMany({ where: { stock: { not: 0 } }, data: { stock: 0 } });
+        formats = rows.length;
+        units = rows.reduce((s, r) => s + Math.max(0, r.stock), 0);
+      },
+      { timeout: 120_000 }
+    );
+  } catch (e) {
+    console.error("[stock] remise à zéro", e);
+    return { ok: false, error: "Remise à zéro impossible, réessayez." };
+  }
+  await logActivity(session, `Remise à zéro de tout le stock : ${formats} format(s), ${units} unité(s) (${reference})`, "Product");
+  refresh();
+  return { ok: true, message: formats ? `Stock remis à zéro : ${formats} format(s), ${units.toLocaleString("fr-FR")} unité(s) retirée(s). Saisissez maintenant les produits reçus ci-dessus (mode « Réception de marchandise »).` : "Le stock était déjà à zéro." };
+}
