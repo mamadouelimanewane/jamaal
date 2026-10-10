@@ -28,6 +28,12 @@ export default async function AdminProductsPage({
           Produits ({filtered.length})
         </h1>
         <div className="flex flex-wrap gap-2">
+          <Link
+            href="/admin/produits/import"
+            className="rounded-full border border-line px-4 py-2 text-sm font-semibold text-navy hover:bg-cream"
+          >
+            Importer Excel
+          </Link>
           <a
             href="/api/export/produits"
             className="rounded-full border border-line px-4 py-2 text-sm font-semibold text-navy hover:bg-cream"

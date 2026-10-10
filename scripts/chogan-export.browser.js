@@ -13,7 +13,18 @@
  * convertir / réajuster en FCFA selon votre politique tarifaire.
  */
 (async () => {
-  const TOP = { Parfums: 455, Beauté: 429, Nutrition: 511, Maison: 493, Accessoires: 473 };
+  // Récupère dynamiquement TOUTES les catégories du menu principal
+  const catLinks = [...document.querySelectorAll('a[href*="/productList/"]')];
+  const TOP = {};
+  for (const a of catLinks) {
+    const m = a.href.match(/\/productList\/(\d+)/);
+    if (m && a.textContent.trim()) {
+      TOP[a.textContent.trim()] = m[1];
+    }
+  }
+  if (Object.keys(TOP).length === 0) {
+    Object.assign(TOP, { Parfums: 455, Beauté: 429, Nutrition: 511, Maison: 493, Accessoires: 473 });
+  }
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const seen = new Map();
 

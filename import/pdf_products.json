@@ -1,0 +1,1682 @@
+[
+  {
+    "code": "LV01B",
+    "name": "Base de teint lissante",
+    "format": "15ml",
+    "price_fcfa": 32700
+  },
+  {
+    "code": "BV04B",
+    "name": "Crème contour des yeux à la bave d’Escargot",
+    "format": "15ml",
+    "price_fcfa": 24500
+  },
+  {
+    "code": "CR22B",
+    "name": "Crème contour des yeux à l’Aloe Vera",
+    "format": "15ml",
+    "price_fcfa": 22100
+  },
+  {
+    "code": "LA04B",
+    "name": "Crème de jour au lait d’ Ânesse",
+    "format": "50ml",
+    "price_fcfa": 40900
+  },
+  {
+    "code": "LA05B",
+    "name": "Crème de nuit visage au Lait d'ânesse",
+    "format": "50ml",
+    "price_fcfa": 49100
+  },
+  {
+    "code": "CR02B",
+    "name": "Crème visage anti-âge à la bave d’escargot",
+    "format": "50ml",
+    "price_fcfa": 32700
+  },
+  {
+    "code": "CR05B",
+    "name": "Crème visage au Collagène et à l’Acide hyaluronique",
+    "format": "50ml",
+    "price_fcfa": 22100
+  },
+  {
+    "code": "CR03B",
+    "name": "Crème Visage de Jour à l'Aloe Vera",
+    "format": "50ml",
+    "price_fcfa": 28600
+  },
+  {
+    "code": "NM06B",
+    "name": "Crème visage à l’huile de Neem",
+    "format": "50ml",
+    "price_fcfa": 28600
+  },
+  {
+    "code": "AR10B",
+    "name": "Crème visage à l’huile d’Argan",
+    "format": "50ml",
+    "price_fcfa": 32700
+  },
+  {
+    "code": "SB01B",
+    "name": "Démaquillant Biphasé",
+    "format": "200ml",
+    "price_fcfa": 20400
+  },
+  {
+    "code": "CR12B",
+    "name": "Eau micellaire 3 en 1",
+    "format": "250ml",
+    "price_fcfa": 12200
+  },
+  {
+    "code": "CR09B",
+    "name": "Gel exfoliant visage",
+    "format": "50ml",
+    "price_fcfa": 18000
+  },
+  {
+    "code": "BA001",
+    "name": "Gel nettoyant visage Végan à l’huile de Baobab",
+    "format": "260ml",
+    "price_fcfa": 20400
+  },
+  {
+    "code": "BV12B",
+    "name": "Gel nettoyant visage à la Bave d’Escargot",
+    "format": "260ml",
+    "price_fcfa": 20400
+  },
+  {
+    "code": "CR13B",
+    "name": "Lait nettoyant",
+    "format": "150ml",
+    "price_fcfa": 12700
+  },
+  {
+    "code": "CR26B",
+    "name": "Lotion tonique pour les peaux impures et acnéiques",
+    "format": "150ml",
+    "price_fcfa": 14800
+  },
+  {
+    "code": "CR14B",
+    "name": "Lotion tonique visage pour les peaux délicates et sensibles",
+    "format": "150ml",
+    "price_fcfa": 12700
+  },
+  {
+    "code": "AR07B",
+    "name": "Masque Visage Anti-Âge à l’Huile d’Argan",
+    "format": "50ml",
+    "price_fcfa": 16300
+  },
+  {
+    "code": "NM09B",
+    "name": "Masque visage dermo-purifiant à l’huile de Neem",
+    "format": "50ml",
+    "price_fcfa": 15500
+  },
+  {
+    "code": "BV03B",
+    "name": "Masque visage illuminateur et éclaircissant à la bave d’Escargot et vitamine C",
+    "format": "50ml",
+    "price_fcfa": 11400
+  },
+  {
+    "code": "POM01B",
+    "name": "Masque visage Peel-off pour les peaux matures",
+    "format": "75ml",
+    "price_fcfa": 18000
+  },
+  {
+    "code": "AL11B",
+    "name": "Masque visage Peel-off à l'Aloe vera Pour les peaux mixtes et grasses",
+    "format": "75ml",
+    "price_fcfa": 15500
+  },
+  {
+    "code": "AS01B",
+    "name": "Masque visage purifiant à l’Acide Salycilique",
+    "format": "50ml",
+    "price_fcfa": 12200
+  },
+  {
+    "code": "CR11B",
+    "name": "Nettoyant dermo-purifiant anti-acné à l’Acide salicylique",
+    "format": "260ml",
+    "price_fcfa": 16300
+  },
+  {
+    "code": "LUX004",
+    "name": "Peptilux Sérum de jour visage antirides « effet lifting » avec PEPFIL™",
+    "format": "30ml",
+    "price_fcfa": 114000
+  },
+  {
+    "code": "LUX006",
+    "name": "Peptilux Contour des yeux anti-rides «effet young look » avec TIBOTOH- X™",
+    "format": "15ml",
+    "price_fcfa": 48400
+  },
+  {
+    "code": "LUX001",
+    "name": "Peptilux Crème anti-rides pour les yeux à effet « shock action » avec LIPHASYN™",
+    "format": "20ml",
+    "price_fcfa": 81900
+  },
+  {
+    "code": "LUX002",
+    "name": "Peptilux Crème de jour anti-rides pour le visage « effet time freeze » avec ALPHADERM™",
+    "format": "50ml",
+    "price_fcfa": 68100
+  },
+  {
+    "code": "LUX003",
+    "name": "Peptilux Crème de nuit visage anti-rides « Collagen Pro» avec SINCPRO™",
+    "format": "50ml",
+    "price_fcfa": 68100
+  },
+  {
+    "code": "LUX007",
+    "name": "Peptilux Men Crème visage jour effet « soft focus » avec TQ-10™",
+    "format": "50ml",
+    "price_fcfa": 68100
+  },
+  {
+    "code": "LUX009",
+    "name": "Peptilux Men Sérum de nuit anti-rides pour le visage 'power lift effect' avec PEPTIMEN™",
+    "format": "30ml",
+    "price_fcfa": 81200
+  },
+  {
+    "code": "LUX005",
+    "name": "Peptilux Sérum de nuit visage antirides « effet filler » avec ALPHADERM™",
+    "format": "30ml",
+    "price_fcfa": 81200
+  },
+  {
+    "code": "CR08B",
+    "name": "Sérum gel tenseur à l’Acide hyaluronique",
+    "format": "50ml",
+    "price_fcfa": 32700
+  },
+  {
+    "code": "AL03B",
+    "name": "Bain de bouche à l’Aloe Vera",
+    "format": "250ml",
+    "price_fcfa": 9800
+  },
+  {
+    "code": "AP07B",
+    "name": "Brume parfumée corps",
+    "format": "100ml",
+    "price_fcfa": 12200
+  },
+  {
+    "code": "CR34B",
+    "name": "Crème corporelle à la noix de Coco",
+    "format": "150ml",
+    "price_fcfa": 12200
+  },
+  {
+    "code": "CR20B",
+    "name": "Crème corps anticellulite à l’huile d’Argan",
+    "format": "150ml",
+    "price_fcfa": 18000
+  },
+  {
+    "code": "AR01B",
+    "name": "Crème corps bio avec huile d’Argan",
+    "format": "150ml",
+    "price_fcfa": 16300
+  },
+  {
+    "code": "CR06B",
+    "name": "Crème corps raffermissante effet « froid »",
+    "format": "150ml",
+    "price_fcfa": 14700
+  },
+  {
+    "code": "CR01B",
+    "name": "Crème corps thermogène effet « chaud fort »",
+    "format": "150ml",
+    "price_fcfa": 13900
+  },
+  {
+    "code": "CR39B",
+    "name": "Crème corps thermogène à effet « chaud soft »",
+    "format": "150ml",
+    "price_fcfa": 11400
+  },
+  {
+    "code": "CR24B",
+    "name": "Crème corps à la bave d’Escargot",
+    "format": "150ml",
+    "price_fcfa": 21200
+  },
+  {
+    "code": "CR30B",
+    "name": "Crème corps à l’Aloe Vera",
+    "format": "150ml",
+    "price_fcfa": 19600
+  },
+  {
+    "code": "NM03B",
+    "name": "Crème corps à l’huile de Neem",
+    "format": "150ml",
+    "price_fcfa": 20400
+  },
+  {
+    "code": "SP02B",
+    "name": "Crème de Savon au Thé Vert",
+    "format": "260ml",
+    "price_fcfa": 3300
+  },
+  {
+    "code": "RSP07B",
+    "name": "Crème de savon à la Grenade",
+    "format": "1000ml",
+    "price_fcfa": 7300
+  },
+  {
+    "code": "SP07B",
+    "name": "Crème de savon à la Grenade",
+    "format": "260ml",
+    "price_fcfa": 3300
+  },
+  {
+    "code": "SP08B",
+    "name": "Crème de Savon à la Pomme Verte",
+    "format": "260ml",
+    "price_fcfa": 3300
+  },
+  {
+    "code": "SP05B",
+    "name": "Crème de savon à la pêche",
+    "format": "260ml",
+    "price_fcfa": 3300
+  },
+  {
+    "code": "CR15B",
+    "name": "Crème mains au Calendula",
+    "format": "75ml",
+    "price_fcfa": 8100
+  },
+  {
+    "code": "AR05B",
+    "name": "Crème mains Bio à base d'huile d'Argan, protéines de Soie et Glycérine",
+    "format": "75ml",
+    "price_fcfa": 13900
+  },
+  {
+    "code": "NM04B",
+    "name": "Crème mains et ongles à l’huile de Neem",
+    "format": "75ml",
+    "price_fcfa": 10600
+  },
+  {
+    "code": "CR32B",
+    "name": "Crème Mains à la Bave d’Escargot",
+    "format": "75ml",
+    "price_fcfa": 14700
+  },
+  {
+    "code": "CR28B",
+    "name": "Crème mains à la Camomille",
+    "format": "75ml",
+    "price_fcfa": 10600
+  },
+  {
+    "code": "CR31B",
+    "name": "Crème mains à l’Aloe Vera",
+    "format": "75ml",
+    "price_fcfa": 12200
+  },
+  {
+    "code": "CR29B",
+    "name": "Crème pieds au Calendula",
+    "format": "75ml",
+    "price_fcfa": 8900
+  },
+  {
+    "code": "CR19B",
+    "name": "Crème pieds au Ménthol",
+    "format": "75ml",
+    "price_fcfa": 8900
+  },
+  {
+    "code": "AR04B",
+    "name": "Crème pieds Bio à l’huile d’ Argan",
+    "format": "75ml",
+    "price_fcfa": 13000
+  },
+  {
+    "code": "BV06B",
+    "name": "Crème pieds à la bave d'Escargot",
+    "format": "75ml",
+    "price_fcfa": 9800
+  },
+  {
+    "code": "NM05B",
+    "name": "Crème pieds à l’huile de Neem",
+    "format": "75ml",
+    "price_fcfa": 11400
+  },
+  {
+    "code": "BLK01B",
+    "name": "Dentifrice Black Power au charbon actif",
+    "format": "115g",
+    "price_fcfa": 13900
+  },
+  {
+    "code": "CR33B",
+    "name": "Dentifrice blanchissant à l'Aloe vera",
+    "format": "115g",
+    "price_fcfa": 13000
+  },
+  {
+    "code": "CR38B",
+    "name": "Dentifrice Sensitive à l’Aloe Vera",
+    "format": "115g",
+    "price_fcfa": 14700
+  },
+  {
+    "code": "DEOC02B",
+    "name": "Déo-crème longue durée",
+    "format": "50ml",
+    "price_fcfa": 8200
+  },
+  {
+    "code": "BV11B",
+    "name": "Déo-crème à la Bave d’Escargot Naturel et hypoallergénique",
+    "format": "50ml",
+    "price_fcfa": 8900
+  },
+  {
+    "code": "DEOS04B",
+    "name": "Déodorant spray longue durée 24h",
+    "format": "80ml",
+    "price_fcfa": 11400
+  },
+  {
+    "code": "PS01B",
+    "name": "Déodorant spray pour les pieds",
+    "format": "150ml",
+    "price_fcfa": 13000
+  },
+  {
+    "code": "CR17B",
+    "name": "Gel Aloe Vera 98% Bio",
+    "format": "150ml",
+    "price_fcfa": 11400
+  },
+  {
+    "code": "GI02B",
+    "name": "Gel crème assainissant mains",
+    "format": "120ml",
+    "price_fcfa": 4800
+  },
+  {
+    "code": "LA01B",
+    "name": "Gel douche au Lait d’Ânesse",
+    "format": "250ml",
+    "price_fcfa": 16300
+  },
+  {
+    "code": "BS11",
+    "name": "Gel douche aurodhea",
+    "format": "250ml",
+    "price_fcfa": 10600
+  },
+  {
+    "code": "BS13",
+    "name": "Gel douche aurodhea",
+    "format": "250ml",
+    "price_fcfa": 10600
+  },
+  {
+    "code": "BS08",
+    "name": "Gel douche aurodhea",
+    "format": "250ml",
+    "price_fcfa": 10600
+  },
+  {
+    "code": "BS09",
+    "name": "Gel douche aurodhea",
+    "format": "250ml",
+    "price_fcfa": 10600
+  },
+  {
+    "code": "BS10",
+    "name": "Gel douche aurodhea",
+    "format": "250ml",
+    "price_fcfa": 10600
+  },
+  {
+    "code": "BS12",
+    "name": "Gel douche aurodhea",
+    "format": "250ml",
+    "price_fcfa": 10600
+  },
+  {
+    "code": "BS05B",
+    "name": "Gel douche Ice effect",
+    "format": "250ml",
+    "price_fcfa": 14700
+  },
+  {
+    "code": "BV01B",
+    "name": "Gel douche à la bave d'escargot",
+    "format": "250ml",
+    "price_fcfa": 11400
+  },
+  {
+    "code": "AL02B",
+    "name": "Gel douche à l’Aloe Vera",
+    "format": "250ml",
+    "price_fcfa": 10600
+  },
+  {
+    "code": "AV01B",
+    "name": "Gel douche à l’Avoine",
+    "format": "250ml",
+    "price_fcfa": 14700
+  },
+  {
+    "code": "NM02B",
+    "name": "Gel douche à l’huile de Neem",
+    "format": "250ml",
+    "price_fcfa": 16300
+  },
+  {
+    "code": "BS07B",
+    "name": "Gel douche à l’huile d’Argan",
+    "format": "250ml",
+    "price_fcfa": 10600
+  },
+  {
+    "code": "GI42B",
+    "name": "Gel mains hydroalcoolique parfumé",
+    "format": "90ml",
+    "price_fcfa": 8200
+  },
+  {
+    "code": "BB01B",
+    "name": "Gel Moussant Baby",
+    "format": "200ml",
+    "price_fcfa": 16300
+  },
+  {
+    "code": "U20B",
+    "name": "Glow Body Oil",
+    "format": "100ml",
+    "price_fcfa": 36800
+  },
+  {
+    "code": "OLCB",
+    "name": "Huile nourrissante pour cuticules et ongles",
+    "format": "8ml",
+    "price_fcfa": 9800
+  },
+  {
+    "code": "BB03B",
+    "name": "Lait corporel Baby",
+    "format": "150ml",
+    "price_fcfa": 18800
+  },
+  {
+    "code": "LA02B",
+    "name": "Lait corps au lait d’ Anesse",
+    "format": "260ml",
+    "price_fcfa": 40900
+  },
+  {
+    "code": "SBM005",
+    "name": "LUSH CLOUD Brazilian Sunset Brume parfumée corps",
+    "format": "100ml",
+    "price_fcfa": 16300
+  },
+  {
+    "code": "SBM003",
+    "name": "LUSH CLOUD Golden Hour- Brume parfumée corps",
+    "format": "100ml",
+    "price_fcfa": 16300
+  },
+  {
+    "code": "SBM002",
+    "name": "LUSH CLOUD Pacific Aura Brume parfumée corps",
+    "format": "100ml",
+    "price_fcfa": 16300
+  },
+  {
+    "code": "SBM004",
+    "name": "LUSH CLOUD Summer Dream- Brume parfumée corps",
+    "format": "100ml",
+    "price_fcfa": 16300
+  },
+  {
+    "code": "SBM001",
+    "name": "LUSH CLOUD Tropical Breeze- Brume parfumée corps",
+    "format": "100ml",
+    "price_fcfa": 16300
+  },
+  {
+    "code": "SP06B",
+    "name": "Nettoyant Bébé extra-doux",
+    "format": "260ml",
+    "price_fcfa": 18000
+  },
+  {
+    "code": "LA06B",
+    "name": "Nettoyant intime au lait d'Ânesse",
+    "format": "260ml",
+    "price_fcfa": 8200
+  },
+  {
+    "code": "SP03B",
+    "name": "Nettoyant intime Bio à l’aloe vera",
+    "format": "260ml",
+    "price_fcfa": 6600
+  },
+  {
+    "code": "BV08B",
+    "name": "Nettoyant intime à la bave d’Escargot",
+    "format": "260ml",
+    "price_fcfa": 6600
+  },
+  {
+    "code": "AL07B",
+    "name": "Nettoyant Intime à l’Aloe Vera Bio",
+    "format": "50ml",
+    "price_fcfa": 3200
+  },
+  {
+    "code": "NM08B",
+    "name": "Nettoyant intime à l’huile de Neem",
+    "format": "260ml",
+    "price_fcfa": 6600
+  },
+  {
+    "code": "AR09B",
+    "name": "Nettoyant intime à l’huile d’Argan",
+    "format": "260ml",
+    "price_fcfa": 6600
+  },
+  {
+    "code": "NM07B",
+    "name": "Savon liquide avec huile de Neem",
+    "format": "260ml",
+    "price_fcfa": 3300
+  },
+  {
+    "code": "BV07B",
+    "name": "Savon liquide à la bave d'Escargot",
+    "format": "260ml",
+    "price_fcfa": 3300
+  },
+  {
+    "code": "AR08B",
+    "name": "Savon liquide à l’huile d’Argan",
+    "format": "260ml",
+    "price_fcfa": 3300
+  },
+  {
+    "code": "SOL05B",
+    "name": "Gel après-soleil Ice Effect",
+    "format": "150ml",
+    "price_fcfa": 16300
+  },
+  {
+    "code": "SOL21",
+    "name": "GLITTERAIN Golden Shimmer Body Spray (Parfum de monoï et de lait)",
+    "format": "150ml",
+    "price_fcfa": 20400
+  },
+  {
+    "code": "SOL22",
+    "name": "GLITTERAIN Pink Shimmer Body Spray (Noix de coco)",
+    "format": "150ml",
+    "price_fcfa": 20400
+  },
+  {
+    "code": "SOL04B",
+    "name": "Huile Solaire au Brou de Noix et au Millepertuis",
+    "format": "150ml",
+    "price_fcfa": 13000
+  },
+  {
+    "code": "SOL24",
+    "name": "Spray apaisant après-soleil (parfum d' Anémone des montagnes)",
+    "format": "150ml",
+    "price_fcfa": 16300
+  },
+  {
+    "code": "SOL27",
+    "name": "Spray capillaire Biphasé Régénérant avec Acide Hyaluronique et Vitamine E",
+    "format": "100ml",
+    "price_fcfa": 24500
+  },
+  {
+    "code": "SOL26",
+    "name": "Spray capillaire Protecteur contre le Chlore et l’eau salée",
+    "format": "150ml",
+    "price_fcfa": 21200
+  },
+  {
+    "code": "SOL25",
+    "name": "Spray Rafraîchissant Bronzant",
+    "format": "150ml",
+    "price_fcfa": 16300
+  },
+  {
+    "code": "SOL02B",
+    "name": "Spray Solaire SPF 50",
+    "format": "150ml",
+    "price_fcfa": 27000
+  },
+  {
+    "code": "SOL03B",
+    "name": "Spray Solaire SPF15",
+    "format": "150ml",
+    "price_fcfa": 24500
+  },
+  {
+    "code": "SOL01B",
+    "name": "Spray Solaire SPF30",
+    "format": "150ml",
+    "price_fcfa": 24500
+  },
+  {
+    "code": "FA01B",
+    "name": "Ampoules anti-chute cheveux Soin intensif",
+    "format": "3ml",
+    "price_fcfa": 39400
+  },
+  {
+    "code": "BV02B",
+    "name": "Après-shampoing à la Bave d’escargot",
+    "format": "250ml",
+    "price_fcfa": 13000
+  },
+  {
+    "code": "AR03B",
+    "name": "Après-shampoing à l’huile d’Argan",
+    "format": "250ml",
+    "price_fcfa": 14700
+  },
+  {
+    "code": "PC019B",
+    "name": "BRUME CHEVEUX Parfum 19",
+    "format": "30ml",
+    "price_fcfa": 8100
+  },
+  {
+    "code": "CAP26B",
+    "name": "Crème anti-taches de coloration",
+    "format": "100ml",
+    "price_fcfa": 16300
+  },
+  {
+    "code": "CAP27",
+    "name": "LIGHT DROPS « Chocolate Obsession» Sérum cheveux",
+    "format": "50ml",
+    "price_fcfa": 24500
+  },
+  {
+    "code": "CAP29",
+    "name": "LIGHT DROPS « Floral Sweetness » Sérum cheveux",
+    "format": "50ml",
+    "price_fcfa": 24500
+  },
+  {
+    "code": "CAP28",
+    "name": "LIGHT DROPS « Honey & Camomile » Sérum cheveux",
+    "format": "50ml",
+    "price_fcfa": 24500
+  },
+  {
+    "code": "FA02B",
+    "name": "Lotion anti-chute capillaire à l'Undaria Pinnatifida",
+    "format": "50ml",
+    "price_fcfa": 41000
+  },
+  {
+    "code": "FA03B",
+    "name": "Lotion capillaire rafraîchissante au Menthol et au Camphre",
+    "format": "100ml",
+    "price_fcfa": 20400
+  },
+  {
+    "code": "SHM002",
+    "name": "LUSH CLOUD Blooming Musk Brume parfumée cheveux",
+    "format": "100ml",
+    "price_fcfa": 16300
+  },
+  {
+    "code": "SHM004",
+    "name": "LUSH CLOUD Golden Essence Brume parfumée cheveux",
+    "format": "100ml",
+    "price_fcfa": 16300
+  },
+  {
+    "code": "SHM001",
+    "name": "LUSH CLOUD Juicy Bliss Brume parfumée cheveux",
+    "format": "100ml",
+    "price_fcfa": 16300
+  },
+  {
+    "code": "SHM005",
+    "name": "LUSH CLOUD Oriental Seduction Brume parfumée cheveux",
+    "format": "100ml",
+    "price_fcfa": 16300
+  },
+  {
+    "code": "SHM003",
+    "name": "LUSH CLOUD White petals Brume parfumée cheveux",
+    "format": "100ml",
+    "price_fcfa": 16300
+  },
+  {
+    "code": "CAP01B",
+    "name": "Masque capillaire démêlant à l'huile d'argan",
+    "format": "150ml",
+    "price_fcfa": 8900
+  },
+  {
+    "code": "BV13B",
+    "name": "Masque capillaire en spray à la bave d’Escargot",
+    "format": "150ml",
+    "price_fcfa": 24500
+  },
+  {
+    "code": "AR06B",
+    "name": "Masque capillaire nourrissant à l’huile d’Argan",
+    "format": "150ml",
+    "price_fcfa": 13900
+  },
+  {
+    "code": "BV05B",
+    "name": "Masque capillaire à la bave d'escargot",
+    "format": "150ml",
+    "price_fcfa": 10600
+  },
+  {
+    "code": "CAP14B",
+    "name": "Masque cheveux à l’Aloe Vera",
+    "format": "150ml",
+    "price_fcfa": 8100
+  },
+  {
+    "code": "CAP12B",
+    "name": "Shampoing anti-chute",
+    "format": "250ml",
+    "price_fcfa": 16300
+  },
+  {
+    "code": "AS02B",
+    "name": "Shampoing antipelliculaire à l’acide salicylique",
+    "format": "250ml",
+    "price_fcfa": 10600
+  },
+  {
+    "code": "LA03B",
+    "name": "Shampoing au lait d'ânesse",
+    "format": "250ml",
+    "price_fcfa": 16300
+  },
+  {
+    "code": "SHPDB",
+    "name": "Shampoing bio contre les poux et les lentes",
+    "format": "200ml",
+    "price_fcfa": 18000
+  },
+  {
+    "code": "BB02B",
+    "name": "Shampoing Bébé",
+    "format": "200ml",
+    "price_fcfa": 15500
+  },
+  {
+    "code": "AL01B",
+    "name": "Shampoing lavages fréquents à l'Aloe vera",
+    "format": "250ml",
+    "price_fcfa": 8900
+  },
+  {
+    "code": "AR02B",
+    "name": "Shampoing restructurant à l’huile d’Argan",
+    "format": "250ml",
+    "price_fcfa": 13900
+  },
+  {
+    "code": "BV09B",
+    "name": "Shampoing à la bave d’Escargot",
+    "format": "250ml",
+    "price_fcfa": 11400
+  },
+  {
+    "code": "NM01B",
+    "name": "Shampoing à l’huile de Neem",
+    "format": "250ml",
+    "price_fcfa": 16300
+  },
+  {
+    "code": "CAP25B",
+    "name": "Sérum Capillaire Réparateur à l’Huile d’Argan",
+    "format": "30ml",
+    "price_fcfa": 30300
+  },
+  {
+    "code": "MM040",
+    "name": "Blush & Kiss Multi-use Stick",
+    "format": "7g",
+    "price_fcfa": 16300
+  },
+  {
+    "code": "COR08",
+    "name": "Correcteur haute couvrance- warm rose",
+    "format": "3g",
+    "price_fcfa": 16300
+  },
+  {
+    "code": "COR04",
+    "name": "Correcteur liquide- light beige",
+    "format": "8g",
+    "price_fcfa": 16300
+  },
+  {
+    "code": "MM016",
+    "name": "Extra-EyeStay 'Wild Magenta' Crayon yeux à tailler",
+    "format": "1g",
+    "price_fcfa": 9800
+  },
+  {
+    "code": "MM024",
+    "name": "Extra-LipStay Crayon à lèvres rétractable",
+    "format": "0,3g",
+    "price_fcfa": 12200
+  },
+  {
+    "code": "FRD10",
+    "name": "Fard à joues compact warm shade",
+    "format": "9g",
+    "price_fcfa": 20400
+  },
+  {
+    "code": "MKLIP42",
+    "name": "Gloss à lèvres repulpant Clear",
+    "format": "7ml",
+    "price_fcfa": 18000
+  },
+  {
+    "code": "LM09",
+    "name": "Hydra Foundation Caramel",
+    "format": "30ml",
+    "price_fcfa": 23800
+  },
+  {
+    "code": "LM11",
+    "name": "INSTANT MATTE FOUNDATION Nude Beige",
+    "format": "30ml",
+    "price_fcfa": 27100
+  },
+  {
+    "code": "MM060",
+    "name": "Juicy Oil- Huile Lèvres Hydratante",
+    "format": "3,5ml",
+    "price_fcfa": 16300
+  },
+  {
+    "code": "MM043",
+    "name": "Light & Go Highlighter Stick",
+    "format": "4g",
+    "price_fcfa": 16300
+  },
+  {
+    "code": "MKLIP61",
+    "name": "Lip Balm neutre Hydratant naturel",
+    "format": "4,5ml",
+    "price_fcfa": 14800
+  },
+  {
+    "code": "MKRS07",
+    "name": "Lipstick Glossy",
+    "format": "5g",
+    "price_fcfa": 12200
+  },
+  {
+    "code": "MKRS04",
+    "name": "Lipstick Matte",
+    "format": "5g",
+    "price_fcfa": 12200
+  },
+  {
+    "code": "LC002",
+    "name": "LOLLILIP 'Salty Caramel’ Masque Lèvres Nourrissant",
+    "format": "15ml",
+    "price_fcfa": 9800
+  },
+  {
+    "code": "LC001",
+    "name": "LOLLILIP 'Spiced Cookie' Masque Lèvres Nourrissant",
+    "format": "15ml",
+    "price_fcfa": 9800
+  },
+  {
+    "code": "MKMS03",
+    "name": "Mascara waterproof recourbant",
+    "format": "10,5g",
+    "price_fcfa": 18800
+  },
+  {
+    "code": "MM065",
+    "name": "MyLip Secret Encre à Lèvres Peel-Off",
+    "format": "5,5ml",
+    "price_fcfa": 18800
+  },
+  {
+    "code": "MKOM10",
+    "name": "OMBRE À PAUPIÈRES COMPACTE SHIMMER-ANTIQUE PINK 3,5 g",
+    "format": "3g",
+    "price_fcfa": 15600
+  },
+  {
+    "code": "MKOM26",
+    "name": "Ombre à paupières compacte shiny-ice rose",
+    "format": "3g",
+    "price_fcfa": 15600
+  },
+  {
+    "code": "MKOM36",
+    "name": "Ombre à paupières diamond cream champagne",
+    "format": "5g",
+    "price_fcfa": 16300
+  },
+  {
+    "code": "MKOM16",
+    "name": "Ombre à paupières matte chalk white",
+    "format": "3g",
+    "price_fcfa": 15600
+  },
+  {
+    "code": "MKPL01",
+    "name": "Palette d’ombres à paupières 9 couleurs -autumn vibes",
+    "format": "18g",
+    "price_fcfa": 32800
+  },
+  {
+    "code": "LM15",
+    "name": "Perfect hydra foundation Ivory",
+    "format": "30ml",
+    "price_fcfa": 32000
+  },
+  {
+    "code": "TER12",
+    "name": "Poudre bronzante compacte warm shade",
+    "format": "9g",
+    "price_fcfa": 20400
+  },
+  {
+    "code": "MKILL06",
+    "name": "Poudre compacte illuminatrice 'Warm Shade' Shiny Bronze",
+    "format": "9g",
+    "price_fcfa": 20400
+  },
+  {
+    "code": "CPR13",
+    "name": "Poudre compacte Warm Shade Blossom Pink",
+    "format": "9g",
+    "price_fcfa": 20400
+  },
+  {
+    "code": "MKLIP36",
+    "name": "Rouge à lèvres liquide mat longue tenue BOLD PINK",
+    "format": "7ml",
+    "price_fcfa": 15600
+  },
+  {
+    "code": "MM037",
+    "name": "Sculpt & Lift Contour Stick",
+    "format": "7g",
+    "price_fcfa": 16300
+  },
+  {
+    "code": "MM005",
+    "name": "Solar Defence Compact Foundation",
+    "format": "8g",
+    "price_fcfa": 29400
+  },
+  {
+    "code": "MKLIP60",
+    "name": "Spicy Gloss Extra volume",
+    "format": "7ml",
+    "price_fcfa": 16300
+  },
+  {
+    "code": "MM002",
+    "name": "Supreme Lip Treatment Vanille",
+    "format": "4g",
+    "price_fcfa": 16300
+  },
+  {
+    "code": "LO002",
+    "name": "ARMOZENT™ Mélange calmant",
+    "format": "10ml",
+    "price_fcfa": 24500
+  },
+  {
+    "code": "LO001",
+    "name": "CLARIZENT™ Mélange expectorant",
+    "format": "10ml",
+    "price_fcfa": 29400
+  },
+  {
+    "code": "LO003",
+    "name": "DYNAZENT™ Mélange énergisant",
+    "format": "10ml",
+    "price_fcfa": 24500
+  },
+  {
+    "code": "LO005",
+    "name": "LYPHAZENT™ Mélange Drainant",
+    "format": "10ml",
+    "price_fcfa": 29400
+  },
+  {
+    "code": "LO004",
+    "name": "MUNOZENT™ Mélange Immunostimulant",
+    "format": "10ml",
+    "price_fcfa": 24500
+  },
+  {
+    "code": "LO006",
+    "name": "Revizent™ Mélange multifonctionnel",
+    "format": "50ml",
+    "price_fcfa": 28600
+  },
+  {
+    "code": "LO011",
+    "name": "Ultra oil™ Mélange de beurres et d'huiles végétales à l'action nourrissante et restructurante",
+    "format": "80g",
+    "price_fcfa": 40900
+  },
+  {
+    "code": "LO012",
+    "name": "Ultra oil™ Mélange d’huiles végétales à l’action antibactérienne et antiseptique",
+    "format": "50ml",
+    "price_fcfa": 36800
+  },
+  {
+    "code": "LO009",
+    "name": "Ultra oil™ Mélange d’huiles végétales à l’action antioxydante et illuminatrice",
+    "format": "50ml",
+    "price_fcfa": 32700
+  },
+  {
+    "code": "LO007",
+    "name": "Ultra oil™ Mélange d’huiles végétales à l’action apaisante et adoucissante",
+    "format": "50ml",
+    "price_fcfa": 45000
+  },
+  {
+    "code": "LO008",
+    "name": "Ultra oil™ Mélange d’huiles végétales à l’action assouplissante et régénératrice",
+    "format": "50ml",
+    "price_fcfa": 28600
+  },
+  {
+    "code": "LO010",
+    "name": "Ultra oil™ Mélange d’huiles végétales à l’action repulpante et hydratante",
+    "format": "50ml",
+    "price_fcfa": 36800
+  },
+  {
+    "code": "AD01B",
+    "name": "Baume à la griffe du diable",
+    "format": "150ml",
+    "price_fcfa": 37600
+  },
+  {
+    "code": "MD04B",
+    "name": "Gel apaisant anti-démangeaison",
+    "format": "75ml",
+    "price_fcfa": 11400
+  },
+  {
+    "code": "MD03B",
+    "name": "Gel apaisant pour les coups de soleil",
+    "format": "50ml",
+    "price_fcfa": 11400
+  },
+  {
+    "code": "MD05B",
+    "name": "Pommade balsamique",
+    "format": "50ml",
+    "price_fcfa": 17100
+  },
+  {
+    "code": "MD01B",
+    "name": "Pommade à l'ichtyol 9,8%",
+    "format": "30ml",
+    "price_fcfa": 8900
+  },
+  {
+    "code": "CR23B",
+    "name": "Spray de premiers secours avec de 98% Aloe Vera",
+    "format": "150ml",
+    "price_fcfa": 13900
+  },
+  {
+    "code": "COPAC001",
+    "name": "Bâtonnets de parfum d'ambiance",
+    "format": "100ml",
+    "price_fcfa": 2100
+  },
+  {
+    "code": "COPC011",
+    "name": "Coffret Bougies Parfumées 5 x",
+    "format": "70g",
+    "price_fcfa": 90100
+  },
+  {
+    "code": "COP0001",
+    "name": "Diffuseur de parfum d’ambiance « Flower Garden »",
+    "format": "100ml",
+    "price_fcfa": 19700
+  },
+  {
+    "code": "COP0006",
+    "name": "Diffuseur de parfum d’ambiance « Fruity Blend »",
+    "format": "100ml",
+    "price_fcfa": 19700
+  },
+  {
+    "code": "COP0026",
+    "name": "Diffuseur parfum d’ambiance « Cooperativa Profumieri » Magnolia Bouquet",
+    "format": "100ml",
+    "price_fcfa": 19700
+  },
+  {
+    "code": "COP0021",
+    "name": "Diffuseur parfum d’ambiance « Cooperativa Profumieri » Red Fruit Heart",
+    "format": "100ml",
+    "price_fcfa": 19700
+  },
+  {
+    "code": "COP0034",
+    "name": "Parfum d'ambiance 'Mystic Ylang'",
+    "format": "100ml",
+    "price_fcfa": 19700
+  },
+  {
+    "code": "COP0031",
+    "name": "Parfum d'ambiance 'Spice Symphony'",
+    "format": "100ml",
+    "price_fcfa": 19700
+  },
+  {
+    "code": "COP0043",
+    "name": "Parfum d’ambiance 'Desert Woods'",
+    "format": "100ml",
+    "price_fcfa": 19700
+  },
+  {
+    "code": "COP0040",
+    "name": "Parfum d’ambiance 'Golden Vanilla'",
+    "format": "100ml",
+    "price_fcfa": 19700
+  },
+  {
+    "code": "COP0037",
+    "name": "Parfum d’ambiance 'Lush Oasis'",
+    "format": "100ml",
+    "price_fcfa": 19700
+  },
+  {
+    "code": "COP0046",
+    "name": "Parfum d’ambiance 'Scarlet Temptation'",
+    "format": "100ml",
+    "price_fcfa": 19700
+  },
+  {
+    "code": "COPS0006",
+    "name": "Spray d’ambiance 'Fruity Delight'",
+    "format": "500ml",
+    "price_fcfa": 28700
+  },
+  {
+    "code": "COPS0003",
+    "name": "Spray d’ambiance 'Meadow Spirit'",
+    "format": "500ml",
+    "price_fcfa": 28700
+  },
+  {
+    "code": "COPS0005",
+    "name": "Spray d’ambiance 'Velvet Citrus'",
+    "format": "500ml",
+    "price_fcfa": 28700
+  },
+  {
+    "code": "COPS0010",
+    "name": "Spray d’ambiance 'Whispering Woods'",
+    "format": "500ml",
+    "price_fcfa": 28700
+  },
+  {
+    "code": "COPS0002",
+    "name": "Spray d’ambiance ‘Cotton Veil'",
+    "format": "500ml",
+    "price_fcfa": 28700
+  },
+  {
+    "code": "COPS0008",
+    "name": "Spray d’ambiance ‘Musk Ritual’",
+    "format": "500ml",
+    "price_fcfa": 28700
+  },
+  {
+    "code": "COPS0004",
+    "name": "Spray d’ambiance ‘Petal Infusion’",
+    "format": "500ml",
+    "price_fcfa": 28700
+  },
+  {
+    "code": "COPS0007",
+    "name": "Spray d’ambiance ‘Soft Hypnose’",
+    "format": "500ml",
+    "price_fcfa": 28700
+  },
+  {
+    "code": "COPS0001",
+    "name": "Spray d’ambiance ‘Sun Mirage’",
+    "format": "500ml",
+    "price_fcfa": 28700
+  },
+  {
+    "code": "COPS0009",
+    "name": "Spray d’ambiance ‘Sweet Symphonies’",
+    "format": "500ml",
+    "price_fcfa": 28700
+  },
+  {
+    "code": "BH0208",
+    "name": "BRIL WC Détergent détartrant concentré à action blanchissante",
+    "format": "750ml",
+    "price_fcfa": 10600
+  },
+  {
+    "code": "BH0201",
+    "name": "Brilbath Spray nettoyant anti-calcaire",
+    "format": "750ml",
+    "price_fcfa": 9800
+  },
+  {
+    "code": "BH0202",
+    "name": "Brilbright- Nettoyant pour meubles précieux et cuir",
+    "format": "750ml",
+    "price_fcfa": 13900
+  },
+  {
+    "code": "BH0218",
+    "name": "Brilcaf Détartrant pour machines à café",
+    "format": "375g",
+    "price_fcfa": 13000
+  },
+  {
+    "code": "BH0206",
+    "name": "Brilglass Nettoyant pour vitres et miroirs",
+    "format": "750ml",
+    "price_fcfa": 11400
+  },
+  {
+    "code": "BH0203",
+    "name": "Brilgrill Nettoyant dégraissant pour fours et hottes",
+    "format": "750ml",
+    "price_fcfa": 11400
+  },
+  {
+    "code": "BH0222",
+    "name": "Brilgrout Nettoyant concentré pour joints",
+    "format": "750ml",
+    "price_fcfa": 16300
+  },
+  {
+    "code": "BH0204",
+    "name": "Brilparquet Nettoyant pour revêtement sol et mur en parquet",
+    "format": "750ml",
+    "price_fcfa": 14700
+  },
+  {
+    "code": "BH0212",
+    "name": "Briltotal Détergent pour l'hygiène anti-poussière",
+    "format": "750ml",
+    "price_fcfa": 10600
+  },
+  {
+    "code": "BH0215",
+    "name": "Frostaway Dégivrant pour congélateurs et freezers",
+    "format": "750ml",
+    "price_fcfa": 14700
+  },
+  {
+    "code": "BH0007",
+    "name": "GreenDish Aloe et Bambou (avec Saponaire officinale )",
+    "format": "500ml",
+    "price_fcfa": 9800
+  },
+  {
+    "code": "BH0008",
+    "name": "GreenDish Citron (avec Saponaire officinale)",
+    "format": "500ml",
+    "price_fcfa": 9800
+  },
+  {
+    "code": "BH0005",
+    "name": "PowerDish 'Aloe and Bambou' (avec Bave d’escargot)",
+    "format": "500ml",
+    "price_fcfa": 7400
+  },
+  {
+    "code": "BH0006",
+    "name": "PowerDish 'Citron’ (avec bave d’escargot)",
+    "format": "500ml",
+    "price_fcfa": 7400
+  },
+  {
+    "code": "BH0022",
+    "name": "Pure Black Lessive pour linge foncé et noir",
+    "format": "1000ml",
+    "price_fcfa": 15500
+  },
+  {
+    "code": "BH0021",
+    "name": "Pure Color- Détergent pour linge de couleur",
+    "format": "1000ml",
+    "price_fcfa": 16300
+  },
+  {
+    "code": "BH0020",
+    "name": "Pure White Lessive pour linge blanc",
+    "format": "1000ml",
+    "price_fcfa": 15500
+  },
+  {
+    "code": "BH0226",
+    "name": "Sanipaw Détergent anti-odeurs",
+    "format": "750ml",
+    "price_fcfa": 16300
+  },
+  {
+    "code": "BH0224",
+    "name": "Saverdish Nettoyant pour l'entretien des lave-vaisselle",
+    "format": "300ml",
+    "price_fcfa": 10600
+  },
+  {
+    "code": "BH0225",
+    "name": "Saverwash Nettoyant pour l'entretien des lave-linge",
+    "format": "300ml",
+    "price_fcfa": 10600
+  },
+  {
+    "code": "BH0216",
+    "name": "Shinyfridge Nettoyant assainissant pour réfrigérateurs",
+    "format": "750ml",
+    "price_fcfa": 13900
+  },
+  {
+    "code": "BH0219",
+    "name": "Wonderiron Détartrant pour le fer à repasser",
+    "format": "300ml",
+    "price_fcfa": 15500
+  },
+  {
+    "code": "INTB060",
+    "name": "ALOE VERA jus et pulpe 99,9%",
+    "format": "675ml",
+    "price_fcfa": 20400
+  },
+  {
+    "code": "INTB061",
+    "name": "ALOE VERA jus et pulpe avec jus de Myrtille",
+    "format": "675ml",
+    "price_fcfa": 20400
+  },
+  {
+    "code": "INTB062",
+    "name": "ALOE VERA jus et pulpe avec Thé Vert",
+    "format": "675ml",
+    "price_fcfa": 20400
+  },
+  {
+    "code": "INTB007",
+    "name": "Dren fast Complément alimentaire 30 sticks de",
+    "format": "10ml",
+    "price_fcfa": 32000
+  },
+  {
+    "code": "INTB030",
+    "name": "DREN FAST Pour l'équilibre du poids corporel avec Equitullas™",
+    "format": "300ml",
+    "price_fcfa": 36800
+  },
+  {
+    "code": "OINT01",
+    "name": "Jus d’Aloe Vera Biologique",
+    "format": "480ml",
+    "price_fcfa": 20400
+  },
+  {
+    "code": "INTB026",
+    "name": "Multigelvit Complément alimentaire en gel avec édulcorant 30 sticks de",
+    "format": "10ml",
+    "price_fcfa": 20400
+  },
+  {
+    "code": "INTB040",
+    "name": "Mybrain Mémoire 30 sticks de",
+    "format": "10ml",
+    "price_fcfa": 47500
+  },
+  {
+    "code": "INTB042",
+    "name": "Skinail collagen Complément alimentaire 30 sachets de",
+    "format": "21g",
+    "price_fcfa": 114000
+  },
+  {
+    "code": "INTB031",
+    "name": "Skinail plus Collagène 30 sticks de",
+    "format": "10ml",
+    "price_fcfa": 67200
+  },
+  {
+    "code": "INTB028",
+    "name": "Speedsleep Complément alimentaire en gel avec édulcorant 30 sticks de",
+    "format": "10ml",
+    "price_fcfa": 22900
+  },
+  {
+    "code": "INTB053",
+    "name": "Vigoractive Complément alimentaire en gel 30 sticks de",
+    "format": "10ml",
+    "price_fcfa": 61400
+  },
+  {
+    "code": "SU0004",
+    "name": "Meal Shake saveur crème 744 g",
+    "format": "744g",
+    "price_fcfa": 53300
+  },
+  {
+    "code": "LIT0030",
+    "name": "Boisson en capsules compatibles 'Dolce Gusto'® 'Crème brûlée'",
+    "format": "10pz",
+    "price_fcfa": 5700
+  },
+  {
+    "code": "LIT0029",
+    "name": "Boisson en capsules compatibles 'Dolce Gusto'® Baileys",
+    "format": "10pz",
+    "price_fcfa": 5700
+  },
+  {
+    "code": "LIT0021",
+    "name": "Boisson en capsules compatibles 'Dolce Gusto'® Café au ginseng",
+    "format": "10pz",
+    "price_fcfa": 5700
+  },
+  {
+    "code": "LIT0019",
+    "name": "Boisson en capsules compatibles 'Dolce Gusto'® Café au lait",
+    "format": "10pz",
+    "price_fcfa": 5700
+  },
+  {
+    "code": "LIT0018",
+    "name": "Boisson en capsules compatibles 'Dolce Gusto'® Ginseng amer",
+    "format": "10pz",
+    "price_fcfa": 5700
+  },
+  {
+    "code": "LIT0020",
+    "name": "Boisson en capsules compatibles 'Dolce Gusto'® Mocaccino",
+    "format": "10pz",
+    "price_fcfa": 5700
+  },
+  {
+    "code": "LIT0024",
+    "name": "Boisson en capsules compatibles 'Dolce Gusto'® Noisette",
+    "format": "10pz",
+    "price_fcfa": 5700
+  },
+  {
+    "code": "LIT0017",
+    "name": "Boisson en capsules compatibles 'Dolce Gusto'® Thé au citron",
+    "format": "10pz",
+    "price_fcfa": 5700
+  },
+  {
+    "code": "LIT0044",
+    "name": "Boisson en capsules compatibles Nespresso® « Nocciolino » (Noisettes)",
+    "format": "15pz",
+    "price_fcfa": 5700
+  },
+  {
+    "code": "LIT0045",
+    "name": "Boisson en capsules compatibles ‘Nespresso’ Baileys -",
+    "format": "15pcs",
+    "price_fcfa": 5700
+  },
+  {
+    "code": "LIT0046",
+    "name": "Boisson en capsules compatibles ‘Nespresso’ Ginseng",
+    "format": "15pcs",
+    "price_fcfa": 5700
+  },
+  {
+    "code": "LIT0034",
+    "name": "Café en capsules compatibles 'Dolce Gusto'® Mélange Bleu (décaféiné)",
+    "format": "50pz",
+    "price_fcfa": 23000
+  },
+  {
+    "code": "LIT0032",
+    "name": "Café en capsules compatibles 'Dolce Gusto'® Mélange Or (crèmeux)",
+    "format": "50pz",
+    "price_fcfa": 20500
+  },
+  {
+    "code": "LIT0033",
+    "name": "Café en capsules compatibles 'Dolce Gusto'® Mélange Rouge (classique)",
+    "format": "50pz",
+    "price_fcfa": 21300
+  },
+  {
+    "code": "LIT0037",
+    "name": "Café en capsules compatibles 'Lavazza A Modo Mio'-Décaféiné",
+    "format": "100pcs",
+    "price_fcfa": 36100
+  },
+  {
+    "code": "LIT0036",
+    "name": "Café en capsules compatibles 'Lavazza A Modo Mio'-Gout fort",
+    "format": "100pcs",
+    "price_fcfa": 32000
+  },
+  {
+    "code": "LIT0038",
+    "name": "Café en capsules compatibles 'Nespresso®' -Décaféiné",
+    "format": "100pcs",
+    "price_fcfa": 36100
+  },
+  {
+    "code": "LIT0039",
+    "name": "Café en capsules compatibles 'Nespresso®' -Gout classique",
+    "format": "100pcs",
+    "price_fcfa": 32000
+  },
+  {
+    "code": "LIT0040",
+    "name": "Café en capsules compatibles 'Nespresso®' -Gout Fort",
+    "format": "100pcs",
+    "price_fcfa": 32000
+  },
+  {
+    "code": "LIT0041",
+    "name": "Café en dosettes 'ESE44'- Fort",
+    "format": "100pcs",
+    "price_fcfa": 26200
+  },
+  {
+    "code": "LIT0043",
+    "name": "Café en dosettes 'ESE44'-Décaféiné",
+    "format": "100pcs",
+    "price_fcfa": 29500
+  },
+  {
+    "code": "LIT0042",
+    "name": "Café en dosettes 'ESE44'-Gout Classique",
+    "format": "100pcs",
+    "price_fcfa": 29500
+  },
+  {
+    "code": "BSET002",
+    "name": "Combo Corps 'Almond Tart' 2 x",
+    "format": "150ml",
+    "price_fcfa": 32700
+  },
+  {
+    "code": "BSET003",
+    "name": "Combo Corps 'Dark Chocolate' 2 x",
+    "format": "150ml",
+    "price_fcfa": 32700
+  },
+  {
+    "code": "BSET001",
+    "name": "Combo Corps 'Fresh Citrus' 2 x",
+    "format": "150ml",
+    "price_fcfa": 32700
+  },
+  {
+    "code": "MD24",
+    "name": "BUZZOFF Lotion à action répulsive contre les insectes et les moustiques",
+    "format": "150ml",
+    "price_fcfa": 19600
+  },
+  {
+    "code": "AN01B",
+    "name": "Shampoing pour chiens",
+    "format": "250ml",
+    "price_fcfa": 11400
+  },
+  {
+    "code": "AN02B",
+    "name": "Spray répulsif anti-tiques pour les chiens",
+    "format": "150ml",
+    "price_fcfa": 12200
+  }
+]
