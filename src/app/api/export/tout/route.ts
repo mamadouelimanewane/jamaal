@@ -26,7 +26,7 @@ export async function GET() {
     prisma.product.findMany({ orderBy: { name: "asc" } }),
     prisma.order.findMany({ orderBy: { createdAt: "desc" }, include: { consultant: true, livreur: true, items: true } }),
     prisma.customer.findMany({ orderBy: { updatedAt: "desc" }, include: { orders: { select: { total: true, status: true } } } }),
-    prisma.expense.findMany({ orderBy: { date: "desc" } }),
+    prisma.expense.findMany({ orderBy: { date: "desc" }, omit: { receipt: true } }),
     prisma.return.findMany({ orderBy: { createdAt: "desc" }, include: { order: true } }),
     prisma.consultant.findMany({
       orderBy: { name: "asc" },

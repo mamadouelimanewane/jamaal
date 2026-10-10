@@ -120,7 +120,7 @@ export async function reservationCancelAction(orderId: string): Promise<Reservat
   const refund = !order.depositPaidAt
     ? ""
     : settings.refundable && beforeArrival
-      ? ` Acompte de ${formatPrice(order.depositAmount)} à rembourser au client.`
+      ? ` Acompte de ${formatPrice(order.depositAmount)} à rembourser au client : notez-le dans Comptabilité › Trésorerie une fois fait.`
       : ` Acompte de ${formatPrice(order.depositAmount)} conservé (conditions de réservation).`;
   return { ok: true, message: `Réservation annulée.${refund}` };
 }
