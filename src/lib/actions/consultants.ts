@@ -105,8 +105,10 @@ async function updateConsultantImpl(id: string, formData: FormData) {
 
 async function deleteConsultantImpl(id: string) {
   await requireAdmin();
-  await prisma.consultant.delete({ where: { id } });
+  // Le compte de connexion part avec la fiche : sinon il resterait un compte revendeur sans fiche.
+  await prisma.$transaction([prisma.user.deleteMany({ where: { consultantId: id, role: "CONSULTANT" } }), prisma.consultant.delete({ where: { id } })]);
   revalidatePath("/admin/consultants");
+  revalidatePath("/admin/utilisateurs");
   revalidatePath("/consultants");
 }
 

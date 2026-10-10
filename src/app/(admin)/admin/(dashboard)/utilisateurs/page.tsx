@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { createUser, deleteUser } from "@/lib/actions/users";
+import { attachUser, createUser, deleteUser } from "@/lib/actions/users";
 
 export const dynamic = "force-dynamic";
 
@@ -43,7 +43,20 @@ export default async function AdminUsersPage() {
                 <td className="px-4 py-3 text-navy/85">{u.email}</td>
                 <td className="px-4 py-3 text-navy/85">{u.role}</td>
                 <td className="px-4 py-3 text-navy/85">
-                  {u.consultant?.name ?? u.livreur?.name ?? "—"}
+                  {u.consultant?.name ?? u.livreur?.name ?? (u.role === "ADMIN" ? "—" : (
+                    <div>
+                      <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-900">Non rattaché : son espace est vide</span>
+                      <form action={attachUser.bind(null, u.id)} className="mt-2 flex flex-wrap items-center gap-2">
+                        <select name={u.role === "LIVREUR" ? "livreurId" : "consultantId"} defaultValue="__new__" aria-label="Fiche à rattacher" className="rounded-lg border border-line px-2 py-1 text-xs">
+                          <option value="__new__">Créer sa fiche {u.role === "LIVREUR" ? "livreur" : "revendeur"}</option>
+                          {(u.role === "LIVREUR" ? livreurs.map((l) => ({ id: l.id, label: l.name })) : consultants.map((c) => ({ id: c.id, label: `${c.name} (${c.city})` }))).map((o) => (
+                            <option key={o.id} value={o.id}>{o.label}</option>
+                          ))}
+                        </select>
+                        <button className="rounded-full bg-navy px-3 py-1 text-xs font-semibold text-white">Rattacher</button>
+                      </form>
+                    </div>
+                  ))}
                 </td>
                 <td className="px-4 py-3 text-right">
                   {u.id !== session.user.id && (
@@ -64,6 +77,7 @@ export default async function AdminUsersPage() {
         <h2 className="mb-3 font-serif-display text-lg font-semibold text-navy">
           Ajouter un utilisateur
         </h2>
+        <p className="mb-3 text-xs text-navy/70">Pour un nouveau revendeur, préférez <strong>Consultants › Nouveau</strong> puis « Créer l&apos;accès » (il choisit lui-même son mot de passe). Ici, un compte Consultant ou Livreur reçoit toujours une fiche : la fiche choisie, ou une nouvelle.</p>
         <form action={createUser} className="grid gap-4">
           <div>
             <label className={labelClass}>Nom</label>
@@ -77,6 +91,16 @@ export default async function AdminUsersPage() {
             <label className={labelClass}>Mot de passe</label>
             <input type="password" name="password" required minLength={8} className={inputClass} />
           </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={labelClass}>Ville (nouvelle fiche)</label>
+              <input name="city" defaultValue="Dakar" className={inputClass} />
+            </div>
+            <div>
+              <label className={labelClass}>Téléphone WhatsApp</label>
+              <input name="phone" inputMode="tel" className={inputClass} />
+            </div>
+          </div>
           <div>
             <label className={labelClass}>Rôle</label>
             <select name="role" defaultValue="CONSULTANT" className={inputClass}>
@@ -86,9 +110,9 @@ export default async function AdminUsersPage() {
             </select>
           </div>
           <div>
-            <label className={labelClass}>Fiche consultant à rattacher (si rôle Consultant)</label>
-            <select name="consultantId" defaultValue="" className={inputClass}>
-              <option value="">— Aucune —</option>
+            <label className={labelClass}>Fiche revendeur (si rôle Consultant)</label>
+            <select name="consultantId" defaultValue="__new__" className={inputClass}>
+              <option value="__new__">Créer une nouvelle fiche revendeur</option>
               {consultants.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name} ({c.city})
@@ -97,9 +121,9 @@ export default async function AdminUsersPage() {
             </select>
           </div>
           <div>
-            <label className={labelClass}>Fiche livreur à rattacher (si rôle Livreur)</label>
-            <select name="livreurId" defaultValue="" className={inputClass}>
-              <option value="">— Aucune —</option>
+            <label className={labelClass}>Fiche livreur (si rôle Livreur)</label>
+            <select name="livreurId" defaultValue="__new__" className={inputClass}>
+              <option value="__new__">Créer une nouvelle fiche livreur</option>
               {livreurs.map((l) => (
                 <option key={l.id} value={l.id}>
                   {l.name}

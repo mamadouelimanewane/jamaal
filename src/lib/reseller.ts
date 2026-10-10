@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getSiteUrl } from "@/lib/site-url";
+import { repairConsultantLink } from "@/lib/account-link";
 
 /** Profil du consultant connecté (null si la session n'est pas celle d'un consultant). */
 const withSponsor = { sponsor: { select: { id: true, name: true, whatsapp: true, city: true } } } as const;
@@ -19,7 +20,10 @@ export async function getReseller() {
   }
 
   if (session.user.role !== "CONSULTANT") return null;
-  const user = await prisma.user.findUnique({ where: { id: session.user.id }, include: { consultant: { include: withSponsor } } });
+  let user = await prisma.user.findUnique({ where: { id: session.user.id }, include: { consultant: { include: withSponsor } } });
+  if (user && !user.consultant && (await repairConsultantLink(user.id))) {
+    user = await prisma.user.findUnique({ where: { id: session.user.id }, include: { consultant: { include: withSponsor } } });
+  }
   return user?.consultant ? { ...user.consultant, userId: user.id, userName: user.name, viewAs: false as const } : null;
 }
 

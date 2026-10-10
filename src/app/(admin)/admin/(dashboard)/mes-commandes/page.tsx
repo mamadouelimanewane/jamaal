@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { repairConsultantLink } from "@/lib/account-link";
+import { NotReseller } from "@/components/admin/NotReseller";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -18,14 +20,13 @@ export default async function MesCommandesPage() {
   const session = await auth();
   if (session?.user?.role !== "CONSULTANT") redirect("/admin");
 
+  await repairConsultantLink(session.user!.id);
   const user = await prisma.user.findUnique({
     where: { id: session.user!.id },
     include: { consultant: { include: { orders: { orderBy: { createdAt: "desc" } } } } },
   });
 
-  if (!user?.consultant) {
-    return <p className="text-sm text-navy/75">Aucun profil consultant lié à ce compte.</p>;
-  }
+  if (!user?.consultant) return <NotReseller />;
 
   return (
     <div>
