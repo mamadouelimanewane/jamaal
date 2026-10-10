@@ -171,8 +171,10 @@ export async function approveApplication(id: string, opts: { allowIncomplete?: b
   if (!complete) await logActivity(session, `Candidature validée sans dossier complet : ${app.name}`, "ConsultantApplication", id);
 
   const email = app.email.toLowerCase();
-  const exists = await prisma.user.findFirst({ where: { email: { equals: email, mode: "insensitive" } }, select: { id: true } });
-  if (exists) return { ok: false, error: "Un compte existe déjà avec cet e-mail." };
+  const exists = await prisma.user.findFirst({ where: { email: { equals: email, mode: "insensitive" } }, select: { id: true, role: true, consultantId: true } });
+  // Un compte revendeur déjà créé à la main, sans fiche : on le réutilise et on le rattache.
+  const reuseUserId = exists && exists.role === "CONSULTANT" && !exists.consultantId ? exists.id : null;
+  if (exists && !reuseUserId) return { ok: false, error: exists.role === "CONSULTANT" ? "Un compte revendeur existe déjà avec cet e-mail, rattaché à une autre fiche." : "Un compte (administrateur ou livreur) existe déjà avec cet e-mail." };
 
   // Nouvelle vérification : le parrain a pu atteindre sa limite depuis la candidature.
   const sponsor = app.sponsorCode
@@ -195,9 +197,9 @@ export async function approveApplication(id: string, opts: { allowIncomplete?: b
       },
     });
     if (app.signature) await tx.protocolSignature.update({ where: { id: app.signature.id }, data: { consultantId: consultant.id } });
-    const user = await tx.user.create({
-      data: { email, name: app.name, passwordHash, role: "CONSULTANT", consultantId: consultant.id },
-    });
+    const user = reuseUserId
+      ? await tx.user.update({ where: { id: reuseUserId }, data: { consultantId: consultant.id } })
+      : await tx.user.create({ data: { email, name: app.name, passwordHash, role: "CONSULTANT", consultantId: consultant.id } });
     await tx.passwordResetToken.create({
       data: { tokenHash: hashToken(token), userId: user.id, expiresAt: new Date(Date.now() + 7 * 24 * 3600_000) },
     });

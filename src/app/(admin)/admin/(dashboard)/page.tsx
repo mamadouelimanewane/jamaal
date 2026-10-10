@@ -32,6 +32,8 @@ import {
 import { getConsultantCommission } from "@/lib/commission";
 import { getRefundedTotal } from "@/lib/revenue";
 import { Undo2, FileSpreadsheet } from "lucide-react";
+import { repairConsultantLink } from "@/lib/account-link";
+import { NotReseller } from "@/components/admin/NotReseller";
 
 export const dynamic = "force-dynamic";
 
@@ -157,10 +159,11 @@ async function AdminOverview() {
 }
 
 async function ConsultantOverview({ userId }: { userId: string }) {
-  const user = await prisma.user.findUnique({ where: { id: userId }, include: { consultant: true } });
-  if (!user?.consultant) {
-    return <p className="text-sm text-navy/75">Aucun profil consultant lié à ce compte pour le moment.</p>;
+  let user = await prisma.user.findUnique({ where: { id: userId }, include: { consultant: true } });
+  if (user && !user.consultant && (await repairConsultantLink(userId))) {
+    user = await prisma.user.findUnique({ where: { id: userId }, include: { consultant: true } });
   }
+  if (!user?.consultant) return <NotReseller />;
   const consultantId = user.consultant.id;
 
   const [orderCount, pending, delivered, unread, rankInfo, team, allRankings, commission, history, leaderboard] =
