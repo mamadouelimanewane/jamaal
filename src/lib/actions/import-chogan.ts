@@ -75,6 +75,81 @@ export async function importChoganExcelAction(formData: FormData) {
       return { success: true, countNew, countUpdated };
     }
     
+    if (file.name.toLowerCase().endsWith('.csv')) {
+      const text = buffer.toString('utf8');
+      const lines = text.split('\n');
+      if (lines.length < 2) return { success: false, error: 'Fichier CSV vide ou invalide.' };
+      
+      const headerLine = lines[0].toLowerCase();
+      const sep = headerLine.includes(';') ? ';' : ',';
+      const headers = lines[0].split(sep).map(h => h.replace(/^["\uFEFF]+|["\r]+$/g, '').toLowerCase());
+      
+      let refIdx = -1, nameIdx = -1, priceIdx = -1;
+      headers.forEach((h, i) => {
+        if (h.includes('réf') || h.includes('ref') || h.includes('code')) refIdx = i;
+        else if (h.includes('produit') || h.includes('nom')) nameIdx = i;
+        else if (h.includes('nouveau prix') || h.includes('prix public') || h.includes('fcfa')) priceIdx = i;
+      });
+      
+      if (refIdx === -1 || nameIdx === -1 || priceIdx === -1) {
+        return { success: false, error: 'Colonnes introuvables dans le CSV.' };
+      }
+      
+      let countNew = 0, countUpdated = 0;
+      for (let i = 1; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
+        
+        let inQuote = false;
+        let cells = [];
+        let cur = '';
+        for (let c = 0; c < line.length; c++) {
+          if (line[c] === '"') inQuote = !inQuote;
+          else if (line[c] === sep && !inQuote) { cells.push(cur); cur = ''; }
+          else cur += line[c];
+        }
+        cells.push(cur);
+        
+        if (cells.length <= Math.max(refIdx, nameIdx, priceIdx)) continue;
+        
+        const code = cells[refIdx].replace(/^"|"$/g, '').trim();
+        const name = cells[nameIdx].replace(/^"|"$/g, '').trim();
+        const priceStr = cells[priceIdx].replace(/^"|"$/g, '');
+        
+        if (!code || !name) continue;
+        const price_fcfa = Number(priceStr.replace(/[^\d]/g, ''));
+        if (isNaN(price_fcfa) || price_fcfa <= 0) continue;
+        
+        const publicPrice = Math.round(price_fcfa / 1.25);
+        const slug = slugify(name) + '-' + code.toLowerCase();
+        const id = 'chogan-' + code;
+        
+        const existing = await prisma.product.findFirst({
+          where: { OR: [{ choganCode: code }, { id: id }] }
+        });
+        
+        if (existing) {
+          if (existing.regularPrice !== price_fcfa) {
+            await prisma.product.update({ where: { id: existing.id }, data: { regularPrice: price_fcfa, publicPrice: publicPrice }});
+            countUpdated++;
+          }
+        } else {
+          await prisma.product.create({
+            data: {
+              id, slug, name, category: getCategory(code, name),
+              shortDescription: name + '. Produit Chogan.',
+              longDescription: [name + '. Produit officiel Chogan.'],
+              regularPrice: price_fcfa, publicPrice, stock: 0, lowStockThreshold: 5,
+              isOfficial: true, choganCode: code, colorFrom: '#1d2f4f', colorTo: '#d9a99d'
+            }
+          });
+          countNew++;
+        }
+      }
+      revalidatePath('/admin/produits');
+      return { success: true, countNew, countUpdated };
+    }
+    
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.load(buffer);
     

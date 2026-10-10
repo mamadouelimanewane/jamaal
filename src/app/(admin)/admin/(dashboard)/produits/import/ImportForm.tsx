@@ -22,19 +22,19 @@ export function ImportForm() {
 
   return (
     <div className="mx-auto max-w-2xl rounded-2xl bg-white p-6 shadow-sm sm:p-10">
-      <h2 className="font-serif-display text-xl font-semibold text-navy">Importer depuis Excel ou Chogan Script</h2>
+      <h2 className="font-serif-display text-xl font-semibold text-navy">Importer depuis Excel ou CSV</h2>
       <p className="mt-2 text-sm text-navy/70">
-        Téléchargez le fichier Excel (.xlsx) contenant vos produits Chogan, ou le fichier texte (.txt / .json) généré par le script d'exportation de votre navigateur.
+        Téléchargez le fichier Excel (.xlsx) contenant vos produits, ou le fichier Excel (.csv) généré par le script de votre navigateur.
       </p>
 
       <form action={handleAction} className="mt-8 space-y-6">
         <div>
-          <label htmlFor="file" className="block text-sm font-medium text-navy">Fichier (.xlsx, .txt, .json)</label>
+          <label htmlFor="file" className="block text-sm font-medium text-navy">Fichier (.xlsx, .csv, .txt, .json)</label>
           <input
             type="file"
             name="file"
             id="file"
-            accept=".xlsx,.xls,.txt,.json"
+            accept=".xlsx,.xls,.csv,.txt,.json"
             required
             className="mt-2 block w-full rounded-xl border border-line p-3 text-sm file:mr-4 file:rounded-full file:border-0 file:bg-cream file:px-4 file:py-2 file:text-sm file:font-semibold file:text-navy hover:file:bg-line/50"
           />
