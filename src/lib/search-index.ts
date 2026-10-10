@@ -75,11 +75,15 @@ export function invalidateSearchIndex() {
   cache.invalidate();
 }
 
+import { expandQueryWithAI } from "./search-ai";
+
 export async function searchCatalog(query: string, limit = 60) {
   const index = await getSearchIndex();
   let q = query.trim().slice(0, 80);
   let corrected: string | null = null;
   let res = search(index, q, limit);
+
+  // Étape 1 : correction orthographique classique
   if (!res.total) {
     const s = suggest(index, q);
     if (s) {
@@ -91,5 +95,23 @@ export async function searchCatalog(query: string, limit = 60) {
       }
     }
   }
+
+  // Étape 2 : expansion IA si la requête ressemble à du langage naturel (> 2 mots, peu de résultats)
+  // On n'appelle l'IA que si c'est une vraie phrase naturelle, pas un simple code ou nom de marque
+  const isNaturalLanguage = q.split(" ").length >= 3 || (res.total < 3 && q.split(" ").length >= 2);
+  if (isNaturalLanguage && res.total < 5 && process.env.GOOGLE_AI_API_KEY) {
+    const expansion = await expandQueryWithAI(q).catch(() => null);
+    if (expansion?.keywords?.length) {
+      const aiQuery = expansion.keywords.join(" ");
+      const aiRes = search(index, aiQuery, limit);
+      if (aiRes.total > res.total) {
+        res = aiRes;
+        corrected = expansion.corrected || q;
+        q = aiQuery;
+      }
+    }
+  }
+
   return { query: q, corrected, hits: res.hits, total: res.total, brands: brandFacets(res.hits), categories: categoryFacets(res.hits) };
 }
+
