@@ -86,7 +86,7 @@ const adminGroups = [
     title: "Pilotage",
     links: [
       { href: "/admin/statistiques", label: "Statistiques", icon: BarChart3 },
-      { href: "/admin/comptabilite", label: "Comptabilité", icon: Wallet },
+      { href: "/admin/comptabilite", label: "Comptabilité & finance", icon: Wallet },
     ],
   },
   {

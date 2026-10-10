@@ -327,6 +327,11 @@ model Order {
   paymentStatus PaymentStatus @default(EN_ATTENTE)
   paidAt        DateTime?
   paymentRef    String?
+  /// Commande annulée après encaissement (ou acompte de réservation) : remboursement effectué au client.
+  refundedAt    DateTime?
+  refundNote    String?
+  /// Canal du remboursement (CAISSE, WAVE, ORANGE_MONEY, BANQUE) ou CONSERVE (acompte gardé par JAMAAL).
+  refundChannel String?
 
   notifications Notification[]
   returns       Return[]
@@ -495,12 +500,84 @@ model Notification {
 }
 
 model Expense {
-  id        String   @id @default(cuid())
-  label     String
-  amount    Int
-  category  String
-  date      DateTime @default(now())
-  createdAt DateTime @default(now())
+  id          String    @id @default(cuid())
+  label       String
+  /// Montant TTC payé ou dû (FCFA)
+  amount      Int
+  category    String
+  date        DateTime  @default(now())
+  createdAt   DateTime  @default(now())
+  /// Comptabilité : TVA récupérable incluse dans le montant, compte de charge (plan SYSCOHADA),
+  /// moyen de paiement (compte de trésorerie), fournisseur, pièce justificative.
+  vatAmount   Int       @default(0)
+  account     String?
+  channel     String    @default("CAISSE")
+  supplier    String?
+  reference   String?
+  note        String?
+  paid        Boolean   @default(true)
+  paidAt      DateTime?
+  dueDate     DateTime?
+  receipt     Bytes?
+  receiptMime String?
+  receiptName String?
+  createdBy   String?
+  updatedAt   DateTime  @default(now()) @updatedAt
+
+  @@index([date])
+}
+
+/// Écriture saisie à la main (opérations diverses, à-nouveaux, virements internes…).
+model JournalEntry {
+  id         String   @id @default(cuid())
+  date       DateTime
+  /// Code journal : OD, AN, BQ, CA…
+  journal    String   @default("OD")
+  label      String
+  reference  String?
+  /// [{ account, label?, debit, credit, aux? }]
+  lines      Json
+  /// Modèle utilisé (APPORT, VIREMENT, TVA…) pour l'affichage.
+  template   String?
+  createdBy  String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+
+  @@index([date])
+}
+
+/// Budget mensuel d'un compte de charge ou de produit.
+model Budget {
+  id      String @id @default(cuid())
+  /// AAAA-MM
+  month   String
+  account String
+  amount  Int
+
+  @@unique([month, account])
+}
+
+/// Mois clôturé : plus aucune saisie datée de ce mois ; photo des soldes au moment de la clôture.
+model AccountingPeriod {
+  month    String   @id
+  closedAt DateTime @default(now())
+  closedBy String?
+  snapshot Json
+  note     String?
+}
+
+/// Comptage de caisse ou rapprochement d'un compte de trésorerie (Wave, Orange Money, banque…).
+model CashCount {
+  id          String   @id @default(cuid())
+  account     String
+  date        DateTime
+  counted     Int
+  theoretical Int
+  note        String?
+  createdBy   String?
+  createdAt   DateTime @default(now())
+
+  @@index([account, date])
 }
 
 model Category {
