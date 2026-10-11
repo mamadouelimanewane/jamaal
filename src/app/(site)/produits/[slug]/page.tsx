@@ -44,6 +44,8 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   if (!product) notFound();
   const [category, reservation] = await Promise.all([getCategory(product.category), getReservationSettings()]);
   const related = (await getProductsByCategory(product.category)).filter((item) => item.id !== product.id).slice(0, 4);
+  // Parfums (hors parfums d'ambiance) : textes propres aux extraits ; autres produits : textes neutres.
+  const isPerfume = product.category.startsWith("parfum-") && product.category !== "parfum-ambiance";
 
   return <main className="mx-auto max-w-[1440px] px-5 pb-20 pt-6 sm:px-8 lg:px-12">
     <nav aria-label="Fil d’Ariane" className="mb-7 flex items-center gap-2 text-[10px] uppercase tracking-[0.1em] text-navy/45"><Link href="/" className="transition hover:text-navy">Accueil</Link><span>/</span><Link href={`/collections/${product.category}`} className="transition hover:text-navy">{category?.label || "Parfums"}</Link><span>/</span><span className="max-w-48 truncate text-navy/75">{product.name}</span></nav>
@@ -77,11 +79,11 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           <div className="my-7 border-t border-[#eadfda]"/>
           <ProductPurchasePanel product={product} reservation={reservation}/>
           <ShareWhatsApp name={product.name} slug={product.slug} price={product.regularPrice ?? null}/>
-          <div className="mt-6 grid grid-cols-2 gap-3 border-y border-[#eadfda] py-4 text-[9px] uppercase tracking-[0.12em] text-navy/60"><span>Extrait concentré à 30 %</span><span className="text-right">Paiement Wave · Orange Money</span></div>
+          <div className="mt-6 grid grid-cols-2 gap-3 border-y border-[#eadfda] py-4 text-[9px] uppercase tracking-[0.12em] text-navy/60"><span>{isPerfume ? "Extrait concentré à 30 %" : "Produit officiel Chogan"}</span><span className="text-right">Paiement Wave · Orange Money</span></div>
 
           {(product.topNotes?.length || product.heartNotes?.length || product.baseNotes?.length) ? <section className="mt-9"><p className="luxury-eyebrow">Pyramide olfactive</p><div className="mt-4 grid grid-cols-3 gap-2 sm:gap-4">{[{ label: "Tête", notes: product.topNotes }, { label: "Cœur", notes: product.heartNotes }, { label: "Fond", notes: product.baseNotes }].map((level) => <div key={level.label} className="border-t border-[#c9a99e] pt-3"><p className="text-[8px] uppercase tracking-[0.2em] text-[#9c6254]">{level.label}</p><p className="mt-2 text-[11px] leading-5 text-navy sm:text-xs">{level.notes?.join(", ") || "—"}</p></div>)}</div></section> : null}
 
-          <details className="group mt-8 border-y border-[#eadfda] py-4"><summary className="flex cursor-pointer list-none items-center justify-between font-serif-display text-base text-navy">L’histoire de cette fragrance <span className="text-xl transition group-open:rotate-45">+</span></summary><div className="pt-4 text-sm leading-7 text-navy/65">{product.longDescription.map((paragraph, index) => <p key={index} className="mb-3 last:mb-0">{paragraph}</p>)}</div></details>
+          <details className="group mt-8 border-y border-[#eadfda] py-4"><summary className="flex cursor-pointer list-none items-center justify-between font-serif-display text-base text-navy">{isPerfume ? "L’histoire de cette fragrance" : "Composition, bienfaits et utilisation"} <span className="text-xl transition group-open:rotate-45">+</span></summary><div className="pt-4 text-sm leading-7 text-navy/65">{product.longDescription.map((paragraph, index) => <p key={index} className="mb-3 last:mb-0">{paragraph}</p>)}</div></details>
         </div>
       </div>
     </div>

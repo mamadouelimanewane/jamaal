@@ -1,0 +1,188 @@
+[
+  {
+    "code": "LO001", "nom": "CLARIZENT™", "action": "Expectorant", "type": "Mélange d'huiles essentielles", "format": "10 ml", "prixEur": 35.90,
+    "composition": [
+      ["Huile essentielle de thym rouge", "antiseptique, antibactérienne et expectorante"],
+      ["Huile essentielle de tea tree", "mucolytique"],
+      ["Huile essentielle de sapin blanc", "aide à mieux respirer"]
+    ],
+    "bienfaits": "Mélange d'huiles essentielles à l'action expectorante. Aide à libérer les voies respiratoires supérieures en favorisant l'expectoration, et contribue au bien-être respiratoire en cas de nez bouché.",
+    "usages": [
+      ["Baume", "mélanger à une crème neutre et masser la poitrine en cas de congestion des voies respiratoires ; pour un effet plus intense, quelques gouttes directement sur la poitrine"],
+      ["Solution balsamique", "en cas de sinus encombrés ou de mal de tête, quelques gouttes sur le front ; peut se mélanger à de l'eau froide ou chaude pour des compresses"],
+      ["Inhalation", "10 à 20 gouttes dans une casserole d'eau portée à ébullition, couvrir la tête d'une serviette et respirer les vapeurs"],
+      ["Diffusion", "6 à 7 gouttes pour 300 ml d'eau dans le diffuseur ou le bac du radiateur"]
+    ],
+    "huileEssentielle": true
+  },
+  {
+    "code": "LO002", "nom": "ARMOZENT™", "action": "Calmant", "type": "Mélange d'huiles essentielles", "format": "10 ml", "prixEur": 29.90,
+    "composition": [
+      ["Huile essentielle de lavandin", "calmante et apaisante"],
+      ["Huile essentielle de mandarine", "purifiante, antispasmodique et relaxante"],
+      ["Huile essentielle d'ylang-ylang", "relaxante et aphrodisiaque"]
+    ],
+    "bienfaits": "Mélange d'huiles essentielles à l'action calmante. Aide à apaiser le stress et l'anxiété, détend l'esprit et favorise l'endormissement.",
+    "usages": [
+      ["Sur la peau", "1 à 2 gouttes sur les tempes pour relâcher les tensions nerveuses"],
+      ["Massage", "en cas de tensions musculaires, quelques gouttes dans une huile végétale ou une crème pour le corps"],
+      ["Bain ou douche", "3 à 4 gouttes dans un gel douche neutre pour un effet apaisant"],
+      ["Nettoyant visage", "quelques gouttes dans le nettoyant visage pour un effet relaxant"],
+      ["Diffusion", "6 à 7 gouttes pour 300 ml d'eau dans le diffuseur ou le bac du radiateur"]
+    ],
+    "huileEssentielle": true
+  },
+  {
+    "code": "LO003", "nom": "DYNAZENT™", "action": "Énergisant", "type": "Mélange d'huiles essentielles", "format": "10 ml", "prixEur": 29.90,
+    "composition": [
+      ["Huile essentielle de romarin", "stimulante"],
+      ["Huile essentielle d'orange douce", "antispasmodique et revigorante"],
+      ["Huile essentielle de menthe poivrée", "tonifiante et régénérante"]
+    ],
+    "bienfaits": "Mélange d'huiles essentielles à l'action énergisante. Aide à revigorer l'organisme, à retrouver de l'énergie, à lutter contre la fatigue et à redonner de la vitalité.",
+    "usages": [
+      ["Bain énergisant", "10 gouttes dans l'eau du bain, bien mélanger puis s'immerger 10 minutes"],
+      ["Shampooing revitalisant", "cheveux fragiles, gras ou à pellicules : 2 gouttes dans un shampooing neutre"],
+      ["Diffusion", "6 à 7 gouttes pour 300 ml d'eau dans le diffuseur ou le bac du radiateur"]
+    ],
+    "huileEssentielle": true
+  },
+  {
+    "code": "LO004", "nom": "MUNOZENT™", "action": "Immunostimulant", "type": "Mélange d'huiles essentielles", "format": "10 ml", "prixEur": 29.90,
+    "composition": [
+      ["Huile essentielle de lavande", "apaisante, calmante et purifiante"],
+      ["Huile essentielle d'eucalyptus", "décongestionnante, antiseptique et tonifiante"],
+      ["Huile essentielle de citron", "aux premiers signes de refroidissement"]
+    ],
+    "bienfaits": "Mélange d'huiles essentielles traditionnellement utilisé pour soutenir les défenses naturelles, notamment aux changements de saison.",
+    "usages": [
+      ["Sur la peau", "5 à 6 gouttes en friction sur la plante des pieds"],
+      ["Bain tonifiant", "10 gouttes dans l'eau du bain"],
+      ["Diffusion", "6 à 7 gouttes pour 300 ml d'eau dans le diffuseur ou le bac du radiateur"]
+    ],
+    "huileEssentielle": true
+  },
+  {
+    "code": "LO005", "nom": "LYPHAZENT™", "action": "Drainant", "type": "Mélange d'huiles essentielles", "format": "10 ml", "prixEur": 35.90,
+    "composition": [
+      ["Huile essentielle de romarin", "stimule la circulation périphérique"],
+      ["Huile essentielle de cyprès", "aide contre la rétention d'eau et la cellulite"],
+      ["Huile essentielle de mandarine", "favorise l'élimination des liquides"]
+    ],
+    "bienfaits": "Mélange d'huiles essentielles à l'action drainante. Aide à éliminer l'excès de liquides responsable de la rétention d'eau, des gonflements et de la cellulite.",
+    "usages": [
+      ["Massage", "5 à 10 gouttes dans une crème neutre ou une huile de massage ; pour un effet plus intense, quelques gouttes directement sur la zone"],
+      ["Enveloppements", "2 à 3 gouttes dans une boue ou un masque d'argile"],
+      ["Bain délassant", "10 gouttes dans l'eau du bain"],
+      ["Bain de pieds", "quelques gouttes dans une bassine d'eau pour dégonfler les pieds"]
+    ],
+    "huileEssentielle": true
+  },
+  {
+    "code": "LO006", "nom": "REVIZENT™", "action": "Multifonction", "type": "Mélange d'huiles essentielles", "format": "50 ml", "prixEur": 34.90,
+    "composition": [["25 huiles essentielles", "11 bienfaits"]],
+    "bienfaits": "Mélange de 25 huiles essentielles à l'effet balsamique, rafraîchissant, relaxant, énergisant et tonifiant : un flacon pour de nombreux usages du quotidien.",
+    "usages": [
+      ["Bain régénérant", "10 gouttes dans l'eau du bain"],
+      ["Muscles et articulations", "10 gouttes en massage sur la zone sensible"],
+      ["Tête lourde", "masser les tempes et le front avec quelques gouttes"],
+      ["Cheveux", "frictionner sur cheveux secs contre les pellicules et pour revitaliser"],
+      ["Massage", "quelques gouttes sur la zone à masser pour un effet relaxant"],
+      ["Diffusion", "6 à 7 gouttes pour 300 ml d'eau dans le diffuseur ou le bac du radiateur"],
+      ["Nettoyant visage", "quelques gouttes dans le nettoyant pour redonner du tonus à la peau"],
+      ["Compresses", "avec de l'eau chaude pour le dos, avec de l'eau froide pour la tête"]
+    ],
+    "huileEssentielle": true
+  },
+  {
+    "code": "LO007", "nom": "ULTRA OIL™", "action": "Apaisant et adoucissant", "type": "Mélange d'huiles végétales", "format": "50 ml", "prixEur": 54.90,
+    "composition": [
+      ["Huile de rose musquée", "réparatrice et apaisante"],
+      ["Huile d'avocat", "émolliente, réparatrice et protectrice"],
+      ["Huile de chanvre", "apaisante et antioxydante"],
+      ["Actif exclusif", "favorise l'absorption du mélange"]
+    ],
+    "bienfaits": "Mélange d'huiles végétales apaisant et adoucissant, idéal pour les peaux sensibles et délicates. Atténue les inconforts et les irritations, adoucit la peau et convient particulièrement aux peaux sèches.",
+    "usages": [
+      ["Visage", "quelques gouttes sur les rougeurs et après le soleil"],
+      ["Corps", "quelques gouttes pour hydrater la peau sèche, calmer les démangeaisons et prendre soin des cicatrices et des irritations"],
+      ["Mains", "masser les mains abîmées"]
+    ],
+    "huileEssentielle": false
+  },
+  {
+    "code": "LO008", "nom": "ULTRA OIL™", "action": "Assouplissant et régénérant", "type": "Mélange d'huiles végétales", "format": "50 ml", "prixEur": 34.90,
+    "composition": [
+      ["Huile d'amande douce", "régénérante et assouplissante"],
+      ["Huile d'argan", "assouplissante"],
+      ["Squalane végétal", "renforce la barrière cutanée, émollient et assouplissant"],
+      ["Actif exclusif", "favorise l'absorption du mélange"]
+    ],
+    "bienfaits": "Mélange d'huiles végétales assouplissant et régénérant pour la peau et les cheveux. Redonne tonus et éclat aux peaux ternes et fatiguées ; particulièrement indiqué contre les vergetures et la sécheresse localisée.",
+    "usages": [
+      ["Cheveux", "en masque avant shampooing sur cheveux très secs et abîmés"],
+      ["Corps", "léger massage sur la peau ; soin naturel contre les vergetures, pour l'élasticité de la peau"]
+    ],
+    "huileEssentielle": false
+  },
+  {
+    "code": "LO009", "nom": "ULTRA OIL™", "action": "Antioxydant et illuminateur", "type": "Mélange d'huiles végétales", "format": "50 ml", "prixEur": 39.90,
+    "composition": [
+      ["Huile de pépins de raisin", "éclaircissante et anti-âge"],
+      ["Huile de lin", "apaisante et antioxydante"],
+      ["Acide hyaluronique", "resserre les pores, régule le sébum, atténue les rougeurs"],
+      ["Actif exclusif", "favorise l'absorption du mélange"]
+    ],
+    "bienfaits": "Mélange d'huiles végétales antioxydant et illuminateur pour la peau et les cheveux. Aide à préserver la peau de l'oxydation, ravive l'éclat du teint et de la chevelure et atténue les signes de l'âge.",
+    "usages": [
+      ["Visage", "masser jusqu'à absorption pour un effet antioxydant et un teint lumineux"],
+      ["Corps", "en huile de massage contre l'aspect peau d'orange et pour stimuler la circulation"]
+    ],
+    "huileEssentielle": false
+  },
+  {
+    "code": "LO010", "nom": "ULTRA OIL™", "action": "Repulpant et hydratant", "type": "Mélange d'huiles végétales", "format": "50 ml", "prixEur": 44.90,
+    "composition": [
+      ["Huile de jojoba", "antioxydante"],
+      ["Céramides", "effet anti-âge et pré-âge"],
+      ["Huile de macadamia", "nourrit intensément les peaux sèches et matures"],
+      ["Actif exclusif", "favorise l'absorption du mélange"]
+    ],
+    "bienfaits": "Mélange d'huiles végétales repulpant et hydratant pour la peau et les cheveux. Aide à protéger la peau des radicaux libres, à hydrater les cheveux et à retrouver le niveau d'hydratation naturel de la peau.",
+    "usages": [
+      ["Visage", "contre le vieillissement prématuré, surtout sur peau sèche, sensible et sujette aux rides"],
+      ["Cheveux", "quelques gouttes sur longueurs humides, laisser poser puis laver ; sur cheveux secs pour hydrater et assouplir"]
+    ],
+    "huileEssentielle": false
+  },
+  {
+    "code": "LO011", "nom": "ULTRA OIL™", "action": "Nourrissant et restructurant", "type": "Mélange de beurres et d'huiles végétales", "format": "80 g", "prixEur": 49.90,
+    "composition": [
+      ["Beurre de karité", "nourrissant et émollient"],
+      ["Huile de coco", "hydrate la peau et apaise les irritations"],
+      ["Huile de graines de caméline", "protège la peau et apaise les rougeurs"],
+      ["Acide hyaluronique et huile de graines de Limnanthes alba", "nourrissent, repulpent et protègent la peau"]
+    ],
+    "bienfaits": "Mélange de beurres et d'huiles végétales nourrissant et restructurant pour le corps et les cheveux. Régénère et hydrate intensément la peau, restructure et nourrit la chevelure.",
+    "usages": [
+      ["Corps", "sur la peau pour nourrir et calmer les démangeaisons ; sur le cuir chevelu, aide à équilibrer le sébum"],
+      ["Cheveux", "sur les longueurs en masque avant shampooing pour restructurer"]
+    ],
+    "huileEssentielle": false
+  },
+  {
+    "code": "LO012", "nom": "ULTRA OIL™", "action": "Purifiant (antibactérien et antiseptique)", "type": "Mélange d'huiles végétales", "format": "50 ml", "prixEur": 44.90,
+    "composition": [
+      ["Huile de neem", "purifiante"],
+      ["Huile de tea tree", "purifiante et apaisante"],
+      ["Complexe actif antibactérien", "purifie la peau, la protège des agressions extérieures et renforce la barrière cutanée"],
+      ["Actif exclusif", "favorise l'absorption du mélange"]
+    ],
+    "bienfaits": "Mélange d'huiles végétales purifiant, pour prendre soin de la peau et la protéger des agressions extérieures.",
+    "usages": [
+      ["Visage et corps", "sur les zones à imperfections et les peaux à problèmes"],
+      ["Cheveux", "quelques gouttes dans le shampooing habituel, action antipelliculaire et purifiante"]
+    ],
+    "huileEssentielle": false
+  }
+]
