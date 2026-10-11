@@ -38,7 +38,10 @@ export interface LowStockAlert {
   newStock: number;
 }
 
-export class StockError extends Error {}
+export class StockError extends Error {
+  /** Quantité réellement disponible, quand l'erreur vient d'un stock insuffisant. */
+  available?: number;
+}
 
 /**
  * Trouve l'emplacement de stock d'un article : le format demandé, sinon (ancien panier,
@@ -86,7 +89,11 @@ export async function moveStock(tx: Tx, ref: StockRef, delta: number, opts: Move
       ? await tx.productVariant.updateMany({ where: { id: ref.variantId, stock: { gte: need } }, data: { stock: { decrement: need } } })
       : await tx.product.updateMany({ where: { id: ref.productId, stock: { gte: need } }, data: { stock: { decrement: need } } });
     if (res.count === 0) {
-      if (opts.strict) throw new StockError(`stock insuffisant (${ref.label} : ${row.stock} disponible${row.stock > 1 ? "s" : ""}).`);
+      if (opts.strict) {
+        const err = new StockError(`stock insuffisant (${ref.label} : ${row.stock} disponible${row.stock > 1 ? "s" : ""}).`);
+        err.available = Math.max(0, row.stock);
+        throw err;
+      }
       // Vente déjà conclue (commande vendeur) ou perte : on descend jusqu'à 0 et on trace l'écart.
       applied = -row.stock;
       if (applied !== 0) {
@@ -162,7 +169,13 @@ export async function reserveStock(tx: Tx, items: SaleItem[], strict = true, ctx
       });
       if (r.crossed) alerts.push({ name: `${await productName(tx, ref.productId)}${ref.variantId ? ` — ${ref.label}` : ""}`, newStock: r.nextStock });
     } catch (e) {
-      if (e instanceof StockError) throw new StockError(`« ${await productName(tx, ref.productId)} » : ${e.message} Merci d'ajuster votre panier.`);
+      if (e instanceof StockError) {
+        // Message destiné au client : un format épuisé est présenté comme « en cours de commande ».
+        const name = `« ${await productName(tx, ref.productId)} »${ref.variantId ? ` (${ref.label})` : ""}`;
+        if (e.available === 0) throw new StockError(`${name} : produit en cours de commande. Retirez-le du panier ou réservez-le depuis sa fiche.`);
+        if (e.available !== undefined) throw new StockError(`${name} : il n'en reste que ${e.available}. Merci d'ajuster la quantité dans votre panier.`);
+        throw new StockError(`${name} : ${e.message} Merci d'ajuster votre panier.`);
+      }
       throw e;
     }
   }

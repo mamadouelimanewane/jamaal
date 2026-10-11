@@ -127,7 +127,7 @@ export function ReservationForm({
           </div>
           <div className="min-w-0">
             <p className="font-semibold text-navy">{product.name}</p>
-            <p className="mt-1 text-sm text-navy/70">Actuellement en rupture · disponible sous <strong>{settings.delayLabel}</strong></p>
+            <p className="mt-1 text-sm text-navy/70">Produit en cours de commande · disponible sous <strong>{settings.delayLabel}</strong></p>
             {formats.length > 1 ? (
               <select value={format} onChange={(e) => setFormat(e.target.value)} aria-label="Format" className={`mt-2 max-w-xs ${field}`}>
                 {formats.map((f) => <option key={f.label} value={f.label}>{f.label} — {formatPrice(f.price)}</option>)}
