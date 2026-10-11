@@ -12,16 +12,6 @@ export async function requireStaff() {
   return session;
 }
 
-/** Session d'un compte client (espace /compte), rattachée à sa fiche Customer. */
-export async function requireClient() {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Non authentifié");
-  if (session.user.role !== "CLIENT") throw new Error("Réservé aux clients");
-  const user = await prisma.user.findUnique({ where: { id: session.user.id }, include: { customer: true } });
-  if (!user?.customer) throw new Error("Votre compte n'est pas encore rattaché à une fiche client.");
-  return { session, customer: user.customer };
-}
-
 export async function requireAdmin() {
   const session = await requireStaff();
   if (session.user?.role !== "ADMIN") throw new Error("Réservé aux administrateurs");
