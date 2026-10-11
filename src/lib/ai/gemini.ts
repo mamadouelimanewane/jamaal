@@ -64,21 +64,47 @@ export function geminiModel() {
   return process.env.GEMINI_MODEL?.trim() || DEFAULT_GEMINI_MODEL;
 }
 
-/** Appelle generateContent et renvoie le contenu du premier candidat. */
-export async function generateContent(req: GeminiRequest, fetchImpl: typeof fetch = fetch): Promise<GeminiContent> {
-  const key = process.env.GOOGLE_AI_API_KEY;
-  if (!key) throw new GeminiError("GOOGLE_AI_API_KEY manquante");
+export const DEFAULT_GEMINI_FALLBACK_MODEL = "gemini-flash-lite-latest";
 
-  const model = geminiModel();
-  const signal = AbortSignal.timeout(req.timeoutMs ?? 20_000);
+/**
+ * Modèle de secours, utilisé quand le principal répond 429 (quota épuisé, fréquent avec une clé
+ * gratuite) ou 503 (surcharge) : il a son propre quota. GEMINI_FALLBACK_MODEL=none le désactive.
+ */
+export function geminiFallbackModel(): string | null {
+  const v = process.env.GEMINI_FALLBACK_MODEL?.trim();
+  if (v?.toLowerCase() === "none") return null;
+  const m = v || DEFAULT_GEMINI_FALLBACK_MODEL;
+  return m === geminiModel() ? null : m;
+}
+
+/** Après un 429 / 503 du modèle principal, on passe directement au secours pendant un moment. */
+const PRIMARY_COOLDOWN_MS = 60_000;
+let primaryCooldownUntil = 0;
+export function resetGeminiCooldown() {
+  primaryCooldownUntil = 0;
+}
+
+/** Signature fictive admise par Gemini quand une conversation passe d'un modèle à un autre. */
+const FOREIGN_SIGNATURE = "skip_thought_signature_validator";
+
+class GeminiHttpError extends GeminiError {
+  constructor(readonly status: number, detail: string) {
+    super(`Gemini ${status} : ${detail}`);
+  }
+}
+
+async function callModel(model: string, req: GeminiRequest, key: string, signal: AbortSignal, fetchImpl: typeof fetch, foreign: boolean) {
   const variants = thinkingVariants(req.thinking);
   const memo = `${model}|${req.thinking ?? ""}`;
+  // Conversation commencée sur un autre modèle : ses signatures de réflexion ne valent pas ici.
+  const contents = foreign
+    ? req.contents.map((c) => ({ ...c, parts: c.parts.map((p) => ("thoughtSignature" in p && p.thoughtSignature ? { ...p, thoughtSignature: FOREIGN_SIGNATURE } : p)) }))
+    : req.contents;
 
-  let res: Response | null = null;
   for (let v = acceptedVariant.get(memo) ?? 0; v < variants.length; v++) {
     const thinkingConfig = variants[v];
     const body: Record<string, unknown> = {
-      contents: req.contents,
+      contents,
       generationConfig: {
         temperature: req.temperature ?? 0.2,
         maxOutputTokens: req.maxOutputTokens ?? 1024,
@@ -89,7 +115,7 @@ export async function generateContent(req: GeminiRequest, fetchImpl: typeof fetc
     if (req.system) body.system_instruction = { parts: [{ text: req.system }] };
     if (req.tools?.length) body.tools = [{ function_declarations: req.tools }];
 
-    res = await fetchImpl(`${GEMINI_BASE_URL}/${encodeURIComponent(model)}:generateContent`, {
+    const res = await fetchImpl(`${GEMINI_BASE_URL}/${encodeURIComponent(model)}:generateContent`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-goog-api-key": key },
       body: JSON.stringify(body),
@@ -97,14 +123,46 @@ export async function generateContent(req: GeminiRequest, fetchImpl: typeof fetc
     });
     if (res.ok) {
       acceptedVariant.set(memo, v);
-      break;
+      return res;
     }
     const detail = (await res.text().catch(() => "")).slice(0, 300);
     // Réglage de réflexion inconnu de ce modèle : on essaie la variante suivante.
     if (res.status === 400 && thinkingConfig && /thinking/i.test(detail) && v < variants.length - 1) continue;
-    throw new GeminiError(`Gemini ${res.status} : ${detail}`);
+    throw new GeminiHttpError(res.status, detail);
   }
-  if (!res?.ok) throw new GeminiError("Gemini : aucune réponse");
+  throw new GeminiError("Gemini : aucune réponse");
+}
+
+/** Appelle generateContent et renvoie le contenu du premier candidat. */
+export async function generateContent(req: GeminiRequest, fetchImpl: typeof fetch = fetch): Promise<GeminiContent> {
+  const key = process.env.GOOGLE_AI_API_KEY;
+  if (!key) throw new GeminiError("GOOGLE_AI_API_KEY manquante");
+
+  const primary = geminiModel();
+  const fallback = geminiFallbackModel();
+  const signal = AbortSignal.timeout(req.timeoutMs ?? 20_000);
+  const hasSignatures = req.contents.some((c) => c.parts.some((p) => "thoughtSignature" in p && p.thoughtSignature));
+
+  let res: Response;
+  const skipPrimary = fallback && Date.now() < primaryCooldownUntil;
+  try {
+    res = await callModel(skipPrimary ? fallback : primary, req, key, signal, fetchImpl, Boolean(skipPrimary && hasSignatures));
+  } catch (e) {
+    // Conversation poursuivie après une bascule : signatures d'un autre modèle refusées → on les neutralise.
+    if (e instanceof GeminiHttpError && e.status === 400 && hasSignatures && /signature/i.test(e.message)) {
+      res = await callModel(skipPrimary ? fallback : primary, req, key, signal, fetchImpl, true);
+      return contentOf(res);
+    }
+    const saturated = e instanceof GeminiHttpError && (e.status === 429 || e.status === 503);
+    if (!saturated || !fallback || skipPrimary) throw e;
+    primaryCooldownUntil = Date.now() + PRIMARY_COOLDOWN_MS;
+    console.warn(`[gemini] ${primary} indisponible (${(e as GeminiHttpError).status}), bascule sur ${fallback}`);
+    res = await callModel(fallback, req, key, signal, fetchImpl, hasSignatures);
+  }
+  return contentOf(res);
+}
+
+async function contentOf(res: Response): Promise<GeminiContent> {
   const data = (await res.json()) as { candidates?: { content?: GeminiContent; finishReason?: string }[] };
   const content = data.candidates?.[0]?.content;
   if (!content?.parts?.length) {
