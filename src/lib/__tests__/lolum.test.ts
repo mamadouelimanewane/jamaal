@@ -20,8 +20,8 @@ test("chaque fiche a composition, bienfaits, mode d'emploi et précautions", () 
 });
 
 test("le SQL ne remplace que les textes générés automatiquement", () => {
-  const sql = fs.readFileSync(path.join(process.cwd(), "db/sql/20261011-12-fiches-lolum.sql"), "utf8");
+  const sql = fs.readFileSync(path.join(process.cwd(), "db/sql/20261011-13-fiches-lolum-textes.sql"), "utf8");
   const updates = sql.split("\n").filter((l) => l.startsWith("UPDATE"));
   assert.equal(updates.length, 24);
-  for (const u of updates) assert.match(u, /LIKE '%Produit Chogan, distribué au Sénégal par JAMAAL\.'|coalesce\(cardinality\("longDescription"\), 0\) = 0/);
+  for (const u of updates) assert.match(u, /LIKE '%Produit Chogan, distribué au Sénégal par JAMAAL\.'|coalesce\(cardinality\("longDescription"\), 0\) = 0 OR \(cardinality\("longDescription"\) <= 2 AND array_to_string\("longDescription", ' '\) LIKE '%distribué au Sénégal par JAMAAL%'\)/);
 });
