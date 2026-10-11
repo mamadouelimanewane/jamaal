@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { generateContent, thinkingVariants } from "../ai/gemini";
+import { generateContent, resetGeminiCooldown, thinkingVariants, type GeminiContent } from "../ai/gemini";
 
 process.env.GOOGLE_AI_API_KEY = "test-key";
 
@@ -63,4 +63,49 @@ test("une autre erreur n'est pas réessayée", async () => {
 test("variantes de réflexion", () => {
   assert.deepEqual(thinkingVariants(undefined), [null]);
   assert.equal(thinkingVariants("low").length, 3);
+});
+
+test("quota épuisé (429) : bascule sur le modèle de secours, puis directement pendant 1 min", async () => {
+  process.env.GEMINI_MODEL = "modele-e";
+  delete process.env.GEMINI_FALLBACK_MODEL;
+  resetGeminiCooldown();
+  const calls: Call[] = [];
+  const quota = { status: 429, body: "RESOURCE_EXHAUSTED" };
+  await generateContent({ contents: [{ role: "user", parts: [{ text: "x" }] }] }, fakeFetch([quota, { status: 200, body: OK }], calls));
+  assert.equal(calls.length, 2);
+  assert.match(calls[0].url, /modele-e:/);
+  assert.match(calls[1].url, /gemini-flash-lite-latest:/);
+  // Appel suivant : plus d'essai sur le modèle saturé.
+  await generateContent({ contents: [{ role: "user", parts: [{ text: "y" }] }] }, fakeFetch([{ status: 200, body: OK }], calls));
+  assert.equal(calls.length, 3);
+  assert.match(calls[2].url, /gemini-flash-lite-latest:/);
+  resetGeminiCooldown();
+});
+
+test("après une bascule, les signatures de réflexion de l'autre modèle sont neutralisées", async () => {
+  process.env.GEMINI_MODEL = "modele-f";
+  resetGeminiCooldown();
+  const calls: Call[] = [];
+  const call = { functionCall: { name: "etat_stock", args: {} }, thoughtSignature: "sig-modele-f" };
+  const contents: GeminiContent[] = [
+    { role: "user", parts: [{ text: "x" }] },
+    { role: "model", parts: [call] },
+    { role: "user", parts: [{ functionResponse: { name: "etat_stock", response: {} } }] },
+  ];
+  await generateContent({ contents }, fakeFetch([{ status: 503, body: "overloaded" }, { status: 200, body: OK }], calls));
+  const sent = (calls[1].body as unknown as { contents: { parts: { thoughtSignature?: string }[] }[] }).contents;
+  assert.equal(sent[1].parts[0].thoughtSignature, "skip_thought_signature_validator");
+  // La conversation d'origine n'est pas modifiée.
+  assert.equal(call.thoughtSignature, "sig-modele-f");
+  resetGeminiCooldown();
+});
+
+test("sans modèle de secours, le 429 remonte", async () => {
+  process.env.GEMINI_MODEL = "modele-g";
+  process.env.GEMINI_FALLBACK_MODEL = "none";
+  resetGeminiCooldown();
+  const calls: Call[] = [];
+  await assert.rejects(generateContent({ contents: [{ role: "user", parts: [{ text: "x" }] }] }, fakeFetch([{ status: 429, body: "quota" }], calls)), /Gemini 429/);
+  assert.equal(calls.length, 1);
+  delete process.env.GEMINI_FALLBACK_MODEL;
 });
