@@ -76,8 +76,14 @@ export function invalidateSearchIndex() {
 }
 
 import { expandQueryWithAI } from "./search-ai";
+import { geminiConfigured } from "./ai/gemini";
 
-export async function searchCatalog(query: string, limit = 60) {
+/**
+ * Recherche dans le catalogue. `allowAi` autorise l'expansion IA (page de résultats seulement,
+ * pas les suggestions instantanées) ; il n'est évalué que si l'IA serait utile, ce qui permet d'y
+ * placer une limitation de débit.
+ */
+export async function searchCatalog(query: string, limit = 60, opts: { allowAi?: () => Promise<boolean> } = {}) {
   const index = await getSearchIndex();
   let q = query.trim().slice(0, 80);
   let corrected: string | null = null;
@@ -99,7 +105,7 @@ export async function searchCatalog(query: string, limit = 60) {
   // Étape 2 : expansion IA si la requête ressemble à du langage naturel (> 2 mots, peu de résultats)
   // On n'appelle l'IA que si c'est une vraie phrase naturelle, pas un simple code ou nom de marque
   const isNaturalLanguage = q.split(" ").length >= 3 || (res.total < 3 && q.split(" ").length >= 2);
-  if (isNaturalLanguage && res.total < 5 && process.env.GOOGLE_AI_API_KEY) {
+  if (isNaturalLanguage && res.total < 5 && opts.allowAi && geminiConfigured() && (await opts.allowAi())) {
     const expansion = await expandQueryWithAI(q).catch(() => null);
     if (expansion?.keywords?.length) {
       const aiQuery = expansion.keywords.join(" ");

@@ -13,8 +13,8 @@ export function ImportForm() {
     try {
       const res = await importChoganExcelAction(formData);
       setResult(res);
-    } catch (err: any) {
-      setResult({ success: false, error: err.message });
+    } catch (err) {
+      setResult({ success: false, error: err instanceof Error ? err.message : "Import impossible." });
     } finally {
       setLoading(false);
     }

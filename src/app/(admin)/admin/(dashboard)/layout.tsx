@@ -28,6 +28,7 @@ import { Calculator,
   GalleryHorizontal,
   CalendarClock,
   FileSignature,
+  Sparkles,
 } from "lucide-react";
 import { auth, signOut } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -46,7 +47,10 @@ import { Suspense } from "react";
 const adminGroups = [
   {
     title: "Aperçu",
-    links: [{ href: "/admin", label: "Tableau de bord", icon: LayoutDashboard }],
+    links: [
+      { href: "/admin", label: "Tableau de bord", icon: LayoutDashboard },
+      { href: "/admin/assistant", label: "Assistant IA", icon: Sparkles },
+    ],
   },
   {
     title: "Catalogue",
@@ -97,6 +101,7 @@ const adminGroups = [
 
 const consultantLinks = [
   { href: "/admin", label: "Tableau de bord", icon: LayoutDashboard },
+  { href: "/admin/assistant", label: "Assistant IA", icon: Sparkles },
   { href: "/admin/mon-wallet", label: "Mon wallet", icon: Wallet },
   { href: "/admin/mes-ventes", label: "Mes ventes", icon: BarChart3 },
   { href: "/admin/mes-commandes", label: "Mes commandes", icon: ShoppingCart },
@@ -113,6 +118,7 @@ const livreurLinks = [
   { href: "/admin", label: "Tableau de bord", icon: LayoutDashboard },
   { href: "/admin/mon-wallet", label: "Mon wallet", icon: Wallet },
   { href: "/admin/mes-livraisons", label: "Mes livraisons", icon: Truck },
+  { href: "/admin/assistant", label: "Assistant IA", icon: Sparkles },
 ];
 
 async function logoutAction() {

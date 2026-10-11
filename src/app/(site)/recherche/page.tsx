@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { searchCatalog } from "@/lib/search-index";
+import { clientIpFromHeaders, rateLimit } from "@/lib/rate-limit";
 import { getProductsByIds } from "@/lib/db-products";
 import { ProductCard } from "@/components/ProductCard";
 import { SearchPageInput } from "@/components/SearchPageInput";
@@ -19,7 +21,10 @@ const SUGGESTIONS = ["Sauvage", "Baccarat Rouge 540", "One Million", "Black Opiu
 
 export default async function SearchPage({ searchParams }: { searchParams: Promise<{ q?: string; cat?: string; tri?: string; marque?: string }> }) {
   const { q = "", cat, tri = "pertinence", marque } = await searchParams;
-  const r = q.trim() ? await searchCatalog(q, 200) : null;
+  const ip = clientIpFromHeaders(await headers());
+  // Expansion IA des phrases en langage naturel, limitée à 10 par minute et par visiteur.
+  const allowAi = async () => (await rateLimit(`search-ai:${ip}`, { limit: 10, windowMs: 60_000 })).ok;
+  const r = q.trim() ? await searchCatalog(q, 200, { allowAi }) : null;
 
   let hits = r?.hits ?? [];
   if (cat) hits = hits.filter((h) => h.doc.category === cat);

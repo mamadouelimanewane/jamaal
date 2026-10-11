@@ -1,12 +1,9 @@
 /**
  * search-ai.ts
- * Module d'expansion de requête IA basé sur Google Gemini Flash (gratuit).
- * Quand la recherche classique donne peu ou pas de résultats,
- * l'IA analyse la phrase en langage naturel pour extraire les bons mots-clés.
+ * Expansion de requête par l'IA (Google Gemini Flash) : quand la recherche classique donne peu
+ * ou pas de résultats, l'IA analyse la phrase en langage naturel pour en extraire les bons mots-clés.
  */
-
-const GEMINI_API_KEY = process.env.GOOGLE_AI_API_KEY;
-const GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
+import { generateContent, geminiConfigured, textOf } from "./ai/gemini";
 
 type Expansion = {
   keywords: string[];    // Mots-clés optimisés pour la recherche (noms propres, codes, marques)
@@ -33,46 +30,34 @@ Exemples :
 - "parfum oriental boisé unisexe" → keywords: ["oriental", "boisé", "unisexe", "oud"], corrected: "parfum oriental boisé unisexe"
 `;
 
-// Cache simple en mémoire pour éviter les appels API répétés sur la même requête
+// Cache simple en mémoire pour éviter les appels API répétés sur la même requête (500 entrées max)
 const expandCache = new Map<string, Expansion>();
 
 export async function expandQueryWithAI(query: string): Promise<Expansion | null> {
-  if (!GEMINI_API_KEY) return null;
+  if (!geminiConfigured()) return null;
 
   const cacheKey = query.toLowerCase().trim();
   if (expandCache.has(cacheKey)) return expandCache.get(cacheKey)!;
 
   try {
-    const response = await fetch(`${GEMINI_URL}?key=${GEMINI_API_KEY}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
-        contents: [{ parts: [{ text: `Requête : "${query}"` }] }],
-        generationConfig: {
-          temperature: 0.2,
-          maxOutputTokens: 256,
-          responseMimeType: "application/json"
-        }
-      }),
-      signal: AbortSignal.timeout(4000) // 4 secondes max
+    const content = await generateContent({
+      system: SYSTEM_PROMPT,
+      contents: [{ role: "user", parts: [{ text: `Requête : "${query.slice(0, 80)}"` }] }],
+      temperature: 0.2,
+      maxOutputTokens: 512,
+      json: true,
+      timeoutMs: 4000,
     });
+    const parsed = JSON.parse(textOf(content)) as Expansion;
+    if (!Array.isArray(parsed.keywords) || !parsed.keywords.length) return null;
+    parsed.keywords = parsed.keywords.filter((k) => typeof k === "string").slice(0, 8);
 
-    if (!response.ok) return null;
-
-    const data = await response.json();
-    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!text) return null;
-
-    const parsed: Expansion = JSON.parse(text);
-    if (!parsed.keywords?.length) return null;
-
-    // Mise en cache (5 minutes max, 500 entrées max)
     if (expandCache.size > 500) expandCache.clear();
     expandCache.set(cacheKey, parsed);
-
     return parsed;
-  } catch {
-    return null; // Silencieux en cas d'erreur réseau ou timeout
+  } catch (e) {
+    // La recherche classique reste affichée ; l'erreur est journalisée pour être visible.
+    console.error("[search-ai]", e instanceof Error ? e.message : e);
+    return null;
   }
 }
