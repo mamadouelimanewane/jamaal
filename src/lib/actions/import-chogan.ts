@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import ExcelJS from "exceljs";
 import { requireAdmin } from "./auth-guard";
 import { revalidatePath } from "next/cache";
+import { invalidateSearchIndex } from "@/lib/search-index";
 
 const getCategory = (code: string, name: string) => {
   if (code.startsWith("BSF")) return "gels-douche";
@@ -34,7 +35,7 @@ export async function importChoganExcelAction(formData: FormData) {
     if (file.name.endsWith('.txt') || file.name.endsWith('.json')) {
       const text = buffer.toString('utf8');
       let products = [];
-      try { products = JSON.parse(text); } catch (e) { return { success: false, error: 'Fichier JSON/TXT invalide.' }; }
+      try { products = JSON.parse(text); } catch { return { success: false, error: 'Fichier JSON/TXT invalide.' }; }
       
       let countNew = 0; let countUpdated = 0;
       for (const p of products) {
@@ -72,6 +73,7 @@ export async function importChoganExcelAction(formData: FormData) {
         }
       }
       revalidatePath('/admin/produits');
+      invalidateSearchIndex();
       return { success: true, countNew, countUpdated };
     }
     
@@ -101,7 +103,7 @@ export async function importChoganExcelAction(formData: FormData) {
         if (!line) continue;
         
         let inQuote = false;
-        let cells = [];
+        const cells: string[] = [];
         let cur = '';
         for (let c = 0; c < line.length; c++) {
           if (line[c] === '"') inQuote = !inQuote;
@@ -147,11 +149,12 @@ export async function importChoganExcelAction(formData: FormData) {
         }
       }
       revalidatePath('/admin/produits');
+      invalidateSearchIndex();
       return { success: true, countNew, countUpdated };
     }
     
     const workbook = new ExcelJS.Workbook();
-    await workbook.xlsx.load(buffer);
+    await workbook.xlsx.load(arrayBuffer);
     
     const worksheet = workbook.getWorksheet("Catalogue") || workbook.worksheets[0];
     if (!worksheet) return { success: false, error: "Le fichier Excel est vide." };
@@ -176,7 +179,7 @@ export async function importChoganExcelAction(formData: FormData) {
       return { success: false, error: "Colonnes introuvables. Assurez-vous d'avoir Réf., Produit et Nouveau prix JAMAAL (ou équivalent)." };
     }
     
-    const rows: any[] = [];
+    const rows: { row: ExcelJS.Row; rowNumber: number }[] = [];
     worksheet.eachRow((row, rowNumber) => { rows.push({ row, rowNumber }); });
     
     for (const { row, rowNumber } of rows) {
@@ -184,14 +187,14 @@ export async function importChoganExcelAction(formData: FormData) {
       
       const code = String(row.getCell(refIdx).value || "").trim();
       const name = String(row.getCell(nameIdx).value || "").trim();
-      let priceVal: any = row.getCell(priceIdx).value;
+      const priceVal = row.getCell(priceIdx).value;
       
       if (!code || !name || priceVal === null || priceVal === undefined) continue;
       if (code.toLowerCase() === "code" || code.toLowerCase() === "ref.") continue;
       
       let price_fcfa = 0;
       if (typeof priceVal === "number") price_fcfa = priceVal;
-      else if (typeof priceVal === "object" && priceVal.result) price_fcfa = Number(priceVal.result);
+      else if (typeof priceVal === "object" && "result" in priceVal && priceVal.result) price_fcfa = Number(priceVal.result);
       else price_fcfa = Number(String(priceVal).replace(/[^\d]/g, ""));
       
       if (isNaN(price_fcfa) || price_fcfa <= 0) continue;
@@ -244,10 +247,11 @@ export async function importChoganExcelAction(formData: FormData) {
     }
     
     revalidatePath("/admin/produits");
+    invalidateSearchIndex();
     return { success: true, countNew, countUpdated };
     
-  } catch (error: any) {
+  } catch (error) {
     console.error("Import error:", error);
-    return { success: false, error: error.message };
+    return { success: false, error: error instanceof Error ? error.message : "Import impossible." };
   }
 }

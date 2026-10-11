@@ -52,6 +52,8 @@ Variables d'environnement principales (`.env`, jamais commité) :
 | `WHATSAPP_*` | envoi WhatsApp (voir `docs/whatsapp-api-config.md`) |
 | `WAVE_PAYOUT_API_KEY` | versement des commissions sur Wave (clé « Payout » Wave Business) |
 | `ORANGE_PAYOUT_URL`, `ORANGE_PAYOUT_TOKEN` | versement des commissions sur Orange Money (Sonatel ou agrégateur) |
+| `GOOGLE_AI_API_KEY` | IA Gemini : assistant du back-office (`/admin/assistant`) et recherche en langage naturel (clé gratuite sur aistudio.google.com) |
+| `GEMINI_MODEL` | modèle Gemini (facultatif, défaut `gemini-flash-latest`) |
 
 ## Base de données
 
@@ -77,6 +79,7 @@ Les scripts de `import/neon/` sont l'historique des imports faits à la main ; i
 - `src/lib/actions/` — actions serveur (chaque action vérifie le rôle avec `requireAdmin`,
   `requireStaff`… ; les fonctions internes non protégées restent hors des fichiers `"use server"`)
 - `src/proxy.ts` — attribution revendeur (`?ref=`) et protection des routes `/admin`
+- `src/lib/ai/` — assistant IA (client Gemini, outils de lecture filtrés selon le rôle)
 - `src/lib/rate-limit.ts` — limitation de débit partagée (table `RateLimitBucket`)
 - `src/lib/business-model.ts` — modèle économique (prix, commissions, paiements, versements)
 - `src/lib/payouts/` — commissions par commande et versements sur wallet Wave / Orange Money
