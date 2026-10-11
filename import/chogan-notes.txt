@@ -1,0 +1,187 @@
+# Pyramides olfactives officielles Chogan (fiches produit en français, chogangroupspa.com, octobre 2026)
+# id Chogan|code|Notes de tête§Notes de cœur§Notes de fond
+1792|75|Notes de tête: Ananas, Bergamote, Rhubarbe§Notes de cœur: Iris, Jasmin, Piment§Notes de fond: Ambre, Cannelle, Cèdre, Ciste, Mousse de chêne, Styrax, Vanille, Vétiver
+6961|LOVE22|Notes de tête: Amande, Badiane de Chine, Bergamote, Cerise§Notes de cœur: Pêche, Réglisse, Rose, Rose bulgare§Notes de fond: Anis, Cèdre, fève tonka, Musc, Vanille
+7468|COP0001|Notes de tête: Citron, Poire, Poivre rose§Notes de cœur: Cassis, Framboise, Jasmin, Rose§Notes de fond: Musc blanc, Patchouli
+7472|COP0006|Notes de tête: Cognac, Griotte§Notes de cœur: Cerise, Jasmin, Rose§Notes de fond: fève tonka, Musc, Vanille
+7551|LOVE24|Notes de tête: Bergamote, Framboise, Mandarine, Osmanthus§Notes de cœur: Gingembre, Jasmin, Rose, Tubéreuse§Notes de fond: Ambre, Bois de santal, Caramel, Cèdre, Patchouli, Réglisse, Vanille
+7562|LOVE25|Notes de tête: Abricot, Bigarade, Citron, Noix de Coco, Prune§Notes de cœur: Fleur d'oranger, Jasmin, Muguet, Rose, Tubéreuse§Notes de fond: Amande, Bois de santal, fève tonka, Musc, Vanille
+7905|EVENT23M|Notes de tête: Bergamote, Citron, Eau de mer, Gingembre, Lavande, Menthe, Orange, Poire§Notes de cœur: Cardamome, Géranium, Genévrier, Gingembre, Lavande, Melon, Pêche, Pomme§Notes de fond: Ambre, Cèdre, fève tonka, Musc, Vanille, Vétiver
+7907|EVENT23W|Notes de tête: Framboise, Fruit de la passion, Pêche, Poivre rose, Prune, Violette§Notes de cœur: Ambre, Bois de cachemire, Bois de santal, Héliotrope, Muguet, Pêche, Rose§Notes de fond: Ambre, Ambre gris, Benjoin, Gourmand Accord, Musc, Vanille
+8654|MULTIVERSE|Notes de tête: Bergamote, Cannelle, Cardamome§Notes de cœur: Fleur d'oranger, Gaïac, Notes boisées, Praliné§Notes de fond: Ambre, Musc, Vanille
+8656|ASTRAL24|Notes de tête: Bergamote, Champagne, Citron§Notes de cœur: Fleur de pêcher, Jasmin, Néroli, Osmanthus, Pêche, Pivoine§Notes de fond: Ambre, Musc blanc, Notes boisées
+8888|142|Notes de tête: Cardamome§Notes de cœur: Cuir, Jasmin§Notes de fond: Ambre, Mousse Végétale, Patchouli
+8892|108|Notes de tête: Iris, Verveine odorante§Notes de cœur: Feuille de violette§Notes de fond: Ambre gris, Bois de santal
+9017|093|Notes de tête: Bergamote, Citron, Patchouli, Poivre rose, Pomme, Violette§Notes de cœur: Bois de santal, Musc, Rose, Styrax§Notes de fond: Ambre, Cassis, Lila, Pêche, Ylang-ylang
+9033|031|Notes de tête: Bois de santal, Cardamome§Notes de cœur: Galanga, Genévrier, Gingembre§Notes de fond: Bois de teck, Notes vertes, Tabac
+9037|037|Notes de tête: Bergamote, Feuille de violette, Lotus, Poire§Notes de cœur: Ambre, Bois de cachemire, Bois de santal, Huile essentielle de cypriol, Notes boisées, Vétiver§Notes de fond: Benjoin, fève tonka, Miel, Musc
+9041|044|Notes de tête: Bergamote, Mandarine§Notes de cœur: Cassis, Thé§Notes de fond: Bois de santal, Férule gommeuse, Musc, Petit-grain
+9049|060|Notes de tête: Notes fruitées, Sel§Notes de cœur: Bergamote, Citron, Iris, Mandarine§Notes de fond: Eau de mer, Musc, Notes boisées
+9055|066|Notes de tête: Bergamote, Cannelle, Pomme, Thé§Notes de cœur: Davana, Hibiscus, Jasmin§Notes de fond: Ambre, Bois de santal, Cuir, Patchouli, Résine oliban
+9065|073|Notes de tête: Bergamote, Citron, Pamplemousse§Notes de cœur: Bois de santal§Notes de fond: Ambre gris, Bois de cedrat, Musc
+9069|078|Notes de tête: Ambre, Menthe§Notes de cœur: Notes Épices, Poivre, Vétiver§Notes de fond: Mousse de chêne, Vanille
+9073|082|Notes de tête: Groseille à grappes, Poivre rose§Notes de cœur: Jasmin, Pivoine, Rose§Notes de fond: Musc, Patchouli
+9081|088|Notes de tête: Notes Épices, Rhum, Tabac§Notes de cœur: Cuir, Iris, Tubéreuse§Notes de fond: Benjoin, fève tonka, Gaïac
+9087|097|Notes de tête: Campari, Cassis, Romarin§Notes de cœur: Jasmin, Maté, Rhubarbe§Notes de fond: Ambroxan, Bois de santal, Vanille
+9091|100|Notes de tête: Calamba, Cardamome, Rose, Safran§Notes de cœur: Bois de santal, Jasmin, Patchouli§Notes de fond: Ambre, Ciste, Vanille, Vétiver
+9336|COP0034|Notes de tête: Bergamote, Ozonic notes§Notes de cœur: Clou de girofle, fève tonka, Jasmin, Lavande, Orchidée, Rose, Ylang-ylang§Notes de fond: Musc, Vanille
+9843|NADIR|Notes de tête: Bergamote, Coriandre§Notes de cœur: Fleur d'oranger, Jasmin§Notes de fond: Ambre, fève tonka, Vanille
+9858|IMPERATRIX|Notes de tête: Cassis, Citron, Mûre, Orange§Notes de cœur: Caramel, Jasmin, Lait, Muguet, Noix de Coco, Rose, Violette§Notes de fond: Ambre, fève tonka, Musc, Vanille
+9903|ARES|Notes de tête: Bergamote, Orange, Poivre§Notes de cœur: Fleur d'oranger, Jasmin, Notes de sang, Ylang-ylang§Notes de fond: Ambre, Bois de cedrat, Musc, Skin, Vanille
+9913|ERMES|Notes de tête: Bergamote, Citron, Papaye§Notes de cœur: Cannelle, Cardamome, Noix, Truffe, Œillet§Notes de fond: Ambre, Bois de cedrat, fève tonka, Musc, Vétiver
+9923|APOLLO|Notes de tête: Ananas, Bergamote, Fleur d'oranger, Lavande§Notes de cœur: Benjoin, Freesia, Jasmin, Myrrhe, Résine oliban, Tabac§Notes de fond: Ambre, Bois de cedrat, Huile essentielle de cypriol, Musc, Patchouli, Praliné, Tabac sylvestre, Vanille
+9933|ZEUS|Notes de tête: Cannelle, Cardamome, Citron, Fleur d'eucalyptus, Orange, Rhum§Notes de cœur: Feuille de violette, Géranium, Notes aquatiques, Tabac§Notes de fond: Patchouli, Vanille
+9943|MEDUSA|Notes de tête: Algue, Citron, Fruit de la passion, Sel, Yuzu§Notes de cœur: Lotus, Muguet, Nénuphar, Œillet§Notes de fond: Ambre, Bois de santal, Musc, Vétiver
+9953|ARTEMIDE|Notes de tête: Mandarine, Notes herbacées§Notes de cœur: Clou de girofle, Jasmin, Suède§Notes de fond: Ambre, Bois de cedrat, Bouleau, Gaïac, Mousse de chêne, Patchouli
+9963|AFRODITE|Notes de tête: Cacao Butter, Cassis, Cerise, Hazelnut cocoa spread§Notes de cœur: Cannelle, Jasmin, Poivre rose, Rose, Tubéreuse§Notes de fond: Ambre, Bois de santal, Musc, Patchouli, Vanille
+10948|159W|Notes de tête: Abricot, Cassis, Pêche, Poire, Pomme Verte§Notes de cœur: Bois de santal, Jasmin, Mousse Végétale§Notes de fond: Bois de cedrat, Musc, Vanille
+10953|160M|Notes de tête: Bergamote, Lavande, Menthe, Thym§Notes de cœur: Bois de cedrat, Bois de santal, Géranium, Jasmin, Mousse de chêne§Notes de fond: Ambre, Musc, Vanille
+10978|155U|Notes de tête: Ananas, Bergamote, Cardamome, Citron, Mandarine, Notes vertes, Papaye§Notes de cœur: Freesia, Jasmin, Muguet, Noix de muscade, Racine d'iris, Rose, Violette§Notes de fond: Ambre, Bois de santal, Cèdre, Mousse de chêne, Musc, Notes vertes, Thé
+10993|153W|Notes de tête: Freesia, Litchi, Pivoine§Notes de cœur: Magnolia, Muguet, Rose§Notes de fond: Ambre, Bois de cedrat
+11008|154W|Notes de tête: Fleur d'oranger, Poivre rose§Notes de cœur: Fleur de wisteria, Héliotrope, Iris, Jacinthe, Lila§Notes de fond: Musc, Notes poudrées, Riz
+11023|158W|Notes de tête: Agrumes, Mandarine, Pivoine§Notes de cœur: Osmanthus, Rose§Notes de fond: Bois de santal, Patchouli, Poivre rose
+11038|152M|Notes de tête: Citron, Lavande§Notes de cœur: Fleur d'oranger§Notes de fond: Bois de cedrat, Patchouli, Vanille
+11053|151W|Notes de tête: Bergamote, Mandarine, Poivre rose§Notes de cœur: Cassis, Géranium, Jasmin, Lila, Pêche§Notes de fond: Ambre, Musc, Patchouli, Vanille
+11068|156W|Notes de tête: Cassis, Cyclamen, Melon, Mousse de chêne, Papaye, Pêche, Pomme§Notes de cœur: Jacinthe d'eau, Jasmin, Lys, Racine d'iris§Notes de fond: Ambre, Bois de santal, Cèdre, Orchidée, Résines, Vanille
+11083|150M|Notes de tête: Basilic, Lavande, Menthe, Pamplemousse, Pomme§Notes de cœur: Géranium, Jasmin, Sauge, Œillet§Notes de fond: Bois de cedrat, Patchouli, Sapin
+11098|157M|Notes de tête: Bergamote, Gingembre, Mandarine§Notes de cœur: Lavande, Maninka§Notes de fond: Cuir, Notes boisées
+11278|147M|Notes de tête: Cuir, Encens§Notes de cœur: Myrrhe, Patchouli§Notes de fond: Bois de cedrat, Davana
+11293|148W|Notes de tête: Cacao, Gingembre, Lavande, Vanille§Notes de cœur: Caviar de vanille§Notes de fond: Absolue de vanille
+11466|162M|Notes de tête: Vanille§Notes de cœur: Lavande§Notes de fond: Vétiver
+11481|161W|Notes de tête: Ambre, Vanille bourbon§Notes de cœur: Jasmin§Notes de fond: Benjoin
+11696|001M|Notes de tête: Mandarine, Menthe, Pamplemousse§Notes de cœur: Cannelle, Notes Épices, Rose§Notes de fond: Ambre, Cuir, Notes boisées, Patchouli
+11711|002M|Notes de tête: Bergamote, Citron, Citron vert, Jasmin, Mandarine, Néroli, Orange§Notes de cœur: Calone, Coriandre, Cyclamen, Eau de mer, Freesia, Jacinthe, Jasmin, Noix de muscade, Pêche, Réséda, Romarin, Rose, Violette§Notes de fond: Ambre, Cèdre, Mousse de chêne, Musc, Patchouli
+11726|003M|Notes de tête: Aubépine, Bergamote, Camomille, Cèdre, Citron, Lavande, Mandarine, Noix de muscade§Notes de cœur: Bois de santal, Cèdre, Chèvrefeuille, Feuille de violette, Jasmin, Muguet, Noix de muscade, Œillet§Notes de fond: Ambre, Cuir, fève tonka, Musc, Patchouli, Vétiver
+11741|004M|Notes de tête: Basilic, Coriandre, Pamplemousse§Notes de cœur: Cardamome, Fleur d'oranger, Gingembre§Notes de fond: Ambre, Cèdre, Tabac
+11751|006W|Notes de tête: Bergamote, Mandarine, Muguet§Notes de cœur: Jasmin, Myrrhe§Notes de fond: Ambre, Opoponax de Somalie, Patchouli, Vanille
+11766|007W|Notes de tête: Bergamote, Magnolia, Mandarine, Melon, Poire, Quandong, desert peach§Notes de cœur: Freesia, Jasmin, Muguet, Orchidée, Prune, Rose, Tubéreuse, Violette§Notes de fond: Cèdre, Mûre, Musc, Vanille
+11786|010W|Notes de tête: Jasmin§Notes de cœur: Notes boisées§Notes de fond: Ambre
+11791|011W|Notes de tête: Campanule, Cèdre, Citron, Pomme§Notes de cœur: Bambou, Jasmin, Rose§Notes de fond: Ambre, Cèdre, Musc
+11816|014W|Notes de tête: Bergamote, Cassis, Notes vertes§Notes de cœur: Jasmin, Muguet§Notes de fond: Bois de cedrat, Bois de santal, fève tonka, Vanille
+11821|012M|Notes de tête: Basilic, Bergamote, Carvi, Citron, Notes fruitées, Romarin§Notes de cœur: Bois de santal, Coriandre, Jasmin, Patchouli, Racine d'iris, Rose, Œillet§Notes de fond: Ambre, Mousse de chêne, Musc, Vétiver
+11841|015M|Notes de tête: Basilic, Bergamote, Férule gommeuse, Pamplemousse§Notes de cœur: Genévrier, Héliotrope, Jasmin, Pin§Notes de fond: Benjoin, Bois de santal, Cèdre, Patchouli
+11851|016M|Notes de tête: Armoise, Bergamote, Cardamome, Lavande, Menthe§Notes de cœur: Cannelle, Carvi, Fleur d'oranger§Notes de fond: Ambre, Bois de santal, Cèdre, fève tonka, Vanille
+11861|018M|Notes de tête: Armoise, Bergamote, Bigarade, Bouleau, Carvi, Coriandre, Mandarine, Néroli§Notes de cœur: Cannelle, Cardamome, Genévrier, Gingembre, Iris, Jasmin, Poivre, Racine d'iris§Notes de fond: Ambre, Cèdre, Cuir, Mousse de chêne, Thé, Vétiver
+11886|019W|Notes de tête: Citron, Framboise, Néroli§Notes de cœur: Fleur d'oranger, Gardénia, Jasmin§Notes de fond: Ambre, Miel, Patchouli
+11906|020M|Notes de tête: Cardamome§Notes de cœur: Bergamote, Cèdre, Lavande§Notes de fond: Carvi, Vétiver
+11921|021M|Notes de tête: Bergamote, Genévrier, Mandarine, Pamplemousse§Notes de cœur: Palissandre du Brésil, Poivre, Romarin§Notes de fond: Encens, Mousse de chêne, Musc
+11926|022M|Notes de tête: Orange, Pamplemousse§Notes de cœur: Flint, Pélargonium, Poivre§Notes de fond: Benjoin, Cèdre, Patchouli, Vétiver
+11941|023W|Notes de tête: Abricot, Noix de Coco, Prune§Notes de cœur: Carvi, Jasmin, Muguet, Palissandre du Brésil, Rose, Tubéreuse§Notes de fond: Amande, Bois de santal, Musc, Vanille
+11966|025W|Notes de tête: Pêche, Rose§Notes de cœur: Ambre, Musc§Notes de fond: Bois de santal, Patchouli
+11981|024W|Notes de tête: Aldéhydes, Bergamote, Citron, Néroli, Ylang-ylang§Notes de cœur: Iris, Jasmin, Muguet, Racine d'iris, Rose§Notes de fond: Bois de santal, Civette, Mousse de chêne, Patchouli, Vanille, Vétiver
+12001|026W|Notes de tête: Aubépine, Cassis, Mandarine, Rose§Notes de cœur: Jasmin, Opoponax de Somalie, Rose, Violette§Notes de fond: Encens, Musc, Vanille
+12016|027W|Notes de tête: Ananas, Bergamote, Fleur d'abricotier, Lila, Muguet, Pêche, Rose§Notes de cœur: Héliotrope, Iris, Jasmin, Rose§Notes de fond: Abricot, Ambre, Bois de santal, Musc, Pêche, Vanille
+12031|028W|Notes de tête: Ananas, Barbe à papa, Bergamote, Cassis, Jasmin, Mandarine, Melon, Noix de Coco§Notes de cœur: Abricot, Carvi, Fruits rouges, Jasmin, Miel, Muguet, Mûre, Noix de muscade, Orchidée, Pêche, Prune, Rose§Notes de fond: Ambre, Bois de santal, Caramel, Chocolat noir, fève tonka, Musc, Patchouli, Vanille
+12046|029W|Notes de tête: Calone, Cyclamen, Freesia, Lotus, Melon, Rose§Notes de cœur: Lys, Muguet, Pivoine, Œillet§Notes de fond: Ambre, Bois de santal, Cèdre, Musc, Notes boisées, Osmanthus, Tubéreuse
+12061|030M|Notes de tête: Citron, Sauge§Notes de cœur: Baume de Tolu, Cannelle, Cardamome, Praliné§Notes de fond: Ambre gris, Palissandre du Brésil, Patchouli
+12076|032M|Notes de tête: Bergamote, Pamplemousse, Poivre rose, Résine d'élémi§Notes de cœur: Cannelle, Piment, Safran§Notes de fond: Cuir, Tabac, Vétiver
+12091|033M|Notes de tête: Bergamote, Citron§Notes de cœur: Badiane de Chine, Fleur d'olivier, Gaïac§Notes de fond: Cuir, fève tonka, Tabac
+12121|038M|Notes de tête: Citron, Menthe, Pamplemousse, Poivre rose§Notes de cœur: Gingembre, Iso E Super, Jasmin, Noix de muscade§Notes de fond: Bois de santal, Cèdre, Ciste, Encens, Musc, Patchouli, Vétiver
+12136|039W|Notes de tête: Fraise des bois, Mandarine§Notes de cœur: Jasmin, Rose§Notes de fond: Ambre, Bois de santal, Mousse de chêne, Patchouli, Vétiver
+12151|040W|Notes de tête: Passiflore§Notes de cœur: Gardénia, Jasmin§Notes de fond: Vanille, Vétiver
+12166|042W|Notes de tête: Cassis, Poire§Notes de cœur: Fleur d'oranger, Iris, Jasmin§Notes de fond: fève tonka, Patchouli, Praliné, Vanille
+12196|047W|Notes de tête: Cardamome, Gingembre, Poivre§Notes de cœur: Fleur d'oranger, Gardénia, Noix de Coco, Pivoine§Notes de fond: Ambre, Bois de santal, Musc
+12206|048M|Notes de tête: Bergamote, Citron, Gingembre, Lavande, Mandarine, Pêche§Notes de cœur: Anis, Bois de cedrat, Freesia, Gardénia, Jasmin, Palissandre du Brésil, Patchouli, Poivre, Rose, Vétiver§Notes de fond: Ambre, Benjoin, Bois de santal, Cuir, fève tonka, Mousse de chêne, Musc, Noix de Coco, Vanille
+12226|049W|Notes de tête: Fleur de papayer, Néroli§Notes de cœur: Amaryllis, Narcissus, Nénuphar§Notes de fond: Bois de cachemire, Musc
+12241|051W|Notes de tête: Bergamote, Fleur d'oranger, Mandarine, Orange§Notes de cœur: Jasmin, Mimosa, Rose, Ylang-ylang§Notes de fond: fève tonka, Musc, Opoponax de Somalie, Patchouli, Vanille, Vétiver
+12256|052M|Notes de tête: Anis, Carvi, Lavande, Mandarine, Menthe§Notes de cœur: Coriandre, Palissandre du Brésil§Notes de fond: Bois de santal, Ciste, Mousse de chêne, Patchouli
+12271|053W|Notes de tête: Gardénia, Rose bulgare§Notes de cœur: Musc§Notes de fond: Bois de cedrat, Vétiver
+12286|054U|Notes de tête: Bergamote, Cassis, Citron, Gardénia, Jasmin, Mandarine, Truffe, Ylang-ylang§Notes de cœur: Gardénia, Jasmin, Lotus, Notes Épices, Notes fruitées, Orchidée, Ylang-ylang§Notes de fond: Ambre, Bois de santal, Chocolat noir, Encens, Musc, Patchouli, Vanille, Vétiver
+12301|055W|Notes de tête: Fleur d'oranger, Poire, Poivre rose§Notes de cœur: Amande, Café, Jasmin, Réglisse§Notes de fond: Bois de cachemire, Cèdre, Patchouli, Vanille
+12316|056W|Notes de tête: Mandarine, Safran, Thym§Notes de cœur: Lys, Orchidée, Ylang-ylang§Notes de fond: fève tonka, Mousse de chêne, Palissandre du Brésil, Vanille
+12321|057W|Notes de tête: Notes vertes, Pamplemousse§Notes de cœur: Iris, Rose§Notes de fond: Héliotrope, Notes boisées
+12346|061M|Notes de tête: Eau de mer, Mandarine, Pamplemousse§Notes de cœur: Feuille de laurier, Jasmin§Notes de fond: Ambre gris, Gaïac, Mousse de chêne, Patchouli
+12361|062M|Notes de tête: Basilic, Géranium, Lavande, Notes aquatiques, Souci§Notes de cœur: Bran, Foin, Moepel accord, Sauge sclarée, Tabac§Notes de fond: Ambre, Bois de santal, Ciste, Cyprès, Musc
+12376|064W|Notes de tête: Mandarine, Orange, Safran§Notes de cœur: Osmanthus, Tubéreuse§Notes de fond: Ambre, Notes boisées
+12391|067W|Notes de tête: Gingembre, Jasmin, Mandarine§Notes de cœur: Sel, Vanille§Notes de fond: Ambre gris, Bois de cachemire, Bois de santal
+12421|069M|Notes de tête: Myrte, Sel§Notes de cœur: Algue§Notes de fond: Bois de cedrat
+12436|070W|Notes de tête: Bergamote, Litchi, Mandarine, Pêche§Notes de cœur: Jasmin, Lys, Muguet, Prune§Notes de fond: Ambre, Musc, Vanille, Vétiver
+12451|071W|Notes de tête: Bergamote, Citron, Fruit de la passion, Mandarine, Pêche§Notes de cœur: Chèvrefeuille, Fleur d'oranger, Freesia, Jasmin, Magnolia, Nénuphar, Pivoine, Rose§Notes de fond: Ambre, Bois de santal, Patchouli, Vanille, Vétiver
+12466|072U|Notes de tête: Cèdre§Notes de cœur: Bois de santal, Patchouli, Vétiver§Notes de fond: Baume de Tolu, Ciste, fève tonka, Musc, Vanille
+12496|076W|Notes de tête: Citron, Menthe§Notes de cœur: Jasmin§Notes de fond: Bois de cedrat, Cassonade, Ciste
+12506|079M|Notes de tête: Bergamote§Notes de cœur: Fleur d'oranger§Notes de fond: Ambrofix™, Patchouli
+12526|080W|Notes de tête: Cassis§Notes de cœur: Freesia, Rose§Notes de fond: Ambroxan, Notes boisées, Patchouli, Vanille
+12541|081W|Notes de tête: Aldéhydes, Gingembre, Tangerine§Notes de cœur: Fleur d'oranger, Jasmin§Notes de fond: Benjoin, Bois de cachemire, Crème fouettée, Notes boisées, Vanille
+12566|084M|Notes de tête: Bergamote, Feuille de figuier, Notes aquatiques, Pamplemousse§Notes de cœur: Ambroxan, Feuille de violette, Papyrus, Patchouli, Poivre§Notes de fond: Encens, fève tonka, Musc, Safran
+12586|085W|Notes de tête: Ananas, Iris, Jacinthe, Patchouli, Poivre rose§Notes de cœur: Citron, Jasmin, Rose§Notes de fond: Musc, Patchouli, Vanille, Vétiver
+12601|086M|Notes de tête: Ananas, Bergamote, Lavande, Verveine odorante§Notes de cœur: Coumarine, Fruits secs, Géranium, Mousse de chêne, Pomme rouge, Rose§Notes de fond: Bois de santal, fève tonka
+12616|087M|Notes de tête: Citron, Gingembre, Lavande, Menthe§Notes de cœur: Cardamome, Géranium, Genévrier, Pomme§Notes de fond: Amberwood, fève tonka, Vétiver
+12631|089W|Notes de tête: Bergamote, Calone, Fraise des bois, Framboise, Orange, Poire, Tangerine§Notes de cœur: Datura, Fleur d'oranger, Jasmin, Pivoine§Notes de fond: Bois de cedrat, Mousse de chêne, Musc, Patchouli, Vanille
+12661|090W|Notes de tête: Bigarade, Citron§Notes de cœur: Fleur d'oranger, Rose§Notes de fond: Amande, Baume de Tolu, Bois de cachemire, Bois de santal, fève tonka, Héliotrope, Vanille
+12671|091M|Notes de tête: Ananas, Bergamote, Citron, Néroli, Romarin§Notes de cœur: Coriandre, Cyclamen, Mousse de chêne, Night Blooming Jasmine§Notes de fond: Bois de cedrat, Bois de santal, Cardamome, fève tonka, Mousse de chêne, Musc, Palissandre du Brésil
+12706|094M|Notes de tête: Bergamote, Poivre§Notes de cœur: Géranium, Lavande, Patchouli, Poivre du Sichuan, Poivre rose, Résine d'élémi, Vétiver§Notes de fond: Ambroxan, Cèdre, Ciste
+12721|096W|Notes de tête: Cassis, Mandarine, Pamplemousse§Notes de cœur: Fleur d'oranger, Jasmin, Muguet, Poire, Poivre rose, Tubéreuse, Ylang-ylang§Notes de fond: Bois de cachemire, Bois de santal, Iris, Musc
+12751|098W|Notes de tête: Bergamote, Mandarine§Notes de cœur: Cassis, Jasmin, Pêche, Rose§Notes de fond: Benjoin, Bois de cedrat, Bois de santal, Musc, Patchouli
+12766|099U|Notes de tête: Basilic, Cassis, Citron, Estragon, Menthe, Pamplemousse§Notes de cœur: Coriandre, Fleur d'oranger, Jasmin, Poivre, Sauge sclarée, Shiso§Notes de fond: Ambre, Ciste, Civette, Musc, Vétiver
+12781|115W|Notes de tête: Bergamote, Poire, Poivre rose§Notes de cœur: Jasmin, Rose§Notes de fond: Cèdre, Musc, Patchouli, Vanille
+12796|116W|Notes de tête: Bergamote, Citron, Framboise, Mandarine§Notes de cœur: Ambre, Fleur d'oranger, Gardénia, Gingembre, Jasmin, Rose§Notes de fond: Amberwood, Benjoin, Bois de santal, Caramel, Cardamome, Coumarine, Lait, Réglisse, Vanille
+12811|119W|Notes de tête: Mandarine, Orange sanguine§Notes de cœur: Fleur d'oranger, Gardénia, Jasmin, Miel, Pêche§Notes de fond: Caramel, Cire d'abeille, Patchouli, Réglisse
+12826|120W|Notes de tête: Amande, Bergamote, Fruits rouges, Griotte§Notes de cœur: Réglisse, Rose, Rose de Taïf, Thé§Notes de fond: Anis, fève tonka, Iris, Patchouli, Vanille
+12841|121W|Notes de tête: Aldéhydes, Bergamote, Fraise des bois, Mandarine, Notes Épices, Pêche§Notes de cœur: Iris, Jasmin, Muguet, Narcissus, Racine d'iris, Rose, Violette, Ylang-ylang§Notes de fond: Ambre, Benjoin, Bois de santal, fève tonka, Musc, Vétiver
+12856|122W|Notes de tête: Cassis, Lavande, Mandarine, Petit-grain§Notes de cœur: Fleur d'oranger, Jasmin, Lavande§Notes de fond: Ambre gris, Cèdre, Musc, Vanille
+12871|133W|Notes de tête: Bergamote, Néroli, Poire§Notes de cœur: Essence de Néroli, Jasmin, Mousse Végétale§Notes de fond: Ambre, Ambrofix™, Serenolide, Vanille, Vanille bourbon
+12886|131W|Notes de tête: Amande, Bergamote, Café, Citron§Notes de cœur: Fleur d'oranger, Iris, Jasmin, Rose, Tubéreuse§Notes de fond: Ambre, Bois de cachemire, Bois de santal, Cannelle, Cèdre, Cosse de cacao, fève tonka, Musc, Patchouli, Praliné, Vanille
+12896|132W|Notes de tête: Bergamote, Fleur d'oranger§Notes de cœur: Jasmin, Tubéreuse§Notes de fond: Cèdre, Musc, Vanille
+12916|136M|Notes de tête: Lavande§Notes de cœur: Ambrette, Iris, Poire§Notes de fond: Bois de cedrat, Vétiver
+12931|140M|Notes de tête: Citron, Menthe, Pomme Verte§Notes de cœur: Ambroxan, fève tonka, Géranium§Notes de fond: Cèdre, Mousse de chêne, Vanille, Vétiver
+12946|74M|Notes de tête: Cannabis, Notes vertes§Notes de cœur: Café, Notes boisées, Résines, Tabac§Notes de fond: Calamba, Encens
+12981|101U|Notes de tête: Agrumes, Bergamote, Fleur de soie, Lavande§Notes de cœur: Ciste, Cuir, Iris, Jasmin, Résines, Rose§Notes de fond: Amberwood, Baume de Tolu, Cannelle, Clou de girofle, Miel, Myrrhe, Opoponax de Somalie, Vanille
+12991|102U|Notes de tête: Bergamote, Ciste, Vanille, Ylang-ylang§Notes de cœur: Bois de santal, Coriandre, Poivre, Smoke§Notes de fond: Amberwood, Benjoin, Calamba, Cannelle, fève tonka, Myrrhe, Opoponax de Somalie, Patchouli, Résine oliban
+13001|111U|Notes de tête: Amande, Black Cherry, Liquor§Notes de cœur: Griotte, Jasmin, Prune, Rose§Notes de fond: Benjoin, Bois de cedrat, Bois de santal, Cannelle, Clou de girofle, fève tonka, Patchouli, Vanille, Vétiver
+13011|112U|Notes de tête: Bergamote, Bigarade, Citron, Lavande, Mandarine, Myrte, Romarin§Notes de cœur: Fleur d'oranger, Jasmin, Néroli, Pittosporum§Notes de fond: Ambre, Ambrette, Angélique
+13021|105U|Notes de tête: Notes fleuries§Notes de cœur: Café, Rose§Notes de fond: Ambre, Musc, Vanille
+13036|113M|Notes de tête: Agrumes, Bergamote, Citron, Poivre rose§Notes de cœur: Cardamome, Hedione, Herbe, Noix de muscade§Notes de fond: Baumier du Pérou, Bois de cedrat, Cuir, Iso E Super, Patchouli
+13046|114U|Notes de tête: Bergamote, Citron, Framboise§Notes de cœur: Cannelle, Géranium, Jasmin, Rose, Safran§Notes de fond: Ambre, Bois de santal, Calamba, Huile essentielle de cypriol, Musc, Skin, Vanille
+13066|117U|Notes de tête: Notes Épices, Tabac§Notes de cœur: Cosse de cacao, fève tonka, Vanille§Notes de fond: Fruits secs, Notes boisées
+13076|118U|Notes de tête: Jasmin, Safran§Notes de cœur: Amberwood, Ambre gris§Notes de fond: Ambroxan, Bois de cedrat, Mousse de chêne, Sapin
+13086|124U|Notes de tête: Cosse de cacao§Notes de cœur: Ambre gris§Notes de fond: Amande
+13091|125U|Notes de tête: Mandarine, Petit-grain§Notes de cœur: Fleur d'oranger, Jasmin, Muguet, Shiso, Ylang-ylang§Notes de fond: Bois de santal, Mousse de chêne, Musc
+13106|127U|Notes de tête: Cardamome, Poivre du Sichuan§Notes de cœur: Bois de santal, Calamba, Palissandre du Brésil, Vétiver§Notes de fond: Ambre, fève tonka, Vanille
+13111|130U|Notes de tête: Bergamote, Citron, Eau de mer§Notes de cœur: Rose, Safran§Notes de fond: Ambre, Bois de santal, Huile essentielle de cypriol, Musc, Patchouli
+13121|128U|Notes de tête: Citron vert, Coriandre, Myrrhe, Orange, Résine oliban, Rhum, Safran§Notes de cœur: Armoise, Café, Frangipanier, Narcissus, Orge, Prune, Rose§Notes de fond: Acajou, Daim, Mousse de chêne, Patchouli, Tabac, Vanille, Violette
+13136|134U|Notes de tête: Cardamome, Héliotrope, Orange sanguine, Pêche§Notes de cœur: Cognac, Davana, Jasmin, Rhum§Notes de fond: Benjoin, Bois de cachemire, Bois de santal, Ciste, fève tonka, Patchouli, Styrax, Vanille, Vétiver
+13141|137U|Notes de tête: Bergamote, Citron, Lavande§Notes de cœur: Bois de cachemire, Cannelle, Jasmin, Miel§Notes de fond: fève tonka, Tabac, Vanille
+13146|123W|Notes de tête: Jasmin, Osmanthus, Rose§Notes de cœur: Narcissus, Tubéreuse§Notes de fond: Ambre, Cèdre
+13161|138U|Notes de tête: Prune, Violette§Notes de cœur: Ambre, Bois de cachemire, Bois de santal§Notes de fond: Ambre gris, Musc, Vanille
+13176|143U|Notes de tête: Coconut Powder, Héliotrope§Notes de cœur: Vanille§Notes de fond: Absolue de vanille, Lactone, Musc, Musc blanc, Noix de Coco, Palo santo
+13181|144U|Notes de tête: Caramel§Notes de cœur: Coumarine, Miel§Notes de fond: Musc blanc, Vanille
+13196|141U|Notes de tête: Ananas, Bergamote, Café, Candied Fruits, Cannelle, Cardamome, Cassis, Cumin, Fraise, Fruits secs, Noix de Coco, Notes épicées, Orange douce, Pêche, Poivre, Poivre rose, Pomme, Rose de Taïf§Notes de cœur: Amyris, Bois de cedrat, Bois de santal, Calamba, Coriandre, Huile essentielle de cypriol, Iris, Jasmin, Muguet, Rose, Safran, Violette§Notes de fond: Ambre, Ambre gris, Baume de Tolu, Baumier du Pérou, Bois de santal, Ciste, Civette, Cuir, Encens, Gaïac, Mousse de chêne, Mousse Végétale, Musc blanc, Patchouli, Smoke, Vanille, Vétiver
+13221|135U|Notes de tête: Baies de genièvre, Cyprès, Iris§Notes de cœur: Myrrhe, Patchouli§Notes de fond: Ambre, Cuir, Miel, Musc, Notes boisées, Résines, Vanille
+13266|146U|Notes de cœur: , Iris, Lys, Magnolia, Osmanthus, Ylang-ylang
+13276|139U|Notes de tête: Poivre, Rose, Safran§Notes de cœur: Rose bulgare§Notes de fond: Ambre gris, Calamba
+13286|126U|Notes de tête: Bergamote, Cardamome, Pistache, Poivre rose§Notes de cœur: Jasmin, Tubéreuse, Ylang-ylang§Notes de fond: Ambre, Benjoin, fève tonka, Noix de Coco
+13296|110U|Notes de tête: Cassis, Framboise, Fruit de la passion, Pêche, Poire, Sable§Notes de cœur: Muguet§Notes de fond: Bois de santal, Héliotrope, Musc, Patchouli, Vanille
+13311|106U|Notes de tête: Lavande, Sauge sclarée§Notes de cœur: Amande, Cuir, Iris, Vanille§Notes de fond: Ambre, Bois de cachemire, Cuir, fève tonka, Notes boisées
+13321|109W|Notes de tête: Jasmin, Rose§Notes de cœur: fève tonka, Vanille§Notes de fond: Ambre, Ciste, Patchouli
+13331|129U|Notes de tête: Bergamote, Citron, Orange§Notes de cœur: Notes fruitées§Notes de fond: Ambre, Musc, Vanille
+13341|145W|Notes de tête: Citron confit§Notes de cœur: Fleur d'oranger, Panna cotta, Rhum§Notes de fond: Vanille
+13686|163W|Notes de tête: Fraise, Gardénia§Notes de cœur: Jasmin, Rose§Notes de fond: Ambre, Cassonade, Mousse Végétale, Patchouli, Vanille bourbon
+13706|164M|Notes de tête: Bergamote, Musc§Notes de cœur: Géranium§Notes de fond: Baumier du Pérou, Benjoin, Gaïac
+13731|COPS0001|Notes de tête: Fruit de la passion, Mandarine, Mangue§Notes de cœur: Ananas, Goyave, Pitaya§Notes de fond: Caramel, Notes boisées, Vanille
+13741|COPS0002|Notes de tête: Feuille de figuier, Noix de Coco§Notes de cœur: Fleur de coton, Iris, Rose§Notes de fond: Bois de cedrat, fève tonka, Notes boisées
+13746|COPS0004|Notes de tête: Aldéhydes, Bergamote§Notes de cœur: Fleur d'oranger, Lavande, Rose§Notes de fond: fève tonka, Musc, Notes boisées, Vanille
+13756|COPS0003|Notes de tête: Bergamote, Orange, Pomme§Notes de cœur: Fleurs blanches, Muguet, Rose§Notes de fond: Musc, Notes boisées
+13771|COPS0005|Notes de tête: Mandarine, Orange§Notes de cœur: Cannelle§Notes de fond: Notes boisées, Vanille
+13781|COPS0006|Notes de tête: Bergamote, Mandarine, Pêche§Notes de cœur: Jasmin, Muguet, Violette§Notes de fond: Musc, Mysore Sandalwood, Notes boisées, Vanille
+13791|COPS0007|Notes de tête: Anis, Noix de Coco, Pêche§Notes de cœur: Jasmin, Muguet§Notes de fond: Benjoin, Crème, Miel, Musc blanc, Notes boisées
+13801|COPS0008|Notes de tête: Bergamote, Citron§Notes de cœur: Cassis, Jasmin, Pin§Notes de fond: Musc, Musc blanc, Notes boisées, Patchouli
+13811|COPS0009|Notes de tête: Citron, Pêche, Pomme§Notes de cœur: Framboise, Poire§Notes de fond: Patchouli, Vanille
+13821|COPS0010|Notes de tête: Bergamote§Notes de cœur: Patchouli§Notes de fond: Ambre, Calamba, Musc
+15176|SBM002|Notes de tête: Citron, Fruit de la passion, Goyave§Notes de cœur: Jasmin, Noix de Coco, Pêche, Rose§Notes de fond: Barbe à papa, Framboise, Musc, Vanille
+15181|SBM003|Notes de tête: Cassis, Champagne, Mandarine§Notes de cœur: Coconut Pie, Noix de Coco, Solar notes§Notes de fond: Chocolat noir, Lait, Vanille
+15186|SBM004|Notes de tête: Mangue, Noix de Coco, Pêche§Notes de cœur: Frangipanier§Notes de fond: Bois de santal, Caramel, Musc
+15191|SHM001|Notes de tête: Pêche, Poire, Yuzu§Notes de cœur: Freesia, Jasmin§Notes de fond: Bois de santal, Musc
+15196|SHM002|Notes de tête: Jasmine Orchid, Pêche, Pomme§Notes de cœur: Caramel, Rose, Vanille§Notes de fond: Ambre, Bois de cedrat, Musc blanc
+15201|SHM004|Notes de tête: Groseille à maquereau, Pêche§Notes de cœur: Fleur d'oranger, Héliotrope, Jasmin, Lavande§Notes de fond: Ambre, Bois de santal, Musc, Vanille
+15206|SHM003|Notes de tête: Cassis, Red Fruits, Rose§Notes de cœur: Fleur d'oranger, Jasmin, Solar notes§Notes de fond: Ambre, Musc, Vanille
+15211|SHM005|Notes de tête: Bergamote, Cannelle, Safran§Notes de cœur: Jasmin, Musc§Notes de fond: Ambre, Caramel, fève tonka, Musc, Vanille
+15216|SBM001|Notes de tête: Amande, Pistache§Notes de cœur: Héliotrope, Jasmin§Notes de fond: Bois de santal, Caramel, Vanille
+15221|SBM005|Notes de tête: Bergamote, Mandarine, Orange§Notes de cœur: Jasmin, Noix de Coco, Ylang-ylang§Notes de fond: Ambre, Musc, Vanille
+15546|COPC001|Notes de tête: Amande, Bergamote, Cannelle, Citron§Notes de cœur: Fleur d'oranger, Iris, Jasmin, Rose, Tubéreuse§Notes de fond: Ambre, Bois de cachemire, Bois de cedrat, Bois de santal, Cacao, Café, fève tonka, Musc, Patchouli, Vanille
+15551|COPC003|Notes de tête: Camphre§Notes de cœur: Bois de santal, Bourgeon de cassis, Cannelle, Caramel, fève tonka, Musc, Noix de muscade§Notes de fond: Ambre, Bois de cedrat, Cuir, Safran, Vanille
+15566|COPC005|Notes de tête: Bergamote, Citron, Lavande§Notes de cœur: Iris, Néroli, Vanille, Violette§Notes de fond: Bois de santal, fève tonka, Musc blanc
+15571|COPC007|Notes de tête: Bergamote, Citron, Thé§Notes de cœur: Acacia, Iris, Jasmin, Miel§Notes de fond: Amande, Ambre, Bois de santal, Patchouli, Vanille
+15591|COPC009|Notes de tête: Bergamote, Citron§Notes de cœur: Bois de santal, Jasmin, Rose, Violette§Notes de fond: Ambre, Bois de cedrat, fève tonka, Mousse de chêne, Musc, Patchouli, Vanille
+16116|167M|Notes de tête: Ananas, Bergamote, Cassis, Pomme§Notes de cœur: Bouleau, Jasmin, Patchouli, Rose§Notes de fond: Ambre gris, Mousse de chêne, Musc, Vanille
+16196|VOLT|Notes de tête: Bergamote, Cardamome, Coconut Powder, Héliotrope, Musc, Vanille§Notes de cœur: Cuir, Géranium, Jasmin, Lavande, Vanille§Notes de fond: Absolue de vanille, Ambre, Baumier du Pérou, Benjoin, Gaïac, Lactone, Mousse Végétale, Musc, Musc blanc, Noix de Coco, Palo santo, Patchouli, Vétiver
+16201|AMPHERA|Notes de tête: Amande, Bergamote, Café, Cassis, Citron, Gardénia, Jasmin, Mandarine, Néroli, Orange sanguine, Poire, Truffe, Ylang-ylang§Notes de cœur: Essence de Néroli, Fleur d'oranger, Gardénia, Iris, Jasmin, Lotus, Miel, Mousse Végétale, Notes Épices, Notes fruitées, Orchidée, Pêche, Rose, Tubéreuse, Ylang-ylang§Notes de fond: Ambre, Ambrofix™, Bois de cachemire, Bois de santal, Cannelle, Caramel, Cèdre, Chocolat noir, Cire d'abeille, Cosse de cacao, Encens, fève tonka, Musc, Patchouli, Praliné, Réglisse, Serenolide, Vanille, Vanille bourbon, Vétiver
