@@ -3,9 +3,11 @@
  * Fiches LOLUM : composition, bienfaits et mode d'emploi, d'après le catalogue LOLUM (PDF Chogan,
  * mars 2026), traduits en français dans import/lolum-catalogue.json.
  *
- * Sortie : db/sql/20261011-12-fiches-lolum.sql (appliqué au déploiement, rejouable).
+ * Sortie : db/sql/20261011-13-fiches-lolum-textes.sql (appliqué au déploiement, rejouable ; le
+ * fichier 12, déjà appliqué, ne remplissait que les descriptions longues vides).
  * Ne remplace que les textes générés automatiquement (« … Produit Chogan, distribué au Sénégal
- * par JAMAAL. ») et une description longue vide : une fiche réécrite au back-office est conservée.
+ * par JAMAAL. », description longue vide ou générique « Produit officiel de la gamme Chogan,
+ * distribué au Sénégal… ») : une fiche réécrite au back-office est conservée.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -52,11 +54,12 @@ function main() {
       `UPDATE "Product" SET "shortDescription" = ${s(shortOf(p))}, "updatedAt" = NOW() ` +
         `WHERE "choganCode" = ${s(p.code)} AND "shortDescription" LIKE '%Produit Chogan, distribué au Sénégal par JAMAAL.';`,
       `UPDATE "Product" SET "longDescription" = ${arr(longOf(p))}, "updatedAt" = NOW() ` +
-        `WHERE "choganCode" = ${s(p.code)} AND coalesce(cardinality("longDescription"), 0) = 0;`
+        `WHERE "choganCode" = ${s(p.code)} AND (coalesce(cardinality("longDescription"), 0) = 0 OR ` +
+        `(cardinality("longDescription") <= 2 AND array_to_string("longDescription", ' ') LIKE '%distribué au Sénégal par JAMAAL%'));`
     );
   }
   lines.push("");
-  fs.writeFileSync(path.join(ROOT, "db/sql/20261011-12-fiches-lolum.sql"), lines.join("\n"));
+  fs.writeFileSync(path.join(ROOT, "db/sql/20261011-13-fiches-lolum-textes.sql"), lines.join("\n"));
   console.log(`${items.length} fiches LOLUM.`);
 }
 
