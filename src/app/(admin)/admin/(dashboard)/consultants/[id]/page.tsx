@@ -50,7 +50,7 @@ export default async function ConsultantProfilePage({
     prisma.consultant.findUnique({
       where: { id },
       include: {
-        user: { select: { email: true, id: true } },
+        user: { select: { email: true, phone: true, id: true } },
         sponsor: { select: { id: true, name: true, city: true, sponsorId: true } },
         sponsored: {
           select: {
@@ -152,7 +152,7 @@ export default async function ConsultantProfilePage({
               </a>
               {consultant.user && (
                 <span className="flex items-center gap-1 text-blue-600">
-                  Portail: {consultant.user.email}
+                  Portail: {consultant.user.email ?? consultant.user.phone}
                 </span>
               )}
               {consultant.sponsor && (

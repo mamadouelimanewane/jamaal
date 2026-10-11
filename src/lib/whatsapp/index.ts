@@ -1,6 +1,7 @@
 import { after } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { WHATSAPP_CONTACTS } from "@/lib/contact";
+import { normalizePhone } from "@/lib/phone";
 import { sendViaMeta } from "./meta";
 import { sendViaTwilio } from "./twilio";
 
@@ -17,7 +18,7 @@ export interface SendResult {
   error?: string;
 }
 
-export const normalizePhone = (raw: string) => raw.replace(/\D/g, "").replace(/^00/, "");
+export { normalizePhone };
 
 export function whatsappConfig() {
   const provider = (process.env.WHATSAPP_PROVIDER ?? "").toLowerCase();

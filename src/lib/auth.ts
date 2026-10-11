@@ -3,6 +3,7 @@ import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { createHash } from "node:crypto";
 import { prisma } from "@/lib/prisma";
+import { parseLoginIdentifier } from "@/lib/login-identifier";
 
 const MAX_FAILURES = 5;
 const WINDOW_MS = 15 * 60 * 1000;
@@ -31,24 +32,28 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const consumed = await prisma.passwordResetToken.deleteMany({ where: { id: record.id } });
         if (consumed.count !== 1) return null;
         const u = record.user;
-        return { id: u.id, email: u.email, name: u.name, role: u.role };
+        return { id: u.id, email: u.email, phone: u.phone, name: u.name, role: u.role };
       },
     }),
     Credentials({
       credentials: {
-        email: { label: "E-mail", type: "email" },
+        login: { label: "E-mail ou téléphone", type: "text" },
         password: { label: "Mot de passe", type: "password" },
       },
       authorize: async (credentials) => {
-        const email = String(credentials?.email ?? "").trim().toLowerCase();
+        const identifier = parseLoginIdentifier(String(credentials?.login ?? ""));
         const password = String(credentials?.password ?? "");
-        if (!email || !password || email.length > 254 || password.length > 1024) return null;
+        if (!identifier || !password || password.length > 1024) return null;
+        const identifiant = identifier.value;
 
         const now = new Date();
-        const attempt = await prisma.loginAttempt.findUnique({ where: { email } });
+        const attempt = await prisma.loginAttempt.findUnique({ where: { identifiant } });
         if (attempt?.lockedUntil && attempt.lockedUntil > now) return null;
 
-        const user = await prisma.user.findFirst({ where: { email: { equals: email, mode: "insensitive" } } });
+        const user =
+          identifier.kind === "email"
+            ? await prisma.user.findFirst({ where: { email: { equals: identifiant, mode: "insensitive" } } })
+            : await prisma.user.findUnique({ where: { phone: identifiant } });
         const valid = await bcrypt.compare(password, user?.passwordHash ?? DUMMY_HASH);
         if (!user) return null;
         if (!valid) {
@@ -56,15 +61,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           const count = expired ? 1 : (attempt?.count ?? 0) + 1;
           const lockedUntil = count >= MAX_FAILURES ? new Date(now.getTime() + LOCK_MS) : null;
           await prisma.loginAttempt.upsert({
-            where: { email },
-            create: { email, count, windowStart: now, lockedUntil },
+            where: { identifiant },
+            create: { identifiant, count, windowStart: now, lockedUntil },
             update: { count, windowStart: expired ? now : attempt!.windowStart, lockedUntil },
           });
           return null;
         }
 
-        await prisma.loginAttempt.deleteMany({ where: { email } });
-        return { id: user.id, email: user.email, name: user.name, role: user.role };
+        await prisma.loginAttempt.deleteMany({ where: { identifiant } });
+        return { id: user.id, email: user.email, phone: user.phone, name: user.name, role: user.role };
       },
     }),
   ],
@@ -74,6 +79,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (user) {
         token.role = (user as { role: string }).role;
         token.id = user.id;
+        token.phone = (user as { phone?: string | null }).phone ?? null;
         token.checkedAt = now;
         return token;
       }
@@ -96,6 +102,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (session.user) {
         session.user.id = token.id as string;
         session.user.role = token.role as string;
+        session.user.phone = (token.phone as string | null | undefined) ?? null;
       }
       return session;
     },

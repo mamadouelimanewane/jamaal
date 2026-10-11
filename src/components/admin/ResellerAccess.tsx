@@ -8,7 +8,7 @@ import { CopyButton } from "@/components/admin/CopyButton";
  * Colonne « Compte portail » : crée l'accès d'un consultant sans compte, ou renouvelle son lien
  * d'activation. Le résultat reste affiché (état local) pour que l'admin puisse copier le lien.
  */
-export function ResellerAccess({ consultantId, userEmail, defaultEmail, whatsapp, name }: { consultantId: string; userEmail: string | null; defaultEmail: string; whatsapp: string; name: string }) {
+export function ResellerAccess({ consultantId, userLogin, defaultEmail, whatsapp, name }: { consultantId: string; userLogin: string | null; defaultEmail: string; whatsapp: string; name: string }) {
   const [pending, start] = useTransition();
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState(defaultEmail);
@@ -37,9 +37,9 @@ export function ResellerAccess({ consultantId, userEmail, defaultEmail, whatsapp
 
   return (
     <div className="max-w-[16rem] text-xs">
-      {userEmail ? (
+      {userLogin ? (
         <>
-          <span className="font-semibold text-green-700">{userEmail}</span>
+          <span className="font-semibold text-green-700">{userLogin}</span>
           <button type="button" disabled={pending} onClick={() => run()} className="mt-1 block font-semibold text-rose-dark hover:underline disabled:opacity-50">
             {pending ? "…" : "Nouveau lien d'activation"}
           </button>
@@ -77,12 +77,13 @@ export function ResellerAccess({ consultantId, userEmail, defaultEmail, whatsapp
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="E-mail du consultant"
+            placeholder="E-mail du consultant (facultatif)"
             className="w-full rounded-lg border border-line px-2 py-1.5"
           />
-          <div className="flex gap-2">
-            <button type="button" disabled={pending || !email} onClick={() => run(email)} className="rounded-full bg-navy px-3 py-1.5 font-semibold text-white hover:bg-navy-light disabled:opacity-50">
-              {pending ? "…" : "Créer l'accès"}
+          <p className="text-navy/60">Sans e-mail, son numéro WhatsApp ({whatsapp}) sert d&apos;identifiant de connexion.</p>
+          <div className="flex flex-wrap gap-2">
+            <button type="button" disabled={pending} onClick={() => run(email || undefined)} className="rounded-full bg-navy px-3 py-1.5 font-semibold text-white hover:bg-navy-light disabled:opacity-50">
+              {pending ? "…" : email ? "Créer l'accès par e-mail" : "Créer l'accès par téléphone"}
             </button>
             <button type="button" onClick={() => setOpen(false)} className="font-semibold text-navy/75 hover:underline">Annuler</button>
           </div>

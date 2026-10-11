@@ -13,11 +13,11 @@ function safeRedirect(next: string | undefined): string {
 
 async function loginAction(formData: FormData) {
   "use server";
-  const email = String(formData.get("email") ?? "").trim();
+  const login = String(formData.get("login") ?? "").trim();
   const password = String(formData.get("password") ?? "");
   const redirectTo = safeRedirect(String(formData.get("next") ?? ""));
   try {
-    await signIn("credentials", { email, password, redirectTo });
+    await signIn("credentials", { login, password, redirectTo });
   } catch (error) {
     if (error instanceof AuthError) {
       const suffix = redirectTo !== "/admin" ? `&next=${encodeURIComponent(redirectTo)}` : "";
@@ -83,18 +83,18 @@ export default async function AdminLoginPage({
 
             {erreur && (
               <p role="alert" className="mt-5 rounded-xl border border-rose-dark/20 bg-rose/10 px-4 py-3 text-sm text-rose-dark">
-                E-mail ou mot de passe incorrect.
+                Identifiant (e-mail ou téléphone) ou mot de passe incorrect.
               </p>
             )}
 
             <form action={loginAction} className="mt-7 flex flex-col gap-5">
               <input type="hidden" name="next" value={redirectTo} />
               <div>
-                <label htmlFor="email" className="text-xs font-semibold text-navy/85">Adresse e-mail</label>
+                <label htmlFor="login" className="text-xs font-semibold text-navy/85">E-mail ou numéro de téléphone</label>
                 <input
-                  id="email"
-                  type="email"
-                  name="email"
+                  id="login"
+                  type="text"
+                  name="login"
                   autoComplete="username"
                   autoCapitalize="none"
                   spellCheck={false}

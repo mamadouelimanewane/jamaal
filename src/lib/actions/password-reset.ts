@@ -55,19 +55,22 @@ export async function completePasswordReset(formData: FormData) {
   const token = String(formData.get("token") ?? "");
   const password = String(formData.get("password") ?? "");
   const confirmation = String(formData.get("confirmation") ?? "");
-  if (password.length < 12 || password.length > 128 || password !== confirmation) {
+  if (password.length < 8 || password.length > 128 || password !== confirmation) {
     redirect(`/admin/reset-password?token=${encodeURIComponent(token)}&error=1`);
   }
 
-  const record = await prisma.passwordResetToken.findUnique({ where: { tokenHash: hashToken(token) }, include: { user: { select: { email: true, name: true } } } });
+  const record = await prisma.passwordResetToken.findUnique({ where: { tokenHash: hashToken(token) }, include: { user: { select: { email: true, phone: true, name: true } } } });
   if (!record || record.expiresAt <= new Date()) redirect("/admin/reset-password?error=expired");
   const passwordHash = await bcrypt.hash(password, 12);
+  // L'identifiant utilisé à la prochaine connexion peut être l'e-mail ou le téléphone : on
+  // efface le compteur de tentatives pour les deux, selon ce que le compte possède.
+  const identifiants = [record.user.email?.toLowerCase(), record.user.phone].filter((v): v is string => !!v);
   const completed = await prisma.$transaction(async (tx) => {
     const consumed = await tx.passwordResetToken.deleteMany({ where: { id: record.id, expiresAt: { gt: new Date() } } });
     if (consumed.count !== 1) return false;
     await tx.user.update({ where: { id: record.userId }, data: { passwordHash } });
     await tx.passwordResetToken.deleteMany({ where: { userId: record.userId } });
-    await tx.loginAttempt.deleteMany({ where: { email: record.user.email.toLowerCase() } });
+    if (identifiants.length) await tx.loginAttempt.deleteMany({ where: { identifiant: { in: identifiants } } });
     await tx.activityLog.create({ data: { userId: record.userId, userName: record.user.name, action: "Réinitialisation du mot de passe", entity: "User", entityId: record.userId } });
     return true;
   });

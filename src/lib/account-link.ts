@@ -6,22 +6,27 @@
 import { prisma } from "./prisma";
 
 export async function repairConsultantLink(userId: string) {
-  const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true, email: true, name: true, role: true, consultantId: true } });
+  const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true, email: true, phone: true, name: true, role: true, consultantId: true } });
   if (!user || user.role !== "CONSULTANT" || user.consultantId) return null;
-  const email = user.email.trim();
-  const byEmail = await prisma.consultant.findFirst({ where: { email: { equals: email, mode: "insensitive" }, user: null }, select: { id: true } });
-  let consultantId = byEmail?.id ?? null;
-  if (!consultantId) {
-    const apps = await prisma.consultantApplication.findMany({
-      where: { email: { equals: email, mode: "insensitive" }, status: "ACCEPTEE", consultantId: { not: null } },
-      orderBy: { processedAt: "desc" },
-      select: { consultantId: true },
-    });
-    for (const a of apps) {
-      const c = await prisma.consultant.findFirst({ where: { id: a.consultantId!, user: null }, select: { id: true } });
-      if (c) {
-        consultantId = c.id;
-        break;
+  // Un compte revendeur créé par téléphone (sans e-mail) n'a rien à rattacher par e-mail : on ne
+  // peut que prévenir l'équipe, comme pour un rattachement par e-mail resté sans résultat.
+  const email = user.email?.trim() || null;
+  let consultantId: string | null = null;
+  if (email) {
+    const byEmail = await prisma.consultant.findFirst({ where: { email: { equals: email, mode: "insensitive" }, user: null }, select: { id: true } });
+    consultantId = byEmail?.id ?? null;
+    if (!consultantId) {
+      const apps = await prisma.consultantApplication.findMany({
+        where: { email: { equals: email, mode: "insensitive" }, status: "ACCEPTEE", consultantId: { not: null } },
+        orderBy: { processedAt: "desc" },
+        select: { consultantId: true },
+      });
+      for (const a of apps) {
+        const c = await prisma.consultant.findFirst({ where: { id: a.consultantId!, user: null }, select: { id: true } });
+        if (c) {
+          consultantId = c.id;
+          break;
+        }
       }
     }
   }
@@ -30,13 +35,14 @@ export async function repairConsultantLink(userId: string) {
     if (res.count) return prisma.consultant.findUnique({ where: { id: consultantId } });
   }
   // Rien à rattacher : prévenir les administrateurs (au plus une fois par 24 h).
+  const identifiant = email ?? user.phone ?? user.id;
   const title = "Compte revendeur sans fiche";
-  const recent = await prisma.notification.findFirst({ where: { title, message: { contains: user.email }, createdAt: { gte: new Date(Date.now() - 86_400_000) } }, select: { id: true } });
+  const recent = await prisma.notification.findFirst({ where: { title, message: { contains: identifiant }, createdAt: { gte: new Date(Date.now() - 86_400_000) } }, select: { id: true } });
   if (!recent) {
     const admins = await prisma.user.findMany({ where: { role: "ADMIN" }, select: { id: true } });
     if (admins.length) {
       await prisma.notification.createMany({
-        data: admins.map((a) => ({ userId: a.id, title, message: `${user.name} (${user.email}) s'est connecté·e mais son compte n'est rattaché à aucune fiche revendeur. Rattachez-le dans Admin › Utilisateurs.` })),
+        data: admins.map((a) => ({ userId: a.id, title, message: `${user.name} (${identifiant}) s'est connecté·e mais son compte n'est rattaché à aucune fiche revendeur. Rattachez-le dans Admin › Utilisateurs.` })),
       });
     }
   }

@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { attachUser, createUser, deleteUser } from "@/lib/actions/users";
+import { attachUser, createUser, deleteUser, resetUserPassword } from "@/lib/actions/users";
 
 export const dynamic = "force-dynamic";
 
@@ -30,9 +30,10 @@ export default async function AdminUsersPage() {
           <thead className="bg-cream text-left text-xs uppercase text-navy/70">
             <tr>
               <th className="px-4 py-3">Nom</th>
-              <th className="px-4 py-3">E-mail</th>
+              <th className="px-4 py-3">E-mail / Téléphone</th>
               <th className="px-4 py-3">Rôle</th>
               <th className="px-4 py-3">Rattachement</th>
+              <th className="px-4 py-3">Mot de passe</th>
               <th className="px-4 py-3"></th>
             </tr>
           </thead>
@@ -40,7 +41,7 @@ export default async function AdminUsersPage() {
             {users.map((u) => (
               <tr key={u.id} className="border-t border-line">
                 <td className="px-4 py-3 font-medium text-navy">{u.name}</td>
-                <td className="px-4 py-3 text-navy/85">{u.email}</td>
+                <td className="px-4 py-3 text-navy/85">{[u.email, u.phone].filter(Boolean).join(" · ") || "—"}</td>
                 <td className="px-4 py-3 text-navy/85">{u.role}</td>
                 <td className="px-4 py-3 text-navy/85">
                   {u.consultant?.name ?? u.livreur?.name ?? (u.role === "ADMIN" ? "—" : (
@@ -57,6 +58,12 @@ export default async function AdminUsersPage() {
                       </form>
                     </div>
                   ))}
+                </td>
+                <td className="px-4 py-3">
+                  <form action={resetUserPassword.bind(null, u.id)} className="flex flex-wrap items-center gap-2">
+                    <input type="password" name="password" placeholder="Nouveau mot de passe" minLength={8} required aria-label={`Nouveau mot de passe pour ${u.name}`} className="w-40 rounded-lg border border-line px-2 py-1 text-xs" />
+                    <button className="rounded-full bg-navy px-3 py-1 text-xs font-semibold text-white">Changer</button>
+                  </form>
                 </td>
                 <td className="px-4 py-3 text-right">
                   {u.id !== session.user.id && (
@@ -85,7 +92,8 @@ export default async function AdminUsersPage() {
           </div>
           <div>
             <label className={labelClass}>E-mail</label>
-            <input type="email" name="email" required className={inputClass} />
+            <input type="email" name="email" className={inputClass} />
+            <p className="mt-1 text-xs text-navy/60">Facultatif si un téléphone est indiqué ci-dessous.</p>
           </div>
           <div>
             <label className={labelClass}>Mot de passe</label>
@@ -97,7 +105,7 @@ export default async function AdminUsersPage() {
               <input name="city" defaultValue="Dakar" className={inputClass} />
             </div>
             <div>
-              <label className={labelClass}>Téléphone WhatsApp</label>
+              <label className={labelClass}>Téléphone (connexion + WhatsApp)</label>
               <input name="phone" inputMode="tel" className={inputClass} />
             </div>
           </div>
