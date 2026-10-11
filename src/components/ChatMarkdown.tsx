@@ -3,28 +3,32 @@
 import { Fragment, type ReactNode } from "react";
 import Link from "next/link";
 
-/** Rendu Markdown minimal et sûr : gras, liens internes, listes à puces, paragraphes. */
-function renderInline(text: string, key: string, linkClassName: string, onNavigate?: () => void): ReactNode[] {
+/** Rendu Markdown minimal et sûr : gras, italique, liens internes (même dans du gras), listes, paragraphes. */
+export function renderInline(text: string, key: string, linkClassName: string, onNavigate?: () => void): ReactNode[] {
   const out: ReactNode[] = [];
-  const re = /\[([^\]]+)\]\(([^)\s]+)\)|\*\*([^*]+)\*\*/g;
+  // Gras (**…**, contenu rendu à son tour : il peut contenir un lien), lien [texte](/chemin), italique (*…* ou _…_).
+  const re = /\*\*(.+?)\*\*|\[([^\]]+)\]\(([^)\s]+)\)|(?<![\w*])\*(?!\s)([^*\n]+?)\*(?![\w*])|(?<!\w)_(?!\s)([^_\n]+?)_(?!\w)/g;
   let last = 0;
   let m: RegExpExecArray | null;
   let i = 0;
   while ((m = re.exec(text))) {
     if (m.index > last) out.push(text.slice(last, m.index));
-    if (m[1]) {
-      const href = m[2];
+    const k = `${key}-${i++}`;
+    if (m[1] !== undefined) {
+      out.push(<strong key={k}>{renderInline(m[1], k, linkClassName, onNavigate)}</strong>);
+    } else if (m[2] !== undefined) {
+      const href = m[3];
       out.push(
         href.startsWith("/") && !href.startsWith("//") ? (
-          <Link key={`${key}-${i++}`} href={href} onClick={onNavigate} className={linkClassName}>
-            {m[1]}
+          <Link key={k} href={href} onClick={onNavigate} className={linkClassName}>
+            {m[2]}
           </Link>
         ) : (
-          m[1]
+          m[2]
         )
       );
     } else {
-      out.push(<strong key={`${key}-${i++}`}>{m[3]}</strong>);
+      out.push(<em key={k}>{m[4] ?? m[5]}</em>);
     }
     last = re.lastIndex;
   }
