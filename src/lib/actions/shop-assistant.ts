@@ -2,7 +2,7 @@
 
 import { headers } from "next/headers";
 import { clientIpFromHeaders, rateLimit } from "@/lib/rate-limit";
-import { geminiConfigured } from "@/lib/ai/gemini";
+import { geminiConfigured, GeminiError } from "@/lib/ai/gemini";
 import { runChat, type ChatMessage } from "@/lib/ai/assistant";
 import { runShopTool, SHOP_TOOLS, shopSystemPrompt } from "@/lib/ai/shop-assistant";
 
@@ -25,12 +25,14 @@ export async function askShopAssistant(history: ChatMessage[]): Promise<ShopAssi
   }
 
   try {
-    const answer = await runChat({ system: shopSystemPrompt(), tools: SHOP_TOOLS, exec: runShopTool, history });
+    const answer = await runChat({ system: shopSystemPrompt(), tools: SHOP_TOOLS, exec: runShopTool, history, thinking: "minimal" });
     return { ok: true, text: answer.text };
   } catch (e) {
     console.error("[assistant boutique]", e);
     const timeout = e instanceof Error && e.name === "TimeoutError";
     // Service d'IA injoignable, clé refusée ou autre panne : on oriente vers WhatsApp.
-    return { ok: false, error: timeout ? "La réponse prend trop de temps, réessayez." : OFFLINE };
+    // La référence (code HTTP de Gemini) aide au diagnostic sans rien révéler.
+    const ref = e instanceof GeminiError ? e.message.match(/Gemini (\d{3})/)?.[1] : null;
+    return { ok: false, error: timeout ? "La réponse prend trop de temps, réessayez." : `${OFFLINE}${ref ? ` (réf. G${ref})` : ""}` };
   }
 }

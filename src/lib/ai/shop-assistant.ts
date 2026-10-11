@@ -64,7 +64,7 @@ export const SHOP_TOOLS: GeminiFunctionDeclaration[] = [
     name: "infos_boutique",
     description:
       "Informations pratiques à jour : livraison (tarifs, zone), moyens de paiement, réservation des produits en cours de commande, programme de fidélité, collections du site, devenir revendeur, contact.",
-    parameters: { type: "object", properties: {} },
+    // Pas de « parameters » : Gemini refuse un objet sans propriétés.
   },
   {
     name: "suivi_commande",
