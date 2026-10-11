@@ -44,9 +44,10 @@ export async function expandQueryWithAI(query: string): Promise<Expansion | null
       system: SYSTEM_PROMPT,
       contents: [{ role: "user", parts: [{ text: `Requête : "${query.slice(0, 80)}"` }] }],
       temperature: 0.2,
-      maxOutputTokens: 512,
+      maxOutputTokens: 1024,
       json: true,
-      timeoutMs: 4000,
+      thinking: "minimal",
+      timeoutMs: 7000,
     });
     const parsed = JSON.parse(textOf(content)) as Expansion;
     if (!Array.isArray(parsed.keywords) || !parsed.keywords.length) return null;

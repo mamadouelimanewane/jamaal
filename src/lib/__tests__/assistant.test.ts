@@ -88,3 +88,25 @@ test("boucle : le nombre de tours d'outils est limité", async () => {
   assert.equal(answer.text, "Voici ce que j'ai trouvé.");
   assert.equal(n, 6);
 });
+
+test("boucle : à court de temps, le modèle conclut sans outils", async () => {
+  let t = 0;
+  const seen: GeminiRequest[] = [];
+  const generate: Generate = async (req) => {
+    seen.push(req);
+    t += 40_000; // chaque appel « dure » 40 s
+    return req.tools
+      ? { role: "model", parts: [{ functionCall: { name: "etat_stock", args: {} } }] }
+      : { role: "model", parts: [{ text: "Voici ce que j'ai trouvé." }] };
+  };
+  const answer = await runAssistant(admin, [{ role: "user", text: "Stock ?" }], {
+    generate,
+    now: () => t,
+    runTool: async () => ({ resultat: {} }),
+  });
+  assert.equal(seen.length, 2);
+  assert.ok(seen[0].tools?.length);
+  assert.equal(seen[1].tools, undefined);
+  assert.equal(seen[1].thinking, "low");
+  assert.equal(answer.text, "Voici ce que j'ai trouvé.");
+});
