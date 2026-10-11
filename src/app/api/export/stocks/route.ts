@@ -14,9 +14,12 @@ export async function GET() {
     {
       name: "Stocks",
       columns: [
-        { header: "Produit", key: "name", width: 36 },
+        { header: "Produit (nom Chogan)", key: "name", width: 36 },
+        { header: "Inspiré de", key: "inspiredBy", width: 24 },
+        { header: "Marque", key: "inspiredBrand", width: 18 },
+        { header: "Code produit", key: "productCode", width: 12 },
         { header: "Collection", key: "category", width: 18 },
-        { header: "Code", key: "code", width: 12 },
+        { header: "Code du format", key: "code", width: 14 },
         { header: "Format", key: "format", width: 16 },
         { header: "Stock", key: "stock", width: 9 },
         { header: "Seuil", key: "threshold", width: 9 },
@@ -30,6 +33,9 @@ export async function GET() {
       ],
       rows: rows.map((r) => ({
         name: r.name,
+        inspiredBy: r.inspiredBy ?? "",
+        inspiredBrand: r.inspiredBrand ?? "",
+        productCode: r.productCode ?? "",
         category: r.categoryLabel,
         code: r.code ?? "",
         format: r.format,

@@ -5,7 +5,7 @@ import type { StockRow } from "../inventory-report";
 
 function row(over: Partial<StockRow>): StockRow {
   return {
-    key: over.key ?? Math.random().toString(36).slice(2), productId: "p1", variantId: null, name: "Prestige", slug: "x",
+    key: over.key ?? Math.random().toString(36).slice(2), productId: "p1", variantId: null, name: "Prestige", productCode: null, inspiredBy: null, inspiredBrand: null, slug: "x",
     category: "parfum-homme", categoryLabel: "Homme", code: null, format: "70 ml", stock: 8, threshold: 5,
     salePrice: 28700, unitCost: null, sold30: 0, coverageDays: null, toOrder: 0, status: "ok", ...over,
   };
