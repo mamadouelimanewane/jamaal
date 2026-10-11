@@ -17,7 +17,9 @@ export type ChangePasswordState = { ok: boolean; error?: string };
 export async function changeOwnPassword(_prev: ChangePasswordState, formData: FormData): Promise<ChangePasswordState> {
   const session = await auth();
   if (!session?.user?.id) return { ok: false, error: "Session invalide." };
-  if ((await cookies()).get("jamaal_viewas")?.value) {
+  // Le cookie « voir son espace » n'a de sens que pour un administrateur en consultation : il ne
+  // doit jamais bloquer un autre rôle (revendeur, livreur, client) à tort.
+  if (session.user.role === "ADMIN" && (await cookies()).get("jamaal_viewas")?.value) {
     return { ok: false, error: "Mode consultation : quittez « Voir son espace » pour changer un mot de passe." };
   }
 
