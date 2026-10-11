@@ -1,10 +1,13 @@
-import { normalizePhone } from "@/lib/phone";
+import { canonicalizePhone } from "@/lib/phone";
 
 /**
  * Un identifiant de connexion saisi par l'utilisateur peut être un e-mail ou un numéro de
  * téléphone (inscription par téléphone, sans e-mail). On distingue les deux par la présence
- * d'un « @ » ; le téléphone est normalisé (chiffres uniquement) pour correspondre à la valeur
- * stockée dans User.phone. Pur, sans dépendance à la base ou à Next.js.
+ * d'un « @ » ; le téléphone est ramené à sa forme canonique (toujours avec l'indicatif 221) pour
+ * que « 77 123 45 67 » et « +221 77 123 45 67 » désignent le même compte — voir phone.ts.
+ * Cette valeur canonique sert aussi de clé pour le compteur anti-force-brute (LoginAttempt) :
+ * une seule clé par abonné, quel que soit le format tapé. Pur, sans dépendance à la base ou à
+ * Next.js.
  */
 export type LoginIdentifier = { kind: "email"; value: string } | { kind: "phone"; value: string } | null;
 
@@ -15,6 +18,6 @@ export function parseLoginIdentifier(raw: string): LoginIdentifier {
     const email = trimmed.toLowerCase();
     return email.length <= 254 ? { kind: "email", value: email } : null;
   }
-  const phone = normalizePhone(trimmed);
+  const phone = canonicalizePhone(trimmed);
   return phone.length >= 8 && phone.length <= 15 ? { kind: "phone", value: phone } : null;
 }

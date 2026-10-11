@@ -9,7 +9,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "./auth-guard";
 import { Role } from "@prisma/client";
 import { uniqueConsultantSlug } from "@/lib/unique-slug";
-import { normalizePhone } from "@/lib/phone";
+import { canonicalizePhone, phoneLookupVariants } from "@/lib/phone";
 
 /** Nom propre : « AWA HAYIBOR » → « Awa Hayibor ». */
 const tidyName = (n: string) => (n === n.toUpperCase() ? n.toLowerCase().replace(/(^|[\s'-])\p{L}/gu, (m) => m.toUpperCase()) : n);
@@ -51,7 +51,7 @@ async function createUserImpl(formData: FormData) {
   await requireAdmin();
   const emailRaw = String(formData.get("email") ?? "").trim().toLowerCase();
   const phoneRaw = String(formData.get("phone") ?? "").trim();
-  const phone = phoneRaw ? normalizePhone(phoneRaw) : "";
+  const phone = phoneRaw ? canonicalizePhone(phoneRaw) : "";
   const email = emailRaw || null;
   const name = String(formData.get("name") ?? "").trim();
   const password = String(formData.get("password") ?? "");
@@ -63,7 +63,8 @@ async function createUserImpl(formData: FormData) {
   if (password.length < 8) throw new Error("Mot de passe : 8 caractères au moins.");
   if (email && (await prisma.user.findFirst({ where: { email: { equals: email, mode: "insensitive" } }, select: { id: true } })))
     throw new Error("Un compte existe déjà avec cet e-mail.");
-  if (phone && (await prisma.user.findUnique({ where: { phone }, select: { id: true } }))) throw new Error("Un compte existe déjà avec ce numéro de téléphone.");
+  if (phone && (await prisma.user.findFirst({ where: { phone: { in: phoneLookupVariants(phone) } }, select: { id: true } })))
+    throw new Error("Un compte existe déjà avec ce numéro de téléphone.");
 
   const links = await profileFor(role, formData, name, email);
   const passwordHash = await bcrypt.hash(password, 10);

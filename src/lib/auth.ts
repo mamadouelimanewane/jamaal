@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import { createHash } from "node:crypto";
 import { prisma } from "@/lib/prisma";
 import { parseLoginIdentifier } from "@/lib/login-identifier";
+import { phoneLookupVariants } from "@/lib/phone";
 
 const MAX_FAILURES = 5;
 const WINDOW_MS = 15 * 60 * 1000;
@@ -50,10 +51,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const attempt = await prisma.loginAttempt.findUnique({ where: { identifiant } });
         if (attempt?.lockedUntil && attempt.lockedUntil > now) return null;
 
+        // Un même numéro peut être stocké avec ou sans l'indicatif 221 selon la façon dont le
+        // compte a été créé (voir phone.ts) : on reste tolérant aux deux formes à la recherche,
+        // même si on normalise désormais toujours vers la forme canonique à la création.
         const user =
           identifier.kind === "email"
             ? await prisma.user.findFirst({ where: { email: { equals: identifiant, mode: "insensitive" } } })
-            : await prisma.user.findUnique({ where: { phone: identifiant } });
+            : await prisma.user.findFirst({ where: { phone: { in: phoneLookupVariants(identifiant) } } });
         const valid = await bcrypt.compare(password, user?.passwordHash ?? DUMMY_HASH);
         if (!user) return null;
         if (!valid) {

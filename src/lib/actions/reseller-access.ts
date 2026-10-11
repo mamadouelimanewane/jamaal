@@ -6,7 +6,7 @@ import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getSiteUrl } from "@/lib/site-url";
-import { normalizePhone } from "@/lib/phone";
+import { canonicalizePhone, phoneLookupVariants } from "@/lib/phone";
 import { requireAdmin } from "./auth-guard";
 
 export type AccessResult = { ok: boolean; error?: string; activationUrl?: string; created?: boolean };
@@ -42,9 +42,9 @@ export async function createResellerAccess(consultantId: string, rawEmail?: stri
       const taken = await prisma.user.findFirst({ where: { email: { equals: email, mode: "insensitive" } }, select: { id: true } });
       if (taken) return { ok: false, error: "Un compte existe déjà avec cet e-mail." };
     } else {
-      phone = normalizePhone(consultant.whatsapp);
+      phone = canonicalizePhone(consultant.whatsapp);
       if (phone.length < 8) return { ok: false, error: "Numéro WhatsApp invalide : indiquez un e-mail pour créer l'accès." };
-      const taken = await prisma.user.findUnique({ where: { phone }, select: { id: true } });
+      const taken = await prisma.user.findFirst({ where: { phone: { in: phoneLookupVariants(phone) } }, select: { id: true } });
       if (taken) return { ok: false, error: "Un compte existe déjà avec ce numéro de téléphone." };
     }
 
