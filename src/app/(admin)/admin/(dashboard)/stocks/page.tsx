@@ -140,8 +140,8 @@ export default async function AdminStockPage({ searchParams }: { searchParams: P
           <table className="w-full min-w-[980px] text-sm">
             <thead className="bg-cream text-left text-xs uppercase tracking-wider text-navy/70">
               <tr>
-                <th className="px-4 py-3">Produit</th>
-                <th className="px-3 py-3">Code</th>
+                <th className="px-4 py-3">Produit Chogan · inspiration</th>
+                <th className="px-3 py-3">Code du format</th>
                 <th className="px-3 py-3">Format</th>
                 <th className="px-3 py-3">Stock</th>
                 <th className="px-3 py-3" title="Alerte quand le stock descend à ce niveau">Seuil</th>

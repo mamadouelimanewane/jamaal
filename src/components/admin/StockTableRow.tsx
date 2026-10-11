@@ -25,6 +25,12 @@ const KINDS_OUT = [
   { id: "AJUSTEMENT", label: "Ajustement" },
 ];
 
+/** « Inspiré de Sauvage · Dior » (le parfum de marque, puis sa maison). */
+export function inspirationLabel(row: Pick<StockRow, "inspiredBy" | "inspiredBrand">) {
+  if (!row.inspiredBy && !row.inspiredBrand) return null;
+  return `Inspiré de ${[row.inspiredBy, row.inspiredBrand].filter(Boolean).join(" · ")}`;
+}
+
 const field = "rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink outline-none focus:border-navy focus:ring-2 focus:ring-navy/10";
 
 export function StockTableRow({ row }: { row: StockRow }) {
@@ -34,13 +40,18 @@ export function StockTableRow({ row }: { row: StockRow }) {
   const [tState, tAction, tPending] = useActionState(updateThresholdAction, initial);
   const status = STATUS[row.status];
   const kinds = mode === "out" ? KINDS_OUT : KINDS_IN;
+  const inspiration = inspirationLabel(row);
 
   return (
     <>
       <tr className={`border-t border-line align-middle ${open ? "bg-cream/60" : "hover:bg-cream/40"}`}>
         <td className="px-4 py-3">
           <Link href={`/admin/produits/${row.productId}/modifier`} className="font-medium text-ink hover:underline">{row.name}</Link>
-          <span className="block text-xs text-navy/65">{row.categoryLabel}</span>
+          {inspiration && <span className="block text-xs font-medium text-[#8a5a44]">{inspiration}</span>}
+          <span className="block text-xs text-navy/65">
+            {row.productCode && row.productCode !== row.code ? `Code produit ${row.productCode} · ` : ""}
+            {row.categoryLabel}
+          </span>
           {/* Sur téléphone, la dernière colonne est hors de l'écran : bouton ici aussi. */}
           <button type="button" onClick={() => setOpen(true)} className="mt-1.5 inline-flex items-center gap-1 rounded-lg bg-navy px-3 py-1.5 text-xs font-semibold text-white sm:hidden">
             <ArrowLeftRight size={13} /> Saisir un mouvement
@@ -85,6 +96,7 @@ export function StockTableRow({ row }: { row: StockRow }) {
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="font-semibold text-ink">{row.name}</p>
+                    {inspiration && <p className="text-xs font-medium text-[#8a5a44]">{inspiration}</p>}
                     <p className="text-sm text-navy/75">{row.format}{row.code ? ` · ${row.code}` : ""} · stock actuel <strong>{fmt(row.stock)}</strong></p>
                   </div>
                   <button type="button" onClick={() => setOpen(false)} aria-label="Fermer" className="rounded-lg p-2 text-navy/70 hover:bg-cream"><X size={18} /></button>

@@ -125,7 +125,7 @@ export default async function AdminProductsPage({
           <thead className="bg-cream text-left text-xs uppercase text-navy/70">
             <tr>
               <th className="px-4 py-3">Code</th>
-              <th className="px-4 py-3">Nom</th>
+              <th className="px-4 py-3">Nom Chogan · inspiration</th>
               <th className="px-4 py-3">Catégorie</th>
               <th className="px-4 py-3">Prix régulier</th>
               <th className="px-4 py-3">Stock</th>
@@ -140,7 +140,11 @@ export default async function AdminProductsPage({
                   <td className="whitespace-nowrap px-4 py-3 text-navy/85"><span className="font-semibold text-navy">{p.choganCode ?? "—"}</span>{p.number ? <span className="block text-xs text-navy/65">Fiche {p.number}</span> : null}</td>
                   <td className="px-4 py-3 font-medium text-navy">
                     {p.name}
-                    {p.inspiredBy && <span className="block text-xs font-normal text-navy/65">Inspiré de {p.inspiredBy}{p.inspiredBrand ? ` · ${p.inspiredBrand}` : ""}</span>}
+                    {(p.inspiredBy || p.inspiredBrand) && (
+                      <span className="block text-xs font-medium text-[#8a5a44]">
+                        Inspiré de {[p.inspiredBy, p.inspiredBrand].filter(Boolean).join(" · ")}
+                      </span>
+                    )}
                   </td>
                   <td className="px-4 py-3 text-navy/85">{labels.get(p.category) ?? p.category}</td>
                   <td className="px-4 py-3 text-navy/85">

@@ -13,6 +13,11 @@ export interface StockRow {
   productId: string;
   variantId: string | null;
   name: string;
+  /** Code Chogan du produit (094M), distinct du code du format (301M, T094M). */
+  productCode: string | null;
+  /** Parfum de marque dont le produit s'inspire (« Sauvage ») et sa maison (« Dior »). */
+  inspiredBy: string | null;
+  inspiredBrand: string | null;
   slug: string;
   category: string;
   categoryLabel: string;
@@ -50,7 +55,7 @@ export async function getStockRows(): Promise<StockRow[]> {
     prisma.product.findMany({
       orderBy: { name: "asc" },
       select: {
-        id: true, name: true, slug: true, category: true, choganCode: true, stock: true, lowStockThreshold: true,
+        id: true, name: true, slug: true, category: true, choganCode: true, inspiredBy: true, inspiredBrand: true, stock: true, lowStockThreshold: true,
         regularPrice: true, publicPrice: true, volumes: true,
         variants: { select: { id: true, volumeLabel: true, code: true, stock: true, lowStockThreshold: true }, orderBy: { id: "asc" } },
       },
@@ -70,7 +75,8 @@ export async function getStockRows(): Promise<StockRow[]> {
   const rows: StockRow[] = [];
   for (const p of products) {
     const volumes = (Array.isArray(p.volumes) ? p.volumes : []) as Volume[];
-    const base = { productId: p.id, name: p.name, slug: p.slug, category: p.category, categoryLabel: labels.get(p.category) ?? p.category };
+    const base = {
+      productId: p.id, name: p.name, productCode: p.choganCode, inspiredBy: p.inspiredBy, inspiredBrand: p.inspiredBrand, slug: p.slug, category: p.category, categoryLabel: labels.get(p.category) ?? p.category };
     const push = (variantId: string | null, format: string, code: string | null, stock: number, threshold: number, salePrice: number | null, unitCost: number | null) => {
       const sold30 = soldBy.get(`${p.id}:${variantId ?? ""}`) ?? 0;
       rows.push({
