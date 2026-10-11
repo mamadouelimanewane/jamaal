@@ -4,6 +4,8 @@ import { geminiConfigured } from "@/lib/ai/gemini";
 import { AssistantChat } from "@/components/admin/AssistantChat";
 
 export const dynamic = "force-dynamic";
+// L'assistant peut enchaîner plusieurs appels à l'IA et à la base : 60 s laissées à la réponse.
+export const maxDuration = 60;
 
 /** Assistant IA : questions en langage naturel sur le catalogue, le stock et les données de l'application. */
 export default async function AssistantPage() {

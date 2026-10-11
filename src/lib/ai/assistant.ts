@@ -14,6 +14,8 @@ export interface ChatMessage {
 export const MAX_HISTORY = 12;
 export const MAX_MESSAGE_CHARS = 1000;
 const MAX_TOOL_ROUNDS = 5;
+/** Durée maximale d'une réponse, tous tours compris (sous la limite de la fonction serveur). */
+export const ANSWER_BUDGET_MS = 50_000;
 
 const ADMIN_PAGES = `- Tableau de bord : /admin
 - Produits (ajout, modification, import Excel/CSV) : /admin/produits
@@ -90,8 +92,10 @@ export interface AssistantAnswer {
 export async function runAssistant(
   scope: AssistantScope,
   history: ChatMessage[],
-  deps: { generate?: Generate; runTool?: typeof runTool } = {}
+  deps: { generate?: Generate; runTool?: typeof runTool; now?: () => number } = {}
 ): Promise<AssistantAnswer> {
+  const now = deps.now ?? Date.now;
+  const deadline = now() + ANSWER_BUDGET_MS;
   const generate = deps.generate ?? ((req) => generateContent(req));
   const exec = deps.runTool ?? runTool;
   const contents = sanitizeHistory(history);
@@ -102,10 +106,20 @@ export async function runAssistant(
   const toolsUsed: string[] = [];
 
   for (let round = 0; round <= MAX_TOOL_ROUNDS; round++) {
-    // Au dernier tour, plus d'outils : le modèle doit conclure avec ce qu'il a.
-    const reply = await generate({ system, contents, tools: round < MAX_TOOL_ROUNDS ? tools : undefined, maxOutputTokens: 2048 });
+    // Au dernier tour (ou s'il reste peu de temps), plus d'outils : le modèle conclut avec ce qu'il a.
+    const left = deadline - now();
+    if (left < 3_000) break;
+    const last = round >= MAX_TOOL_ROUNDS || left < 15_000;
+    const reply = await generate({
+      system,
+      contents,
+      tools: last ? undefined : tools,
+      maxOutputTokens: 4096,
+      thinking: "low",
+      timeoutMs: Math.min(25_000, left),
+    });
     const calls = reply.parts.flatMap((p) => ("functionCall" in p ? [p.functionCall] : []));
-    if (!calls.length) {
+    if (!calls.length || last) {
       return { text: textOf(reply) || "Je n'ai pas de réponse à proposer, pouvez-vous reformuler ?", toolsUsed };
     }
     // La réponse du modèle est renvoyée telle quelle (elle peut porter des signatures de réflexion).
