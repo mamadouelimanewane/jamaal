@@ -3,7 +3,7 @@
  * les commandes, les clients, les revendeurs et le fonctionnement de l'application.
  * Le modèle (Gemini) choisit les outils à appeler ; les données viennent toujours de la base.
  */
-import { generateContent, textOf, type GeminiContent, type GeminiRequest } from "./gemini";
+import { generateContent, textOf, type GeminiContent, type GeminiFunctionDeclaration, type GeminiRequest } from "./gemini";
 import { runTool, toolsFor, type AssistantScope } from "./assistant-tools";
 
 export interface ChatMessage {
@@ -94,15 +94,36 @@ export async function runAssistant(
   history: ChatMessage[],
   deps: { generate?: Generate; runTool?: typeof runTool; now?: () => number } = {}
 ): Promise<AssistantAnswer> {
-  const now = deps.now ?? Date.now;
-  const deadline = now() + ANSWER_BUDGET_MS;
-  const generate = deps.generate ?? ((req) => generateContent(req));
   const exec = deps.runTool ?? runTool;
-  const contents = sanitizeHistory(history);
+  return runChat({
+    system: systemPrompt(scope),
+    tools: toolsFor(scope),
+    exec: (name, args) => exec(name, args, scope),
+    history,
+    generate: deps.generate,
+    now: deps.now,
+  });
+}
+
+/**
+ * Boucle de conversation avec outils, commune aux assistants (back-office et boutique) :
+ * le modèle appelle des outils, reçoit leurs résultats, puis répond. Bornée en tours et en temps.
+ */
+export async function runChat(opts: {
+  system: string;
+  tools: GeminiFunctionDeclaration[];
+  exec: (name: string, args: Record<string, unknown>) => Promise<Record<string, unknown>>;
+  history: ChatMessage[];
+  generate?: Generate;
+  now?: () => number;
+}): Promise<AssistantAnswer> {
+  const generate = opts.generate ?? ((req) => generateContent(req));
+  const now = opts.now ?? Date.now;
+  const deadline = now() + ANSWER_BUDGET_MS;
+  const contents = sanitizeHistory(opts.history);
   if (!contents.length) return { text: "Posez-moi une question.", toolsUsed: [] };
 
-  const system = systemPrompt(scope);
-  const tools = toolsFor(scope);
+  const { system, tools } = opts;
   const toolsUsed: string[] = [];
 
   for (let round = 0; round <= MAX_TOOL_ROUNDS; round++) {
@@ -127,7 +148,7 @@ export async function runAssistant(
     const results = await Promise.all(
       calls.map(async (c) => {
         toolsUsed.push(c.name);
-        return { functionResponse: { name: c.name, response: await exec(c.name, c.args ?? {}, scope) } };
+        return { functionResponse: { name: c.name, response: await opts.exec(c.name, c.args ?? {}) } };
       })
     );
     contents.push({ role: "user", parts: results });

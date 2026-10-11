@@ -5,6 +5,8 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { CartDrawer } from "@/components/CartDrawer";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
+import { ShopAssistant } from "@/components/ShopAssistant";
+import { geminiConfigured } from "@/lib/ai/gemini";
 import { AnnouncementBar } from "@/components/AnnouncementBar";
 import { getCategoriesWithProducts } from "@/lib/db-categories";
 import { siteBaseUrl } from "@/lib/site-url";
@@ -22,6 +24,8 @@ const poppins = Poppins({
 });
 
 export const dynamic = "force-dynamic";
+// La conseillère virtuelle peut enchaîner plusieurs appels à l'IA : 60 s laissées à la réponse.
+export const maxDuration = 60;
 
 const SITE_DESCRIPTION =
   "JAMAAL Luxury Cosmetics — parfums, soins et cosmétiques inspirés des plus grandes maisons de parfumerie, à prix juste.";
@@ -55,6 +59,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         <Footer categories={categories} />
         <CartDrawer />
         <WhatsAppButton />
+        {geminiConfigured() && <ShopAssistant />}
       </body>
     </html>
   );
