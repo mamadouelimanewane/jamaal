@@ -108,7 +108,7 @@ export default async function AdminConsultantsPage() {
                     )}
                   </td>
                   <td className="px-4 py-3">
-                    <ResellerAccess consultantId={c.id} userEmail={c.user?.email ?? null} defaultEmail={c.email ?? ""} whatsapp={c.whatsapp} name={c.name} />
+                    <ResellerAccess consultantId={c.id} userLogin={c.user ? (c.user.email ?? c.user.phone) : null} defaultEmail={c.email ?? ""} whatsapp={c.whatsapp} name={c.name} />
                   </td>
                   <td className="px-4 py-3">
                     {c.active ? (

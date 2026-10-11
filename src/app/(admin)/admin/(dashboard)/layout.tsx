@@ -130,6 +130,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const session = await auth();
   if (!session) redirect("/admin/login");
   const role = session.user?.role;
+  // Les comptes clients n'ont rien à faire dans le back-office : leur espace est /compte.
+  if (role === "CLIENT") redirect("/compte");
 
   // Mode « voir l'espace d'un consultant » (administrateur uniquement)
   const viewAsId = role === "ADMIN" ? (await cookies()).get("jamaal_viewas")?.value : undefined;
@@ -218,7 +220,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
       <div className="mt-auto border-t border-white/10 pt-4">
         <p className="px-2 text-xs font-medium text-white/80">{session.user?.name}</p>
-        <p className="px-2 text-xs text-white/65">{session.user?.email}</p>
+        <p className="px-2 text-xs text-white/65">{session.user?.email ?? session.user?.phone}</p>
         <p className="px-2 text-xs uppercase tracking-wide text-rose">{role}</p>
         <form action={logoutAction}>
           <button className="mt-3 w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-rose-light transition hover:bg-white/5">

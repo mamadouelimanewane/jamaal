@@ -9,12 +9,13 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "./auth-guard";
 import { Role } from "@prisma/client";
 import { uniqueConsultantSlug } from "@/lib/unique-slug";
+import { normalizePhone } from "@/lib/phone";
 
 /** Nom propre : « AWA HAYIBOR » → « Awa Hayibor ». */
 const tidyName = (n: string) => (n === n.toUpperCase() ? n.toLowerCase().replace(/(^|[\s'-])\p{L}/gu, (m) => m.toUpperCase()) : n);
 
 /** Fiche revendeur ou livreur à rattacher : celle choisie, sinon une nouvelle fiche créée à partir du compte. */
-async function profileFor(role: Role, formData: FormData, name: string, email: string) {
+async function profileFor(role: Role, formData: FormData, name: string, email: string | null) {
   const city = String(formData.get("city") ?? "").trim() || "Dakar";
   const phone = String(formData.get("phone") ?? "").trim();
   if (role === "CONSULTANT") {
@@ -25,7 +26,9 @@ async function profileFor(role: Role, formData: FormData, name: string, email: s
       if (c.user) throw new Error("Cette fiche consultant a déjà un compte.");
       return { consultantId: c.id, livreurId: null };
     }
-    const free = await prisma.consultant.findFirst({ where: { email: { equals: email, mode: "insensitive" }, user: null }, select: { id: true } });
+    const free = email
+      ? await prisma.consultant.findFirst({ where: { email: { equals: email, mode: "insensitive" }, user: null }, select: { id: true } })
+      : null;
     if (free) return { consultantId: free.id, livreurId: null };
     const c = await prisma.consultant.create({ data: { name: tidyName(name), city, whatsapp: phone, email, active: true, slug: await uniqueConsultantSlug(name) } });
     return { consultantId: c.id, livreurId: null };
@@ -46,19 +49,25 @@ async function profileFor(role: Role, formData: FormData, name: string, email: s
 
 async function createUserImpl(formData: FormData) {
   await requireAdmin();
-  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const emailRaw = String(formData.get("email") ?? "").trim().toLowerCase();
+  const phoneRaw = String(formData.get("phone") ?? "").trim();
+  const phone = phoneRaw ? normalizePhone(phoneRaw) : "";
+  const email = emailRaw || null;
   const name = String(formData.get("name") ?? "").trim();
   const password = String(formData.get("password") ?? "");
   const roleRaw = String(formData.get("role") ?? "CONSULTANT");
   const role: Role = roleRaw === "ADMIN" ? Role.ADMIN : roleRaw === "LIVREUR" ? Role.LIVREUR : Role.CONSULTANT;
   if (name.length < 2) throw new Error("Indiquez le nom.");
-  if (!/^\S+@\S+\.\S+$/.test(email)) throw new Error("E-mail invalide.");
+  if (email && !/^\S+@\S+\.\S+$/.test(email)) throw new Error("E-mail invalide.");
+  if (!email && phone.length < 8) throw new Error("Indiquez un e-mail ou un numéro de téléphone valide.");
   if (password.length < 8) throw new Error("Mot de passe : 8 caractères au moins.");
-  if (await prisma.user.findFirst({ where: { email: { equals: email, mode: "insensitive" } }, select: { id: true } })) throw new Error("Un compte existe déjà avec cet e-mail.");
+  if (email && (await prisma.user.findFirst({ where: { email: { equals: email, mode: "insensitive" } }, select: { id: true } })))
+    throw new Error("Un compte existe déjà avec cet e-mail.");
+  if (phone && (await prisma.user.findUnique({ where: { phone }, select: { id: true } }))) throw new Error("Un compte existe déjà avec ce numéro de téléphone.");
 
   const links = await profileFor(role, formData, name, email);
   const passwordHash = await bcrypt.hash(password, 10);
-  await prisma.user.create({ data: { email, name: tidyName(name), passwordHash, role, ...links } });
+  await prisma.user.create({ data: { email, phone: phone || null, name: tidyName(name), passwordHash, role, ...links } });
   revalidatePath("/admin/utilisateurs");
   revalidatePath("/admin/consultants");
   redirect("/admin/utilisateurs");
@@ -84,6 +93,24 @@ async function deleteUserImpl(id: string) {
   revalidatePath("/admin/utilisateurs");
 }
 
+/** L'administrateur fixe directement un nouveau mot de passe pour n'importe quel compte. */
+async function resetUserPasswordImpl(userId: string, formData: FormData) {
+  await requireAdmin();
+  const password = String(formData.get("password") ?? "");
+  if (password.length < 8) throw new Error("Mot de passe : 8 caractères au moins.");
+  const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true, name: true, email: true, phone: true } });
+  if (!user) throw new Error("Compte introuvable.");
+  const passwordHash = await bcrypt.hash(password, 10);
+  const identifiants = [user.email?.toLowerCase(), user.phone].filter((v): v is string => !!v);
+  await prisma.$transaction(async (tx) => {
+    await tx.user.update({ where: { id: userId }, data: { passwordHash } });
+    await tx.passwordResetToken.deleteMany({ where: { userId } });
+    if (identifiants.length) await tx.loginAttempt.deleteMany({ where: { identifiant: { in: identifiants } } });
+    await tx.activityLog.create({ data: { userId, userName: user.name, action: "Mot de passe modifié par un administrateur", entity: "User", entityId: userId } });
+  });
+  revalidatePath("/admin/utilisateurs");
+}
+
 // Actions appelées par les formulaires : erreurs affichées sur la page, jamais une page d'erreur.
 export async function createUser(formData: FormData): Promise<void> {
   try {
@@ -104,6 +131,14 @@ export async function deleteUser(id: string): Promise<void> {
 export async function attachUser(userId: string, formData: FormData): Promise<void> {
   try {
     await attachUserImpl(userId, formData);
+  } catch (e) {
+    await backWithError(e, "/admin/utilisateurs");
+  }
+}
+
+export async function resetUserPassword(userId: string, formData: FormData): Promise<void> {
+  try {
+    await resetUserPasswordImpl(userId, formData);
   } catch (e) {
     await backWithError(e, "/admin/utilisateurs");
   }

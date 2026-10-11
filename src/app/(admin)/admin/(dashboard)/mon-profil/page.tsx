@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getReseller } from "@/lib/reseller";
 import { ProfileForm } from "@/components/admin/ProfileForm";
 import { WalletForm } from "@/components/admin/WalletForm";
+import { ChangePasswordForm } from "@/components/admin/ChangePasswordForm";
 import { NotReseller } from "@/components/admin/NotReseller";
 import { prisma } from "@/lib/prisma";
 import { getProtocol } from "@/lib/protocol-store";
@@ -44,10 +45,17 @@ export default async function MonProfilPage() {
           <dt className="text-navy/70">Membre depuis</dt>
           <dd className="text-navy">{me.createdAt.toLocaleDateString("fr-FR")}</dd>
         </dl>
-        <p className="mt-4 text-xs text-navy/70">
-          Pour changer votre mot de passe, utilisez <Link href="/admin/forgot-password" className="font-semibold text-rose-dark hover:underline">« Mot de passe oublié »</Link>.
-        </p>
       </div>
+
+      {!me.viewAs && (
+        <div className="mt-6 rounded-2xl border border-line bg-white p-5 sm:p-6">
+          <h2 className="font-serif-display text-lg font-semibold text-navy">Changer mon mot de passe</h2>
+          <p className="mt-1 text-sm text-navy/75">
+            Mot de passe oublié ? Utilisez plutôt <Link href="/admin/forgot-password" className="font-semibold text-rose-dark hover:underline">« Mot de passe oublié »</Link>.
+          </p>
+          <div className="mt-4"><ChangePasswordForm /></div>
+        </div>
+      )}
     </div>
   );
 }

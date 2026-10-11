@@ -152,7 +152,7 @@ export default async function ConsultantProfilePage({
               </a>
               {consultant.user && (
                 <span className="flex items-center gap-1 text-blue-600">
-                  Portail: {consultant.user.email}
+                  Portail: {consultant.user.email ?? consultant.user.phone}
                 </span>
               )}
               {consultant.sponsor && (

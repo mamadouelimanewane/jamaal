@@ -2,10 +2,24 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { repairConsultantLink } from "@/lib/account-link";
 
+/** Rôles de l'équipe JAMAAL (back-office) : exclut explicitement les comptes clients. */
+const STAFF_ROLES = new Set(["ADMIN", "CONSULTANT", "LIVREUR"]);
+
 export async function requireStaff() {
   const session = await auth();
   if (!session) throw new Error("Non authentifié");
+  if (!STAFF_ROLES.has(session.user?.role ?? "")) throw new Error("Réservé à l'équipe JAMAAL");
   return session;
+}
+
+/** Session d'un compte client (espace /compte), rattachée à sa fiche Customer. */
+export async function requireClient() {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Non authentifié");
+  if (session.user.role !== "CLIENT") throw new Error("Réservé aux clients");
+  const user = await prisma.user.findUnique({ where: { id: session.user.id }, include: { customer: true } });
+  if (!user?.customer) throw new Error("Votre compte n'est pas encore rattaché à une fiche client.");
+  return { session, customer: user.customer };
 }
 
 export async function requireAdmin() {

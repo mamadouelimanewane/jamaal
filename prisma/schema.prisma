@@ -10,6 +10,7 @@ enum Role {
   ADMIN
   CONSULTANT
   LIVREUR
+  CLIENT
 }
 
 enum OrderStatus {
@@ -51,9 +52,13 @@ enum CouponType {
   MONTANT_FIXE
 }
 
+/// Connexion par e-mail ou par numéro de téléphone : au moins l'un des deux est renseigné
+/// (contrainte CHECK en base, voir db/sql/20261011-15-inscription-telephone.sql).
 model User {
   id           String   @id @default(cuid())
-  email        String   @unique
+  email        String?  @unique
+  /// Normalisé (chiffres uniquement, voir normalizePhone) pour servir d'identifiant de connexion.
+  phone        String?  @unique
   passwordHash String
   name         String
   role         Role     @default(CONSULTANT)
@@ -65,13 +70,19 @@ model User {
   livreurId String?  @unique
   livreur   Livreur? @relation(fields: [livreurId], references: [id], onDelete: SetNull)
 
+  /// Compte client (rôle CLIENT) rattaché à sa fiche client (historique de commandes).
+  customerId String?   @unique
+  customer   Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+
   notifications       Notification[]
   passwordResetTokens PasswordResetToken[]
   stockMovements      StockMovement[]
 }
 
+/// Verrouillage anti-force-brute par identifiant de connexion (e-mail ou téléphone normalisé,
+/// tel que saisi). Colonne renommée depuis « email » (voir migration 20261011-15).
 model LoginAttempt {
-  email       String    @id
+  identifiant String    @id
   count       Int       @default(0)
   windowStart DateTime  @default(now())
   lockedUntil DateTime?
@@ -481,6 +492,7 @@ model Customer {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
+  user      User?
   orders    Order[]
   referrals Referral[] @relation("CustomerReferrals")
 }

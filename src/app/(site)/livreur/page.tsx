@@ -24,7 +24,7 @@ export default async function LivreurEntryPage() {
     <div className="mx-auto max-w-md px-4 py-24 text-center">
       <h1 className="font-serif-display text-2xl font-semibold text-navy">Espace Livreur</h1>
       <p className="mt-3 text-sm text-navy/70">
-        Le compte {session.user?.email} n&apos;est pas un compte livreur. Déconnectez-vous pour vous
+        Le compte {session.user?.email ?? session.user?.phone} n&apos;est pas un compte livreur. Déconnectez-vous pour vous
         connecter avec un compte livreur.
       </p>
       <form action={logoutAction} className="mt-6">

@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getSiteUrl } from "@/lib/site-url";
+import { normalizePhone } from "@/lib/phone";
 import { requireAdmin } from "./auth-guard";
 
 export type AccessResult = { ok: boolean; error?: string; activationUrl?: string; created?: boolean };
@@ -16,12 +17,13 @@ const emailSchema = z.string().trim().toLowerCase().email("E-mail invalide.").ma
 /**
  * Donne un accès de connexion à un consultant existant (ou renouvelle son lien d'activation).
  * Aucun mot de passe n'est communiqué : le consultant choisit le sien via un lien valable 7 jours.
+ * Sans e-mail, son numéro WhatsApp (toujours renseigné) sert d'identifiant de connexion.
  */
 export async function createResellerAccess(consultantId: string, rawEmail?: string): Promise<AccessResult> {
   await requireAdmin();
   const consultant = await prisma.consultant.findUnique({
     where: { id: consultantId },
-    select: { id: true, name: true, email: true, user: { select: { id: true } } },
+    select: { id: true, name: true, email: true, whatsapp: true, user: { select: { id: true } } },
   });
   if (!consultant) return { ok: false, error: "Consultant introuvable." };
 
@@ -30,18 +32,28 @@ export async function createResellerAccess(consultantId: string, rawEmail?: stri
   let created = false;
 
   if (!userId) {
-    const parsed = emailSchema.safeParse(rawEmail ?? consultant.email ?? "");
-    if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "E-mail requis." };
-    const email = parsed.data;
-    const taken = await prisma.user.findFirst({ where: { email: { equals: email, mode: "insensitive" } }, select: { id: true } });
-    if (taken) return { ok: false, error: "Un compte existe déjà avec cet e-mail." };
+    const emailInput = (rawEmail ?? consultant.email ?? "").trim();
+    let email: string | null = null;
+    let phone: string | null = null;
+    if (emailInput) {
+      const parsed = emailSchema.safeParse(emailInput);
+      if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "E-mail invalide." };
+      email = parsed.data;
+      const taken = await prisma.user.findFirst({ where: { email: { equals: email, mode: "insensitive" } }, select: { id: true } });
+      if (taken) return { ok: false, error: "Un compte existe déjà avec cet e-mail." };
+    } else {
+      phone = normalizePhone(consultant.whatsapp);
+      if (phone.length < 8) return { ok: false, error: "Numéro WhatsApp invalide : indiquez un e-mail pour créer l'accès." };
+      const taken = await prisma.user.findUnique({ where: { phone }, select: { id: true } });
+      if (taken) return { ok: false, error: "Un compte existe déjà avec ce numéro de téléphone." };
+    }
 
     // Mot de passe aléatoire inutilisable tant que le lien d'activation n'a pas été utilisé.
     const passwordHash = await bcrypt.hash(randomBytes(32).toString("hex"), 10);
     const user = await prisma.user.create({
-      data: { email, name: consultant.name, passwordHash, role: "CONSULTANT", consultantId: consultant.id },
+      data: { email, phone, name: consultant.name, passwordHash, role: "CONSULTANT", consultantId: consultant.id },
     });
-    if (!consultant.email) await prisma.consultant.update({ where: { id: consultant.id }, data: { email } });
+    if (email && !consultant.email) await prisma.consultant.update({ where: { id: consultant.id }, data: { email } });
     userId = user.id;
     created = true;
   }
