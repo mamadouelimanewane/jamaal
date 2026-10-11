@@ -1,16 +1,18 @@
 import Link from "next/link";
 import { ReservationsBanner } from "@/components/admin/ReservationsBanner";
-import { AlertTriangle, ArrowDownToLine, Boxes, ClipboardList, History, PackageX, Search, Wallet } from "lucide-react";
+import { AlertTriangle, ArrowDownToLine, Boxes, ClipboardList, History, PackageX, Wallet } from "lucide-react";
 import { requireAdminPage } from "@/lib/admin-page-guard";
 import { getStockRows, stockTotals, type StockRow } from "@/lib/inventory-report";
 import { getCategories } from "@/lib/db-categories";
 import { formatPrice } from "@/lib/currency";
 import { StockTableRow } from "@/components/admin/StockTableRow";
+import { LiveSearchInput } from "@/components/admin/LiveSearchInput";
+import { filterStockRows, rankProducts } from "@/lib/admin-search";
+import { Suspense } from "react";
 
 export const dynamic = "force-dynamic";
 
 const PER_PAGE = 50;
-const fold = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 
 const FILTERS = [
   { id: "", label: "Tout" },
@@ -21,7 +23,7 @@ const FILTERS = [
 ] as const;
 
 const SORTS = [
-  { id: "", label: "Nom" },
+  { id: "", label: "Pertinence (recherche) puis nom" },
   { id: "stock", label: "Stock croissant" },
   { id: "ventes", label: "Meilleures ventes 30 j" },
   { id: "couverture", label: "Couverture la plus courte" },
@@ -31,14 +33,12 @@ const SORTS = [
 export default async function AdminStockPage({ searchParams }: { searchParams: Promise<{ q?: string; cat?: string; statut?: string; tri?: string; page?: string }> }) {
   await requireAdminPage();
   const { q = "", cat = "", statut = "", tri = "", page = "1" } = await searchParams;
-  const [all, categories] = await Promise.all([getStockRows(), getCategories()]);
+  const query = q.trim().slice(0, 80);
+  const [all, categories, ranking] = await Promise.all([getStockRows(), getCategories(), query ? rankProducts(query) : Promise.resolve(null)]);
   const totals = stockTotals(all);
 
-  let rows: StockRow[] = all;
-  if (q.trim()) {
-    const t = fold(q.trim());
-    rows = rows.filter((r) => fold(`${r.name} ${r.code ?? ""} ${r.format}`).includes(t));
-  }
+  // Même moteur que la boutique : accents, fautes de frappe, parfum d'inspiration, codes de format.
+  let rows: StockRow[] = ranking ? filterStockRows(all, query, ranking) : all;
   if (cat) rows = rows.filter((r) => r.category === cat);
   const counts = {
     rupture: rows.filter((r) => r.status === "rupture").length,
@@ -58,7 +58,7 @@ export default async function AdminStockPage({ searchParams }: { searchParams: P
   const shown = rows.slice((current - 1) * PER_PAGE, current * PER_PAGE);
   const link = (over: Record<string, string | undefined>) => {
     const p = new URLSearchParams();
-    for (const [k, v] of Object.entries({ q, cat, statut, tri, ...over })) if (v) p.set(k, v);
+    for (const [k, v] of Object.entries({ q: query, cat, statut, tri, ...over })) if (v) p.set(k, v);
     const s = p.toString();
     return `/admin/stocks${s ? `?${s}` : ""}`;
   };
@@ -102,10 +102,9 @@ export default async function AdminStockPage({ searchParams }: { searchParams: P
         <form className="flex flex-wrap items-end gap-3 border-b border-line p-4" action="/admin/stocks">
           <label className="min-w-[220px] flex-1 text-xs font-medium text-navy/80">
             Rechercher
-            <span className="relative mt-1 block">
-              <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-navy/45" />
-              <input name="q" defaultValue={q} placeholder="Nom, code (001M, 301M…), format" className="w-full rounded-lg border border-line py-2 pl-9 pr-3 text-sm outline-none focus:border-navy" />
-            </span>
+            <Suspense>
+              <LiveSearchInput key={query} initial={query} placeholder="Nom, code (001M, 301M…), parfum (Sauvage), marque, « 30 ml »" className="mt-1" />
+            </Suspense>
           </label>
           <label className="text-xs font-medium text-navy/80">
             Collection
@@ -122,8 +121,9 @@ export default async function AdminStockPage({ searchParams }: { searchParams: P
           </label>
           {statut && <input type="hidden" name="statut" value={statut} />}
           <button className="rounded-lg bg-navy px-4 py-2 text-sm font-semibold text-white hover:bg-navy-light">Filtrer</button>
-          {(q || cat || statut || tri) && <Link href="/admin/stocks" className="py-2 text-sm text-navy/70 hover:text-navy">Réinitialiser</Link>}
+          {(query || cat || statut || tri) && <Link href="/admin/stocks" className="py-2 text-sm text-navy/70 hover:text-navy">Réinitialiser</Link>}
         </form>
+        {ranking?.corrected && <p className="px-4 pt-3 text-sm text-navy/75">Résultats pour <strong>{ranking.corrected}</strong> (orthographe corrigée).</p>}
         <div className="flex flex-wrap gap-2 px-4 pt-3">
           {FILTERS.map((f) => {
             const n = f.id ? counts[f.id as keyof typeof counts] : undefined;
@@ -155,7 +155,7 @@ export default async function AdminStockPage({ searchParams }: { searchParams: P
               {shown.map((r) => <StockTableRow key={r.key} row={r} />)}
             </tbody>
           </table>
-          {!shown.length && <p className="px-5 py-10 text-center text-[15px] text-navy/70">Aucun article ne correspond à ces filtres.</p>}
+          {!shown.length && <p className="px-5 py-10 text-center text-[15px] text-navy/70">Aucun article ne correspond à ces filtres{query ? ` (« ${query} »)` : ""}. Essayez un code, un nom de parfum ou une marque.</p>}
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line px-4 py-3 text-sm text-navy/75">

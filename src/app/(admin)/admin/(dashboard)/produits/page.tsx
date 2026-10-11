@@ -1,31 +1,64 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/currency";
 import { deleteProduct } from "@/lib/actions/products";
+import { getStockRows } from "@/lib/inventory-report";
+import { getCategories } from "@/lib/db-categories";
+import { productStockSummary, rankProducts } from "@/lib/admin-search";
+import { LiveSearchInput } from "@/components/admin/LiveSearchInput";
 
 export const dynamic = "force-dynamic";
+
+const PER_PAGE = 60;
 
 export default async function AdminProductsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; stock?: string }>;
+  searchParams: Promise<{ q?: string; stock?: string; cat?: string; page?: string }>;
 }) {
-  const { q = "", stock } = await searchParams;
-  const products = await prisma.product.findMany({
-    where: q
-      ? { OR: [{ name: { contains: q, mode: "insensitive" } }, { choganCode: { startsWith: q, mode: "insensitive" } }, ...(/^\d+$/.test(q) ? [{ number: Number(q) }] : [])] }
-      : undefined,
-    orderBy: { createdAt: "desc" },
-    take: 2000,
-  });
+  const { q = "", stock, cat = "", page = "1" } = await searchParams;
+  const query = q.trim().slice(0, 80);
+  const [ranking, stockRows, categories] = await Promise.all([
+    query ? rankProducts(query) : Promise.resolve(null),
+    getStockRows(),
+    getCategories(),
+  ]);
 
-  const filtered = stock === "bas" ? products.filter((p) => p.stock <= p.lowStockThreshold) : products;
+  // Stock réel : somme des formats (le champ « stock » du produit ne vaut que sans formats).
+  const stockOf = productStockSummary(stockRows);
+  const products = await prisma.product.findMany({
+    where: {
+      ...(ranking ? { id: { in: ranking.ids } } : {}),
+      ...(cat ? { category: cat } : {}),
+    },
+    select: { id: true, name: true, category: true, choganCode: true, number: true, inspiredBy: true, inspiredBrand: true, regularPrice: true, stock: true, lowStockThreshold: true, createdAt: true },
+    orderBy: { createdAt: "desc" },
+  });
+  if (ranking) {
+    // Ordre de pertinence de la recherche.
+    const rank = new Map(ranking.ids.map((id, i) => [id, i]));
+    products.sort((a, b) => rank.get(a.id)! - rank.get(b.id)!);
+  }
+
+  const filtered = stock === "bas" ? products.filter((p) => (stockOf.get(p.id)?.status ?? "ok") !== "ok") : products;
+  const pages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
+  const current = Math.min(pages, Math.max(1, Number(page) || 1));
+  const shown = filtered.slice((current - 1) * PER_PAGE, current * PER_PAGE);
+  const labels = new Map(categories.map((c) => [c.slug as string, c.navLabel.replace("JAMAAL ", "")]));
+  const usedCats = categories.filter((c) => stockRows.some((r) => r.category === c.slug));
+  const link = (over: Record<string, string | undefined>) => {
+    const sp = new URLSearchParams();
+    for (const [k, v] of Object.entries({ q: query, stock, cat, ...over })) if (v) sp.set(k, v);
+    const str = sp.toString();
+    return `/admin/produits${str ? `?${str}` : ""}`;
+  };
 
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="font-serif-display text-2xl font-semibold text-navy">
-          Produits ({filtered.length})
+          Produits ({filtered.length.toLocaleString("fr-FR")})
         </h1>
         <div className="flex flex-wrap gap-2">
           <Link
@@ -56,21 +89,36 @@ export default async function AdminProductsPage({
       </div>
 
       <form className="mt-4 flex flex-wrap items-center gap-3" action="/admin/produits">
-        <input
-          type="search"
-          name="q"
-          defaultValue={q}
-          placeholder="Rechercher un produit…"
-          className="w-full max-w-sm rounded-full border border-line px-4 py-2 text-sm outline-none focus:border-navy"
-        />
+        <Suspense>
+          <LiveSearchInput
+            key={query}
+            initial={query}
+            placeholder="Nom, code (001M, 301M…), parfum (Sauvage), marque, n° de fiche"
+            className="w-full max-w-md"
+          />
+        </Suspense>
+        <select name="cat" defaultValue={cat} className="rounded-lg border border-line px-3 py-2 text-sm text-navy">
+          <option value="">Toutes les collections</option>
+          {usedCats.map((c) => (
+            <option key={c.slug} value={c.slug}>{c.navLabel.replace("JAMAAL ", "")}</option>
+          ))}
+        </select>
         <label className="flex items-center gap-2 text-xs text-navy/85">
           <input type="checkbox" name="stock" value="bas" defaultChecked={stock === "bas"} />
-          Stock bas uniquement
+          Rupture ou stock bas uniquement
         </label>
         <button type="submit" className="rounded-full border border-line px-4 py-1.5 text-xs font-semibold text-navy hover:bg-cream">
           Filtrer
         </button>
+        {(query || cat || stock) && (
+          <Link href="/admin/produits" className="text-xs text-navy/70 hover:text-navy">Réinitialiser</Link>
+        )}
       </form>
+      {ranking?.corrected && (
+        <p className="mt-2 text-sm text-navy/75">
+          Résultats pour <strong>{ranking.corrected}</strong> (orthographe corrigée).
+        </p>
+      )}
 
       <div className="mt-6 overflow-x-auto rounded-2xl border border-line bg-white">
         <table className="w-full text-sm">
@@ -85,24 +133,34 @@ export default async function AdminProductsPage({
             </tr>
           </thead>
           <tbody>
-            {filtered.map((p) => {
-              const isLow = p.stock <= p.lowStockThreshold;
+            {shown.map((p) => {
+              const st = stockOf.get(p.id) ?? { total: p.stock, formats: 1, rupture: 0, bas: 0, status: p.stock <= 0 ? "rupture" : p.stock <= p.lowStockThreshold ? "bas" : "ok" };
               return (
                 <tr key={p.id} className="border-t border-line">
                   <td className="whitespace-nowrap px-4 py-3 text-navy/85"><span className="font-semibold text-navy">{p.choganCode ?? "—"}</span>{p.number ? <span className="block text-xs text-navy/65">Fiche {p.number}</span> : null}</td>
-                  <td className="px-4 py-3 font-medium text-navy">{p.name}</td>
-                  <td className="px-4 py-3 text-navy/85">{p.category}</td>
+                  <td className="px-4 py-3 font-medium text-navy">
+                    {p.name}
+                    {p.inspiredBy && <span className="block text-xs font-normal text-navy/65">Inspiré de {p.inspiredBy}{p.inspiredBrand ? ` · ${p.inspiredBrand}` : ""}</span>}
+                  </td>
+                  <td className="px-4 py-3 text-navy/85">{labels.get(p.category) ?? p.category}</td>
                   <td className="px-4 py-3 text-navy/85">
                     {p.regularPrice ? formatPrice(p.regularPrice) : "—"}
                   </td>
-                  <td className="px-4 py-3">
-                    <span
+                  <td className="whitespace-nowrap px-4 py-3">
+                    <Link
+                      href={`/admin/stocks?q=${encodeURIComponent(p.choganCode ?? p.name)}`}
+                      title="Voir le détail par format"
                       className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
-                        isLow ? "bg-red-100 text-red-700" : "bg-emerald-100 text-emerald-700"
+                        st.status === "rupture" ? "bg-red-100 text-red-700" : st.status === "bas" ? "bg-amber-100 text-amber-800" : "bg-emerald-100 text-emerald-700"
                       }`}
                     >
-                      {p.stock}
-                    </span>
+                      {st.total}
+                    </Link>
+                    {st.formats > 1 && (
+                      <span className="mt-1 block text-xs text-navy/65">
+                        {st.formats} formats{st.rupture ? ` · ${st.rupture} en rupture` : ""}
+                      </span>
+                    )}
                   </td>
                   <td className="px-4 py-3 text-right">
                     <Link
@@ -122,7 +180,21 @@ export default async function AdminProductsPage({
             })}
           </tbody>
         </table>
+        {!shown.length && (
+          <p className="px-5 py-10 text-center text-sm text-navy/70">
+            Aucun produit ne correspond{query ? ` à « ${query} »` : ""}. Essayez un code, un nom de parfum ou une marque.
+          </p>
+        )}
       </div>
+      {pages > 1 && (
+        <div className="mt-4 flex items-center justify-between text-sm text-navy/75">
+          <span>Page {current} sur {pages}</span>
+          <div className="flex gap-2">
+            {current > 1 && <Link href={link({ page: String(current - 1) })} className="rounded-lg border border-line px-3 py-1.5 font-semibold text-navy hover:border-navy">Précédente</Link>}
+            {current < pages && <Link href={link({ page: String(current + 1) })} className="rounded-lg border border-line px-3 py-1.5 font-semibold text-navy hover:border-navy">Suivante</Link>}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
