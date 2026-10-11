@@ -24,6 +24,13 @@ test("le suivi de commande exige numéro et téléphone", () => {
   assert.deepEqual(SHOP_TOOLS.map((t) => t.name).sort(), ["infos_boutique", "rechercher_produits", "suivi_commande"]);
 });
 
+test("aucun outil ne déclare un objet de paramètres vide (refusé par Gemini)", () => {
+  for (const t of SHOP_TOOLS) {
+    const props = (t.parameters as { properties?: Record<string, unknown> } | undefined)?.properties;
+    if (t.parameters) assert.ok(props && Object.keys(props).length > 0, t.name);
+  }
+});
+
 test("les consignes cadrent la conseillère", () => {
   const p = shopSystemPrompt(new Date("2026-10-11"));
   assert.match(p, /2026-10-11/);

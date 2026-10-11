@@ -116,6 +116,8 @@ export async function runChat(opts: {
   history: ChatMessage[];
   generate?: Generate;
   now?: () => number;
+  /** Réflexion du modèle : « low » pour le back-office, « minimal » pour une réponse rapide au client. */
+  thinking?: GeminiRequest["thinking"];
 }): Promise<AssistantAnswer> {
   const generate = opts.generate ?? ((req) => generateContent(req));
   const now = opts.now ?? Date.now;
@@ -136,7 +138,7 @@ export async function runChat(opts: {
       contents,
       tools: last ? undefined : tools,
       maxOutputTokens: 4096,
-      thinking: "low",
+      thinking: opts.thinking ?? "low",
       timeoutMs: Math.min(25_000, left),
     });
     const calls = reply.parts.flatMap((p) => ("functionCall" in p ? [p.functionCall] : []));
