@@ -8,9 +8,8 @@ import { logActivity } from "@/lib/activity-log";
 import { getBusinessModel } from "@/lib/business-model-store";
 import { invalidateSearchIndex } from "@/lib/search-index";
 import { getCategories } from "@/lib/db-categories";
-import { slugify } from "@/lib/ref";
 import { classifyQuery, rankCards, type ChoganCard, type ChoganDetail } from "@/lib/chogan/parse";
-import { buildPreview, type ChoganPreview } from "@/lib/chogan/preview";
+import { buildPreview, productSlugRoot, type ChoganPreview } from "@/lib/chogan/preview";
 import { ChoganError, fetchChoganDetail, fetchChoganImage, searchChogan } from "@/lib/chogan/client";
 
 export type ExistingProduct = { id: string; slug: string; name: string; photo: string | null; galleryCount: number };
@@ -142,8 +141,8 @@ async function storePhotos(number: number, urls: string[]): Promise<string[]> {
   return out;
 }
 
-async function uniqueProductSlug(base: string): Promise<string> {
-  const root = slugify(base).slice(0, 70).replace(/-$/, "") || "produit";
+async function uniqueProductSlug(name: string, number: number): Promise<string> {
+  const root = productSlugRoot(name, number);
   for (let i = 1; ; i++) {
     const candidate = i === 1 ? root : `${root}-${i}`;
     if (!(await prisma.product.findUnique({ where: { slug: candidate }, select: { id: true } }))) return candidate;
@@ -182,7 +181,7 @@ export async function importChoganProduct(input: ImportInput): Promise<ImportRes
 
     const photos = await storePhotos(number, preview.images);
     const id = `chogan-${number}`;
-    const slug = await uniqueProductSlug(`${name}-${number}`);
+    const slug = await uniqueProductSlug(name, number);
 
     await prisma.$transaction(async (tx) => {
       await tx.product.create({

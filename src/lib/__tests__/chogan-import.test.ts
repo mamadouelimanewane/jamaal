@@ -179,3 +179,13 @@ test("nom de fichier photo lisible", () => {
   assert.equal(photoFileName("MM041", "Peach", 0, "https://cdn.chogangroupspa.com/images/prodotti/big/PR17575882390MM041-PEACH.jpg"), "MM041-peach-1.jpg");
   assert.equal(photoFileName("AMPHERA", "Amphera – Parfum Femme", 2, "https://x/y.JPEG?v=2"), "AMPHERA-amphera-parfum-femme-3.jpg");
 });
+
+test("adresse de fiche : n° Chogan toujours entier, mot non coupé", async () => {
+  const { productSlugRoot } = await import("../chogan/preview");
+  assert.equal(productSlugRoot("Juicy Oil · Huile lèvres hydratante — Cerise noire", 14416), "juicy-oil-huile-levres-hydratante-cerise-noire-14416");
+  const long = productSlugRoot("Ultra Oil Mélange d'huiles végétales à l'action antibactérienne et purifiante", 8845);
+  assert.match(long, /-8845$/);
+  assert.ok(long.length <= 66, long);
+  assert.doesNotMatch(long, /-anti-8845$|--/);
+  assert.equal(productSlugRoot("—", 1), "produit-1");
+});

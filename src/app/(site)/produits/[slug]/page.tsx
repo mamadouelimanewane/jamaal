@@ -52,7 +52,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     <nav aria-label="Fil d’Ariane" className="mb-7 flex items-center gap-2 text-[10px] uppercase tracking-[0.1em] text-navy/45"><Link href="/" className="transition hover:text-navy">Accueil</Link><span>/</span><Link href={`/collections/${product.category}`} className="transition hover:text-navy">{category?.label || "Parfums"}</Link><span>/</span><span className="max-w-48 truncate text-navy/75">{product.name}</span></nav>
 
     <div className="grid gap-9 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16 xl:gap-24">
-      <div className="relative self-start bg-[#f5ece8] lg:sticky lg:top-28">
+      <div className="relative min-w-0 self-start bg-[#f5ece8] lg:sticky lg:top-28">
         {product.photo && product.gallery?.length ? <ProductGallery photos={[product.photo, ...product.gallery]} alt={product.name}/> : <div className="relative aspect-[4/4.5] w-full overflow-hidden"><ProductVisual product={product} fit="contain" className="h-full w-full p-5 sm:p-10 lg:p-14" sizes="(max-width: 1024px) 100vw, 54vw"/></div>}
         <div className="absolute bottom-4 left-4 bg-[#fdfbfa]/90 px-3 py-2 text-[8px] uppercase tracking-[0.17em] text-navy/70 backdrop-blur sm:bottom-6 sm:left-6">JAMAAL · {isPerfume ? "Extrait de parfum" : category?.label || "Collection"}</div>
       </div>

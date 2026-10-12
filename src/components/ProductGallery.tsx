@@ -8,7 +8,7 @@ export function ProductGallery({ photos, alt }: { photos: string[]; alt: string 
   const [index, setIndex] = useState(0);
   const current = photos[Math.min(index, photos.length - 1)];
   return (
-    <div>
+    <div className="w-full min-w-0">
       <div className="relative aspect-[4/4.5] w-full overflow-hidden">
         <Image key={current} src={current} alt={index === 0 ? alt : `${alt} — photo ${index + 1}`} fill sizes="(max-width: 1024px) 100vw, 54vw" className="h-full w-full object-contain p-5 sm:p-10 lg:p-14" priority={index === 0} />
       </div>

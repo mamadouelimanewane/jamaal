@@ -39,7 +39,9 @@ const firstSentence = (s: string, max = 170) => {
 export function buildPreview(detail: ChoganDetail, model: BusinessModel, formatCodes: Record<number, string> = {}): ChoganPreview {
   if (!detail.publicPriceEur) throw new Error(`Prix introuvable sur la fiche Chogan ${detail.number}.`);
   const publicPrice = eurToFcfa(detail.publicPriceEur);
-  const name = detail.shade && !detail.name.toLowerCase().includes(detail.shade.toLowerCase()) ? `${detail.name} — ${detail.shade}` : detail.name;
+  // « Juicy Oil- Huile Lèvres » (coquille du site Chogan) → « Juicy Oil - Huile Lèvres ».
+  const base = detail.name.replace(/(\S)- (?=\S)/g, "$1 - ");
+  const name = detail.shade && !base.toLowerCase().includes(detail.shade.toLowerCase()) ? `${base} — ${detail.shade}` : base;
   const details = [detail.shade ? `teinte ${detail.shade}` : null, detail.format].filter(Boolean).join(", ");
 
   const shortDescription = detail.description[0]
@@ -95,4 +97,11 @@ export function photoFileName(code: string, label: string, index: number, url: s
     .slice(0, 40);
   const safeCode = code.replace(/[^A-Za-z0-9_-]/g, "");
   return `${safeCode}${slug ? `-${slug}` : ""}-${index + 1}.${ext}`;
+}
+
+/** Adresse de fiche : nom raccourci au besoin (sans couper un mot), n° de fiche Chogan toujours entier en suffixe. */
+export function productSlugRoot(name: string, number: number): string {
+  const full = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  const head = full.length <= 60 ? full : full.slice(0, 61).replace(/-[^-]*$/, "");
+  return `${head.replace(/-+$/, "") || "produit"}-${number}`;
 }
