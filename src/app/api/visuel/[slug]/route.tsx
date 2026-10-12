@@ -2,6 +2,7 @@ import { ImageResponse } from "next/og";
 import QRCode from "qrcode";
 import { prisma } from "@/lib/prisma";
 import { siteBaseUrl } from "@/lib/site-url";
+import { fetchChoganImage, isChoganImage } from "@/lib/chogan/client";
 
 export const dynamic = "force-dynamic";
 
@@ -27,12 +28,29 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
   const volumes = ((product.volumes as { label: string; price: number }[] | null) ?? []).filter((v) => v.price > 0);
   const price = volumes.length ? Math.min(...volumes.map((v) => v.price)) : product.regularPrice;
   const link = `${origin}/produits/${product.slug}${reseller?.slug ? `?ref=${reseller.slug}` : ""}`;
-  // Les photos passent par l'optimiseur d'images du site (le CDN Chogan refuse les serveurs).
-  const photo = product.photo
-    ? product.photo.startsWith("/")
-      ? `${url.origin}${product.photo}`
-      : `${url.origin}/_next/image?url=${encodeURIComponent(product.photo)}&w=828&q=75`
-    : null;
+  // Photo intégrée en données : le CDN Chogan passe par le relais (il refuse les serveurs), les
+  // autres photos (stockage du site) sont lues directement. Formats lus par le moteur : JPEG, PNG.
+  let photo: string | null = null;
+  if (product.photo) {
+    try {
+      let data: Uint8Array | null = null;
+      let type = "image/jpeg";
+      if (isChoganImage(product.photo)) {
+        const img = await fetchChoganImage(product.photo);
+        data = img.data;
+        type = img.contentType;
+      } else {
+        const res = await fetch(product.photo.startsWith("/") ? `${url.origin}${product.photo}` : product.photo, { signal: AbortSignal.timeout(8_000) });
+        if (res.ok) {
+          data = new Uint8Array(await res.arrayBuffer());
+          type = res.headers.get("content-type") ?? type;
+        }
+      }
+      if (data && /image\/(jpeg|jpg|png)/.test(type)) photo = `data:${type};base64,${Buffer.from(data).toString("base64")}`;
+    } catch {
+      photo = null;
+    }
+  }
   const fcfa = (n: number) => `${n.toLocaleString("fr-FR").replace(/ | /g, " ")} FCFA`;
   const qrSize = square ? 150 : 220;
   const qr = await QRCode.toDataURL(link, { margin: 0, width: qrSize * 2, errorCorrectionLevel: "M", color: { dark: "#14213b", light: "#ffffff" } });
