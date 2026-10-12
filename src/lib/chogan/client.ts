@@ -1,4 +1,5 @@
 import { parseProductDetail, parseSearchResults, type ChoganCard, type ChoganDetail } from "./parse";
+import { RELAY_HEADER, RELAY_PATH, relaySecret, relayToken } from "./relay";
 
 /**
  * Accès réseau au site Chogan, côté serveur uniquement (importé seulement par les actions serveur). Une requête à la fois par instance, au
@@ -53,11 +54,29 @@ export const BROWSER_HEADERS: Record<string, string> = {
 };
 const HEADERS = BROWSER_HEADERS;
 
+/**
+ * Requête vers Chogan. En ligne (Vercel), Cloudflare bloque les fonctions serveur : on passe par
+ * le relais edge du site (même domaine). En local ou en test (CHOGAN_BASE_URL), accès direct.
+ */
+async function choganFetch(url: string, init: { headers: Record<string, string> }): Promise<Response> {
+  const secret = relaySecret();
+  if (process.env.VERCEL && secret && !process.env.CHOGAN_BASE_URL) {
+    const { getSiteUrl } = await import("@/lib/site-url");
+    const origin = (await getSiteUrl()) || (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : "");
+    return fetch(`${origin}${RELAY_PATH}?u=${encodeURIComponent(url)}`, {
+      headers: { [RELAY_HEADER]: await relayToken(secret) },
+      cache: "no-store",
+      signal: AbortSignal.timeout(TIMEOUT_MS + 3_000),
+    });
+  }
+  return fetch(url, { headers: init.headers, cache: "no-store", signal: AbortSignal.timeout(TIMEOUT_MS) });
+}
+
 async function getHtml(path: string): Promise<string> {
   return throttled(async () => {
     let res: Response;
     try {
-      res = await fetch(`${SITE}${path}`, { headers: HEADERS, cache: "no-store", signal: AbortSignal.timeout(TIMEOUT_MS) });
+      res = await choganFetch(`${SITE}${path}`, { headers: HEADERS });
     } catch (e) {
       const timeout = e instanceof Error && (e.name === "TimeoutError" || e.name === "AbortError");
       throw new ChoganError(timeout ? "Le site Chogan ne répond pas (délai dépassé)." : "Le site Chogan est injoignable.");
@@ -95,7 +114,7 @@ export async function fetchChoganImage(url: string): Promise<{ data: Uint8Array;
   if (!isChoganImage(url)) throw new ChoganError("Adresse d'image refusée.");
   const target = process.env.CHOGAN_CDN_BASE ? url.replace(`https://${CDN_HOST}`, process.env.CHOGAN_CDN_BASE.replace(/\/$/, "")) : url;
   return throttled(async () => {
-    const res = await fetch(target, { headers: { "User-Agent": HEADERS["User-Agent"] }, cache: "no-store", signal: AbortSignal.timeout(TIMEOUT_MS) }).catch(() => null);
+    const res = await choganFetch(target, { headers: { "User-Agent": HEADERS["User-Agent"] } }).catch(() => null);
     if (!res || !res.ok) throw new ChoganError("Photo Chogan indisponible.");
     const contentType = res.headers.get("content-type") ?? "image/jpeg";
     if (!contentType.startsWith("image/")) throw new ChoganError("Le fichier reçu n'est pas une image.");
