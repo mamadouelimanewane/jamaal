@@ -1,6 +1,7 @@
 import { getCategories } from "@/lib/db-categories";
 import type { Product, ProductVariant } from "@prisma/client";
 import { FormatsEditor, type FormatRow } from "./FormatsEditor";
+import { ProductPhotosEditor } from "./ProductPhotosEditor";
 
 const inputClass =
   "mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-navy";
@@ -186,11 +187,9 @@ export async function ProductForm({
             <option value="epuise">Épuisé</option>
           </select>
         </div>
-        <div>
-          <label className={labelClass}>Photo (chemin ou URL)</label>
-          <input name="photo" defaultValue={product?.photo ?? ""} className={inputClass} />
-        </div>
       </div>
+
+      <ProductPhotosEditor initial={[product?.photo, ...(product?.gallery ?? [])].filter((p): p is string => !!p)} />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>

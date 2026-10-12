@@ -8,6 +8,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "./auth-guard";
 import { logActivity } from "@/lib/activity-log";
 import { uploadProductImage } from "@/lib/upload";
+import { parsePhotoList } from "@/lib/product-photos";
 import { invalidateSearchIndex } from "@/lib/search-index";
 import { Prisma } from "@prisma/client";
 
@@ -83,7 +84,9 @@ async function productDataFromForm(formData: FormData) {
   const numberVal = formData.get("number");
   const badge = String(formData.get("badge") ?? "");
 
-  let photo = String(formData.get("photo") ?? "").trim() || null;
+  // Photos du formulaire (principale + galerie), déjà envoyées une à une par /api/admin/photo-produit.
+  const photos = parsePhotoList(formData.get("photos"));
+  let photo = photos ? photos.photo : String(formData.get("photo") ?? "").trim() || null;
   const photoFile = formData.get("photoFile") as File | null;
   if (photoFile && photoFile.size > 0) {
     photo = await uploadProductImage(photoFile);
@@ -111,6 +114,7 @@ async function productDataFromForm(formData: FormData) {
     colorFrom: String(formData.get("colorFrom") ?? "#1d2f4f"),
     colorTo: String(formData.get("colorTo") ?? "#d9a99d"),
     photo,
+    ...(photos ? { gallery: photos.gallery } : {}),
     isOfficial: formData.get("isOfficial") === "on",
     stock: Number(formData.get("stock") ?? 0) || 0,
     lowStockThreshold: Number(formData.get("lowStockThreshold") ?? 5) || 5,
