@@ -17,20 +17,36 @@ const PREFIX: Partial<Record<AutomationId, string>> = { relance45: "relance45:",
 export default async function AutomationsPage() {
   await requireAdminPage();
   const since = daysAgo(30);
+  const step = async <T,>(name: string, p: Promise<T>, fallback: T): Promise<T> => {
+    try {
+      return await p;
+    } catch (e) {
+      console.error(`[automatisations] ${name}`, e);
+      problems.push(`${name} : ${e instanceof Error ? e.message.slice(0, 200) : String(e)}`);
+      return fallback;
+    }
+  };
+  const problems: string[] = [];
   const [states, sent, botIn, botOut, waOrders, carts, wa] = await Promise.all([
-    automationStates(),
-    prisma.automationSent.findMany({ where: { createdAt: { gte: since } }, select: { key: true } }),
-    prisma.whatsAppMessage.count({ where: { direction: "IN", createdAt: { gte: since } } }),
-    prisma.whatsAppMessage.count({ where: { kind: "bot", createdAt: { gte: since } } }),
-    prisma.whatsAppMessage.count({ where: { kind: "bot", body: { contains: "/commande/" }, createdAt: { gte: since } } }),
-    prisma.abandonedCart.findMany({ orderBy: { updatedAt: "desc" }, take: 8, select: { id: true, name: true, phone: true, total: true, updatedAt: true, remindedAt: true, orderedAt: true } }),
-    Promise.resolve(whatsappConfig()),
+    step("réglages", automationStates(), Object.fromEntries(Object.keys(AUTOMATIONS).map((k) => [k, true])) as Record<AutomationId, boolean>),
+    step("envois", prisma.automationSent.findMany({ where: { createdAt: { gte: since } }, select: { key: true } }), []),
+    step("messages reçus", prisma.whatsAppMessage.count({ where: { direction: "IN", createdAt: { gte: since } } }), 0),
+    step("réponses", prisma.whatsAppMessage.count({ where: { kind: "bot", createdAt: { gte: since } } }), 0),
+    step("commandes WhatsApp", prisma.whatsAppMessage.count({ where: { kind: "bot", body: { contains: "/commande/" }, createdAt: { gte: since } } }), 0),
+    step("paniers", prisma.abandonedCart.findMany({ orderBy: { updatedAt: "desc" }, take: 8, select: { id: true, name: true, phone: true, total: true, updatedAt: true, remindedAt: true, orderedAt: true } }), []),
+    step("WhatsApp", Promise.resolve().then(() => whatsappConfig()), { provider: "aucun", active: false, template: "", webhookReady: false }),
   ]);
+  let gemini = false;
+  try {
+    gemini = geminiConfigured();
+  } catch {
+    problems.push("IA : configuration illisible");
+  }
   const count = (p?: string) => (p ? sent.filter((s) => s.key.startsWith(p)).length : null);
   const checks = [
     { ok: wa.active, label: "Envoi WhatsApp", help: wa.active ? `Actif (${wa.provider})` : "Non configuré : les messages sont simulés et notés dans le Journal WhatsApp (réglages dans Centre WhatsApp)." },
     { ok: wa.webhookReady, label: "Réception des messages WhatsApp", help: wa.webhookReady ? "Webhook prêt : l'assistant répond aux clients." : "Ajoutez WHATSAPP_VERIFY_TOKEN et WHATSAPP_APP_SECRET dans Vercel, puis déclarez /api/whatsapp/webhook chez Meta." },
-    { ok: geminiConfigured(), label: "Intelligence artificielle", help: geminiConfigured() ? "Clé Gemini présente." : "Ajoutez GOOGLE_AI_API_KEY dans Vercel." },
+    { ok: gemini, label: "Intelligence artificielle", help: gemini ? "Clé Gemini présente." : "Ajoutez GOOGLE_AI_API_KEY dans Vercel." },
     { ok: !!process.env.CRON_SECRET, label: "Tâche quotidienne (19 h)", help: process.env.CRON_SECRET ? "Protégée par CRON_SECRET." : "Fonctionne ; pour la sécuriser, ajoutez une variable CRON_SECRET (texte au hasard) dans Vercel." },
   ];
   return (
@@ -41,6 +57,9 @@ export default async function AutomationsPage() {
         <p className="mt-1 text-sm text-navy/75">Ce que JAMAAL fait tout seul, chaque jour à 19 h (heure de Dakar), et l&apos;assistant qui prend les commandes sur WhatsApp. Chaque envoi n&apos;a lieu qu&apos;une fois ; un client qui répond STOP n&apos;est plus contacté.</p>
       </div>
 
+      {problems.length > 0 && (
+        <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">Lecture partielle : {problems.join(" · ")}</p>
+      )}
       <section className="grid gap-3 sm:grid-cols-2">
         {checks.map((c) => (
           <div key={c.label} className={`rounded-2xl border p-4 ${c.ok ? "border-ia/30 bg-ia-light/40" : "border-amber-200 bg-amber-50"}`}>
