@@ -33,6 +33,7 @@ export function ProductPhotosEditor({ initial }: { initial: string[] }) {
   const [errors, setErrors] = useState<string[]>([]);
   const [drive, setDrive] = useState("");
   const [url, setUrl] = useState("");
+  const [dragging, setDragging] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const room = MAX_PRODUCT_PHOTOS - photos.length - pending.length;
@@ -51,8 +52,10 @@ export function ProductPhotosEditor({ initial }: { initial: string[] }) {
 
   async function onFiles(files: FileList | null) {
     setErrors([]);
-    const list = [...(files ?? [])].slice(0, Math.max(0, room));
-    if (files && files.length > list.length) setErrors([`${MAX_PRODUCT_PHOTOS} photos au plus par fiche : les suivantes sont ignorées.`]);
+    const images = [...(files ?? [])].filter((f) => f.type.startsWith("image/") || /\.(jpe?g|png|webp|gif|heic|heif|avif)$/i.test(f.name));
+    if (files && images.length < files.length) setErrors(["Seules les images sont acceptées : les autres fichiers sont ignorés."]);
+    const list = images.slice(0, Math.max(0, room));
+    if (images.length > list.length) setErrors([`${MAX_PRODUCT_PHOTOS} photos au plus par fiche : les suivantes sont ignorées.`]);
     // Une à la fois : l'ordre choisi est conservé et le téléphone n'est pas saturé.
     for (const f of list) {
       await track(f.name, async () => {
@@ -77,7 +80,7 @@ export function ProductPhotosEditor({ initial }: { initial: string[] }) {
     const u = url.trim();
     if (!u) return;
     if (!isAcceptablePhotoUrl(u)) {
-      setErrors(["Adresse refusée : collez une adresse https://… ou un chemin /produits/…"]);
+      setErrors(["Adresse refusée : collez une adresse qui commence par https://"]);
       return;
     }
     setErrors([]);
@@ -152,13 +155,34 @@ export function ProductPhotosEditor({ initial }: { initial: string[] }) {
         !busy && <p className="mt-3 rounded-lg bg-cream/50 px-3 py-4 text-center text-sm text-navy/70">Aucune photo : le site affichera le flacon illustré.</p>
       )}
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-2">
-        <div className="sm:col-span-2">
-          <input ref={fileRef} id="photo-files" type="file" accept="image/*" multiple className="sr-only" onChange={(e) => onFiles(e.target.files)} disabled={room <= 0} />
-          <label htmlFor="photo-files" className={`flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-navy bg-navy px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-navy-light sm:w-fit ${room <= 0 ? "pointer-events-none opacity-50" : ""}`}>
-            <ImagePlus size={17} /> Choisir des photos sur l&apos;ordinateur ou le téléphone
-          </label>
-        </div>
+      <input ref={fileRef} id="photo-files" type="file" accept="image/*" multiple className="sr-only" onChange={(e) => onFiles(e.target.files)} disabled={room <= 0} />
+      <label
+        htmlFor="photo-files"
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDragging(true);
+        }}
+        onDragLeave={() => setDragging(false)}
+        onDrop={(e) => {
+          e.preventDefault();
+          setDragging(false);
+          if (room > 0) onFiles(e.dataTransfer.files);
+        }}
+        className={`mt-4 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-4 py-7 text-center transition ${dragging ? "border-navy bg-cream" : "border-navy/30 bg-cream/40 hover:border-navy hover:bg-cream"} ${room <= 0 ? "pointer-events-none opacity-50" : ""}`}
+      >
+        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-navy text-white">
+          <ImagePlus size={24} />
+        </span>
+        <span className="text-base font-semibold text-navy">Ajouter des photos</span>
+        <span className="max-w-md text-sm text-navy/70">
+          Cliquez ici : la fenêtre de votre ordinateur s&apos;ouvre, allez dans le dossier de vos images et choisissez-en une ou plusieurs. Vous pouvez aussi faire glisser les photos ici.
+        </span>
+        <span className="text-xs text-navy/55">Sur téléphone : galerie, appareil photo ou Google Drive.</span>
+      </label>
+
+      <details className="mt-3 rounded-lg border border-line px-3 py-2 text-sm">
+        <summary className="cursor-pointer select-none text-navy/75">Autres possibilités : lien Google Drive ou adresse d&apos;une image sur internet</summary>
+      <div className="mt-3 grid gap-3 sm:grid-cols-2">
         <div className="flex gap-2">
           <input
             value={drive}
@@ -197,8 +221,9 @@ export function ProductPhotosEditor({ initial }: { initial: string[] }) {
         </div>
       </div>
       <p className="mt-2 text-xs text-navy/60">
-        Drive : clic droit sur l&apos;image › Partager › Accès « Tous les utilisateurs disposant du lien » › Copier le lien. Sur téléphone Android, le premier bouton propose aussi Google Drive.
+        Drive : clic droit sur l&apos;image › Partager › Accès « Tous les utilisateurs disposant du lien » › Copier le lien.
       </p>
+      </details>
 
       {errors.length > 0 && (
         <ul role="alert" className="mt-3 space-y-1 rounded-lg bg-rose/10 px-3 py-2 text-sm text-rose-dark">
