@@ -30,12 +30,28 @@ function throttled<T>(fn: () => Promise<T>): Promise<T> {
   return run;
 }
 
-const HEADERS = {
+/** Ancien jeu d'en-têtes (robot déclaré) : refusé (403) par le site Chogan depuis les serveurs. */
+export const LEGACY_HEADERS: Record<string, string> = {
   "User-Agent": "Mozilla/5.0 (compatible; JAMAAL-import/1.0; +https://jamaal-nine.vercel.app)",
   "Accept-Language": "fr-FR,fr;q=0.9",
   Accept: "text/html,application/xhtml+xml",
   Cookie: "language_id=13",
 };
+
+/** En-têtes d'un navigateur ordinaire : le site Chogan filtre les visiteurs qui se déclarent robots. */
+export const BROWSER_HEADERS: Record<string, string> = {
+  "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
+  Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+  "Accept-Language": "fr-FR,fr;q=0.9,en;q=0.8,it;q=0.7",
+  "Cache-Control": "no-cache",
+  "Upgrade-Insecure-Requests": "1",
+  "Sec-Fetch-Dest": "document",
+  "Sec-Fetch-Mode": "navigate",
+  "Sec-Fetch-Site": "none",
+  "Sec-Fetch-User": "?1",
+  Cookie: "language_id=13",
+};
+const HEADERS = BROWSER_HEADERS;
 
 async function getHtml(path: string): Promise<string> {
   return throttled(async () => {
