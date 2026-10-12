@@ -35,10 +35,11 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
     try {
       const src = product.photo.startsWith("/") ? `${url.origin}${product.photo}` : product.photo;
       const res = allowedChoganUrl(src) ? await relayFetch(src, url.origin, 8_000) : await fetch(src, { signal: AbortSignal.timeout(8_000) });
-      const type = res?.headers.get("content-type") ?? "";
-      if (res?.ok && /image\/(jpeg|jpg|png)/.test(type)) {
+      if (res?.ok) {
         const data = new Uint8Array(await res.arrayBuffer());
-        if (data.length < 4 * 1024 * 1024) photo = `data:${type.split(";")[0]};base64,${Buffer.from(data).toString("base64")}`;
+        // Type lu dans le fichier lui-même : certaines photos Chogan sont des PNG nommés .jpg.
+        const type = data[0] === 0x89 && data[1] === 0x50 ? "image/png" : data[0] === 0xff && data[1] === 0xd8 ? "image/jpeg" : null;
+        if (type && data.length < 4 * 1024 * 1024) photo = `data:${type};base64,${Buffer.from(data).toString("base64")}`;
       }
     } catch {
       photo = null;
