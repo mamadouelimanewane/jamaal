@@ -11,6 +11,7 @@ import { prisma } from "@/lib/prisma";
 import { searchCatalog } from "@/lib/search-index";
 import { getStockRows, type StockRow } from "@/lib/inventory-report";
 import type { GeminiFunctionDeclaration } from "./gemini";
+import { RESELLER_TOOLS, isNoProfile } from "./reseller-tools";
 
 export interface AssistantScope {
   role: "ADMIN" | "CONSULTANT" | "LIVREUR";
@@ -432,6 +433,9 @@ const TOOLS: Record<string, ToolDef> = {
       };
     },
   },
+
+  // Coach du revendeur : tableau de bord, liens, relances, équipe, tendances, kit marketing, règles.
+  ...RESELLER_TOOLS,
 };
 
 /** Outils autorisés pour ce rôle. */
@@ -448,6 +452,7 @@ export async function runTool(name: string, args: Args, scope: AssistantScope): 
   try {
     return { resultat: await tool.run(args ?? {}, scope) };
   } catch (e) {
+    if (isNoProfile(e)) return { erreur: "ce compte n'est relié à aucune fiche revendeur : contactez l'administrateur" };
     console.error("[assistant] outil", name, e);
     return { erreur: "lecture impossible pour le moment" };
   }

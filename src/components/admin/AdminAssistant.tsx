@@ -24,24 +24,30 @@ const SUGGESTIONS: Record<string, string[]> = {
     "Meilleurs revendeurs du mois",
   ],
   CONSULTANT: [
-    "Avez-vous un parfum inspiré de Baccarat Rouge 540 en stock ?",
-    "Mes ventes du mois",
-    "Mes meilleurs clients",
-    "Quels parfums homme frais sont disponibles ?",
-    "Où créer une commande pour un client ?",
+    "Où j'en suis ce mois-ci et combien me manque-t-il pour la prime ?",
+    "Fais-moi un plan d'action pour cette semaine",
+    "Quels clients relancer ? Écris-moi les messages",
+    "Écris un statut WhatsApp pour les meilleures ventes du moment",
+    "Prépare une campagne pour la Tabaski",
+    "Un client trouve que c'est cher : que lui répondre ?",
+    "Un parfum homme frais à moins de 20 000 FCFA ?",
+    "Comment va mon équipe et qui motiver ?",
+    "Écris un message pour recruter un nouveau revendeur",
+    "Comment je gagne de l'argent avec JAMAAL ?",
   ],
   LIVREUR: ["Mes livraisons en cours", "Où voir mes gains ?"],
 };
 
 const WELCOME: Record<string, string> = {
   ADMIN: "Bonjour ! Je consulte le catalogue, le stock, les commandes, les clients et les revendeurs pour vous répondre. Que voulez-vous savoir ?",
-  CONSULTANT: "Bonjour ! Je peux vérifier un produit ou un stock, retrouver vos commandes, vos clients et vos ventes, ou vous guider dans l'application. Que voulez-vous savoir ?",
+  CONSULTANT:
+    "Bonjour ! Je suis votre coach de vente. Je suis vos gains, vos primes et votre équipe, je vous dis qui relancer, je conseille les parfums selon le client et j'écris vos messages WhatsApp, statuts, posts et campagnes, prêts à copier avec vos liens. Par quoi commence-t-on ?",
   LIVREUR: "Bonjour ! Je peux retrouver vos livraisons en cours et vos gains. Que voulez-vous savoir ?",
 };
 
 const SUBTITLE: Record<string, string> = {
   ADMIN: "Assistante IA · catalogue, stock, ventes, réseau",
-  CONSULTANT: "Assistante IA · produits, stock, vos ventes",
+  CONSULTANT: "Coach IA · ventes, clients, marketing, équipe",
   LIVREUR: "Assistante IA · livraisons et gains",
 };
 
@@ -186,7 +192,7 @@ export function AssistantPanel({
                   : "max-w-[92%] rounded-2xl rounded-tl-sm bg-white px-4 py-2.5 text-sm leading-relaxed text-navy shadow-sm"
               }
             >
-              {m.role === "user" ? m.text : <ChatMarkdown text={m.text} onNavigate={onNavigate} linkClassName="font-semibold text-[#9c6254] underline underline-offset-2" />}
+              {m.role === "user" ? m.text : <ChatMarkdown text={m.text} onNavigate={onNavigate} copyable linkClassName="font-semibold text-[#9c6254] underline underline-offset-2" />}
             </div>
           </div>
         ))}

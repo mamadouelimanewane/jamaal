@@ -12,7 +12,11 @@ test("les outils proposés dépendent du rôle", () => {
   const names = (s: AssistantScope) => toolsFor(s).map((t) => t.name).sort();
   assert.ok(names(admin).includes("chercher_revendeurs"));
   assert.ok(names(admin).includes("mouvements_stock"));
-  assert.deepEqual(names(consultant), ["chercher_clients", "chercher_commandes", "etat_stock", "rechercher_produits", "resume_ventes"]);
+  assert.deepEqual(names(consultant), [
+    "chercher_clients", "chercher_commandes", "clients_a_relancer", "etat_stock", "kit_marketing", "mes_liens_et_codes",
+    "mon_equipe", "mon_tableau_de_bord", "rechercher_produits", "regles_programme", "resume_ventes", "tendances_boutique",
+  ]);
+  assert.ok(!names(admin).includes("mon_tableau_de_bord"), "les outils du coach revendeur ne sont pas proposés à l'admin");
   assert.deepEqual(names(livreur), ["chercher_commandes", "etat_stock", "rechercher_produits"]);
 });
 
@@ -109,4 +113,22 @@ test("boucle : à court de temps, le modèle conclut sans outils", async () => {
   assert.equal(seen[1].tools, undefined);
   assert.equal(seen[1].thinking, "low");
   assert.equal(answer.text, "Voici ce que j'ai trouvé.");
+});
+
+test("coach revendeur : consignes marketing pour le revendeur seulement", () => {
+  const p = systemPrompt(consultant);
+  assert.match(p, /coach personnel/);
+  assert.match(p, /mes_liens_et_codes/);
+  assert.match(p, /```/, "les textes prêts à copier sont demandés dans des blocs");
+  assert.doesNotMatch(systemPrompt(admin), /coach personnel/);
+  assert.doesNotMatch(systemPrompt(livreur), /coach personnel/);
+});
+
+test("outils du coach : refusés aux autres rôles, message clair sans fiche revendeur", async () => {
+  for (const name of ["mon_tableau_de_bord", "clients_a_relancer", "mon_equipe", "mes_liens_et_codes"]) {
+    assert.match(String((await runTool(name, {}, livreur)).erreur), /non disponible/);
+    assert.match(String((await runTool(name, {}, admin)).erreur), /non disponible/);
+  }
+  const r = await runTool("mon_tableau_de_bord", {}, { ...consultant, consultantId: null });
+  assert.match(String(r.erreur), /aucune fiche revendeur/);
 });
