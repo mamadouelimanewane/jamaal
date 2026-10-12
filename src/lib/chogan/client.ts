@@ -81,7 +81,10 @@ async function getHtml(path: string): Promise<string> {
       const timeout = e instanceof Error && (e.name === "TimeoutError" || e.name === "AbortError");
       throw new ChoganError(timeout ? "Le site Chogan ne répond pas (délai dépassé)." : "Le site Chogan est injoignable.");
     }
-    if (!res.ok) throw new ChoganError(`Le site Chogan a répondu ${res.status}.`);
+    if (!res.ok) {
+      const region = res.headers.get("x-relay-region");
+      throw new ChoganError(res.status === 401 ? "Relais Chogan : accès refusé (secret différent)." : `Le site Chogan a répondu ${res.status}${region ? ` (relais ${region})` : ""}.`);
+    }
     return res.text();
   });
 }
