@@ -97,6 +97,7 @@ export default async function AdminLoginPage({
                   name="login"
                   autoComplete="username"
                   autoCapitalize="none"
+                  autoCorrect="off"
                   spellCheck={false}
                   required
                   className="mt-2 w-full rounded-xl border border-line bg-cream/50 px-4 py-3 text-sm outline-none transition focus:border-rose-dark focus:bg-white focus:ring-4 focus:ring-rose/10"

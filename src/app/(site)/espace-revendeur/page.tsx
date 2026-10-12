@@ -12,10 +12,13 @@ export const metadata: Metadata = {
 
 async function loginAction(formData: FormData) {
   "use server";
-  const email = String(formData.get("email") ?? "").trim();
+  // Le fournisseur « credentials » (src/lib/auth.ts) attend le champ « login » (e-mail OU
+  // téléphone). Envoyer « email » faisait échouer TOUTE connexion depuis cette page — celle du
+  // menu du site, donc celle qu'utilisent les revendeurs sur smartphone.
+  const login = String(formData.get("login") ?? "").trim();
   const password = String(formData.get("password") ?? "");
   try {
-    await signIn("credentials", { email, password, redirectTo: "/admin" });
+    await signIn("credentials", { login, password, redirectTo: "/admin" });
   } catch (error) {
     if (error instanceof AuthError) redirect("/espace-revendeur?erreur=1");
     throw error;
@@ -46,14 +49,14 @@ export default async function EspaceRevendeurPage({
 
       {erreur && (
         <p role="alert" className="mt-5 rounded-xl border border-rose-dark/20 bg-rose/10 px-4 py-3 text-sm text-rose-dark">
-          E-mail ou mot de passe incorrect.
+          Identifiant (e-mail ou téléphone) ou mot de passe incorrect.
         </p>
       )}
 
       <form action={loginAction} className="mt-6 flex flex-col gap-5 rounded-2xl border border-line bg-white p-6">
         <div>
-          <label htmlFor="email" className="text-xs font-semibold text-navy/75">Adresse e-mail</label>
-          <input id="email" name="email" type="email" required autoComplete="username" autoCapitalize="none" spellCheck={false} className={field} />
+          <label htmlFor="login" className="text-xs font-semibold text-navy/75">E-mail ou numéro de téléphone</label>
+          <input id="login" name="login" type="text" required autoComplete="username" autoCapitalize="none" autoCorrect="off" spellCheck={false} className={field} />
         </div>
         <div>
           <label htmlFor="password" className="text-xs font-semibold text-navy/75">Mot de passe</label>
