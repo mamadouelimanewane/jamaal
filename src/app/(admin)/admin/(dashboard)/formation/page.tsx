@@ -4,6 +4,9 @@ import { auth } from "@/lib/auth";
 import { formationArticles } from "@/data/onboarding";
 import { getOnboardingAutoStatus } from "@/lib/actions/onboarding";
 import { OnboardingChecklist } from "@/components/admin/OnboardingChecklist";
+import { QuizRunner } from "@/components/admin/GrowthWidgets";
+import { QUIZZES } from "@/data/quiz-formation";
+import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +29,10 @@ export default async function FormationPage() {
     }
   }
 
+  const consultantId = session.user.role === "CONSULTANT" ? (await prisma.user.findUnique({ where: { id: session.user.id }, select: { consultantId: true } }))?.consultantId : null;
+  const results = consultantId ? await prisma.quizResult.findMany({ where: { consultantId } }) : [];
+  const best = new Map(results.map((r) => [r.quizId, { score: r.score, total: r.total }]));
+
   return (
     <div>
       <h1 className="font-serif-display text-2xl font-semibold text-navy">Formation</h1>
@@ -38,6 +45,14 @@ export default async function FormationPage() {
           <OnboardingChecklist autoCompleted={autoCompleted} />
         </div>
       )}
+
+      <section className="mt-10 max-w-2xl space-y-3">
+        <h2 className="font-serif-display text-lg font-semibold text-navy">Quiz : testez-vous 🎯</h2>
+        <p className="text-sm text-navy/70">Quelques questions courtes pour vendre avec assurance. Votre meilleur score est gardé.</p>
+        {QUIZZES.map((q) => (
+          <QuizRunner key={q.id} quiz={q} best={best.get(q.id) ?? null} />
+        ))}
+      </section>
 
       <section className="mt-12 space-y-6">
         <h2 className="font-serif-display text-lg font-semibold text-navy">Guides</h2>

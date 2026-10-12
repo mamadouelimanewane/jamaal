@@ -10,7 +10,7 @@ import { sendViaTwilio } from "./twilio";
  * (« meta » = API Cloud de Meta / 360dialog, « twilio »). Sans configuration, les messages sont
  * SIMULÉS : ils sont enregistrés dans le journal mais rien n'est envoyé.
  */
-export type WhatsAppKind = "team" | "reseller" | "test" | "client";
+export type WhatsAppKind = "team" | "reseller" | "test" | "client" | "bot" | "relance" | "avis" | "resume";
 
 export interface SendResult {
   status: "SIMULE" | "ENVOYE" | "ECHEC";
@@ -34,7 +34,7 @@ export function whatsappConfig() {
 }
 
 /** Envoie (ou simule) un message et l'enregistre dans le journal. Ne lève jamais d'erreur. */
-export async function sendWhatsApp(opts: { to: string; text: string; kind: WhatsAppKind }): Promise<SendResult> {
+export async function sendWhatsApp(opts: { to: string; text: string; kind: WhatsAppKind; /** réponse dans la fenêtre de 24 h : texte libre */ free?: boolean }): Promise<SendResult> {
   const to = normalizePhone(opts.to);
   const body = opts.text.slice(0, 1500);
   let result: SendResult;
@@ -43,7 +43,7 @@ export async function sendWhatsApp(opts: { to: string; text: string; kind: Whats
     const cfg = whatsappConfig();
     if (!to || to.length < 8) result = { status: "ECHEC", error: "Numéro invalide" };
     else if (!cfg.active) result = { status: "SIMULE" };
-    else if (cfg.provider === "meta") result = await sendViaMeta(to, body);
+    else if (cfg.provider === "meta") result = await sendViaMeta(to, body, { free: opts.free });
     else result = await sendViaTwilio(to, body);
   } catch (error) {
     result = { status: "ECHEC", error: error instanceof Error ? error.message.slice(0, 300) : "Erreur inconnue" };

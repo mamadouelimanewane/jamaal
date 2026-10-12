@@ -29,6 +29,12 @@ import { Calculator,
   CalendarClock,
   FileSignature,
   Sparkles,
+  Gift,
+  Trophy,
+  Star,
+  Zap,
+  ShoppingBasket,
+  GraduationCap,
 } from "lucide-react";
 import { auth, signOut } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -59,6 +65,7 @@ const adminGroups = [
     links: [
       { href: "/admin/produits", label: "Produits", icon: Package },
       { href: "/admin/stocks", label: "Stocks & mouvements", icon: Package },
+      { href: "/admin/stocks/commande-chogan", label: "Commande Chogan", icon: ShoppingBasket },
       { href: "/admin/categories", label: "Catégories", icon: Tags },
       { href: "/admin/accueil", label: "Page d'accueil", icon: GalleryHorizontal },
     ],
@@ -70,6 +77,8 @@ const adminGroups = [
       { href: "/admin/reservations", label: "Réservations", icon: CalendarClock },
       { href: "/admin/retours", label: "Retours & remboursements", icon: Undo2 },
       { href: "/admin/coupons", label: "Codes promo", icon: Tags },
+      { href: "/admin/offres", label: "Offres de fêtes", icon: Gift },
+      { href: "/admin/avis", label: "Avis clients", icon: Star },
       { href: "/admin/clients", label: "Clients (CRM)", icon: Contact },
     ],
   },
@@ -78,6 +87,7 @@ const adminGroups = [
     links: [
       { href: "/admin/consultants", label: "Consultants", icon: Users },
       { href: "/admin/primes-equipe", label: "Primes d'équipe", icon: Banknote },
+      { href: "/admin/defis", label: "Défis du mois", icon: Trophy },
       { href: "/admin/candidatures", label: "Candidatures", icon: Contact },
       { href: "/admin/protocole", label: "Protocole de partenariat", icon: FileSignature },
       { href: "/admin/messages", label: "Messages de contact", icon: Mail },
@@ -92,6 +102,7 @@ const adminGroups = [
     title: "Pilotage",
     links: [
       { href: "/admin/statistiques", label: "Statistiques", icon: BarChart3 },
+      { href: "/admin/automatisations", label: "Automatisations", icon: Zap },
       { href: "/admin/comptabilite", label: "Comptabilité & finance", icon: Wallet },
     ],
   },
@@ -110,6 +121,8 @@ const consultantLinks = [
   { href: "/admin/mes-clients", label: "Mes clients", icon: Contact },
   { href: "/admin/mes-filleuls", label: "Mon équipe", icon: UsersRound },
   { href: "/admin/mes-gains", label: "Mes gains", icon: Banknote },
+  { href: "/admin/mes-defis", label: "Mes défis", icon: Trophy },
+  { href: "/admin/formation", label: "Formation & quiz", icon: GraduationCap },
   { href: "/admin/mon-marketing", label: "Mon marketing", icon: Share2 },
   { href: "/admin/ma-communication", label: "Ma communication", icon: Megaphone },
   { href: "/admin/mon-profil", label: "Mon profil", icon: UserCircle },

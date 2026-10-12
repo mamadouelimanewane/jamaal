@@ -9,6 +9,9 @@ import { FragranceCollections } from "@/components/FragranceCollections";
 import { InspiredBySection } from "@/components/InspiredBySection";
 import { BlogSection } from "@/components/BlogSection";
 import { getBestsellers } from "@/lib/db-products";
+import { getLiveOffers } from "@/lib/offers-public";
+import { toOfferCard } from "@/lib/offer-card-data";
+import { OfferCard } from "@/components/OfferCard";
 
 export const dynamic = "force-dynamic";
 
@@ -19,15 +22,28 @@ const otherUniverses = [
 ];
 
 export default async function Home() {
-  const [femme, homme, unisexe, slides] = await Promise.all([
+  const [femme, homme, unisexe, slides, offers] = await Promise.all([
     getBestsellers("parfum-femme", 4),
     getBestsellers("parfum-homme", 4),
     getBestsellers("parfum-unisexe", 4),
     getHomeSlides().then((all) => withResolvedImages(all.filter((s) => s.active))),
+    getLiveOffers().catch(() => []),
   ]);
 
   return <>
     <HomeCarousel slides={slides}/>
+    {offers.length > 0 && (
+      <section aria-label="Offres du moment" className="mx-auto max-w-7xl px-5 py-10 sm:px-8 lg:px-12">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-ia">Offres du moment</p>
+            <h2 className="mt-2 font-serif-display text-2xl font-semibold text-navy sm:text-3xl">Coffrets de fêtes</h2>
+          </div>
+          <Link href="/offres" className="text-sm font-semibold text-ia-dark hover:underline">Toutes les offres →</Link>
+        </div>
+        <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{offers.slice(0, 3).map((o) => <OfferCard key={o.id} offer={toOfferCard(o)}/>)}</div>
+      </section>
+    )}
     <AllRanges/>
 
     <section aria-label="Les attentions JAMAAL" className="border-b border-[#eadfda] bg-[#fdfbfa]">

@@ -8,10 +8,11 @@ const API = "https://graph.facebook.com/v21.0";
  *   le texte est passé en variable {{1}}. Modèle conseillé, langue fr : « JAMAAL : {{1}} ».
  * - Sinon : message texte libre (n'arrive que si le destinataire a écrit dans les dernières 24 h).
  */
-export async function sendViaMeta(to: string, text: string): Promise<SendResult> {
+export async function sendViaMeta(to: string, text: string, opts: { free?: boolean } = {}): Promise<SendResult> {
   const token = process.env.WHATSAPP_TOKEN!;
   const phoneId = process.env.WHATSAPP_PHONE_NUMBER_ID!;
-  const template = process.env.WHATSAPP_TEMPLATE_NAME;
+  // Réponse à un client qui vient d'écrire (fenêtre de 24 h) : texte libre, sans modèle.
+  const template = opts.free ? undefined : process.env.WHATSAPP_TEMPLATE_NAME;
 
   const payload = template
     ? {

@@ -1,3 +1,5 @@
+import { setCustomerBirthday } from "@/lib/actions/growth";
+import { birthdayLabel } from "@/lib/birthday";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
@@ -64,6 +66,11 @@ export default async function AdminClientDetailPage({ params }: { params: Promis
   return <div className="max-w-5xl">
     <p className="mb-2 text-xs text-navy/70"><Link href="/admin/clients">Clients</Link> / {client.name}</p>
     <div className="flex flex-wrap items-start justify-between gap-4"><div><h1 className="font-serif-display text-2xl font-semibold text-navy">{client.name}</h1><p className="mt-1 text-sm text-navy/75">{client.phone}{client.email ? ` — ${client.email}` : ""}</p>{client.address && <p className="mt-1 text-sm text-navy/75">{client.address}</p>}</div><a href={`https://wa.me/${client.phone.replace(/\D/g, "")}`} target="_blank" rel="noreferrer" className="rounded-full border border-line px-4 py-2 text-xs font-semibold text-navy hover:bg-cream">Contacter sur WhatsApp</a></div>
+    <form action={setCustomerBirthday.bind(null, client.id)} className="mt-4 flex flex-wrap items-end gap-3 rounded-2xl border border-ia/25 bg-white p-4">
+      <label className="text-xs font-semibold text-navy/85">Anniversaire (jour/mois)<input name="birthday" defaultValue={client.birthday ? client.birthday.split("-").reverse().join("/") : ""} placeholder="14/03" className="mt-1 block w-32 rounded-lg border border-line px-3 py-2 text-sm" /></label>
+      <button className="rounded-full bg-ia px-4 py-2 text-xs font-semibold text-white">Enregistrer</button>
+      <p className="text-xs text-navy/65">{client.whatsappOptOut ? "⚠️ A répondu STOP : aucun message automatique." : "Le jour J, message WhatsApp et code cadeau de 10 % (Automatisations)."}{client.birthday ? ` Anniversaire : ${birthdayLabel(client.birthday)}.` : ""}</p>
+    </form>
     <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
       <div className="rounded-2xl border border-line bg-white p-4"><p className="text-2xl font-semibold text-navy">{validOrders.length}</p><p className="text-xs text-navy/75">Commandes valides</p></div>
       <div className="rounded-2xl border border-line bg-white p-4"><p className="text-2xl font-semibold text-navy">{formatPrice(total)}</p><p className="text-xs text-navy/75">Total dépensé</p></div>

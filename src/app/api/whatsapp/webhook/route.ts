@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createHmac, timingSafeEqual } from "node:crypto";
+import { after } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getSiteUrl } from "@/lib/site-url";
+import { handleInboundWhatsApp } from "@/lib/whatsapp/inbound";
+
+/** Le temps de répondre aux messages reçus (assistant de commande). */
+export const maxDuration = 60;
 
 /**
  * Webhook de l'API Cloud de Meta (statuts d'envoi et messages reçus).
@@ -33,7 +39,8 @@ export async function POST(req: NextRequest) {
   type Change = {
     value?: {
       statuses?: { id: string; status: string; errors?: { title?: string }[] }[];
-      messages?: { from: string; id: string; type: string; text?: { body?: string } }[];
+      messages?: { from: string; id: string; type: string; text?: { body?: string }; location?: { latitude?: number; longitude?: number; name?: string; address?: string }; button?: { text?: string }; interactive?: { button_reply?: { title?: string }; list_reply?: { title?: string } } }[];
+      contacts?: { wa_id?: string; profile?: { name?: string } }[];
     };
   };
   let payload: { entry?: { changes?: Change[] }[] };
@@ -43,6 +50,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "json invalide" }, { status: 400 });
   }
 
+  const inbound: { phone: string; text: string | null; location: { lat: number; lng: number } | null; profileName: string | null }[] = [];
   for (const entry of payload.entry ?? []) {
     for (const change of entry.changes ?? []) {
       for (const s of change.value?.statuses ?? []) {
@@ -55,18 +63,34 @@ export async function POST(req: NextRequest) {
         }
       }
       for (const m of change.value?.messages ?? []) {
+        const loc = m.type === "location" && m.location?.latitude != null && m.location?.longitude != null ? m.location : null;
+        const text =
+          m.type === "text" ? m.text?.body : m.type === "button" ? m.button?.text : m.type === "interactive" ? (m.interactive?.button_reply?.title ?? m.interactive?.list_reply?.title) : null;
+        // Un même message peut être renvoyé par Meta : on ne le traite qu'une fois.
+        if (await prisma.whatsAppMessage.findFirst({ where: { providerId: m.id, direction: "IN" }, select: { id: true } })) continue;
         await prisma.whatsAppMessage.create({
           data: {
             direction: "IN",
             toNumber: m.from,
             kind: "inbound",
-            body: (m.type === "text" ? m.text?.body : `[${m.type}]`)?.slice(0, 1500) ?? "",
+            body: (loc ? `[position] ${loc.latitude},${loc.longitude}${loc.address || loc.name ? ` ${loc.name ?? ""} ${loc.address ?? ""}`.trimEnd() : ""}` : text ?? `[${m.type}]`).slice(0, 1500),
             status: "RECU",
             providerId: m.id,
           },
         });
+        if (text || loc) {
+          const profileName = change.value?.contacts?.find((c) => c.wa_id === m.from)?.profile?.name ?? null;
+          inbound.push({ phone: m.from, text: text ?? null, location: loc ? { lat: loc.latitude!, lng: loc.longitude! } : null, profileName });
+        }
       }
     }
+  }
+  // Réponses (assistant de commande, STOP/START) après l'accusé de réception : Meta attend une réponse rapide.
+  if (inbound.length) {
+    const origin = await getSiteUrl();
+    after(async () => {
+      for (const msg of inbound) await handleInboundWhatsApp({ ...msg, origin }).catch((e) => console.error("[whatsapp] réponse", e));
+    });
   }
   return NextResponse.json({ received: true });
 }

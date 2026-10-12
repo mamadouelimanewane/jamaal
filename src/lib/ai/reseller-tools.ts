@@ -350,15 +350,31 @@ export const RESELLER_TOOLS: Record<string, ResellerToolDef> = {
     roles: ["CONSULTANT"],
     declaration: {
       name: "kit_marketing",
-      description: "Annonces de JAMAAL aux revendeurs (offres, nouveautés, consignes) et visuels du kit marketing à télécharger. À consulter avant de préparer une campagne.",
+      description: "Annonces de JAMAAL aux revendeurs, offres de fêtes en cours (coffrets à prix spécial, avec lien), défis du mois avec la progression du revendeur, visuels du kit marketing. À consulter avant de préparer une campagne ou un plan d'action.",
       parameters: { type: "object", properties: {} },
     },
-    run: async () => {
-      const [news, assets] = await Promise.all([
+    run: async (_args, scope) => {
+      const now = new Date();
+      const { challengeStandings } = await import("@/lib/challenges");
+      const [news, assets, offers, challenges, me] = await Promise.all([
         prisma.announcement.findMany({ orderBy: [{ pinned: "desc" }, { createdAt: "desc" }], take: 6, select: { title: true, body: true, pinned: true, createdAt: true } }),
         prisma.marketingAsset.findMany({ orderBy: { createdAt: "desc" }, take: 20, select: { title: true, category: true, fileUrl: true } }),
+        prisma.offer.findMany({ where: { active: true, startsAt: { lte: now }, endsAt: { gte: now } }, orderBy: { endsAt: "asc" }, take: 6 }),
+        prisma.challenge.findMany({ where: { active: true, startsAt: { lte: now }, endsAt: { gte: now } }, take: 4 }),
+        scope.consultantId ? prisma.consultant.findUnique({ where: { id: scope.consultantId }, select: { slug: true } }) : null,
       ]);
+      const ref = me?.slug ? `?ref=${me.slug}` : "";
+      const defis = await Promise.all(
+        challenges.map(async (c) => {
+          const s = await challengeStandings(c);
+          const mine = s.find((r) => r.consultantId === scope.consultantId);
+          return { titre: c.title, mesure: c.metric === "CA" ? "chiffre d'affaires encaissé (FCFA)" : "nombre de ventes", objectif: c.target, bonus: c.bonus, finLe: c.endsAt.toISOString().slice(0, 10), maValeur: mine?.value ?? 0, maPlace: mine ? s.indexOf(mine) + 1 : null, participants: s.length };
+        })
+      );
       return {
+        offresDeFetes: offers.map((o) => ({ titre: o.title, occasion: o.occasion, prixDuCoffret: o.packPrice, jusquAu: o.endsAt.toISOString().slice(0, 10), description: o.description.slice(0, 300), lien: `/offres/${o.slug}${ref}` })),
+        defisEnCours: defis,
+        visuelsProduits: "Image prête à partager pour chaque produit (photo, prix, QR code, WhatsApp du revendeur) : /admin/mon-marketing, rubrique « Visuels à partager », ou /api/visuel/<adresse-du-produit>?ref=<identifiant>",
         annonces: news.map((a) => ({ titre: a.title, texte: a.body.slice(0, 600), epinglee: a.pinned, date: a.createdAt.toISOString().slice(0, 10) })),
         visuels: assets.map((a) => ({ titre: a.title, categorie: a.category, fichier: a.fileUrl })),
         pages: { kit: "/admin/mon-kit-marketing", communication: "/admin/ma-communication", marketing: "/admin/mon-marketing" },

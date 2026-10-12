@@ -33,6 +33,10 @@ const ADMIN_ONLY_PREFIXES = [
   "/admin/modele-economique",
   "/admin/versements",
   "/admin/livraisons",
+  "/admin/automatisations",
+  "/admin/offres",
+  "/admin/defis",
+  "/admin/avis",
 ];
 
 /**

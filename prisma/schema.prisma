@@ -154,6 +154,8 @@ model Product {
 
   @@index([category])
   @@index([choganCode])
+  /// Dernière vérification du prix sur le site Chogan (veille automatique).
+  choganCheckedAt DateTime?
 }
 
 /// Suivi du stock par variante (volume) d'un produit, en complément du champ
@@ -213,6 +215,8 @@ model Review {
   createdAt  DateTime @default(now())
 
   @@index([productId])
+  /// Photo envoyée par le client avec son avis (stockage Blob).
+  photo String?
 }
 
 model Coupon {
@@ -356,6 +360,8 @@ model Order {
   @@index([deliveryZoneId])
   @@index([couponId])
   @@index([isReservation, reservationStatus])
+  /// Offre de fêtes appliquée (titre), la remise est dans discountAmount.
+  offerTitle String?
 }
 
 model OrderItem {
@@ -437,6 +443,8 @@ model Consultant {
 
   @@index([sponsorId])
   @@index([slug])
+  /// Relances automatiques de ses clients (rappel, anniversaire, panier) : le revendeur peut les couper.
+  autoRelances Boolean @default(true)
 }
 
 model CommissionPayment {
@@ -497,6 +505,10 @@ model Customer {
   user      User?
   orders    Order[]
   referrals Referral[] @relation("CustomerReferrals")
+  /// A répondu STOP sur WhatsApp : plus aucun message automatique.
+  whatsappOptOut Boolean  @default(false)
+  /// Anniversaire « MM-JJ » (message et code cadeau automatiques).
+  birthday       String?
 }
 
 model Notification {
@@ -915,4 +927,89 @@ model WalletTransaction {
 
   @@index([ownerType, ownerId, status])
   @@index([status, kind])
+}
+
+/// Envois automatiques déjà faits (relances, demandes d'avis, résumés, primes de défi) : clé unique, jamais deux fois.
+model AutomationSent {
+  key       String   @id
+  createdAt DateTime @default(now())
+}
+
+/// Panier commencé au paiement (téléphone saisi) mais pas commandé : relance WhatsApp.
+model AbandonedCart {
+  id           String    @id @default(cuid())
+  phone        String
+  name         String?
+  items        Json
+  total        Int
+  consultantId String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  remindedAt   DateTime?
+  orderedAt    DateTime?
+
+  @@index([phone])
+  @@index([updatedAt])
+}
+
+/// Offre de fêtes : un coffret de produits à prix spécial, sur une période.
+model Offer {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  occasion    String?
+  description String   @default("")
+  image       String?
+  productIds  String[]
+  packPrice   Int
+  startsAt    DateTime
+  endsAt      DateTime
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  @@index([active, endsAt])
+}
+
+/// Défi du mois pour les revendeurs : objectif (nombre de ventes ou chiffre d'affaires) et bonus.
+model Challenge {
+  id          String    @id @default(cuid())
+  title       String
+  description String    @default("")
+  /// "VENTES" (nombre de commandes) ou "CA" (FCFA encaissés)
+  metric      String
+  target      Int
+  bonus       Int
+  startsAt    DateTime
+  endsAt      DateTime
+  active      Boolean   @default(true)
+  awardedAt   DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([active, endsAt])
+}
+
+/// Résultat d'un revendeur à un quiz de formation (le meilleur score est gardé).
+model QuizResult {
+  id           String   @id @default(cuid())
+  consultantId String
+  quizId       String
+  score        Int
+  total        Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([consultantId, quizId])
+}
+
+/// Changement de prix détecté sur le site Chogan (veille automatique).
+model ChoganPriceChange {
+  id         String   @id @default(cuid())
+  productId  String
+  name       String
+  oldPublic  Int?
+  newPublic  Int
+  detectedAt DateTime @default(now())
+  seen       Boolean  @default(false)
+
+  @@index([detectedAt])
 }

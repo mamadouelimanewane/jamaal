@@ -8,7 +8,7 @@ import { useCartStore } from "@/lib/cart-store";
 import { formatPrice } from "@/lib/currency";
 import { createOrder } from "@/lib/actions/orders";
 import { locateFromText } from "@/lib/actions/delivery-quote";
-import { getCartPrices } from "@/lib/actions/cart";
+import { getCartPrices, previewCartDiscounts, saveCartDraft, type CartDiscounts } from "@/lib/actions/cart";
 import { DeliveryChooser, type DeliveryChoice } from "@/components/DeliveryChooser";
 import { getActiveConsultantsForCheckout } from "@/lib/actions/public-data";
 import { initiatePayment } from "@/lib/actions/payment";
@@ -51,6 +51,43 @@ export default function CartPage() {
   // Moyens de paiement autorisés et configurés (Wave, Orange Money…), chargés depuis le serveur.
   const [paymentOptions, setPaymentOptions] = useState<PaymentOption[] | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<PaymentProviderId | null>(null);
+  // Remises : offre de fêtes (automatique) et code promo saisi.
+  const [couponInput, setCouponInput] = useState("");
+  const [couponCode, setCouponCode] = useState("");
+  const [discounts, setDiscounts] = useState<CartDiscounts>({ offer: null, code: null });
+  const codeOk = discounts.code && !("error" in discounts.code) ? discounts.code : null;
+  const discountTotal = (discounts.offer?.discount ?? 0) + (codeOk?.discount ?? 0);
+  const cartKey = items.map((i) => `${i.productId}|${i.volumeLabel}|${i.quantity}|${i.price}`).join(",");
+
+  useEffect(() => {
+    if (!items.length) return;
+    let cancelled = false;
+    const t = setTimeout(() => {
+      previewCartDiscounts(items.map((i) => ({ productId: i.productId, volumeLabel: i.volumeLabel, price: i.price, quantity: i.quantity })), couponCode)
+        .then((d) => !cancelled && setDiscounts(d))
+        .catch(() => {});
+    }, 300);
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- cartKey résume les articles
+  }, [cartKey, couponCode]);
+
+  // Panier commencé (nom + téléphone) : gardé pour un rappel WhatsApp s'il n'est pas commandé.
+  useEffect(() => {
+    if (!items.length || customer.name.trim().length < 2 || customer.phone.replace(/\D/g, "").length < 9) return;
+    const t = setTimeout(() => {
+      saveCartDraft({
+        name: customer.name,
+        phone: customer.phone,
+        consultantId: consultantId || null,
+        lines: items.map((i) => ({ productId: i.productId, volumeLabel: i.volumeLabel, price: i.price, quantity: i.quantity })),
+      }).catch(() => {});
+    }, 2500);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- cartKey résume les articles
+  }, [cartKey, customer.name, customer.phone, consultantId]);
 
   // Le panier est conservé dans le navigateur : on y remet les prix actuels du catalogue.
   useEffect(() => {
@@ -167,7 +204,9 @@ export default function CartPage() {
               recipientName: forOther ? recipient.name : null,
               recipientPhone: forOther ? recipient.phone : null,
             }
-          : { mode: "RETRAIT" }
+          : { mode: "RETRAIT" },
+        false,
+        codeOk ? couponCode : ""
       );
       if (!res.ok) {
         setError(res.error);
@@ -280,9 +319,43 @@ export default function CartPage() {
                     : "Selon votre position"}
               </span>
             </div>
+            {discounts.offer && (
+              <div className="mt-2 flex items-center justify-between gap-3 text-sm text-ia-dark">
+                <span>🎁 {discounts.offer.title}</span>
+                <span className="shrink-0">−{formatPrice(discounts.offer.discount)}</span>
+              </div>
+            )}
+            {codeOk && codeOk.discount > 0 && (
+              <div className="mt-2 flex items-center justify-between gap-3 text-sm text-ia-dark">
+                <span>Code {codeOk.code} ({codeOk.label})</span>
+                <span className="shrink-0">−{formatPrice(codeOk.discount)}</span>
+              </div>
+            )}
             <div className="mt-2 flex items-center justify-between text-base font-semibold text-navy">
               <span>Total</span>
-              <span>{formatPrice(total() + deliveryFee)}</span>
+              <span>{formatPrice(Math.max(0, total() - discountTotal) + deliveryFee)}</span>
+            </div>
+            <div className="mt-3">
+              <div className="flex gap-2">
+                <input
+                  value={couponInput}
+                  onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      setCouponCode(couponInput.trim());
+                    }
+                  }}
+                  placeholder="Code promo"
+                  aria-label="Code promo"
+                  className="min-w-0 flex-1 rounded-lg border border-line px-3 py-2 text-sm uppercase outline-none focus:border-navy"
+                />
+                <button type="button" onClick={() => setCouponCode(couponInput.trim())} disabled={!couponInput.trim()} className="shrink-0 rounded-lg border border-line px-3 text-sm font-semibold text-navy hover:bg-cream disabled:opacity-50">
+                  Appliquer
+                </button>
+              </div>
+              {discounts.code && "error" in discounts.code && <p className="mt-1 text-xs text-rose-dark">{discounts.code.error}</p>}
+              {codeOk && <button type="button" onClick={() => { setCouponCode(""); setCouponInput(""); }} className="mt-1 text-xs text-navy/60 underline">Retirer le code</button>}
             </div>
 
             <div className="mt-4 flex flex-col gap-3">
@@ -331,7 +404,7 @@ export default function CartPage() {
                 </fieldset>
               )}
 
-              <DeliveryChooser productsTotal={total()} value={delivery} onChange={setDelivery} recipientPhone={forOther ? recipient.phone : customer.phone} />
+              <DeliveryChooser productsTotal={Math.max(0, total() - discountTotal)} value={delivery} onChange={setDelivery} recipientPhone={forOther ? recipient.phone : customer.phone} />
 
               {consultants.length > 0 && (
                 <div>

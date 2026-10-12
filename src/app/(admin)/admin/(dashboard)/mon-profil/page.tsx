@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getReseller } from "@/lib/reseller";
 import { ProfileForm } from "@/components/admin/ProfileForm";
+import { AutoRelancesToggle } from "@/components/admin/GrowthWidgets";
 import { WalletForm } from "@/components/admin/WalletForm";
 import { ChangePasswordForm } from "@/components/admin/ChangePasswordForm";
 import { NotReseller } from "@/components/admin/NotReseller";
@@ -25,6 +26,9 @@ export default async function MonProfilPage() {
 
       <div className="mt-6 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <ProfileForm name={me.name} city={me.city} whatsapp={me.whatsapp} />
+        <div className="mt-6 rounded-2xl border border-ia/25 bg-white p-4">
+          <AutoRelancesToggle on={me.autoRelances} />
+        </div>
       </div>
 
       <div id="wallet" className="mt-6 rounded-2xl border border-line bg-white p-5 sm:p-6">

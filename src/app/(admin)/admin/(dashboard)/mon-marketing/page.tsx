@@ -6,6 +6,7 @@ import { CopyButton } from "@/components/admin/CopyButton";
 import { QrCard } from "@/components/admin/QrCard";
 import { ProductLinkGenerator } from "@/components/admin/ProductLinkGenerator";
 import { NotReseller } from "@/components/admin/NotReseller";
+import { VisualGenerator } from "@/components/admin/GrowthWidgets";
 
 export const dynamic = "force-dynamic";
 
@@ -54,6 +55,12 @@ export default async function MonMarketingPage() {
           )}
         </div>
         {links.shop && <QrCard url={links.shop} name={me.slug ?? me.name} />}
+      </div>
+
+      <div className="mt-6 rounded-2xl border border-ia/30 bg-white p-5">
+        <h2 className="font-serif-display text-lg font-semibold text-navy">Visuels à partager</h2>
+        <p className="mb-4 mt-1 text-sm text-navy/75">Une image prête pour votre statut WhatsApp ou Instagram : photo, prix, votre prénom, votre WhatsApp et un QR code vers le produit avec votre lien.</p>
+        <VisualGenerator products={products.map((p) => ({ slug: p.slug, name: p.name }))} refSlug={me.slug} />
       </div>
 
       <div className="mt-6 rounded-2xl border border-line bg-white p-5">

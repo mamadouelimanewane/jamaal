@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { cache } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ProductReviews } from "@/components/ProductReviews";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { getProductBySlug, getProductsByCategory } from "@/lib/db-products";
 import { getCategory } from "@/lib/db-categories";
@@ -89,6 +90,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       </div>
     </div>
 
+    <ProductReviews productId={product.id}/>
     {related.length > 0 && <section className="mt-20 border-t border-[#eadfda] pt-10 sm:mt-28"><div className="mb-7 flex items-end justify-between gap-4"><div><p className="luxury-eyebrow">Continuer la découverte</p><h2 className="mt-2 font-serif-display text-2xl text-navy sm:text-3xl">Dans le même sillage</h2></div><Link href={`/collections/${product.category}`} className="editorial-link">Toute la collection <ArrowRight size={14}/></Link></div><div className="grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-6">{related.map((item) => <ProductCard key={item.id} product={item}/>)}</div></section>}
     <Link href={`/collections/${product.category}`} className="mt-12 inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-navy/60 transition hover:text-navy"><ArrowLeft size={14}/> Retour à la collection</Link>
   </main>;
