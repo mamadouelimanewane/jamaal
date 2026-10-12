@@ -6,7 +6,7 @@
 import { prisma } from "@/lib/prisma";
 import { getStockRows } from "@/lib/inventory-report";
 import { WHATSAPP_CONTACTS } from "@/lib/contact";
-import { sendWhatsApp } from "@/lib/whatsapp";
+import { sendWhatsApp, whatsappConfig } from "@/lib/whatsapp";
 import { automationEnabled, claimAutomation } from "@/lib/automation-settings";
 
 const fcfa = (n: number) => `${Math.round(n).toLocaleString("fr-FR").replace(/ | /g, " ")} FCFA`;
@@ -79,6 +79,7 @@ export async function dailyFigures(origin: string, now = new Date()): Promise<Da
 /** Envoie le résumé une fois par jour (clé datée) ; renvoie le texte envoyé, ou la raison. */
 export async function sendDailySummary(origin: string, now = new Date()): Promise<string> {
   if (!(await automationEnabled("summary"))) return "désactivé";
+  if (!whatsappConfig().active) return "WhatsApp non configuré : résumé non envoyé";
   if (!(await claimAutomation(`resume:${now.toISOString().slice(0, 10)}`))) return "déjà envoyé aujourd'hui";
   const text = summaryText(await dailyFigures(origin, now));
   for (const c of WHATSAPP_CONTACTS) await sendWhatsApp({ to: c.number, text, kind: "resume" });
