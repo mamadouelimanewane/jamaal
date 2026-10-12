@@ -6,6 +6,7 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import { getProductBySlug, getProductsByCategory } from "@/lib/db-products";
 import { getCategory } from "@/lib/db-categories";
 import { ProductVisual } from "@/components/ProductVisual";
+import { ProductGallery } from "@/components/ProductGallery";
 import { StarRating } from "@/components/StarRating";
 import { ProductPurchasePanel } from "@/components/ProductPurchasePanel";
 import { getReservationSettings } from "@/lib/reservation-store";
@@ -52,7 +53,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
     <div className="grid gap-9 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16 xl:gap-24">
       <div className="relative self-start bg-[#f5ece8] lg:sticky lg:top-28">
-        <div className="relative aspect-[4/4.5] w-full overflow-hidden"><ProductVisual product={product} fit="contain" className="h-full w-full p-5 sm:p-10 lg:p-14" sizes="(max-width: 1024px) 100vw, 54vw"/></div>
+        {product.photo && product.gallery?.length ? <ProductGallery photos={[product.photo, ...product.gallery]} alt={product.name}/> : <div className="relative aspect-[4/4.5] w-full overflow-hidden"><ProductVisual product={product} fit="contain" className="h-full w-full p-5 sm:p-10 lg:p-14" sizes="(max-width: 1024px) 100vw, 54vw"/></div>}
         <div className="absolute bottom-4 left-4 bg-[#fdfbfa]/90 px-3 py-2 text-[8px] uppercase tracking-[0.17em] text-navy/70 backdrop-blur sm:bottom-6 sm:left-6">JAMAAL · Extrait de parfum</div>
       </div>
 

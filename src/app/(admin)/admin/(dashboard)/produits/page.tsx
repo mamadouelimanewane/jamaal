@@ -62,6 +62,12 @@ export default async function AdminProductsPage({
         </h1>
         <div className="flex flex-wrap gap-2">
           <Link
+            href="/admin/produits/chogan"
+            className="rounded-full bg-navy px-4 py-2 text-sm font-semibold text-white hover:bg-navy-light"
+          >
+            Importer depuis Chogan
+          </Link>
+          <Link
             href="/admin/produits/import"
             className="rounded-full border border-line px-4 py-2 text-sm font-semibold text-navy hover:bg-cream"
           >

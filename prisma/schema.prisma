@@ -139,6 +139,8 @@ model Product {
   colorFrom         String           @default("#16233a")
   colorTo           String           @default("#c9997a")
   photo             String?
+  /// Photos supplémentaires (après la photo principale), ex. importées depuis la fiche Chogan.
+  gallery           String[]         @default([])
   isOfficial        Boolean          @default(true)
   stock             Int              @default(0)
   lowStockThreshold Int              @default(5)

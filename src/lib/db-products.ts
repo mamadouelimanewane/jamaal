@@ -27,6 +27,7 @@ function toUiProduct(p: DbProduct): Product {
     colorFrom: p.colorFrom,
     colorTo: p.colorTo,
     photo: p.photo ?? undefined,
+    gallery: p.gallery?.length ? p.gallery : undefined,
     isOfficial: p.isOfficial,
   };
 }
