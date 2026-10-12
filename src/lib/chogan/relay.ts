@@ -34,3 +34,17 @@ export function allowedChoganUrl(raw: string | null): URL | null {
   if (u.hostname === CDN_HOST && u.pathname.startsWith("/images/prodotti/") && !u.pathname.includes("..")) return u;
   return null;
 }
+
+/** Lit une adresse Chogan autorisée en passant par le relais du site (en ligne) ou en direct (local). */
+export async function relayFetch(target: string, origin: string, timeoutMs = 10_000): Promise<Response | null> {
+  if (!allowedChoganUrl(target)) return null;
+  const secret = relaySecret();
+  try {
+    if (process.env.VERCEL && secret) {
+      return await fetch(`${origin}${RELAY_PATH}?u=${encodeURIComponent(target)}`, { headers: { [RELAY_HEADER]: await relayToken(secret) }, cache: "no-store", signal: AbortSignal.timeout(timeoutMs) });
+    }
+    return await fetch(target, { cache: "no-store", signal: AbortSignal.timeout(timeoutMs) });
+  } catch {
+    return null;
+  }
+}

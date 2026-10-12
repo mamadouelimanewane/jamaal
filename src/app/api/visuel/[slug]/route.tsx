@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 import QRCode from "qrcode";
 import { prisma } from "@/lib/prisma";
 import { siteBaseUrl } from "@/lib/site-url";
-import { fetchChoganImage, isChoganImage } from "@/lib/chogan/client";
+import { allowedChoganUrl, relayFetch } from "@/lib/chogan/relay";
 
 export const dynamic = "force-dynamic";
 
@@ -33,20 +33,13 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
   let photo: string | null = null;
   if (product.photo) {
     try {
-      let data: Uint8Array | null = null;
-      let type = "image/jpeg";
-      if (isChoganImage(product.photo)) {
-        const img = await fetchChoganImage(product.photo);
-        data = img.data;
-        type = img.contentType;
-      } else {
-        const res = await fetch(product.photo.startsWith("/") ? `${url.origin}${product.photo}` : product.photo, { signal: AbortSignal.timeout(8_000) });
-        if (res.ok) {
-          data = new Uint8Array(await res.arrayBuffer());
-          type = res.headers.get("content-type") ?? type;
-        }
+      const src = product.photo.startsWith("/") ? `${url.origin}${product.photo}` : product.photo;
+      const res = allowedChoganUrl(src) ? await relayFetch(src, url.origin, 8_000) : await fetch(src, { signal: AbortSignal.timeout(8_000) });
+      const type = res?.headers.get("content-type") ?? "";
+      if (res?.ok && /image\/(jpeg|jpg|png)/.test(type)) {
+        const data = new Uint8Array(await res.arrayBuffer());
+        if (data.length < 4 * 1024 * 1024) photo = `data:${type.split(";")[0]};base64,${Buffer.from(data).toString("base64")}`;
       }
-      if (data && /image\/(jpeg|jpg|png)/.test(type)) photo = `data:${type};base64,${Buffer.from(data).toString("base64")}`;
     } catch {
       photo = null;
     }
