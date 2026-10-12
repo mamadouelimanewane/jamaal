@@ -43,6 +43,8 @@ import { WalletPill } from "@/components/admin/WalletWidgets";
 import { viewerWallet } from "@/lib/wallet-owner";
 import { walletBalance } from "@/lib/wallet";
 import { Suspense } from "react";
+import { AssistantLauncher } from "@/components/admin/AdminAssistant";
+import { geminiConfigured } from "@/lib/ai/gemini";
 
 const adminGroups = [
   {
@@ -250,6 +252,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <Suspense fallback={null}><FormErrorBanner /></Suspense>
       <AutoTableLabels />
       {children}
+      {geminiConfigured() && role && <AssistantLauncher role={role} />}
     </ResponsiveSidebar>
   );
 }
