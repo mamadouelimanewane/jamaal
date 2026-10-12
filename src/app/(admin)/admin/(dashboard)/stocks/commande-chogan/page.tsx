@@ -12,15 +12,19 @@ export const dynamic = "force-dynamic";
 const daysAgo = (n: number) => new Date(Date.now() - n * 86_400_000);
 export const metadata = { title: "Commande Chogan" };
 
-export default async function ChoganOrderPage() {
+export default async function ChoganOrderPage({ searchParams }: { searchParams: Promise<{ tout?: string }> }) {
   await requireAdminPage();
+  const all = (await searchParams).tout === "1";
   const [rows, reservations, changes, watched, total] = await Promise.all([
     getStockRows(),
     prisma.orderItem.findMany({
       where: { order: { isReservation: true, reservationStatus: "RESERVEE", status: { not: "ANNULEE" } } },
       select: { productId: true, volumeLabel: true, productName: true, quantity: true },
     }),
-    prisma.choganPriceChange.findMany({ where: { seen: false }, orderBy: { detectedAt: "desc" }, take: 50 }),
+    prisma.choganPriceChange.findMany({ where: { seen: false }, orderBy: { detectedAt: "desc" }, take: 50 }).then(async (list) => {
+      const nums = new Map((await prisma.product.findMany({ where: { id: { in: list.map((c) => c.productId) } }, select: { id: true, number: true } })).map((p) => [p.id, p.number]));
+      return list.map((c) => ({ ...c, number: nums.get(c.productId) ?? null, odd: c.oldPublic != null && c.oldPublic > 0 && (c.newPublic / c.oldPublic > 1.6 || c.newPublic / c.oldPublic < 0.6) }));
+    }),
     prisma.product.count({ where: { number: { not: null }, choganCheckedAt: { gte: daysAgo(30) } } }),
     prisma.product.count({ where: { number: { not: null } } }),
   ]);
@@ -33,7 +37,8 @@ export default async function ChoganOrderPage() {
   const lines = rows
     .map((r) => ({ ...r, reserved: reserved.get(`${r.productId}|${r.format}`) ?? 0 }))
     .map((r) => ({ ...r, qty: r.toOrder + r.reserved }))
-    .filter((r) => r.qty > 0)
+    // Par défaut : seulement ce qui se vend (ventes sur 30 jours) ou est réservé ; « tout » ajoute le réassort des seuils.
+    .filter((r) => r.qty > 0 && (all || r.sold30 > 0 || r.reserved > 0))
     .sort((a, b) => b.sold30 - a.sold30 || b.qty - a.qty);
   const cost = lines.reduce((s, r) => s + r.qty * (r.unitCost ?? 0), 0);
   const units = lines.reduce((s, r) => s + r.qty, 0);
@@ -45,6 +50,13 @@ export default async function ChoganOrderPage() {
           <Link href="/admin/stocks" className="text-xs text-navy/70 hover:underline">← Stocks</Link>
           <h1 className="mt-1 font-serif-display text-2xl font-semibold text-navy">Commande Chogan</h1>
           <p className="mt-1 text-sm text-navy/75">Bon de commande préparé à partir des ventes des 30 derniers jours (de quoi tenir un mois, au moins 2 × le seuil) et des réservations payées. Copiez la liste dans votre commande Chogan.</p>
+          <p className="mt-1 text-xs text-navy/65">
+            {all ? (
+              <>Affichage : tous les formats sous leur seuil. <Link href="/admin/stocks/commande-chogan" className="underline">Seulement ce qui se vend</Link></>
+            ) : (
+              <>Affichage : produits vendus ce mois-ci et réservations. <Link href="/admin/stocks/commande-chogan?tout=1" className="underline">Inclure tous les formats sous leur seuil</Link></>
+            )}
+          </p>
         </div>
         <div className="flex flex-wrap gap-2 print:hidden">
           <CopyButton text={listText} label="Copier la liste" />
@@ -89,6 +101,8 @@ export default async function ChoganOrderPage() {
               <span className="text-navy">
                 {c.name} : {c.oldPublic != null ? formatPrice(c.oldPublic) : "?"} → <strong>{formatPrice(c.newPublic)}</strong>
                 <span className="ml-2 text-xs text-navy/55">{c.detectedAt.toLocaleDateString("fr-FR")}</span>
+                {c.odd && <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-900">Écart inhabituel : vérifiez</span>}
+                {c.number && <a href={`https://www.chogangroupspa.com/chogangroup/productDetail/${c.number}`} target="_blank" rel="noopener noreferrer" className="ml-2 text-xs underline">fiche Chogan ↗</a>}
               </span>
               <span className="flex gap-2 text-xs font-semibold">
                 <form action={applyChoganPrice.bind(null, c.id)}><button className="rounded-full bg-ia px-3 py-1.5 text-white">Appliquer</button></form>
