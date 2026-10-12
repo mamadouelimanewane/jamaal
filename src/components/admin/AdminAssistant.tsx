@@ -125,9 +125,9 @@ export function AssistantPanel({
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
-      <div className="flex items-center gap-3 bg-navy px-5 py-4 text-white">
+      <div className="flex items-center gap-3 bg-ia px-5 py-4 text-white">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/10">
-          <Sparkles size={20} className="text-[#e9c9b9]" />
+          <Sparkles size={20} className="text-ia-accent" />
         </span>
         <div className="min-w-0 flex-1">
           <p className="truncate font-serif-display text-lg font-semibold leading-tight">Assistant JAMAAL</p>
@@ -160,7 +160,7 @@ export function AssistantPanel({
         )}
       </div>
 
-      <div className="flex-1 space-y-3 overflow-y-auto bg-cream/40 px-4 py-4 sm:px-5">
+      <div className="flex-1 space-y-3 overflow-y-auto bg-ia-light/60 px-4 py-4 sm:px-5">
         <div className="max-w-[90%] rounded-2xl rounded-tl-sm bg-white px-4 py-3 text-sm leading-relaxed text-navy shadow-sm">{WELCOME[role] ?? WELCOME.LIVREUR}</div>
         {!enabled && (
           <p className="rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-900">
@@ -176,7 +176,7 @@ export function AssistantPanel({
                 key={s}
                 type="button"
                 onClick={() => send(s)}
-                className="rounded-full border border-[#e3d3cd] bg-white px-3 py-1.5 text-left text-xs text-navy transition hover:border-[#9c6254] hover:text-[#9c6254]"
+                className="rounded-full border border-ia/25 bg-white px-3 py-1.5 text-left text-xs text-navy transition hover:border-ia hover:text-ia"
               >
                 {s}
               </button>
@@ -188,11 +188,11 @@ export function AssistantPanel({
             <div
               className={
                 m.role === "user"
-                  ? "max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-br-sm bg-navy px-4 py-2.5 text-sm text-white"
+                  ? "max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-br-sm bg-ia px-4 py-2.5 text-sm text-white"
                   : "max-w-[92%] rounded-2xl rounded-tl-sm bg-white px-4 py-2.5 text-sm leading-relaxed text-navy shadow-sm"
               }
             >
-              {m.role === "user" ? m.text : <ChatMarkdown text={m.text} onNavigate={onNavigate} copyable linkClassName="font-semibold text-[#9c6254] underline underline-offset-2" />}
+              {m.role === "user" ? m.text : <ChatMarkdown text={m.text} onNavigate={onNavigate} copyable linkClassName="font-semibold text-ia-dark underline underline-offset-2" />}
             </div>
           </div>
         ))}
@@ -228,9 +228,9 @@ export function AssistantPanel({
             disabled={!enabled}
             placeholder={enabled ? "Posez votre question…" : "Assistant non activé"}
             aria-label="Votre question"
-            className="max-h-28 min-h-[44px] flex-1 resize-none rounded-2xl border border-line px-3 py-2.5 text-sm text-navy outline-none focus:border-[#9c6254] disabled:bg-cream/40"
+            className="max-h-28 min-h-[44px] flex-1 resize-none rounded-2xl border border-line px-3 py-2.5 text-sm text-navy outline-none focus:border-ia disabled:bg-cream/40"
           />
-          <button type="submit" disabled={!enabled || loading || !input.trim()} aria-label="Envoyer" className="rounded-2xl bg-navy p-3 text-white disabled:opacity-40">
+          <button type="submit" disabled={!enabled || loading || !input.trim()} aria-label="Envoyer" className="rounded-2xl bg-ia p-3 text-white hover:bg-ia-dark disabled:opacity-40">
             <SendHorizontal size={18} />
           </button>
         </div>
@@ -367,11 +367,11 @@ export function AssistantLauncher({ role }: { role: string }) {
           style={{ ...bubbleStyle, width: BUBBLE, height: BUBBLE, touchAction: "none" }}
           aria-label="Assistant JAMAAL : cliquez pour poser une question, faites glisser pour déplacer la bulle"
           title="Posez votre question — faites glisser pour déplacer"
-          className={`group fixed z-40 flex select-none items-center justify-center rounded-full bg-navy text-white shadow-xl shadow-navy/30 ring-4 ring-white transition-[top,left,right,transform] duration-300 print:hidden ${drag ? "scale-110 cursor-grabbing" : "cursor-grab hover:scale-105"}`}
+          className={`group fixed z-40 flex select-none items-center justify-center rounded-full bg-ia text-white shadow-xl shadow-ia/35 ring-4 ring-white transition-[top,left,right,transform] duration-300 print:hidden ${drag ? "scale-110 cursor-grabbing" : "cursor-grab hover:scale-105"}`}
         >
-          <Sparkles size={26} className="text-[#e9c9b9]" />
-          <span className="absolute -right-1 -top-1 rounded-full bg-[#e9c9b9] px-1.5 py-0.5 text-[10px] font-bold leading-none text-navy">IA</span>
-          {!drag && <span className="pointer-events-none absolute inset-0 animate-ping rounded-full bg-navy/20 [animation-iteration-count:2]" />}
+          <Sparkles size={26} className="text-ia-accent" />
+          <span className="absolute -right-1 -top-1 rounded-full bg-white px-1.5 py-0.5 text-[10px] font-bold leading-none text-ia">IA</span>
+          {!drag && <span className="pointer-events-none absolute inset-0 animate-ping rounded-full bg-ia/25 [animation-iteration-count:2]" />}
         </button>
       )}
       {open && (
@@ -379,7 +379,7 @@ export function AssistantLauncher({ role }: { role: string }) {
           role="dialog"
           aria-modal="false"
           aria-label="Assistant JAMAAL"
-          className={`fixed inset-x-0 z-50 h-[88dvh] overflow-hidden border border-line bg-white shadow-2xl shadow-navy/20 sm:inset-x-auto sm:h-[min(640px,calc(100dvh-2.5rem))] sm:w-[400px] sm:rounded-3xl ${
+          className={`fixed inset-x-0 z-50 h-[88dvh] overflow-hidden border border-line bg-white shadow-2xl shadow-ia/20 sm:inset-x-auto sm:h-[min(640px,calc(100dvh-2.5rem))] sm:w-[400px] sm:rounded-3xl ${
             atTop ? "top-0 rounded-b-3xl sm:top-5" : "bottom-0 rounded-t-3xl sm:bottom-5"
           } ${pos.side === "left" ? "sm:left-5" : "sm:right-5"}`}
         >

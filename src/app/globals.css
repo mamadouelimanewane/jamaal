@@ -31,6 +31,11 @@ html {
   --color-taupe: var(--taupe);
   --color-paper: var(--paper);
   --color-navy: var(--navy);
+  /* Assistants IA (boutique et back-office) : vert émeraude, distinct du vert WhatsApp. */
+  --color-ia: #0f7a52;
+  --color-ia-dark: #0a5c3d;
+  --color-ia-light: #e7f5ee;
+  --color-ia-accent: #bdebd3;
   --color-navy-light: var(--navy-light);
   --color-rose: var(--rose);
   --color-rose-light: var(--rose-light);

@@ -81,9 +81,9 @@ function CopyCard({ text }: { text: string }) {
     setTimeout(() => setDone(false), 1800);
   };
   return (
-    <div className="my-2 overflow-hidden rounded-xl border border-[#e3d3cd] bg-[#fbf7f5]">
+    <div className="my-2 overflow-hidden rounded-xl border border-ia/25 bg-ia-light/50">
       <p className="whitespace-pre-wrap break-words px-3 py-2.5 text-[13px] leading-relaxed text-navy">{text}</p>
-      <div className="flex border-t border-[#e3d3cd] text-xs font-semibold">
+      <div className="flex border-t border-ia/20 text-xs font-semibold">
         <button type="button" onClick={copy} className="flex flex-1 items-center justify-center gap-1.5 py-2 text-navy hover:bg-white">
           {done ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />} {done ? "Copié" : "Copier"}
         </button>
@@ -91,7 +91,7 @@ function CopyCard({ text }: { text: string }) {
           href={`https://wa.me/?text=${encodeURIComponent(text)}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex flex-1 items-center justify-center gap-1.5 border-l border-[#e3d3cd] py-2 text-emerald-700 hover:bg-white"
+          className="flex flex-1 items-center justify-center gap-1.5 border-l border-ia/20 py-2 text-emerald-700 hover:bg-white"
         >
           <MessageCircle size={14} /> Envoyer sur WhatsApp
         </a>
