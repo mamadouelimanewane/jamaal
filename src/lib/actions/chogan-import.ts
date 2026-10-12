@@ -18,7 +18,7 @@ export type ExistingProduct = { id: string; slug: string; name: string; photo: s
 export type ResolveResult =
   | { status: "found"; preview: ChoganPreview }
   | { status: "exists"; preview: ChoganPreview | null; existing: ExistingProduct }
-  | { status: "choose"; candidates: (ChoganCard & { existingId: string | null })[] }
+  | { status: "choose"; candidates: (ChoganCard & { existingId: string | null })[]; message?: string }
   | { status: "notfound"; message: string }
   | { status: "error"; message: string };
 
@@ -55,16 +55,24 @@ async function previewFor(number: number): Promise<{ detail: ChoganDetail; previ
   return { detail, preview: buildPreview(detail, model, formatCodes) };
 }
 
-/** N° de fiche d'un code : recherche Chogan (code identique), sinon nuancier d'une teinte sœur en base. */
-async function numberForCode(code: string): Promise<number | null> {
-  const exact = (await searchChogan(code)).find((c) => c.code.toUpperCase() === code);
-  if (exact) return exact.number;
+/**
+ * N° de fiche d'un code : recherche Chogan (code identique), sinon nuancier d'une teinte sœur en
+ * base. Renvoie aussi les cartes de la recherche, pour proposer des codes proches (MM07 → MM070).
+ */
+async function numberForCode(code: string): Promise<{ number: number | null; cards: ChoganCard[] }> {
+  const cards = await searchChogan(code);
+  const exact = cards.find((c) => c.code.toUpperCase() === code);
+  if (exact) return { number: exact.number, cards };
   const prefix = code.replace(/\d$/, "");
-  if (prefix.length < 3 || prefix === code) return null;
+  if (prefix.length < 3 || prefix === code) return { number: null, cards };
   const sister = await prisma.product.findFirst({ where: { choganCode: { startsWith: prefix, mode: "insensitive" }, number: { not: null } }, select: { number: true } });
-  if (!sister?.number) return null;
+  if (!sister?.number) return { number: null, cards };
   const d = await fetchChoganDetail(sister.number).catch(() => null);
-  return d?.shades.find((s) => s.code.toUpperCase() === code)?.number ?? null;
+  return { number: d?.shades.find((s) => s.code.toUpperCase() === code)?.number ?? null, cards };
+}
+
+async function candidatesOf(cards: ChoganCard[]) {
+  return Promise.all(cards.slice(0, 5).map(async (c) => ({ ...c, existingId: (await findExisting(c.number, [c.code]))?.id ?? null })));
 }
 
 async function resultFor(number: number): Promise<ResolveResult> {
@@ -84,17 +92,20 @@ export async function resolveChoganQuery(raw: string): Promise<ResolveResult> {
       const r = await resultFor(q.number);
       // « 1008 » peut aussi être un code Chogan à 4 chiffres : on tente la recherche par code.
       if (r.status === "notfound" && /^\d+$/.test(q.raw)) {
-        const n = await numberForCode(q.raw);
+        const { number: n } = await numberForCode(q.raw);
         if (n) return resultFor(n);
       }
       return r;
     }
 
     if (q.kind === "code") {
-      const n = await numberForCode(q.code);
+      const { number: n, cards } = await numberForCode(q.code);
       if (n) return resultFor(n);
       const existing = await findExisting(null, [q.code]);
       if (existing) return { status: "exists", preview: null, existing };
+      // Code inexact (faute de frappe, chiffre manquant) : on propose les codes proches de la recherche Chogan.
+      const close = rankCards(q.code, cards).filter((c) => c.code.toUpperCase().startsWith(q.code) || q.code.startsWith(c.code.toUpperCase().replace(/\d+$/, "")));
+      if (close.length) return { status: "choose", candidates: await candidatesOf(close), message: `Code ${q.code} introuvable tel quel chez Chogan. Codes proches :` };
       return { status: "notfound", message: `Code ${q.code} introuvable chez Chogan : collez le lien de sa fiche.` };
     }
 
@@ -103,9 +114,7 @@ export async function resolveChoganQuery(raw: string): Promise<ResolveResult> {
     const exactCode = cards.filter((c) => c.code.toUpperCase() === q.text.replace(/\s+/g, "").toUpperCase());
     if (exactCode.length === 1) return resultFor(exactCode[0].number);
     if (cards.length === 1) return resultFor(cards[0].number);
-    const top = cards.slice(0, 5);
-    const candidates = await Promise.all(top.map(async (c) => ({ ...c, existingId: (await findExisting(c.number, [c.code]))?.id ?? null })));
-    return { status: "choose", candidates };
+    return { status: "choose", candidates: await candidatesOf(cards) };
   } catch (e) {
     return { status: "error", message: errorMessage(e) };
   }

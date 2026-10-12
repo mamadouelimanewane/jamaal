@@ -293,7 +293,7 @@ export function ChoganImporter({ categories }: { categories: Category[] }) {
 
               {res?.status === "choose" && (
                 <div className="mt-3">
-                  <p className="text-sm text-navy/80">Plusieurs produits correspondent : choisissez le bon.</p>
+                  <p className="text-sm text-navy/80">{res.message ?? "Plusieurs produits correspondent : choisissez le bon."}</p>
                   <ul className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                     {res.candidates.map((c) => (
                       <li key={c.number} className="flex items-center gap-3 rounded-xl border border-line p-2">
