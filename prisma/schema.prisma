@@ -787,6 +787,7 @@ model WhatsAppMessage {
 
   @@index([createdAt])
   @@index([providerId])
+  @@index([toNumber, createdAt])
 }
 
 /// Commission due à un membre sur une commande (une ligne par bénéficiaire et par niveau).
