@@ -28,7 +28,20 @@ export async function GET(req: Request) {
           signal: AbortSignal.timeout(20_000),
         });
         const text = await res.text();
-        return { model, status: res.status, ms: Date.now() - started, extrait: text.slice(0, 220) };
+        // Quota dépassé : quel quota (par minute, par jour, offre gratuite) et quand réessayer.
+        let quota: unknown = undefined;
+        if (res.status === 429) {
+          try {
+            const details = (JSON.parse(text).error?.details ?? []) as { "@type"?: string; violations?: { quotaId?: string; quotaValue?: string }[]; retryDelay?: string }[];
+            quota = {
+              limites: details.flatMap((d) => d.violations ?? []).map((v) => `${v.quotaId} (${v.quotaValue ?? "?"})`),
+              reessayerDans: details.find((d) => d.retryDelay)?.retryDelay ?? null,
+            };
+          } catch {
+            quota = null;
+          }
+        }
+        return { model, status: res.status, ms: Date.now() - started, extrait: text.slice(0, 220), quota };
       } catch (e) {
         return { model, status: 0, ms: Date.now() - started, erreur: e instanceof Error ? `${e.name}: ${e.message}`.slice(0, 200) : String(e) };
       }
