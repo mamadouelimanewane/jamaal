@@ -16,8 +16,8 @@ const PREFIX: Partial<Record<AutomationId, string>> = { relance45: "relance45:",
 
 /** Modèles de message à faire valider chez Meta (WhatsApp Manager > Modèles de message). */
 const TEMPLATES = [
-  { name: "jamaal_message", category: "Utilitaire", body: "{{1}}", use: "Modèle générique (variable WHATSAPP_TEMPLATE_NAME) : suivi de commande, relances, alertes, kit du matin. Le texte complet passe dans {{1}}." },
-  { name: "jamaal_offre", category: "Marketing", body: "{{1}} — Répondez STOP pour ne plus recevoir nos offres.", use: "Campagnes WhatsApp (variable WHATSAPP_TEMPLATE_MARKETING ; sinon le modèle générique est utilisé)." },
+  { name: "jamaal_message", category: "Utilitaire", body: "Message de JAMAAL : {{1}} Merci de votre confiance.", use: "Modèle générique (variable WHATSAPP_TEMPLATE_NAME) : suivi de commande, relances, alertes, kit du matin. Le texte complet passe dans {{1}} (Meta refuse une variable seule, en début ou en fin de texte)." },
+  { name: "jamaal_offre", category: "Marketing", body: "JAMAAL ✨ {{1}} Répondez STOP pour ne plus recevoir nos offres.", use: "Campagnes WhatsApp (variable WHATSAPP_TEMPLATE_MARKETING ; sinon le modèle générique est utilisé)." },
 ];
 
 export default async function AutomationsPage() {
