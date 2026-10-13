@@ -3,6 +3,7 @@
 import { createHash, randomBytes } from "node:crypto";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { rateLimit, clientIpFromHeaders } from "@/lib/rate-limit";
@@ -17,6 +18,7 @@ import { sponsorCapacity, sponsorRefusal, TITLE_RANK } from "@/lib/network";
 import { fillProtocol, pieceLabel } from "@/lib/protocol";
 import { getProtocol, textHash } from "@/lib/protocol-store";
 import { alertNewTeamMember } from "@/lib/whatsapp/alerts";
+import { normalizeSponsorCode, resolveSponsorCode } from "@/lib/sponsor-codes";
 
 export type ApplicationState = {
   ok: boolean;
@@ -65,8 +67,8 @@ export async function submitApplication(_prev: ApplicationState, formData: FormD
   }
 
   // Parrainage obligatoire : le code doit être celui d'un membre actif qui a encore de la place.
-  const sponsorCode = d.sponsorCode.toLowerCase();
-  const sponsor = await prisma.consultant.findFirst({ where: { slug: sponsorCode, active: true }, select: { id: true, name: true } });
+  const sponsorCode = normalizeSponsorCode(d.sponsorCode);
+  const sponsor = await resolveSponsorCode(sponsorCode);
   if (!sponsor) return { ok: false, error: "Ce code de parrainage n'existe pas ou n'est plus actif. Vérifiez-le auprès de votre parrain." };
   const capacity = await sponsorCapacity(sponsor.id, await getBusinessModel());
   if (!capacity.ok) {
@@ -178,9 +180,7 @@ export async function approveApplication(id: string, opts: { allowIncomplete?: b
   if (exists && !reuseUserId) return { ok: false, error: exists.role === "CONSULTANT" ? "Un compte revendeur existe déjà avec cet e-mail, rattaché à une autre fiche." : "Un compte (administrateur ou livreur) existe déjà avec cet e-mail." };
 
   // Nouvelle vérification : le parrain a pu atteindre sa limite depuis la candidature.
-  const sponsor = app.sponsorCode
-    ? await prisma.consultant.findFirst({ where: { slug: app.sponsorCode, active: true }, select: { id: true, name: true } })
-    : null;
+  const sponsor = app.sponsorCode ? await resolveSponsorCode(app.sponsorCode) : null;
   if (!sponsor) return { ok: false, error: "Pas de parrain actif pour cette candidature : rattachez-la à un membre (code de parrainage) avant de l'accepter." };
   const capacity = await sponsorCapacity(sponsor.id, await getBusinessModel());
   if (!capacity.ok) return { ok: false, error: `${sponsorRefusal(sponsor.name, capacity)} Rattachez cette candidature à un autre membre.` };
@@ -253,4 +253,16 @@ export async function rejectApplication(id: string, note?: string): Promise<{ ok
   if (res.count === 0) return { ok: false, error: "Candidature déjà traitée." };
   revalidatePath("/admin/candidatures");
   return { ok: true };
+}
+
+
+/** Admin : rattacher une candidature en attente à un autre parrain (code personnel ou code admin). */
+export async function setApplicationSponsor(id: string, formData: FormData): Promise<void> {
+  const session = await requireAdmin();
+  const code = normalizeSponsorCode(String(formData.get("sponsorCode") ?? ""));
+  const sponsor = await resolveSponsorCode(code);
+  if (!sponsor) return redirect(`/admin/candidatures?erreur=${encodeURIComponent(`Code « ${code} » inconnu ou inactif.`)}`);
+  await prisma.consultantApplication.updateMany({ where: { id, status: "NOUVELLE" }, data: { sponsorCode: code } });
+  await logActivity(session, `Parrain de la candidature changé : ${sponsor.name}`, "ConsultantApplication", id);
+  revalidatePath("/admin/candidatures");
 }

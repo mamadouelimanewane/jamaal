@@ -2,6 +2,11 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/actions/auth-guard";
 import { ApplicationActions } from "@/components/admin/ApplicationActions";
 import { pieceLabel } from "@/lib/protocol";
+import { setApplicationSponsor } from "@/lib/actions/applications";
+import { createSponsorCode, deleteSponsorCode, toggleSponsorCode } from "@/lib/actions/sponsor-codes";
+import { resolveSponsorCode } from "@/lib/sponsor-codes";
+
+const field = "rounded-xl border border-line bg-white px-3 py-2 text-sm outline-none focus:border-navy";
 
 export const dynamic = "force-dynamic";
 
@@ -12,8 +17,14 @@ const statusStyle = {
   REFUSEE: "bg-navy/10 text-navy/75",
 } as const;
 
-export default async function CandidaturesPage() {
+export default async function CandidaturesPage({ searchParams }: { searchParams: Promise<{ ok?: string; erreur?: string }> }) {
   await requireAdmin();
+  const { ok, erreur } = await searchParams;
+  const [codes, sponsors] = await Promise.all([
+    prisma.sponsorCode.findMany({ orderBy: { createdAt: "desc" } }).catch(() => []),
+    prisma.consultant.findMany({ where: { active: true }, orderBy: { name: "asc" }, select: { id: true, name: true, slug: true, city: true } }),
+  ]);
+  const sponsorName = new Map(sponsors.map((c) => [c.id, c.name]));
   const applications = await prisma.consultantApplication.findMany({
     orderBy: [{ status: "asc" }, { createdAt: "desc" }],
     take: 200,
@@ -25,6 +36,8 @@ export default async function CandidaturesPage() {
     (await prisma.$queryRaw<{ id: string; front: boolean; back: boolean }[]>`SELECT "id", "idFront" IS NOT NULL AS "front", "idBack" IS NOT NULL AS "back" FROM "ConsultantApplication" WHERE "id" = ANY(${applications.map((a) => a.id)})`).map((r) => [r.id, r])
   );
   const pendingCount = applications.filter((a) => a.status === "NOUVELLE").length;
+  // Parrain réel de chaque candidature en attente (code personnel ou code créé par l'admin).
+  const resolved = new Map(await Promise.all(applications.filter((a) => a.status === "NOUVELLE" && a.sponsorCode).map(async (a) => [a.id, await resolveSponsorCode(a.sponsorCode!)] as const)));
 
   return (
     <div>
@@ -36,6 +49,42 @@ export default async function CandidaturesPage() {
         personne choisit son mot de passe via un lien d&apos;activation. La validation demande la pièce
         d&apos;identité (recto et verso) et le protocole signé.
       </p>
+
+      {ok && <p role="status" className="mt-4 rounded-xl bg-emerald-50 px-4 py-2 text-sm text-emerald-800">{ok}</p>}
+      {erreur && <p role="alert" className="mt-4 rounded-xl bg-rose/10 px-4 py-2 text-sm text-rose-dark">{erreur}</p>}
+
+      <section id="codes" className="mt-6 rounded-2xl border border-line bg-white p-5">
+        <h2 className="font-serif-display text-lg font-semibold text-navy">Codes de parrainage</h2>
+        <p className="mt-1 text-sm text-navy/75">
+          Le code est obligatoire pour postuler. Chaque revendeur a déjà le sien (son identifiant). Créez ici des codes à donner aux personnes qui n&apos;ont pas de parrain (ex. <strong>jamaal</strong>, <strong>salon2026</strong>) : la candidature est rattachée au parrain choisi.
+        </p>
+        <form action={createSponsorCode} className="mt-4 grid gap-3 sm:grid-cols-[10rem_1fr_1fr_auto]">
+          <input name="code" required minLength={2} maxLength={48} pattern="[A-Za-z0-9\-]{2,48}" placeholder="Code (ex. jamaal)" className={field} aria-label="Code" />
+          <select name="consultantId" required defaultValue="" className={field} aria-label="Parrain">
+            <option value="" disabled>Parrain des candidats…</option>
+            {sponsors.map((c) => <option key={c.id} value={c.id}>{c.name} ({c.city})</option>)}
+          </select>
+          <input name="label" maxLength={120} placeholder="Note (facultatif) : salon, page Facebook…" className={field} aria-label="Note" />
+          <button className="rounded-full bg-navy px-5 py-2 text-sm font-semibold text-white hover:bg-navy-light">Créer le code</button>
+        </form>
+        {codes.length > 0 && (
+          <ul className="mt-4 divide-y divide-line text-sm">
+            {codes.map((c) => (
+              <li key={c.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
+                <span>
+                  <strong className={c.active ? "text-navy" : "text-navy/40 line-through"}>{c.code}</strong>
+                  <span className="text-navy/70"> → {sponsorName.get(c.consultantId) ?? "parrain inactif"}</span>
+                  {c.label && <span className="text-navy/55"> · {c.label}</span>}
+                </span>
+                <span className="flex gap-3 text-xs font-semibold">
+                  <form action={toggleSponsorCode.bind(null, c.id)}><button className="text-navy/75 hover:underline">{c.active ? "Désactiver" : "Réactiver"}</button></form>
+                  <form action={deleteSponsorCode.bind(null, c.id)}><button className="text-rose-dark hover:underline">Supprimer</button></form>
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
       <div className="mt-6 overflow-x-auto rounded-2xl border border-line bg-white">
         <table className="w-full text-sm">
@@ -56,7 +105,17 @@ export default async function CandidaturesPage() {
                 <td className="px-4 py-3">
                   <p className="font-semibold text-navy">{a.name}</p>
                   <p className="text-xs text-navy/70">{a.createdAt.toLocaleDateString("fr-FR")}</p>
-                  {a.sponsorCode && <p className="text-xs text-navy/70">Parrain : {a.sponsorCode}</p>}
+                  {a.sponsorCode && <p className="text-xs text-navy/70">Code : {a.sponsorCode}{a.status === "NOUVELLE" ? (resolved.get(a.id) ? ` → ${resolved.get(a.id)!.name}` : " (inconnu ou inactif)") : ""}</p>}
+                  {a.status === "NOUVELLE" && (
+                    <form action={setApplicationSponsor.bind(null, a.id)} className="mt-1.5 flex gap-1">
+                      <select name="sponsorCode" defaultValue="" required className="max-w-[10rem] rounded-lg border border-line px-1.5 py-1 text-xs" aria-label="Changer de parrain">
+                        <option value="" disabled>Changer de parrain…</option>
+                        {codes.filter((c) => c.active).map((c) => <option key={c.id} value={c.code}>Code {c.code}</option>)}
+                        {sponsors.filter((c) => c.slug).map((c) => <option key={c.id} value={c.slug!}>{c.name}</option>)}
+                      </select>
+                      <button className="rounded-lg border border-line px-2 text-xs font-semibold text-navy hover:bg-cream">OK</button>
+                    </form>
+                  )}
                 </td>
                 <td className="px-4 py-3 text-xs">
                   <a className="text-rose-dark hover:underline" href={`https://wa.me/${a.phone.replace(/\D/g, "")}`} target="_blank" rel="noopener noreferrer">

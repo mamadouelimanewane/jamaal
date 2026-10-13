@@ -1047,3 +1047,18 @@ model WhatsAppCampaign {
   createdAt DateTime  @default(now())
   sentAt    DateTime?
 }
+
+/// Code de parrainage créé par l'administrateur (ex. « JAMAAL », « SALON2026 ») : une candidature
+/// qui l'utilise est rattachée au parrain choisi. S'ajoute au code personnel de chaque revendeur
+/// (son identifiant /c/<slug>).
+model SponsorCode {
+  id           String   @id @default(cuid())
+  code         String   @unique
+  consultantId String
+  label        String?
+  active       Boolean  @default(true)
+  createdBy    String?
+  createdAt    DateTime @default(now())
+
+  @@index([consultantId])
+}

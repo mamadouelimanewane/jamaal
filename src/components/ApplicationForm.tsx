@@ -135,7 +135,10 @@ export function ApplicationForm({ sponsorCode = "", protocol }: { sponsorCode?: 
       <div className="sm:col-span-2">
         <label htmlFor="sponsorCode" className={label}>Code de parrainage (obligatoire)</label>
         <input id="sponsorCode" name="sponsorCode" value={f.sponsorCode} onChange={set("sponsorCode")} required minLength={2} maxLength={48} placeholder="ex. aminata" className={input} />
-        <p className="mt-1.5 text-xs text-navy/70">On ne rejoint JAMAAL que par un membre du réseau : demandez son code (ou utilisez son lien d&apos;invitation).</p>
+        <p className="mt-1.5 text-xs text-navy/70">
+          On ne rejoint JAMAAL que par un membre du réseau : demandez son code (ou utilisez son lien d&apos;invitation). Pas de parrain ?{" "}
+          <a href={whatsappLink(WHATSAPP_CONTACTS[0].number, "Bonjour JAMAAL, je souhaite devenir consultant·e mais je n'ai pas de code de parrainage.")} target="_blank" rel="noopener noreferrer" className="font-semibold text-rose-dark underline">Demandez un code à JAMAAL sur WhatsApp</a>.
+        </p>
       </div>
 
       <div className="sm:col-span-2">
