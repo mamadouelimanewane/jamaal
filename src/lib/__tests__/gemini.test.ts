@@ -119,3 +119,15 @@ test("chaîne de secours : modèle saturé puis modèle retiré → le suivant r
   assert.deepEqual(calls.map((c) => c.url.match(/models\/([^:]+):/)?.[1]), ["modele-h", "gemini-flash-lite-latest", "gemini-3-flash-preview"]);
   resetGeminiCooldown();
 });
+
+test("modèle en échec écarté au tour suivant, le dernier qui a répondu passe en premier", async () => {
+  process.env.GEMINI_MODEL = "modele-i";
+  delete process.env.GEMINI_FALLBACK_MODEL;
+  resetGeminiCooldown();
+  const calls: Call[] = [];
+  await generateContent({ contents: [{ role: "user", parts: [{ text: "x" }] }] }, fakeFetch([{ status: 503, body: "x" }, { status: 503, body: "x" }, { status: 200, body: OK }], calls));
+  await generateContent({ contents: [{ role: "user", parts: [{ text: "y" }] }] }, fakeFetch([{ status: 200, body: OK }], calls));
+  const used = calls.map((c) => c.url.match(/models\/([^:]+):/)?.[1]);
+  assert.deepEqual(used, ["modele-i", "gemini-flash-lite-latest", "gemini-3-flash-preview", "gemini-3-flash-preview"]);
+  resetGeminiCooldown();
+});

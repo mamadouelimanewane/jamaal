@@ -88,9 +88,13 @@ export function geminiFallbackModel(): string | null {
 
 /** Après un 429 / 503 du modèle principal, on passe directement au secours pendant un moment. */
 const PRIMARY_COOLDOWN_MS = 60_000;
-let primaryCooldownUntil = 0;
+/** Modèle en échec récent (saturé, lent, retiré) → écarté jusqu'à cette date. */
+const cooldownUntil = new Map<string, number>();
+/** Dernier modèle qui a répondu : essayé en premier tant qu'il répond. */
+let lastGood: string | null = null;
 export function resetGeminiCooldown() {
-  primaryCooldownUntil = 0;
+  cooldownUntil.clear();
+  lastGood = null;
 }
 
 /** Signature fictive admise par Gemini quand une conversation passe d'un modèle à un autre. */
@@ -162,8 +166,16 @@ export async function generateContent(req: GeminiRequest, fetchImpl: typeof fetc
   const total = req.timeoutMs ?? 20_000;
   const started = Date.now();
   const hasSignatures = req.contents.some((c) => c.parts.some((p) => "thoughtSignature" in p && p.thoughtSignature));
-  const skipPrimary = fallbacks.length > 0 && Date.now() < primaryCooldownUntil;
-  const chain = skipPrimary ? fallbacks : [primary, ...fallbacks];
+  // Ordre : le dernier modèle qui a répondu, puis les autres ; ceux en échec récent passent en
+  // dernier (au lieu d'être réessayés à chaque tour de la conversation).
+  const all = [primary, ...fallbacks];
+  const now0 = Date.now();
+  const fresh = all.filter((m) => (cooldownUntil.get(m) ?? 0) <= now0);
+  const cooling = all.filter((m) => (cooldownUntil.get(m) ?? 0) > now0);
+  const ordered = lastGood && fresh.includes(lastGood) ? [lastGood, ...fresh.filter((m) => m !== lastGood)] : fresh;
+  const chain = [...ordered, ...cooling];
+  // Les signatures de réflexion viennent du modèle qui a répondu au tour précédent.
+  const sigModel = lastGood ?? primary;
 
   let lastError: unknown = new GeminiError("Gemini : aucune réponse");
   for (let i = 0; i < chain.length; i++) {
@@ -173,10 +185,13 @@ export async function generateContent(req: GeminiRequest, fetchImpl: typeof fetc
     const isLast = i === chain.length - 1;
     const budget = isLast ? left : Math.max(4_000, Math.round(left * 0.55));
     // Conversation commencée sur le principal : ses signatures ne valent pas pour un autre modèle.
-    const foreign = hasSignatures && model !== primary;
+    const foreign = hasSignatures && model !== sigModel;
     try {
       try {
-        return await contentOf(await callModel(model, req, key, AbortSignal.timeout(budget), fetchImpl, foreign));
+        const out = await contentOf(await callModel(model, req, key, AbortSignal.timeout(budget), fetchImpl, foreign));
+        lastGood = model;
+        cooldownUntil.delete(model);
+        return out;
       } catch (e) {
         // Signatures de réflexion refusées : on les neutralise et on réessaie ce modèle.
         if (e instanceof GeminiHttpError && e.status === 400 && hasSignatures && !foreign && /signature/i.test(e.message)) {
@@ -187,7 +202,8 @@ export async function generateContent(req: GeminiRequest, fetchImpl: typeof fetc
     } catch (e) {
       lastError = e;
       if (!retriable(e) || isLast) throw e;
-      if (model === primary) primaryCooldownUntil = Date.now() + PRIMARY_COOLDOWN_MS;
+      cooldownUntil.set(model, Date.now() + PRIMARY_COOLDOWN_MS);
+      if (lastGood === model) lastGood = null;
       console.warn(`[gemini] ${model} indisponible (${e instanceof GeminiHttpError ? e.status : "délai dépassé"}), bascule sur ${chain[i + 1]}`);
     }
   }
