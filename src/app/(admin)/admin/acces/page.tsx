@@ -34,8 +34,8 @@ export default async function AccesPage({ searchParams }: { searchParams: Promis
         </h1>
         {invalid ? (
           <p className="mt-3 text-sm leading-6 text-navy/75">
-            Ce lien de connexion ne fonctionne plus (il est valable 24 h et ne sert qu&apos;une fois). Demandez-en un nouveau à l&apos;équipe JAMAAL sur WhatsApp,
-            ou connectez-vous avec votre mot de passe.
+            Ce lien de connexion ne fonctionne plus (il ne sert qu&apos;une fois et expire vite). Sur la page de connexion, tapez votre numéro WhatsApp
+            dans « Recevoir un lien de connexion » pour en recevoir un nouveau, ou connectez-vous avec votre mot de passe.
           </p>
         ) : (
           <>
@@ -48,7 +48,7 @@ export default async function AccesPage({ searchParams }: { searchParams: Promis
             </form>
           </>
         )}
-        <a href="/espace-revendeur" className="mt-5 block text-xs font-semibold text-rose-dark hover:underline">Connexion avec mot de passe</a>
+        <a href="/espace-revendeur" className="mt-5 block text-xs font-semibold text-rose-dark hover:underline">Page de connexion</a>
       </section>
     </main>
   );

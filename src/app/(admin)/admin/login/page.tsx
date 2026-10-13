@@ -1,8 +1,8 @@
 import { BrandLogo } from "@/components/BrandLogo";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { signIn, auth } from "@/lib/auth";
-import { AuthError } from "next-auth";
+import { auth } from "@/lib/auth";
+import { StaffLoginForm, type LoginNotice } from "@/components/StaffLoginForm";
 
 const ALLOWED_REDIRECTS = new Set(["/admin", "/livreur"]);
 
@@ -11,28 +11,13 @@ function safeRedirect(next: string | undefined): string {
   return "/admin";
 }
 
-async function loginAction(formData: FormData) {
-  "use server";
-  const login = String(formData.get("login") ?? "").trim();
-  const password = String(formData.get("password") ?? "");
-  const redirectTo = safeRedirect(String(formData.get("next") ?? ""));
-  try {
-    await signIn("credentials", { login, password, redirectTo });
-  } catch (error) {
-    if (error instanceof AuthError) {
-      const suffix = redirectTo !== "/admin" ? `&next=${encodeURIComponent(redirectTo)}` : "";
-      redirect(`/admin/login?erreur=1${suffix}`);
-    }
-    throw error;
-  }
-}
-
 export default async function AdminLoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ erreur?: string; next?: string; reset?: string }>;
+  searchParams: Promise<LoginNotice & { next?: string }>;
 }) {
-  const { erreur, next, reset } = await searchParams;
+  const notice = await searchParams;
+  const { next } = notice;
   const redirectTo = safeRedirect(next);
   const isLivreurEntry = redirectTo === "/livreur";
 
@@ -76,52 +61,10 @@ export default async function AdminLoginPage({
               {isLivreurEntry ? "Bienvenue" : "Connexion"}
             </h2>
             <p className="mt-2 text-sm leading-6 text-navy/75">
-              Connectez-vous avec les identifiants de votre compte JAMAAL.
+              Revendeurs et livreurs : votre numéro WhatsApp et votre mot de passe, ou un lien reçu sur WhatsApp.
             </p>
 
-            {reset && <p role="status" className="mt-5 rounded-xl border border-emerald-700/20 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">Mot de passe mis à jour. Vous pouvez vous connecter.</p>}
-
-            {erreur && (
-              <p role="alert" className="mt-5 rounded-xl border border-rose-dark/20 bg-rose/10 px-4 py-3 text-sm text-rose-dark">
-                Identifiant (e-mail ou téléphone) ou mot de passe incorrect.
-              </p>
-            )}
-
-            <form action={loginAction} className="mt-7 flex flex-col gap-5">
-              <input type="hidden" name="next" value={redirectTo} />
-              <div>
-                <label htmlFor="login" className="text-xs font-semibold text-navy/85">E-mail ou numéro de téléphone</label>
-                <input
-                  id="login"
-                  type="text"
-                  name="login"
-                  autoComplete="username"
-                  autoCapitalize="none"
-                  autoCorrect="off"
-                  spellCheck={false}
-                  required
-                  className="mt-2 w-full rounded-xl border border-line bg-cream/50 px-4 py-3 text-sm outline-none transition focus:border-rose-dark focus:bg-white focus:ring-4 focus:ring-rose/10"
-                />
-              </div>
-              <div>
-                <label htmlFor="password" className="text-xs font-semibold text-navy/85">Mot de passe</label>
-                <input
-                  id="password"
-                  type="password"
-                  name="password"
-                  autoComplete="current-password"
-                  required
-                  className="mt-2 w-full rounded-xl border border-line bg-cream/50 px-4 py-3 text-sm outline-none transition focus:border-rose-dark focus:bg-white focus:ring-4 focus:ring-rose/10"
-                />
-              </div>
-              <button
-                type="submit"
-                className="mt-1 rounded-full bg-navy px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-navy-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-dark"
-              >
-                Se connecter
-              </button>
-            </form>
-            <Link href="/admin/forgot-password" className="mt-5 block text-center text-xs font-semibold text-rose-dark hover:underline">Mot de passe oublié ?</Link>
+            <StaffLoginForm from="/admin/login" next={redirectTo} notice={notice} />
             <p className="mt-6 text-center text-xs text-navy/70">
               Besoin d’aide pour vous connecter ? Contactez votre administrateur.
             </p>

@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { createResellerAccess, createResellerLoginLink, type AccessResult, type LoginLinkResult } from "@/lib/actions/reseller-access";
+import { createResellerAccess, createResellerLoginLink, unlockResellerLogin, type AccessResult, type LoginLinkResult } from "@/lib/actions/reseller-access";
+import { canonicalizePhone } from "@/lib/phone";
 import { CopyButton } from "@/components/admin/CopyButton";
 
 /**
@@ -14,6 +15,7 @@ export function ResellerAccess({ consultantId, userLogin, defaultEmail, whatsapp
   const [email, setEmail] = useState(defaultEmail);
   const [result, setResult] = useState<AccessResult | null>(null);
   const [login, setLogin] = useState<LoginLinkResult | null>(null);
+  const [unlock, setUnlock] = useState<string | null>(null);
 
   if (result?.ok && result.activationUrl) {
     return (
@@ -21,13 +23,23 @@ export function ResellerAccess({ consultantId, userLogin, defaultEmail, whatsapp
         <p className="font-semibold text-emerald-700">{result.created ? "Accès créé." : "Nouveau lien prêt."}</p>
         <p className="mt-1 text-navy/75">Lien d&apos;activation (7 jours), à envoyer sur WhatsApp :</p>
         <input readOnly value={result.activationUrl} className="mt-1 w-full rounded-lg border border-line bg-cream px-2 py-1.5" />
-        <div className="mt-1.5"><CopyButton text={result.activationUrl} label="Copier le lien" /></div>
+        <div className="mt-1.5 flex flex-wrap items-center gap-2">
+          <CopyButton text={result.activationUrl} label="Copier le lien" />
+          <a
+            href={`https://wa.me/${canonicalizePhone(whatsapp)}?text=${encodeURIComponent(`Bonjour ${name}, voici votre lien pour choisir votre mot de passe JAMAAL (valable 7 jours) : ${result.activationUrl}\nEnsuite, connectez-vous avec votre numéro WhatsApp et ce mot de passe.`)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-full bg-[#25D366] px-3 py-1.5 font-semibold text-white hover:opacity-90"
+          >
+            Envoyer sur WhatsApp
+          </a>
+        </div>
       </div>
     );
   }
 
-  // wa.me attend le numéro en chiffres, sans « + » ni « 00 » (ex. 0039… → 39…)
-  const phone = whatsapp.replace(/\D/g, "").replace(/^00/, "");
+  // wa.me attend le numéro international en chiffres : « 77 123 45 67 » → 221771234567.
+  const phone = canonicalizePhone(whatsapp);
   const loginMsg = login?.loginUrl ? `Bonjour ${name}, voici votre lien pour ouvrir votre espace JAMAAL sans mot de passe (valable 24 h, usage unique) : ${login.loginUrl}` : "";
 
   const run = (withEmail?: string) =>
@@ -40,6 +52,11 @@ export function ResellerAccess({ consultantId, userLogin, defaultEmail, whatsapp
       {userLogin ? (
         <>
           <span className="font-semibold text-green-700">{userLogin}</span>
+          <p className="text-navy/60">Se connecte avec : {whatsapp}{userLogin.includes("@") ? ` ou ${userLogin}` : ""}</p>
+          <button type="button" disabled={pending} onClick={() => start(async () => setUnlock((await unlockResellerLogin(consultantId)).message))} className="mt-1 block font-semibold text-navy/70 hover:underline disabled:opacity-50">
+            Débloquer la connexion
+          </button>
+          {unlock && <p className="text-emerald-700">{unlock}</p>}
           <button type="button" disabled={pending} onClick={() => run()} className="mt-1 block font-semibold text-rose-dark hover:underline disabled:opacity-50">
             {pending ? "…" : "Nouveau lien d'activation"}
           </button>

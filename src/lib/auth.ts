@@ -4,17 +4,20 @@ import bcrypt from "bcryptjs";
 import { createHash } from "node:crypto";
 import { prisma } from "@/lib/prisma";
 import { parseLoginIdentifier } from "@/lib/login-identifier";
-import { phoneLookupVariants } from "@/lib/phone";
+import { accountsByPhone } from "@/lib/staff-accounts";
+import { canonicalizePhone } from "@/lib/phone";
 
 const MAX_FAILURES = 5;
 const WINDOW_MS = 15 * 60 * 1000;
 const LOCK_MS = 15 * 60 * 1000;
 const ROLE_REFRESH_MS = 5 * 60 * 1000;
+/** Session de 30 jours : un revendeur sur smartphone ne doit pas se reconnecter chaque jour. */
+const SESSION_MAX_AGE = 30 * 24 * 60 * 60;
 const DUMMY_HASH = "$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  session: { strategy: "jwt", maxAge: 8 * 60 * 60 },
-  jwt: { maxAge: 8 * 60 * 60 },
+  session: { strategy: "jwt", maxAge: SESSION_MAX_AGE },
+  jwt: { maxAge: SESSION_MAX_AGE },
   pages: { signIn: "/admin/login" },
   trustHost: true,
   providers: [
@@ -27,12 +30,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const token = String(credentials?.token ?? "");
         if (token.length < 20 || token.length > 200) return null;
         const tokenHash = createHash("sha256").update(`login:${token}`).digest("hex");
-        const record = await prisma.passwordResetToken.findUnique({ where: { tokenHash }, include: { user: true } });
+        const record = await prisma.passwordResetToken.findUnique({ where: { tokenHash }, include: { user: { include: { consultant: { select: { whatsapp: true } }, livreur: { select: { phone: true } } } } } });
         if (!record || record.expiresAt <= new Date()) return null;
         // Usage unique : la suppression atomique garantit qu'un seul appel réussit.
         const consumed = await prisma.passwordResetToken.deleteMany({ where: { id: record.id } });
         if (consumed.count !== 1) return null;
         const u = record.user;
+        // Connexion réussie par lien : on lève un éventuel blocage après trop d'essais.
+        const ids = [u.email?.toLowerCase(), u.phone, u.consultant?.whatsapp, u.livreur?.phone]
+          .filter((v): v is string => !!v)
+          .map((v) => (v.includes("@") ? v : canonicalizePhone(v)));
+        if (ids.length) await prisma.loginAttempt.deleteMany({ where: { identifiant: { in: ids } } }).catch(() => {});
         return { id: u.id, email: u.email, phone: u.phone, name: u.name, role: u.role };
       },
     }),
@@ -51,16 +59,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const attempt = await prisma.loginAttempt.findUnique({ where: { identifiant } });
         if (attempt?.lockedUntil && attempt.lockedUntil > now) return null;
 
-        // Un même numéro peut être stocké avec ou sans l'indicatif 221 selon la façon dont le
-        // compte a été créé (voir phone.ts) : on reste tolérant aux deux formes à la recherche,
-        // même si on normalise désormais toujours vers la forme canonique à la création.
-        const user =
+        // E-mail : le compte de cet e-mail. Téléphone : tous les comptes liés à ce numéro (compte,
+        // fiche revendeur, fiche livreur ; voir staff-accounts.ts) — le premier dont le mot de
+        // passe correspond gagne.
+        const candidates =
           identifier.kind === "email"
-            ? await prisma.user.findFirst({ where: { email: { equals: identifiant, mode: "insensitive" } } })
-            : await prisma.user.findFirst({ where: { phone: { in: phoneLookupVariants(identifiant) } } });
-        const valid = await bcrypt.compare(password, user?.passwordHash ?? DUMMY_HASH);
-        if (!user) return null;
-        if (!valid) {
+            ? await prisma.user.findMany({ where: { email: { equals: identifiant, mode: "insensitive" } }, take: 2 })
+            : await accountsByPhone(identifiant);
+        // Tolérance smartphone : une espace ajoutée en fin de mot de passe par le clavier.
+        const tries = password !== password.trim() ? [password, password.trim()] : [password];
+        let user: (typeof candidates)[number] | null = null;
+        for (const c of candidates) {
+          for (const t of tries) if (!user && (await bcrypt.compare(t, c.passwordHash))) user = c;
+        }
+        if (!candidates.length) await bcrypt.compare(password, DUMMY_HASH);
+        if (!user) {
+          if (!candidates.length) return null;
           const expired = !attempt || now.getTime() - attempt.windowStart.getTime() > WINDOW_MS;
           const count = expired ? 1 : (attempt?.count ?? 0) + 1;
           const lockedUntil = count >= MAX_FAILURES ? new Date(now.getTime() + LOCK_MS) : null;

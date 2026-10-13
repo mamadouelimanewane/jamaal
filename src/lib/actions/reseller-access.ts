@@ -94,3 +94,15 @@ export async function createResellerLoginLink(consultantId: string): Promise<Log
   const siteUrl = await getSiteUrl();
   return { ok: true, loginUrl: `${siteUrl}/admin/acces?token=${encodeURIComponent(token)}` };
 }
+
+/** Lève le blocage « trop d'essais » d'un revendeur (toutes les formes de son identifiant). */
+export async function unlockResellerLogin(consultantId: string): Promise<{ ok: boolean; message: string }> {
+  await requireAdmin();
+  const c = await prisma.consultant.findUnique({ where: { id: consultantId }, select: { whatsapp: true, email: true, user: { select: { email: true, phone: true } } } });
+  if (!c) return { ok: false, message: "Consultant introuvable." };
+  const ids = [c.whatsapp, c.user?.phone, c.email, c.user?.email]
+    .filter((v): v is string => !!v)
+    .map((v) => (v.includes("@") ? v.toLowerCase() : canonicalizePhone(v)));
+  const res = await prisma.loginAttempt.deleteMany({ where: { identifiant: { in: [...new Set(ids)] } } });
+  return { ok: true, message: res.count ? "Connexion débloquée : il peut réessayer tout de suite." : "Aucun blocage en cours pour ce compte." };
+}
