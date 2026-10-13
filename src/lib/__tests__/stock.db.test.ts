@@ -65,7 +65,7 @@ test("vente : retire le bon format, trace le mouvement, marque la commande", opt
 test("stock insuffisant : la commande est refusée et rien ne bouge", opts, async () => {
   const items = [{ productId: P, volumeLabel: "70 ml", quantity: 1 }, { productId: P, volumeLabel: "30 ml", quantity: 2 }];
   const o = await newOrder(items);
-  await assert.rejects(reserve(o.id, items), /stock insuffisant/i);
+  await assert.rejects(reserve(o.id, items), /il n'en reste que 1/i);
   assert.equal((await variant("70 ml")).stock, 3, "retrait du 70 ml annulé (transaction)");
   assert.equal((await variant("30 ml")).stock, 1);
 });
