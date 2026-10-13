@@ -23,8 +23,14 @@ test("chaque signIn(\"credentials\") transmet le champ « login » attendu par a
     const src = readFileSync(file, "utf8");
     for (const m of src.matchAll(/signIn\(\s*["']credentials["']\s*,\s*\{([^}]*)\}/g)) calls.push({ file, args: m[1] });
   }
-  assert.ok(calls.length >= 2, "les formulaires de connexion doivent être trouvés");
+  assert.ok(calls.length >= 1, "la connexion par mot de passe doit être trouvée");
   for (const { file, args } of calls) {
     assert.match(args, /\blogin\b/, `${path.relative(process.cwd(), file)} : signIn("credentials") doit transmettre « login »`);
+  }
+});
+
+test("les deux pages de connexion (back-office et menu du site) utilisent le même formulaire", () => {
+  for (const page of ["src/app/(admin)/admin/login/page.tsx", "src/app/(site)/espace-revendeur/page.tsx"]) {
+    assert.match(readFileSync(path.resolve(page), "utf8"), /<StaffLoginForm\b/, `${page} doit utiliser StaffLoginForm`);
   }
 });
