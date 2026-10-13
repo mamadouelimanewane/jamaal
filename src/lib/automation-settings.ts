@@ -12,6 +12,10 @@ export const AUTOMATIONS = {
   reviews: { key: "auto_avis", label: "Demande d'avis après livraison", help: "Lien pour noter le produit et ajouter une photo, 2 jours après la livraison." },
   summary: { key: "auto_resume_soir", label: "Résumé du soir sur WhatsApp (équipe)", help: "Ventes, encaissements, ruptures, livraisons, revendeurs inactifs." },
   choganWatch: { key: "auto_veille_chogan", label: "Veille des prix Chogan", help: "Vérifie chaque jour une partie du catalogue et signale les changements de prix." },
+  orderTracking: { key: "auto_suivi_commande", label: "Suivi de commande sur WhatsApp (clients)", help: "Commande reçue avec bouton « Payer », paiement reçu, confirmée, expédiée, annulée, remise." },
+  staffWhatsApp: { key: "auto_whatsapp_equipe", label: "Assistant WhatsApp des revendeurs, de l'équipe et des livreurs", help: "Un revendeur, un admin ou un livreur qui écrit au numéro JAMAAL est reconnu et servi par son assistant." },
+  alerts: { key: "auto_alertes_whatsapp", label: "Alertes WhatsApp (revendeurs et équipe)", help: "Commission créditée, retrait versé, nouveau filleul, défi presque atteint ; avis négatif, retour, paiement échoué." },
+  morningKit: { key: "auto_kit_matin", label: "Kit du matin des revendeurs (8 h)", help: "Visuel du jour, texte prêt à publier et lien personnel, chaque matin sur WhatsApp." },
 } as const;
 
 export type AutomationId = keyof typeof AUTOMATIONS;

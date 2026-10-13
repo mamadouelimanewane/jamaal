@@ -8,6 +8,8 @@ import { runRelances } from "./relances";
 import { requestReviews } from "./reviews";
 import { awardChallenges } from "./challenges";
 import { watchChoganPrices } from "./chogan-watch";
+import { alertChallengesAlmostDone } from "@/lib/whatsapp/alerts";
+import { whatsappConfig } from "@/lib/whatsapp";
 
 export async function runDailyJobs(origin: string, opts: { budgetMs?: number; now?: Date } = {}) {
   const started = Date.now();
@@ -23,6 +25,7 @@ export async function runDailyJobs(origin: string, opts: { budgetMs?: number; no
     }
   };
   await step("defis", () => awardChallenges(now));
+  if (whatsappConfig().active) await step("defis80", () => alertChallengesAlmostDone(now));
   await step("relances", () => runRelances(origin, now));
   await step("avis", () => requestReviews(origin, now));
   await step("veilleChogan", () => watchChoganPrices(Math.max(5_000, budgetMs - (Date.now() - started) - 8_000)));

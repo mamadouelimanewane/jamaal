@@ -13,8 +13,11 @@ const statusLabels: Record<string, string> = {
   ANNULEE: "Annulée",
 };
 
+const daysAgo = (n: number) => new Date(Date.now() - n * 86_400_000);
+const channelLabels: Record<string, string> = { SITE: "Site", WHATSAPP: "WhatsApp", REVENDEUR: "Revendeur", CATALOGUE: "Catalogue WhatsApp" };
+
 export default async function AdminStatsPage() {
-  const [dailyRaw, statusGroups, topProducts, topConsultantsRaw] = await Promise.all([
+  const [dailyRaw, statusGroups, topProducts, topConsultantsRaw, channelGroups] = await Promise.all([
     prisma.$queryRaw<{ date: string; total: bigint }[]>`
       SELECT to_char("createdAt", 'YYYY-MM-DD') as date, SUM(total)::bigint as total
       FROM "Order"
@@ -36,6 +39,9 @@ export default async function AdminStatsPage() {
       orderBy: { _sum: { total: "desc" } },
       take: 6,
     }),
+    prisma.order
+      .groupBy({ by: ["channel"], _count: { _all: true }, _sum: { total: true }, where: { status: { not: "ANNULEE" }, createdAt: { gte: daysAgo(30) } } })
+      .catch(() => []),
   ]);
 
   const dailyMap = new Map(dailyRaw.map((d) => [d.date, Number(d.total)]));
@@ -59,6 +65,16 @@ export default async function AdminStatsPage() {
       <div className="mt-6 rounded-2xl border border-line bg-white p-5">
         <h2 className="mb-4 text-sm font-semibold text-navy">Chiffre d&apos;affaires par jour</h2>
         <DailyRevenueChart data={days} />
+      </div>
+
+      <div className="mt-6 rounded-2xl border border-line bg-white p-5">
+        <h2 className="mb-1 text-sm font-semibold text-navy">Commandes par canal (30 jours)</h2>
+        <p className="mb-4 text-xs text-navy/60">Site, assistant WhatsApp et commandes saisies par les revendeurs : les canaux se complètent.</p>
+        <BarList
+          items={channelGroups.map((g) => ({ label: `${channelLabels[g.channel] ?? g.channel} · ${g._count._all} commande(s)`, value: g._sum.total ?? 0 }))}
+          formatValue={(v) => formatPrice(v)}
+          color="emerald"
+        />
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-3">

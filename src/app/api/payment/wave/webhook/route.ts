@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createHmac, timingSafeEqual } from "crypto";
 import { markOrderPaid } from "@/lib/payment/mark-paid";
+import { alertPaymentFailed } from "@/lib/whatsapp/alerts";
 
 /**
  * Webhook Wave Checkout
@@ -55,6 +56,8 @@ export async function POST(req: NextRequest) {
     }
     const amount = data.amount != null ? Number(data.amount) : undefined;
     await markOrderPaid(orderId, { method: "WAVE", externalRef: data.id, amount });
+  } else if (orderId && /payment_failed|failed|expired/i.test(`${status} ${type}`)) {
+    alertPaymentFailed(orderId, "Wave");
   }
 
   return NextResponse.json({ received: true });

@@ -6,11 +6,7 @@ import { requireAdmin, requireLivreurProfile } from "./auth-guard";
 import { OrderStatus } from "@prisma/client";
 import { placeOrder, type CheckoutCustomer, type CheckoutDelivery, type CheckoutItem } from "@/lib/orders/place-order";
 export type { CheckoutCustomer, CheckoutDelivery, CheckoutItem };
-import { notifyConsultantOfDelivery } from "@/lib/notifications";
-import { cancelCommissionsForOrder, runPayoutsForOrder } from "@/lib/payouts/engine";
-import { recordLivreurEarning } from "@/lib/delivery-engine";
-import { after } from "next/server";
-import { syncOrderStock } from "@/lib/stock";
+import { setOrderStatus } from "@/lib/orders/status";
 
 /**
  * Crée une commande publique (checkout client).
@@ -64,35 +60,9 @@ export async function createOrder(
 }
 
 
-/** Commissions du réseau : versées à la livraison (si choisi), annulées si la commande l'est. */
-async function onOrderStatusChanged(id: string, status: OrderStatus) {
-  if (status === "LIVREE") {
-    // Livraison JAMAAL marquée livrée depuis la fiche commande : on clôt aussi l'étape de livraison.
-    const closed = await prisma.order.updateMany({
-      where: { id, deliveryMode: "LIVRAISON_JAMAAL", deliveryStatus: { not: "LIVREE" } },
-      data: { deliveryStatus: "LIVREE", deliveredAt: new Date() },
-    });
-    if (closed.count) await prisma.deliveryEvent.create({ data: { orderId: id, status: "LIVREE", note: "Marquée livrée par l'équipe JAMAAL" } });
-    after(async () => {
-      await runPayoutsForOrder(id);
-      await recordLivreurEarning(id).catch((e) => console.error("[livraison] part livreur", id, e));
-    });
-  }
-  if (status === "ANNULEE") await cancelCommissionsForOrder(id);
-  // Stock : remis à l'annulation, repris si la commande est réactivée (une seule fois).
-  await syncOrderStock(id);
-  revalidatePath("/admin/stocks");
-}
-
 export async function updateOrderStatus(id: string, status: OrderStatus) {
   await requireAdmin();
-  await prisma.order.update({ where: { id }, data: { status } });
-  if (status === "LIVREE") {
-    await notifyConsultantOfDelivery(id);
-  }
-  await onOrderStatusChanged(id, status);
-  revalidatePath("/admin/commandes");
-  revalidatePath(`/admin/commandes/${id}`);
+  await setOrderStatus(id, status);
 }
 
 export async function assignOrderLogistics(id: string, formData: FormData) {
@@ -124,11 +94,7 @@ export async function livreurUpdateOrderStatus(id: string, status: OrderStatus) 
   const { livreur } = await requireLivreurProfile();
   const order = await prisma.order.findUnique({ where: { id } });
   if (!order || order.livreurId !== livreur.id) return;
-  await prisma.order.update({ where: { id }, data: { status } });
-  if (status === "LIVREE") {
-    await notifyConsultantOfDelivery(id);
-  }
-  await onOrderStatusChanged(id, status);
+  await setOrderStatus(id, status);
   revalidatePath("/admin/mes-livraisons");
 }
 

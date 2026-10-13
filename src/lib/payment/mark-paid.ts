@@ -1,6 +1,7 @@
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { runPayoutsForOrder } from "@/lib/payouts/engine";
+import { notifyOrderUpdate } from "@/lib/whatsapp/order-notify";
 import { prisma } from "@/lib/prisma";
 import { awardLoyaltyForOrder } from "@/lib/loyalty-award";
 import { amountDue } from "@/lib/reservation";
@@ -65,6 +66,7 @@ export async function markOrderPaid(
 
   // Commissions du réseau : enregistrées et versées sur les wallets après la réponse au webhook.
   after(() => runPayoutsForOrder(orderId));
+  notifyOrderUpdate(orderId, "PAYEE");
 
   revalidatePath(`/commande/${orderId}`);
   revalidatePath("/admin/commandes");

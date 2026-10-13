@@ -1,8 +1,8 @@
 import { after } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { WHATSAPP_CONTACTS } from "@/lib/contact";
-import { normalizePhone } from "@/lib/phone";
-import { sendViaMeta } from "./meta";
+import { canonicalizePhone, normalizePhone } from "@/lib/phone";
+import { sendViaMeta, type RichOptions } from "./meta";
 import { sendViaTwilio } from "./twilio";
 
 /**
@@ -10,7 +10,7 @@ import { sendViaTwilio } from "./twilio";
  * (« meta » = API Cloud de Meta / 360dialog, « twilio »). Sans configuration, les messages sont
  * SIMULÉS : ils sont enregistrés dans le journal mais rien n'est envoyé.
  */
-export type WhatsAppKind = "team" | "reseller" | "test" | "client" | "bot" | "relance" | "avis" | "resume";
+export type WhatsAppKind = "team" | "reseller" | "test" | "client" | "bot" | "relance" | "avis" | "resume" | "suivi" | "livreur" | "kit" | "campagne" | "conseiller";
 
 export interface SendResult {
   status: "SIMULE" | "ENVOYE" | "ECHEC";
@@ -33,38 +33,59 @@ export function whatsappConfig() {
   };
 }
 
-/** Envoie (ou simule) un message et l'enregistre dans le journal. Ne lève jamais d'erreur. */
-export async function sendWhatsApp(opts: { to: string; text: string; kind: WhatsAppKind; /** réponse dans la fenêtre de 24 h : texte libre */ free?: boolean }): Promise<SendResult> {
-  const to = normalizePhone(opts.to);
+/**
+ * Envoie (ou simule) un message et l'enregistre dans le journal. Ne lève jamais d'erreur.
+ * Options riches (boutons, bouton lien, image) : rendues par Meta ; avec Twilio, le lien est
+ * ajouté au texte. Le numéro est mis au format international (77… → 22177…).
+ */
+export async function sendWhatsApp(opts: { to: string; text: string; kind: WhatsAppKind; campaignId?: string } & RichOptions): Promise<SendResult> {
+  const to = canonicalizePhone(opts.to);
   const body = opts.text.slice(0, 1500);
+  const rich: RichOptions = { free: opts.free, template: opts.template, buttons: opts.buttons, cta: opts.cta, imageUrl: opts.imageUrl };
   let result: SendResult;
 
   try {
     const cfg = whatsappConfig();
     if (!to || to.length < 8) result = { status: "ECHEC", error: "Numéro invalide" };
     else if (!cfg.active) result = { status: "SIMULE" };
-    else if (cfg.provider === "meta") result = await sendViaMeta(to, body, { free: opts.free });
-    else result = await sendViaTwilio(to, body);
+    else if (cfg.provider === "meta") result = await sendViaMeta(to, body, rich);
+    else result = await sendViaTwilio(to, opts.cta ? `${body}\n${opts.cta.label} : ${opts.cta.url}` : body);
   } catch (error) {
     result = { status: "ECHEC", error: error instanceof Error ? error.message.slice(0, 300) : "Erreur inconnue" };
   }
 
+  // Le journal garde le texte tel que lu par le client (boutons et lien compris).
+  const logged = [body, opts.buttons?.length ? `[${opts.buttons.join("] [")}]` : "", opts.cta ? `${opts.cta.label} : ${opts.cta.url}` : "", opts.imageUrl ? `[image] ${opts.imageUrl}` : ""].filter(Boolean).join("\n").slice(0, 2000);
   try {
     await prisma.whatsAppMessage.create({
       data: {
         direction: "OUT",
         toNumber: to || opts.to.slice(0, 30),
         kind: opts.kind,
-        body,
+        body: logged,
         status: result.status,
         providerId: result.providerId ?? null,
         error: result.error ?? null,
+        campaignId: opts.campaignId ?? null,
       },
     });
+    if (to) await touchThread(to);
   } catch (error) {
     console.error("[whatsapp] journal indisponible", error);
   }
   return result;
+}
+
+/** Met à jour la conversation de ce numéro (boîte de réception). */
+export async function touchThread(phone: string, opts: { name?: string | null; inbound?: boolean } = {}) {
+  const now = new Date();
+  await prisma.whatsAppThread
+    .upsert({
+      where: { phone },
+      create: { phone, name: opts.name ?? null, lastMessageAt: now },
+      update: { lastMessageAt: now, ...(opts.name ? { name: opts.name } : {}) },
+    })
+    .catch(() => {});
 }
 
 /** Programme l'envoi APRÈS la réponse à l'utilisateur : une commande ou un formulaire ne ralentit jamais. */

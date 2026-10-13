@@ -8,6 +8,7 @@ import { prisma } from "@/lib/prisma";
 import { upsertCustomerFromOrder } from "@/lib/customers";
 import { notifySponsorOnSale } from "@/lib/sponsor-notifications";
 import { notifyResellerWhatsApp, notifyTeamWhatsApp } from "@/lib/whatsapp";
+import { notifyOrderUpdate } from "@/lib/whatsapp/order-notify";
 import { reserveStock, resolveStockRef, sendLowStockAlerts, UNIQUE_FORMAT } from "@/lib/stock";
 import { createOrderSchema } from "@/lib/validations/order";
 import { rateLimit, clientIpFromHeaders } from "@/lib/rate-limit";
@@ -52,6 +53,8 @@ export interface PlaceOrderOptions {
   rateKey?: string;
   /** Origine affichée dans les notifications (ex. « WhatsApp »). */
   channel?: string;
+  /** Canal enregistré sur la commande (statistiques, badge) : SITE par défaut. */
+  source?: "SITE" | "WHATSAPP" | "REVENDEUR" | "CATALOGUE";
   /** Code promo saisi par le client (code JAMAAL, code d'un revendeur ou code anniversaire). */
   couponCode?: string;
 }
@@ -302,6 +305,7 @@ export async function placeOrder(
       giftMessage: data.giftWrap ? (data.giftMessage || null) : null,
       customerId,
       consultantId: validConsultantId,
+      channel: opts.source ?? "SITE",
       ...deliveryData,
       ...reservationData,
       ...offerData,
@@ -381,6 +385,9 @@ export async function placeOrder(
   if (validConsultantId) {
     notifyResellerWhatsApp(validConsultantId, `Bonne nouvelle ! Nouvelle commande de ${data.customer.name} : ${total.toLocaleString("fr-FR")} FCFA, rattachée à vous. Suivez-la dans « Mes ventes ».`);
   }
+
+  // Suivi sur WhatsApp : récapitulatif et bouton « Payer » (sauf commande prise dans la conversation).
+  notifyOrderUpdate(order.id, "CREEE");
 
   revalidatePath("/admin/commandes");
   revalidatePath("/admin/produits");

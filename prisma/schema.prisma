@@ -362,6 +362,8 @@ model Order {
   @@index([isReservation, reservationStatus])
   /// Offre de fêtes appliquée (titre), la remise est dans discountAmount.
   offerTitle String?
+  /// Origine de la commande : SITE, WHATSAPP (assistant ou panier WhatsApp), REVENDEUR (saisie ou message du revendeur).
+  channel String @default("SITE")
 }
 
 model OrderItem {
@@ -445,6 +447,8 @@ model Consultant {
   @@index([slug])
   /// Relances automatiques de ses clients (rappel, anniversaire, panier) : le revendeur peut les couper.
   autoRelances Boolean @default(true)
+  /// Kit du matin sur WhatsApp (visuel + texte + lien du jour).
+  kitMatin Boolean @default(true)
 }
 
 model CommissionPayment {
@@ -788,6 +792,8 @@ model WhatsAppMessage {
   @@index([createdAt])
   @@index([providerId])
   @@index([toNumber, createdAt])
+  /// Campagne d'origine (envois groupés).
+  campaignId String?
 }
 
 /// Commission due à un membre sur une commande (une ligne par bénéficiaire et par niveau).
@@ -1013,4 +1019,31 @@ model ChoganPriceChange {
   seen       Boolean  @default(false)
 
   @@index([detectedAt])
+}
+
+/// Conversation WhatsApp avec un numéro (boîte de réception) : lecture, pause de l'assistant.
+model WhatsAppThread {
+  phone          String    @id
+  name           String?
+  lastMessageAt  DateTime  @default(now())
+  lastReadAt     DateTime?
+  botPausedUntil DateTime?
+  createdAt      DateTime  @default(now())
+
+  @@index([lastMessageAt])
+}
+
+/// Campagne WhatsApp (message groupé à une audience ciblée).
+model WhatsAppCampaign {
+  id        String    @id @default(cuid())
+  title     String
+  body      String
+  audience  Json
+  status    String    @default("BROUILLON")
+  total     Int       @default(0)
+  sent      Int       @default(0)
+  failed    Int       @default(0)
+  createdBy String?
+  createdAt DateTime  @default(now())
+  sentAt    DateTime?
 }

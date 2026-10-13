@@ -12,6 +12,7 @@ import { prisma } from "./prisma";
 import type { Prisma } from "@prisma/client";
 import { getBusinessModel } from "./business-model-store";
 import { isWalletProvider, payoutProvidersConfig, sendPayout, WALLET_LABELS, type WalletProvider } from "./payouts/providers";
+import { alertWalletCredits, alertWithdrawalPaid } from "@/lib/whatsapp/alerts";
 
 export type OwnerType = "CONSULTANT" | "LIVREUR";
 export type Owner = { type: OwnerType; id: string };
@@ -71,10 +72,12 @@ export async function ownerWallet(owner: Owner) {
 /** Crédite les commissions et primes enregistrées mais pas encore créditées (idempotent). */
 export async function creditCommissionEntries(where: Prisma.CommissionEntryWhereInput = {}) {
   const entries = await prisma.commissionEntry.findMany({ where: { ...where, status: "A_VERSER", payoutId: null, amount: { gt: 0 } } });
+  const credited: { consultantId: string; amount: number; prime: boolean }[] = [];
   for (const e of entries) {
     await prisma.$transaction(async (tx) => {
       const claim = await tx.commissionEntry.updateMany({ where: { id: e.id, status: "A_VERSER", payoutId: null }, data: { status: "WALLET" } });
       if (!claim.count) return;
+      credited.push({ consultantId: e.consultantId, amount: e.amount, prime: e.level.startsWith("PRIME_") });
       await tx.walletTransaction.upsert({
         where: { sourceId: `ce:${e.id}` },
         update: {},
@@ -90,6 +93,7 @@ export async function creditCommissionEntries(where: Prisma.CommissionEntryWhere
       });
     });
   }
+  alertWalletCredits(credited);
   return entries.length;
 }
 
@@ -169,6 +173,7 @@ export async function sendWithdrawal(txId: string) {
           ? { status: "ECHEC", providerRef: result.providerRef ?? null, error: result.error?.slice(0, 300) ?? "Échec du versement" }
           : { providerRef: result.providerRef ?? "en-cours" },
   });
+  if (result.status === "VERSE") alertWithdrawalPaid(t.id);
 }
 
 /** Admin : retrait versé à la main, ou refusé (le montant revient sur le wallet). */
@@ -178,6 +183,7 @@ export async function resolveWithdrawal(txId: string, paid: boolean, by: string 
     data: paid ? { status: "VALIDE", createdBy: by, providerRef: note?.slice(0, 80) || "manuel" } : { status: "ANNULE", createdBy: by, error: note?.slice(0, 300) || "Refusé par JAMAAL" },
   });
   if (!res.count) throw new WalletError("Ce retrait n'est plus en attente.");
+  if (paid) alertWithdrawalPaid(txId);
 }
 
 /** Admin : crédit ou débit manuel (dépôt en espèces, correction…). */

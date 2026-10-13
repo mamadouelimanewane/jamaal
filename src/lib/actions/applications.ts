@@ -16,6 +16,7 @@ import { getBusinessModel } from "@/lib/business-model-store";
 import { sponsorCapacity, sponsorRefusal, TITLE_RANK } from "@/lib/network";
 import { fillProtocol, pieceLabel } from "@/lib/protocol";
 import { getProtocol, textHash } from "@/lib/protocol-store";
+import { alertNewTeamMember } from "@/lib/whatsapp/alerts";
 
 export type ApplicationState = {
   ok: boolean;
@@ -208,6 +209,8 @@ export async function approveApplication(id: string, opts: { allowIncomplete?: b
       data: { status: "ACCEPTEE", consultantId: consultant.id, processedAt: new Date() },
     });
   });
+
+  alertNewTeamMember(sponsor.id, { name: app.name, city: app.city });
 
   // Action réservée aux admins : l'hôte de la requête est fiable (pas d'empoisonnement de lien).
   const siteUrl = await getSiteUrl();

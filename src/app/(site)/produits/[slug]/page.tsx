@@ -12,6 +12,7 @@ import { StarRating } from "@/components/StarRating";
 import { ProductPurchasePanel } from "@/components/ProductPurchasePanel";
 import { getReservationSettings } from "@/lib/reservation-store";
 import { ShareWhatsApp } from "@/components/ShareWhatsApp";
+import { OrderOnWhatsApp } from "@/components/OrderOnWhatsApp";
 import { ProductCard } from "@/components/ProductCard";
 
 export const dynamic = "force-dynamic";
@@ -80,7 +81,11 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           <p className="mt-5 text-sm leading-7 text-navy/65">{product.shortDescription}</p>
           <div className="my-7 border-t border-[#eadfda]"/>
           <ProductPurchasePanel product={product} reservation={reservation}/>
-          <ShareWhatsApp name={product.name} slug={product.slug} price={product.regularPrice ?? null}/>
+          <div className="mt-3 flex flex-wrap items-center gap-3">
+            <OrderOnWhatsApp lines={[`${product.name}${product.choganCode ? ` (code ${product.choganCode})` : ""}${product.regularPrice ? ` — ${product.regularPrice.toLocaleString("fr-FR")} FCFA` : ""}`]} className="!py-2 text-xs"/>
+            <ShareWhatsApp name={product.name} slug={product.slug} price={product.regularPrice ?? null}/>
+          </div>
+          <p className="mt-2 text-[11px] text-navy/50">Ajoutez au panier, ou commandez directement avec notre conseillère sur WhatsApp (vocal accepté).</p>
           <div className="mt-6 grid grid-cols-2 gap-3 border-y border-[#eadfda] py-4 text-[9px] uppercase tracking-[0.12em] text-navy/60"><span>{isPerfume ? "Extrait concentré à 30 %" : "Produit officiel Chogan"}</span><span className="text-right">Paiement Wave · Orange Money</span></div>
 
           {(product.topNotes?.length || product.heartNotes?.length || product.baseNotes?.length) ? <section className="mt-9"><p className="luxury-eyebrow">Pyramide olfactive</p><div className="mt-4 grid grid-cols-3 gap-2 sm:gap-4">{[{ label: "Tête", notes: product.topNotes }, { label: "Cœur", notes: product.heartNotes }, { label: "Fond", notes: product.baseNotes }].map((level) => <div key={level.label} className="border-t border-[#c9a99e] pt-3"><p className="text-[8px] uppercase tracking-[0.2em] text-[#9c6254]">{level.label}</p><p className="mt-2 text-[11px] leading-5 text-navy sm:text-xs">{level.notes?.join(", ") || "—"}</p></div>)}</div></section> : null}

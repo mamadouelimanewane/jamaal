@@ -6,6 +6,7 @@ import { rateLimit, clientIpFromHeaders } from "@/lib/rate-limit";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "./auth-guard";
 import { logActivity } from "@/lib/activity-log";
+import { alertBadReview } from "@/lib/whatsapp/alerts";
 
 export async function submitReview(productSlug: string, formData: FormData) {
   // Action publique : limitée par IP et bornée en taille pour éviter d'inonder la modération.
@@ -32,6 +33,7 @@ export async function submitReview(productSlug: string, formData: FormData) {
   await prisma.review.create({
     data: { productId: product.id, authorName, rating, comment, orderId },
   });
+  alertBadReview({ productName: product.name, rating, author: authorName, comment });
   revalidatePath(`/produits/${productSlug}`);
   revalidatePath("/admin/avis");
 }

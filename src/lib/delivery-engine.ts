@@ -134,12 +134,29 @@ async function afterStep(orderId: string, to: DeliveryStatus, order: StepOrder) 
   const atVendor = order.deliveryTarget === "VENDEUR";
   const contactName = order.deliveryContactName ?? order.customerName;
   const contactPhone = order.deliveryContactPhone ?? order.customerPhone;
+  if (to === "ASSIGNEE") {
+    // Mission envoyée au livreur sur WhatsApp : il fait avancer la course en répondant.
+    const o = await prisma.order.findUnique({
+      where: { id: orderId },
+      select: { total: true, paymentStatus: true, address: true, deliveryPlace: true, deliveryLat: true, deliveryLng: true, livreur: { select: { name: true, phone: true } } },
+    });
+    if (o?.livreur?.phone) {
+      const ref = orderId.slice(-8).toUpperCase();
+      await sendWhatsApp({
+        to: o.livreur.phone,
+        kind: "livreur",
+        text: `Nouvelle course JAMAAL 🛵 n° ${ref}\nClient : ${contactName} (${contactPhone ?? "?"})\nAdresse : ${o.deliveryPlace ?? o.address ?? "voir la carte"}${o.paymentStatus === "PAYE" ? "\nDéjà payée." : `\nÀ encaisser : ${o.total.toLocaleString("fr-FR")} FCFA`}\nRépondez « récupéré ${ref} », puis « en route ${ref} », puis « livré » + le code du client.`,
+        ...(o.deliveryLat != null && o.deliveryLng != null ? { cta: { label: "Itinéraire", url: `https://maps.google.com/?q=${o.deliveryLat},${o.deliveryLng}` } } : {}),
+      });
+    }
+  }
   if (to === "EN_ROUTE" && contactPhone) {
     const o = await prisma.order.findUnique({ where: { id: orderId }, select: { deliveryCode: true, livreur: { select: { name: true } } } });
     await sendWhatsApp({
       to: contactPhone,
       kind: atVendor ? "reseller" : "client",
       text: `Bonjour ${contactName}, ${atVendor ? `la commande JAMAAL de ${order.customerName}` : "votre commande JAMAAL"} est en route${o?.livreur ? ` avec ${o.livreur.name}` : ""}. Suivez-la en direct : ${track}\nCode de livraison à donner au livreur : ${o?.deliveryCode ?? ""}`,
+      ...(track ? { cta: { label: "Suivre le livreur", url: track } } : {}),
     });
   }
   if (to === "LIVREE") {

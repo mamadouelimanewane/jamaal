@@ -22,6 +22,7 @@ import { QUIZZES, scoreQuiz } from "@/data/quiz-formation";
 import { checkReviewToken } from "@/lib/review-token";
 import { clientIpFromHeaders, rateLimit } from "@/lib/rate-limit";
 import { birthdayKey } from "@/lib/birthday";
+import { alertBadReview } from "@/lib/whatsapp/alerts";
 
 const text = (f: FormData, k: string, max = 200) => String(f.get(k) ?? "").trim().slice(0, max);
 const intOf = (f: FormData, k: string) => Math.round(Number(String(f.get(k) ?? "").replace(/[\s ]/g, "")) || 0);
@@ -184,7 +185,7 @@ export async function submitOrderReviews(_prev: ReviewFormState, formData: FormD
   if (!orderId || !checkReviewToken(orderId, token)) return { ok: false, error: "Lien d'avis invalide." };
   const limited = await rateLimit(`avis-commande:${clientIpFromHeaders(await headers())}`, { limit: 10, windowMs: 3_600_000 });
   if (!limited.ok) return { ok: false, error: "Trop d'envois, réessayez plus tard." };
-  const order = await prisma.order.findUnique({ where: { id: orderId }, select: { customerName: true, status: true, items: { select: { productId: true } } } });
+  const order = await prisma.order.findUnique({ where: { id: orderId }, select: { customerName: true, status: true, items: { select: { productId: true, productName: true } } } });
   if (!order || order.status === "ANNULEE") return { ok: false, error: "Commande introuvable." };
   if (await prisma.review.count({ where: { orderId } })) return { ok: false, error: "Merci, votre avis a déjà été enregistré." };
 
@@ -209,6 +210,7 @@ export async function submitOrderReviews(_prev: ReviewFormState, formData: FormD
     const comment = text(formData, `comment-${productId}`, 2000);
     if (rating < 1 || rating > 5) continue;
     await prisma.review.create({ data: { productId, orderId, authorName, rating, comment: comment || "—", photo: created === 0 ? photo : null } });
+    alertBadReview({ productName: order.items.find((i) => i.productId === productId)?.productName ?? "un produit", rating, author: authorName, comment: comment || "—" });
     created++;
   }
   if (!created) return { ok: false, error: "Donnez au moins une note (étoiles)." };

@@ -11,6 +11,7 @@ import { locateFromText } from "@/lib/actions/delivery-quote";
 import { getCartPrices, previewCartDiscounts, saveCartDraft, type CartDiscounts } from "@/lib/actions/cart";
 import { DeliveryChooser, type DeliveryChoice } from "@/components/DeliveryChooser";
 import { getActiveConsultantsForCheckout } from "@/lib/actions/public-data";
+import { OrderOnWhatsApp } from "@/components/OrderOnWhatsApp";
 import { initiatePayment } from "@/lib/actions/payment";
 import { listPaymentOptions } from "@/lib/actions/payment-options";
 import {
@@ -479,6 +480,10 @@ export default function CartPage() {
                 ? "Règlement à la livraison."
                 : "Vous serez redirigé vers Wave ou Orange Money pour payer en toute sécurité."}
             </p>
+            <div className="mt-4 border-t border-line pt-4 text-center">
+              <p className="mb-2 text-[11px] text-navy/50">Vous préférez finaliser avec une conseillère ?</p>
+              <OrderOnWhatsApp lines={items.map((i) => `${i.quantity} × ${i.name} (${i.volumeLabel})`).concat(couponCode ? [`Code promo : ${couponCode}`] : [])} label="Envoyer ce panier sur WhatsApp" className="w-full" />
+            </div>
           </form>
         </div>
       )}

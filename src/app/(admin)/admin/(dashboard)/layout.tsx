@@ -93,6 +93,8 @@ const adminGroups = [
       { href: "/admin/messages", label: "Messages de contact", icon: Mail },
       { href: "/admin/annonces", label: "Annonces aux consultants", icon: Megaphone },
       { href: "/admin/whatsapp", label: "Centre WhatsApp", icon: Share2 },
+      { href: "/admin/whatsapp/conversations", label: "Conversations WhatsApp", icon: Mail },
+      { href: "/admin/whatsapp/campagnes", label: "Campagnes WhatsApp", icon: Megaphone },
       { href: "/admin/journal-whatsapp", label: "Journal WhatsApp", icon: Mail },
       { href: "/admin/livraisons", label: "Livraisons", icon: Truck },
       { href: "/admin/livreurs", label: "Livreurs", icon: Bike },

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { timingSafeEqual } from "crypto";
 import { markOrderPaid } from "@/lib/payment/mark-paid";
+import { alertPaymentFailed } from "@/lib/whatsapp/alerts";
 
 /**
  * Webhook / notification Orange Money Web Payment
@@ -54,6 +55,8 @@ export async function POST(req: NextRequest) {
 
   if (["SUCCESS", "SUCCESSFUL", "PAID", "0", "SUCCESSFULL"].includes(status || "")) {
     await markOrderPaid(orderId, { method: "ORANGE_MONEY" });
+  } else if (["FAILED", "FAILURE", "CANCELLED", "EXPIRED", "REJECTED"].includes(status || "")) {
+    alertPaymentFailed(orderId, "Orange Money");
   }
 
   return NextResponse.json({ received: true });

@@ -12,7 +12,13 @@ const daysAgo = (n: number) => new Date(Date.now() - n * 86_400_000);
 export const metadata = { title: "Automatisations" };
 export const maxDuration = 60;
 
-const PREFIX: Partial<Record<AutomationId, string>> = { relance45: "relance45:", birthday: "anniversaire:", cart: "panier:", reviews: "avis:", summary: "resume:" };
+const PREFIX: Partial<Record<AutomationId, string>> = { relance45: "relance45:", birthday: "anniversaire:", cart: "panier:", reviews: "avis:", summary: "resume:", morningKit: "kit:", alerts: "defi80:" };
+
+/** Modèles de message à faire valider chez Meta (WhatsApp Manager > Modèles de message). */
+const TEMPLATES = [
+  { name: "jamaal_message", category: "Utilitaire", body: "{{1}}", use: "Modèle générique (variable WHATSAPP_TEMPLATE_NAME) : suivi de commande, relances, alertes, kit du matin. Le texte complet passe dans {{1}}." },
+  { name: "jamaal_offre", category: "Marketing", body: "{{1}} — Répondez STOP pour ne plus recevoir nos offres.", use: "Campagnes WhatsApp (variable WHATSAPP_TEMPLATE_MARKETING ; sinon le modèle générique est utilisé)." },
+];
 
 export default async function AutomationsPage() {
   await requireAdminPage();
@@ -32,7 +38,7 @@ export default async function AutomationsPage() {
     step("envois", prisma.automationSent.findMany({ where: { createdAt: { gte: since } }, select: { key: true } }), []),
     step("messages reçus", prisma.whatsAppMessage.count({ where: { direction: "IN", createdAt: { gte: since } } }), 0),
     step("réponses", prisma.whatsAppMessage.count({ where: { kind: "bot", createdAt: { gte: since } } }), 0),
-    step("commandes WhatsApp", prisma.whatsAppMessage.count({ where: { kind: "bot", body: { contains: "/commande/" }, createdAt: { gte: since } } }), 0),
+    step("commandes WhatsApp", prisma.order.count({ where: { channel: "WHATSAPP", createdAt: { gte: since } } }), 0),
     step("paniers", prisma.abandonedCart.findMany({ orderBy: { updatedAt: "desc" }, take: 8, select: { id: true, name: true, phone: true, total: true, updatedAt: true, remindedAt: true, orderedAt: true } }), []),
     step("WhatsApp", Promise.resolve().then(() => whatsappConfig()), { provider: "aucun", active: false, template: "", webhookReady: false }),
   ]);
@@ -47,6 +53,7 @@ export default async function AutomationsPage() {
     { ok: wa.active, label: "Envoi WhatsApp", help: wa.active ? `Actif (${wa.provider})` : "Non configuré : les messages sont simulés et notés dans le Journal WhatsApp (réglages dans Centre WhatsApp)." },
     { ok: wa.webhookReady, label: "Réception des messages WhatsApp", help: wa.webhookReady ? "Webhook prêt : l'assistant répond aux clients." : "Ajoutez WHATSAPP_VERIFY_TOKEN et WHATSAPP_APP_SECRET dans Vercel, puis déclarez /api/whatsapp/webhook chez Meta." },
     { ok: gemini, label: "Intelligence artificielle", help: gemini ? "Clé Gemini présente." : "Ajoutez GOOGLE_AI_API_KEY dans Vercel." },
+    { ok: true, label: "Kit du matin (8 h)", help: "Cron /api/cron/morning : visuel du jour, texte et lien personnel envoyés à chaque revendeur actif." },
     { ok: !!process.env.CRON_SECRET, label: "Tâche quotidienne (19 h)", help: process.env.CRON_SECRET ? "Protégée par CRON_SECRET." : "Fonctionne ; pour la sécuriser, ajoutez une variable CRON_SECRET (texte au hasard) dans Vercel." },
   ];
   return (
@@ -83,6 +90,37 @@ export default async function AutomationsPage() {
             <AutomationToggle id={id} on={states[id]} label={AUTOMATIONS[id].label} />
           </div>
         ))}
+      </section>
+
+      <section className="rounded-2xl border border-line bg-white p-5">
+        <h2 className="font-semibold text-navy">WhatsApp partout : ce qui est branché</h2>
+        <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-navy/80">
+          <li>Clients : bouton « Commander sur WhatsApp » (fiche produit, panier), assistant qui comprend les vocaux et les photos, boutons de réponse, bouton « Payer », suivi de commande, catalogue WhatsApp (flux : <code className="text-xs">/api/whatsapp/catalogue</code>).</li>
+          <li>Revendeurs : leur numéro est reconnu, l&apos;assistant coach répond et peut créer une commande pour un client ; kit du matin à 8 h (« stop kit » pour l&apos;arrêter) ; alertes de gains.</li>
+          <li>Équipe : un admin (compte avec numéro, ou WHATSAPP_ADMIN_NUMBERS) interroge les chiffres et change le statut d&apos;une commande ; <Link href="/admin/whatsapp/conversations" className="underline">boîte de réception</Link> et <Link href="/admin/whatsapp/campagnes" className="underline">campagnes</Link>.</li>
+          <li>Livreurs : mission envoyée à l&apos;attribution, puis « récupéré », « en route », « livré + code » depuis WhatsApp.</li>
+        </ul>
+        <p className="mt-2 text-xs text-navy/60">Le site reste le parcours principal : chaque message WhatsApp renvoie vers la page de commande, de paiement ou de suivi.</p>
+      </section>
+
+      <section className="rounded-2xl border border-line bg-white p-5">
+        <h2 className="font-semibold text-navy">Modèles de message à faire valider chez Meta</h2>
+        <p className="mt-1 text-sm text-navy/70">Hors des 24 h qui suivent un message du client, Meta n&apos;accepte que des modèles validés. Créez-les dans WhatsApp Manager &gt; Modèles de message (langue : français), puis indiquez le nom du modèle générique dans la variable WHATSAPP_TEMPLATE_NAME.</p>
+        <div className="mt-3 overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="text-left text-xs uppercase text-navy/60"><tr><th className="py-2 pr-3">Nom</th><th className="py-2 pr-3">Catégorie</th><th className="py-2 pr-3">Texte</th><th className="py-2">Usage</th></tr></thead>
+            <tbody>
+              {TEMPLATES.map((t) => (
+                <tr key={t.name} className="border-t border-line align-top">
+                  <td className="py-2 pr-3 font-mono text-xs">{t.name}{wa.template === t.name || process.env.WHATSAPP_TEMPLATE_MARKETING === t.name ? " ✅" : ""}</td>
+                  <td className="py-2 pr-3 text-xs">{t.category}</td>
+                  <td className="py-2 pr-3 text-xs text-navy/80">{t.body}</td>
+                  <td className="py-2 text-xs text-navy/70">{t.use}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </section>
 
       <section className="rounded-2xl border border-line bg-white p-5">

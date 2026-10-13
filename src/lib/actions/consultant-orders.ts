@@ -15,6 +15,7 @@ import { isValidPoint, newDeliveryCode, quoteDelivery } from "@/lib/delivery";
 import { debitForOrder, walletBalance, WalletError } from "@/lib/wallet";
 import { runPayoutsForOrder } from "@/lib/payouts/engine";
 import { after } from "next/server";
+import { notifyOrderUpdate } from "@/lib/whatsapp/order-notify";
 import type { Prisma } from "@prisma/client";
 
 export interface ConsultantOrderItem {
@@ -139,6 +140,7 @@ async function placeConsultantOrder(formData: FormData): Promise<string> {
       discountAmount,
       customerId,
       consultantId: consultant.id,
+      channel: "REVENDEUR",
       ...deliveryData,
       status: "CONFIRMEE",
       statusHistory: { create: { status: "CONFIRMEE" } },
@@ -157,6 +159,7 @@ async function placeConsultantOrder(formData: FormData): Promise<string> {
   if (payWithWallet) after(() => runPayoutsForOrder(order.id));
 
   await notifySponsorOnFirstSale(consultant.id);
+  notifyOrderUpdate(order.id, "CREEE");
   await decrementStockAndAlert(items, { orderId: order.id, userId: null });
 
   revalidatePath("/admin/mes-commandes");

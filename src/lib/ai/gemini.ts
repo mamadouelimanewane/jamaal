@@ -13,7 +13,8 @@ export const DEFAULT_GEMINI_MODEL = "gemini-flash-latest";
 export type GeminiPart =
   | { text: string; thought?: boolean; thoughtSignature?: string }
   | { functionCall: { name: string; args?: Record<string, unknown> }; thoughtSignature?: string }
-  | { functionResponse: { name: string; response: Record<string, unknown> } };
+  | { functionResponse: { name: string; response: Record<string, unknown> } }
+  | { inlineData: { mimeType: string; data: string } };
 
 export interface GeminiContent {
   role: "user" | "model";
@@ -177,4 +178,22 @@ export function textOf(content: GeminiContent): string {
     .map((p) => ("text" in p && !p.thought ? p.text : ""))
     .join("")
     .trim();
+}
+
+/**
+ * Lit un média reçu (vocal, photo) : transcription d'un message vocal ou description d'une photo,
+ * pour que l'assistant le traite comme un message écrit.
+ */
+export async function readMedia(media: { data: Uint8Array; mimeType: string }, kind: "audio" | "image"): Promise<string> {
+  const prompt =
+    kind === "audio"
+      ? "Transcris fidèlement ce message vocal d'un client (français, wolof ou anglais). Si c'est du wolof, donne la traduction française entre parenthèses. Réponds uniquement par la transcription."
+      : "Un client d'une boutique de parfums et cosmétiques envoie cette photo. Décris en une ou deux phrases ce qu'on voit (produit, marque et nom lisibles sur l'étiquette, couleur, type de produit) pour retrouver un produit équivalent. Réponds uniquement par la description.";
+  const reply = await generateContent({
+    contents: [{ role: "user", parts: [{ inlineData: { mimeType: media.mimeType, data: Buffer.from(media.data).toString("base64") } }, { text: prompt }] }],
+    maxOutputTokens: 600,
+    thinking: "minimal",
+    timeoutMs: 20_000,
+  });
+  return textOf(reply).slice(0, 1200);
 }
