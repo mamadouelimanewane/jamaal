@@ -10,11 +10,13 @@ export const maxDuration = 60;
  * - IA : un appel minimal à chaque modèle Gemini (statut HTTP, durée, début de réponse).
  * - WhatsApp : variables présentes (jamais leurs valeurs) et droits de la clé chez Meta.
  */
-export async function GET() {
+export async function GET(req: Request) {
   const forbidden = await requireAdminForApi();
   if (forbidden) return forbidden;
   const key = process.env.GOOGLE_AI_API_KEY ?? "";
-  const models = [geminiModel(), geminiFallbackModel()].filter((m): m is string => !!m);
+  // ?modeles=a,b : essayer d'autres modèles (choix d'un modèle de secours disponible).
+  const extra = (new URL(req.url).searchParams.get("modeles") ?? "").split(",").map((m) => m.trim()).filter((m) => /^[\w.-]{3,60}$/.test(m)).slice(0, 6);
+  const models = [...new Set([geminiModel(), geminiFallbackModel(), ...extra].filter((m): m is string => !!m))];
   const ai = await Promise.all(
     models.map(async (model) => {
       const started = Date.now();
