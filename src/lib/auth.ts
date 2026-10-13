@@ -41,7 +41,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           .filter((v): v is string => !!v)
           .map((v) => (v.includes("@") ? v : canonicalizePhone(v)));
         if (ids.length) await prisma.loginAttempt.deleteMany({ where: { identifiant: { in: ids } } }).catch(() => {});
-        return { id: u.id, email: u.email, phone: u.phone, name: u.name, role: u.role };
+        return { id: u.id, email: u.email, phone: u.phone, name: u.name, role: u.role, via: "magic" as const };
       },
     }),
     Credentials({
@@ -98,6 +98,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.role = (user as { role: string }).role;
         token.id = user.id;
         token.phone = (user as { phone?: string | null }).phone ?? null;
+        token.magicAt = (user as { via?: string }).via === "magic" ? now : null;
         token.checkedAt = now;
         return token;
       }
@@ -121,6 +122,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.id = token.id as string;
         session.user.role = token.role as string;
         session.user.phone = (token.phone as string | null | undefined) ?? null;
+        session.user.magicAt = (token.magicAt as number | null | undefined) ?? null;
       }
       return session;
     },

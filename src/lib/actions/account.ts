@@ -26,7 +26,9 @@ export async function changeOwnPassword(_prev: ChangePasswordState, formData: Fo
   const current = String(formData.get("currentPassword") ?? "");
   const next = String(formData.get("newPassword") ?? "");
   const confirm = String(formData.get("confirmPassword") ?? "");
-  if (!current) return { ok: false, error: "Indiquez votre mot de passe actuel." };
+  // Arrivé par un lien de connexion WhatsApp (il y a moins de 30 min) : pas d'ancien mot de passe à confirmer.
+  const viaLink = !!session.user.magicAt && Date.now() - session.user.magicAt < 30 * 60_000;
+  if (!current && !viaLink) return { ok: false, error: "Indiquez votre mot de passe actuel." };
   if (next.length < 8) return { ok: false, error: "Nouveau mot de passe : 8 caractères au moins." };
   if (next !== confirm) return { ok: false, error: "Les deux mots de passe ne correspondent pas." };
 
@@ -36,7 +38,7 @@ export async function changeOwnPassword(_prev: ChangePasswordState, formData: Fo
   });
   if (!user) return { ok: false, error: "Compte introuvable." };
 
-  const valid = await bcrypt.compare(current, user.passwordHash);
+  const valid = viaLink && !current ? true : await bcrypt.compare(current, user.passwordHash);
   if (!valid) return { ok: false, error: "Mot de passe actuel incorrect." };
 
   const passwordHash = await bcrypt.hash(next, 12);

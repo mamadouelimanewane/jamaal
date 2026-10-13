@@ -9,7 +9,7 @@ async function openAction(formData: FormData) {
   "use server";
   const token = String(formData.get("token") ?? "");
   try {
-    await signIn("magic", { token, redirectTo: "/admin" });
+    await signIn("magic", { token, redirectTo: "/admin/mot-de-passe?lien=1" });
   } catch (error) {
     if (error instanceof AuthError) redirect("/admin/acces?erreur=1");
     throw error;
