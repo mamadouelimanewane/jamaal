@@ -58,7 +58,9 @@ export async function createResellerAccess(consultantId: string, rawEmail?: stri
     created = true;
   }
 
-  await prisma.passwordResetToken.deleteMany({ where: { userId } });
+  // Les liens déjà envoyés restent valables jusqu'à leur expiration : renouveler le lien (ou
+  // cliquer deux fois) ne doit pas rendre inutilisable celui que le revendeur a déjà reçu.
+  await prisma.passwordResetToken.deleteMany({ where: { userId, expiresAt: { lte: new Date() } } });
   await prisma.passwordResetToken.create({
     data: { tokenHash: hashToken(token), userId, expiresAt: new Date(Date.now() + 7 * 24 * 3600_000) },
   });

@@ -6,6 +6,10 @@ import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { rateLimit, clientIpFromHeaders } from "@/lib/rate-limit";
+import { phoneTail } from "@/lib/phone-match";
+import { canonicalizePhone, phoneLookupVariants } from "@/lib/phone";
+import { getSiteUrl } from "@/lib/site-url";
+import { sendWhatsApp, whatsappConfig } from "@/lib/whatsapp";
 
 const hashToken = (token: string) => createHash("sha256").update(token).digest("hex");
 const escapeHtml = (value: string) => value.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" })[char] ?? char);
@@ -15,7 +19,13 @@ export async function requestPasswordReset(formData: FormData) {
   const limited = await rateLimit(`password-reset:${clientIpFromHeaders(requestHeaders)}`, { limit: 5, windowMs: 10 * 60_000 });
   if (!limited.ok) redirect("/admin/forgot-password?sent=1");
 
-  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const identifier = String(formData.get("email") ?? "").trim();
+  // Numéro de téléphone : le lien part sur le WhatsApp du compte (jamais vers un autre numéro).
+  if (!identifier.includes("@") && identifier.replace(/\D/g, "").length >= 9) {
+    await sendResetByWhatsApp(identifier);
+    redirect("/admin/forgot-password?sent=wa");
+  }
+  const email = identifier.toLowerCase();
   const apiKey = process.env.RESEND_API_KEY;
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "");
   const from = process.env.EMAIL_FROM;
@@ -49,6 +59,46 @@ export async function requestPasswordReset(formData: FormData) {
     console.error("Password reset email unavailable: configure RESEND_API_KEY, EMAIL_FROM and NEXT_PUBLIC_SITE_URL.");
   }
   redirect("/admin/forgot-password?sent=1");
+}
+
+/** Compte (avec son numéro WhatsApp) correspondant à un téléphone : compte, revendeur ou livreur. */
+async function userByPhone(raw: string): Promise<{ id: string; name: string; whatsapp: string } | null> {
+  const tail = phoneTail(raw);
+  if (!tail) return null;
+  const direct = await prisma.user.findFirst({ where: { phone: { in: phoneLookupVariants(raw) } }, select: { id: true, name: true, phone: true, role: true } });
+  if (direct?.phone && direct.role !== "CLIENT") return { id: direct.id, name: direct.name, whatsapp: direct.phone };
+  const viaConsultant = await prisma.$queryRaw<{ id: string; name: string; whatsapp: string }[]>`
+    SELECT u.id, u.name, c.whatsapp FROM "Consultant" c JOIN "User" u ON u."consultantId" = c.id
+    WHERE right(regexp_replace(c.whatsapp, '[^0-9]', '', 'g'), 9) = ${tail} LIMIT 1`;
+  if (viaConsultant[0]) return viaConsultant[0];
+  const viaLivreur = await prisma.$queryRaw<{ id: string; name: string; whatsapp: string }[]>`
+    SELECT u.id, u.name, l.phone AS whatsapp FROM "Livreur" l JOIN "User" u ON u."livreurId" = l.id
+    WHERE right(regexp_replace(l.phone, '[^0-9]', '', 'g'), 9) = ${tail} LIMIT 1`;
+  return viaLivreur[0] ?? null;
+}
+
+async function sendResetByWhatsApp(raw: string) {
+  if (!whatsappConfig().active) return;
+  const user = await userByPhone(raw);
+  if (!user) return;
+  const recent = await prisma.passwordResetToken.findFirst({ where: { userId: user.id, createdAt: { gte: new Date(Date.now() - 2 * 60_000) } }, select: { id: true } });
+  if (recent) return;
+  const token = randomBytes(32).toString("base64url");
+  await prisma.passwordResetToken.create({ data: { tokenHash: hashToken(token), userId: user.id, expiresAt: new Date(Date.now() + 24 * 3600_000) } });
+  const url = `${(await getSiteUrl()).replace(/\/$/, "")}/admin/reset-password?token=${encodeURIComponent(token)}`;
+  await sendWhatsApp({
+    to: canonicalizePhone(user.whatsapp),
+    kind: "reseller",
+    text: `Bonjour ${user.name.split(/\s+/)[0]}, voici votre lien JAMAAL pour choisir un nouveau mot de passe (valable 24 h). Si vous n'avez rien demandé, ignorez ce message.`,
+    cta: { label: "Choisir mon mot de passe", url },
+  });
+}
+
+/** État d'un lien (sans le consommer) : pour prévenir avant que la personne tape son mot de passe. */
+export async function resetLinkState(token: string): Promise<"ok" | "invalid"> {
+  if (!token) return "invalid";
+  const record = await prisma.passwordResetToken.findUnique({ where: { tokenHash: hashToken(token) }, select: { expiresAt: true } });
+  return record && record.expiresAt > new Date() ? "ok" : "invalid";
 }
 
 export async function completePasswordReset(formData: FormData) {
