@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { ArrowDownToLine, ArrowUpToLine, Expand, Loader2, RotateCcw, SendHorizontal, Sparkles, X } from "lucide-react";
-import { askAssistant } from "@/lib/actions/assistant";
+import { askAssistantApi } from "@/lib/assistant-client";
 import type { ChatMessage } from "@/lib/ai/assistant";
 import { ChatMarkdown } from "@/components/ChatMarkdown";
 
@@ -106,7 +106,7 @@ export function AssistantPanel({
     setError(null);
     setLoading(true);
     try {
-      const res = await askAssistant(next);
+      const res = await askAssistantApi("/api/assistant/admin", next);
       if (res.ok) setMessages([...next, { role: "assistant", text: res.text }]);
       else setError(res.error);
     } catch {

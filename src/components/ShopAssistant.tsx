@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Loader2, RotateCcw, SendHorizontal, Sparkles, X } from "lucide-react";
-import { askShopAssistant } from "@/lib/actions/shop-assistant";
+import { askAssistantApi } from "@/lib/assistant-client";
 import type { ChatMessage } from "@/lib/ai/assistant";
 import { ChatMarkdown } from "@/components/ChatMarkdown";
 import { WHATSAPP_CONTACTS, whatsappLink } from "@/lib/contact";
@@ -64,7 +64,7 @@ export function ShopAssistant() {
     setError(null);
     setLoading(true);
     try {
-      const res = await askShopAssistant(next);
+      const res = await askAssistantApi("/api/assistant/boutique", next);
       if (res.ok) setMessages([...next, { role: "assistant", text: res.text }]);
       else setError(res.error);
     } catch {
