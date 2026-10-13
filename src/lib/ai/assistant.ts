@@ -25,7 +25,8 @@ const ADMIN_PAGES = `- Tableau de bord : /admin
 - Codes promo : /admin/coupons ; clients (CRM) : /admin/clients, clients inactifs : /admin/clients/inactifs
 - Revendeurs : /admin/consultants ; candidatures : /admin/candidatures ; primes d'équipe : /admin/primes-equipe
 - Protocole de partenariat : /admin/protocole ; annonces : /admin/annonces ; messages de contact : /admin/messages
-- WhatsApp : /admin/whatsapp, journal : /admin/journal-whatsapp
+- WhatsApp : centre et réglages /admin/whatsapp ; conversations (répondre aux clients, mettre l'assistant WhatsApp en pause) /admin/whatsapp/conversations ; campagnes ciblées /admin/whatsapp/campagnes ; journal des envois /admin/journal-whatsapp ; interrupteurs (assistant de commande, suivi de commande, alertes, kit du matin des revendeurs à 8 h, assistant de l'équipe) et modèles de message Meta : /admin/automatisations
+  (Fonctionnement : les clients commandent sur WhatsApp avec l'assistant, vocaux et photos compris ; suivi de commande avec bouton « Payer » ; revendeurs, admins et livreurs reconnus par leur numéro ; un client qui écrit STOP n'est plus contacté. Configuration Meta : variables WHATSAPP_* dans Vercel, webhook /api/whatsapp/webhook.)
 - Livraisons : /admin/livraisons ; livreurs : /admin/livreurs, carte : /admin/livreurs/carte
 - Statistiques : /admin/statistiques ; comptabilité : /admin/comptabilite (journal, grand livre, bilan, TVA, dépenses, trésorerie)
 - Wallets des membres : /admin/wallets ; versements : /admin/versements ; modèle économique (prix, commissions) : /admin/modele-economique

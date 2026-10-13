@@ -141,24 +141,36 @@ export async function generateContent(req: GeminiRequest, fetchImpl: typeof fetc
 
   const primary = geminiModel();
   const fallback = geminiFallbackModel();
-  const signal = AbortSignal.timeout(req.timeoutMs ?? 20_000);
+  const total = req.timeoutMs ?? 20_000;
+  const started = Date.now();
   const hasSignatures = req.contents.some((c) => c.parts.some((p) => "thoughtSignature" in p && p.thoughtSignature));
 
   let res: Response;
   const skipPrimary = fallback && Date.now() < primaryCooldownUntil;
+  // Avec un modèle de secours, le principal n'a qu'une partie du délai : s'il traîne, le secours
+  // répond avec le temps restant (au lieu de « l'assistant met trop de temps »).
+  const signal = AbortSignal.timeout(fallback && !skipPrimary ? Math.round(total * 0.6) : total);
   try {
     res = await callModel(skipPrimary ? fallback : primary, req, key, signal, fetchImpl, Boolean(skipPrimary && hasSignatures));
   } catch (e) {
+    const slow = e instanceof Error && (e.name === "TimeoutError" || e.name === "AbortError");
+    const left = total - (Date.now() - started);
+    if (slow && fallback && !skipPrimary && left > 3_000) {
+      primaryCooldownUntil = Date.now() + PRIMARY_COOLDOWN_MS;
+      console.warn(`[gemini] ${primary} trop lent, bascule sur ${fallback}`);
+      res = await callModel(fallback, req, key, AbortSignal.timeout(left), fetchImpl, hasSignatures);
+      return contentOf(res);
+    }
     // Conversation poursuivie après une bascule : signatures d'un autre modèle refusées → on les neutralise.
     if (e instanceof GeminiHttpError && e.status === 400 && hasSignatures && /signature/i.test(e.message)) {
-      res = await callModel(skipPrimary ? fallback : primary, req, key, signal, fetchImpl, true);
+      res = await callModel(skipPrimary ? fallback : primary, req, key, AbortSignal.timeout(Math.max(1_000, total - (Date.now() - started))), fetchImpl, true);
       return contentOf(res);
     }
     const saturated = e instanceof GeminiHttpError && (e.status === 429 || e.status === 503);
     if (!saturated || !fallback || skipPrimary) throw e;
     primaryCooldownUntil = Date.now() + PRIMARY_COOLDOWN_MS;
     console.warn(`[gemini] ${primary} indisponible (${(e as GeminiHttpError).status}), bascule sur ${fallback}`);
-    res = await callModel(fallback, req, key, signal, fetchImpl, hasSignatures);
+    res = await callModel(fallback, req, key, AbortSignal.timeout(Math.max(1_000, total - (Date.now() - started))), fetchImpl, hasSignatures);
   }
   return contentOf(res);
 }
