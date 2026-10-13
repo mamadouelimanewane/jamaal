@@ -86,9 +86,9 @@ export function ShopAssistant() {
           type="button"
           onClick={() => setOpen(true)}
           aria-label="Ouvrir la conseillère JAMAAL"
-          className="fixed bottom-[5.5rem] right-5 z-40 flex h-14 items-center gap-2 rounded-full bg-ia pl-4 pr-5 text-white shadow-lg shadow-ia/30 transition hover:scale-105"
+          className="fixed bottom-[5.5rem] right-5 z-40 flex h-14 items-center gap-2 rounded-full bg-conseil pl-4 pr-5 text-white shadow-lg shadow-conseil/30 transition hover:scale-105"
         >
-          <Sparkles size={20} className="text-ia-accent" />
+          <Sparkles size={20} className="text-conseil-accent" />
           <span className="text-sm font-semibold">Conseil</span>
         </button>
       )}
@@ -98,11 +98,11 @@ export function ShopAssistant() {
           role="dialog"
           aria-modal="false"
           aria-label="Conseillère virtuelle JAMAAL"
-          className="fixed inset-x-0 bottom-0 z-50 flex h-[88dvh] flex-col overflow-hidden rounded-t-3xl border border-line bg-white shadow-2xl shadow-ia/20 sm:inset-x-auto sm:bottom-5 sm:right-5 sm:h-[min(640px,calc(100dvh-2.5rem))] sm:w-[400px] sm:rounded-3xl"
+          className="fixed inset-x-0 bottom-0 z-50 flex h-[88dvh] flex-col overflow-hidden rounded-t-3xl border border-line bg-white shadow-2xl shadow-conseil/20 sm:inset-x-auto sm:bottom-5 sm:right-5 sm:h-[min(640px,calc(100dvh-2.5rem))] sm:w-[400px] sm:rounded-3xl"
         >
-          <div className="flex items-center gap-3 bg-ia px-5 py-4 text-white">
+          <div className="flex items-center gap-3 bg-conseil px-5 py-4 text-white">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/10">
-              <Sparkles size={20} className="text-ia-accent" />
+              <Sparkles size={20} className="text-conseil-accent" />
             </span>
             <div className="min-w-0 flex-1">
               <p className="font-serif-display text-lg font-semibold leading-tight">Conseillère JAMAAL</p>
@@ -127,7 +127,7 @@ export function ShopAssistant() {
             </button>
           </div>
 
-          <div className="flex-1 space-y-3 overflow-y-auto bg-ia-light/60 px-4 py-4">
+          <div className="flex-1 space-y-3 overflow-y-auto bg-conseil-light/60 px-4 py-4">
             <div className="max-w-[90%] rounded-2xl rounded-tl-sm bg-white px-4 py-3 text-sm leading-relaxed text-navy shadow-sm">{WELCOME}</div>
             {!messages.length && (
               <div className="flex flex-wrap gap-2 pt-1">
@@ -136,7 +136,7 @@ export function ShopAssistant() {
                     key={s}
                     type="button"
                     onClick={() => send(s)}
-                    className="rounded-full border border-ia/25 bg-white px-3 py-1.5 text-left text-xs text-navy transition hover:border-ia hover:text-ia"
+                    className="rounded-full border border-conseil/25 bg-white px-3 py-1.5 text-left text-xs text-navy transition hover:border-conseil hover:text-conseil"
                   >
                     {s}
                   </button>
@@ -148,11 +148,11 @@ export function ShopAssistant() {
                 <div
                   className={
                     m.role === "user"
-                      ? "max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-br-sm bg-ia px-4 py-2.5 text-sm text-white"
+                      ? "max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-br-sm bg-conseil px-4 py-2.5 text-sm text-white"
                       : "max-w-[92%] rounded-2xl rounded-tl-sm bg-white px-4 py-2.5 text-sm leading-relaxed text-navy shadow-sm"
                   }
                 >
-                  {m.role === "user" ? m.text : <ChatMarkdown text={m.text} onNavigate={onNavigate} linkClassName="font-semibold text-ia-dark underline underline-offset-2" />}
+                  {m.role === "user" ? m.text : <ChatMarkdown text={m.text} onNavigate={onNavigate} linkClassName="font-semibold text-conseil-dark underline underline-offset-2" />}
                 </div>
               </div>
             ))}
@@ -194,9 +194,9 @@ export function ShopAssistant() {
                 maxLength={1000}
                 placeholder="Posez votre question…"
                 aria-label="Votre question"
-                className="max-h-28 min-h-[44px] flex-1 resize-none rounded-2xl border border-line px-3 py-2.5 text-sm text-navy outline-none focus:border-ia"
+                className="max-h-28 min-h-[44px] flex-1 resize-none rounded-2xl border border-line px-3 py-2.5 text-sm text-navy outline-none focus:border-conseil"
               />
-              <button type="submit" disabled={loading || !input.trim()} aria-label="Envoyer" className="rounded-2xl bg-ia p-3 text-white hover:bg-ia-dark disabled:opacity-40">
+              <button type="submit" disabled={loading || !input.trim()} aria-label="Envoyer" className="rounded-2xl bg-conseil p-3 text-white hover:bg-conseil-dark disabled:opacity-40">
                 <SendHorizontal size={18} />
               </button>
             </div>

@@ -36,6 +36,11 @@ html {
   --color-ia-dark: #0a5c3d;
   --color-ia-light: #e7f5ee;
   --color-ia-accent: #bdebd3;
+  /* Conseillère du site : cuivre de la marque, pour ne pas la confondre avec WhatsApp (vert). */
+  --color-conseil: #9c5a48;
+  --color-conseil-dark: #7a4334;
+  --color-conseil-light: #f8eeea;
+  --color-conseil-accent: #f6d3c4;
   --color-navy-light: var(--navy-light);
   --color-rose: var(--rose);
   --color-rose-light: var(--rose-light);
