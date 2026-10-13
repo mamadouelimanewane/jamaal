@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { Loader2, RotateCcw, SendHorizontal, Sparkles, X } from "lucide-react";
 import { askAssistantApi } from "@/lib/assistant-client";
 import type { ChatMessage } from "@/lib/ai/assistant";
@@ -22,6 +23,7 @@ const WELCOME =
 
 /** Conseillère virtuelle de la boutique : bulle flottante au-dessus du bouton WhatsApp. */
 export function ShopAssistant() {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
@@ -78,6 +80,9 @@ export function ShopAssistant() {
   const onNavigate = () => {
     if (window.matchMedia("(max-width: 639px)").matches) setOpen(false);
   };
+
+  // Page de connexion des revendeurs : rien par-dessus le formulaire.
+  if (pathname?.startsWith("/espace-revendeur")) return null;
 
   return (
     <>

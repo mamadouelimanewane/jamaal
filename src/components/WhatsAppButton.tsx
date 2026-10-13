@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import { WHATSAPP_CONTACTS, whatsappLink } from "@/lib/contact";
 
 const Icon = () => (
@@ -12,6 +13,8 @@ const Icon = () => (
 /** Bouton WhatsApp flottant : un clic ouvre le choix entre les numéros de la boutique. */
 export function WhatsAppButton() {
   const [open, setOpen] = useState(false);
+  // Page de connexion : les boutons flottants masqueraient le formulaire sur téléphone.
+  if (usePathname()?.startsWith("/espace-revendeur")) return null;
 
   return (
     <div className="fixed bottom-5 right-5 z-40 flex flex-col items-end gap-3">
