@@ -7,6 +7,8 @@
  *   Flash : un modèle retiré par Google ne casse plus la fonctionnalité.
  */
 
+import { fromOpenAiResponse, openAiConfig, toOpenAiBody } from "./openai-compat";
+
 export const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models";
 export const DEFAULT_GEMINI_MODEL = "gemini-flash-latest";
 
@@ -57,8 +59,9 @@ const acceptedVariant = new Map<string, number>();
 
 export class GeminiError extends Error {}
 
+/** IA disponible : clé Gemini, ou fournisseur compatible OpenAI (AI_PROVIDER + AI_API_KEY). */
 export function geminiConfigured() {
-  return Boolean(process.env.GOOGLE_AI_API_KEY);
+  return Boolean(process.env.GOOGLE_AI_API_KEY) || openAiConfig() !== null;
 }
 
 export function geminiModel() {
@@ -146,6 +149,19 @@ async function callModel(model: string, req: GeminiRequest, key: string, signal:
   throw new GeminiError("Gemini : aucune réponse");
 }
 
+async function callOpenAi(cfg: NonNullable<ReturnType<typeof openAiConfig>>, req: GeminiRequest, signal: AbortSignal, fetchImpl: typeof fetch): Promise<GeminiContent> {
+  const res = await fetchImpl(`${cfg.baseUrl}/chat/completions`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${cfg.key}` },
+    body: JSON.stringify(toOpenAiBody(req, cfg.model)),
+    signal,
+  });
+  if (!res.ok) throw new GeminiHttpError(res.status, (await res.text().catch(() => "")).slice(0, 300));
+  const content = fromOpenAiResponse(await res.json());
+  if (!content.parts.length) throw new GeminiError(`${cfg.provider} : réponse vide`);
+  return content;
+}
+
 /** Erreurs qui justifient d'essayer le modèle suivant. */
 function retriable(e: unknown): boolean {
   if (e instanceof Error && (e.name === "TimeoutError" || e.name === "AbortError")) return true;
@@ -158,8 +174,28 @@ function retriable(e: unknown): boolean {
  * restant, le dernier a tout ce qui reste.
  */
 export async function generateContent(req: GeminiRequest, fetchImpl: typeof fetch = fetch): Promise<GeminiContent> {
+  const total0 = req.timeoutMs ?? 20_000;
+  const started0 = Date.now();
+  // 1. Fournisseur compatible OpenAI (s'il est configuré), puis Gemini en secours.
+  const oa = openAiConfig();
+  const oaId = oa ? `oa:${oa.model}` : "";
+  if (oa && (cooldownUntil.get(oaId) ?? 0) <= Date.now()) {
+    const hasGemini = Boolean(process.env.GOOGLE_AI_API_KEY);
+    try {
+      const out = await callOpenAi(oa, req, AbortSignal.timeout(hasGemini ? Math.max(6_000, Math.round(total0 * 0.6)) : total0), fetchImpl);
+      cooldownUntil.delete(oaId);
+      return out;
+    } catch (e) {
+      // Toute panne du fournisseur (clé refusée, quota, modèle inconnu, média non pris en charge…)
+      // bascule sur Gemini quand une clé Gemini existe.
+      if (!hasGemini) throw e;
+      cooldownUntil.set(oaId, Date.now() + PRIMARY_COOLDOWN_MS);
+      console.warn(`[ia] ${oa.provider} indisponible (${e instanceof GeminiHttpError ? e.status : "délai dépassé"}), bascule sur Gemini`);
+    }
+  }
   const key = process.env.GOOGLE_AI_API_KEY;
-  if (!key) throw new GeminiError("GOOGLE_AI_API_KEY manquante");
+  if (!key) throw new GeminiError("Aucun fournisseur d'IA configuré (GOOGLE_AI_API_KEY ou AI_API_KEY)");
+  req = { ...req, timeoutMs: Math.max(1_500, total0 - (Date.now() - started0)) };
 
   const primary = geminiModel();
   const fallbacks = geminiFallbackModels();

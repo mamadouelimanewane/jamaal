@@ -1,5 +1,6 @@
 import { requireAdminForApi } from "@/lib/api-guard";
 import { GEMINI_BASE_URL, geminiFallbackModel, geminiModel } from "@/lib/ai/gemini";
+import { openAiConfig, toOpenAiBody, fromOpenAiResponse } from "@/lib/ai/openai-compat";
 import { whatsappConfig } from "@/lib/whatsapp";
 
 export const dynamic = "force-dynamic";
@@ -48,6 +49,25 @@ export async function GET(req: Request) {
     })
   );
 
+  // Fournisseur compatible OpenAI (DeepSeek, Mistral, OpenAI…), avec un outil pour vérifier le function calling.
+  const oa = openAiConfig();
+  let fournisseur: Record<string, unknown> | null = null;
+  if (oa) {
+    const started = Date.now();
+    try {
+      const body = toOpenAiBody({ contents: [{ role: "user", parts: [{ text: "Quel est le stock du parfum Aqua Soul ? Utilise l'outil." }] }], tools: [{ name: "etat_stock", description: "Stock d'un produit", parameters: { type: "object", properties: { produit: { type: "string" } }, required: ["produit"] } }], maxOutputTokens: 100 }, oa.model);
+      const res = await fetch(`${oa.baseUrl}/chat/completions`, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${oa.key}` }, body: JSON.stringify(body), signal: AbortSignal.timeout(20_000) });
+      const text = await res.text();
+      let outil: unknown = null;
+      try {
+        outil = fromOpenAiResponse(JSON.parse(text)).parts.find((p) => "functionCall" in p) ?? null;
+      } catch {}
+      fournisseur = { nom: oa.provider, modele: oa.model, status: res.status, ms: Date.now() - started, outilAppele: outil, extrait: res.ok ? undefined : text.slice(0, 220) };
+    } catch (e) {
+      fournisseur = { nom: oa.provider, modele: oa.model, status: 0, ms: Date.now() - started, erreur: e instanceof Error ? e.message : String(e) };
+    }
+  }
+
   const wa = whatsappConfig();
   const present = (k: string) => Boolean(process.env[k]);
   let meta: Record<string, unknown> | null = null;
@@ -65,7 +85,7 @@ export async function GET(req: Request) {
     }
   }
   return Response.json({
-    ia: { cle: key ? `présente (${key.length} caractères)` : "absente", modeles: ai },
+    ia: { cle: key ? `présente (${key.length} caractères)` : "absente", modeles: ai, fournisseur },
     whatsapp: {
       fournisseur: wa.provider,
       envoiActif: wa.active,
