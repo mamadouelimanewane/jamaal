@@ -66,16 +66,24 @@ export function geminiModel() {
 }
 
 export const DEFAULT_GEMINI_FALLBACK_MODEL = "gemini-flash-lite-latest";
+/** Secours supplémentaires, essayés dans l'ordre (un modèle saturé ou retiré passe au suivant). */
+export const DEFAULT_GEMINI_FALLBACK_MODELS = [DEFAULT_GEMINI_FALLBACK_MODEL, "gemini-3-flash-preview"];
 
 /**
- * Modèle de secours, utilisé quand le principal répond 429 (quota épuisé, fréquent avec une clé
- * gratuite) ou 503 (surcharge) : il a son propre quota. GEMINI_FALLBACK_MODEL=none le désactive.
+ * Modèles de secours, utilisés quand le principal répond 429 (quota épuisé), 503 (surcharge),
+ * 404 (modèle retiré) ou tarde trop. GEMINI_FALLBACK_MODEL accepte une liste séparée par des
+ * virgules ; « none » désactive le secours.
  */
-export function geminiFallbackModel(): string | null {
+export function geminiFallbackModels(): string[] {
   const v = process.env.GEMINI_FALLBACK_MODEL?.trim();
-  if (v?.toLowerCase() === "none") return null;
-  const m = v || DEFAULT_GEMINI_FALLBACK_MODEL;
-  return m === geminiModel() ? null : m;
+  if (v?.toLowerCase() === "none") return [];
+  const list = v ? v.split(",").map((m) => m.trim()).filter(Boolean) : DEFAULT_GEMINI_FALLBACK_MODELS;
+  return [...new Set(list)].filter((m) => m !== geminiModel());
+}
+
+/** Premier modèle de secours (compatibilité). */
+export function geminiFallbackModel(): string | null {
+  return geminiFallbackModels()[0] ?? null;
 }
 
 /** Après un 429 / 503 du modèle principal, on passe directement au secours pendant un moment. */
@@ -134,45 +142,56 @@ async function callModel(model: string, req: GeminiRequest, key: string, signal:
   throw new GeminiError("Gemini : aucune réponse");
 }
 
-/** Appelle generateContent et renvoie le contenu du premier candidat. */
+/** Erreurs qui justifient d'essayer le modèle suivant. */
+function retriable(e: unknown): boolean {
+  if (e instanceof Error && (e.name === "TimeoutError" || e.name === "AbortError")) return true;
+  return e instanceof GeminiHttpError && [404, 429, 500, 502, 503, 504].includes(e.status);
+}
+
+/**
+ * Appelle generateContent et renvoie le contenu du premier candidat. Les modèles sont essayés
+ * dans l'ordre (principal, puis secours) dans le délai total : chacun a une part du temps
+ * restant, le dernier a tout ce qui reste.
+ */
 export async function generateContent(req: GeminiRequest, fetchImpl: typeof fetch = fetch): Promise<GeminiContent> {
   const key = process.env.GOOGLE_AI_API_KEY;
   if (!key) throw new GeminiError("GOOGLE_AI_API_KEY manquante");
 
   const primary = geminiModel();
-  const fallback = geminiFallbackModel();
+  const fallbacks = geminiFallbackModels();
   const total = req.timeoutMs ?? 20_000;
   const started = Date.now();
   const hasSignatures = req.contents.some((c) => c.parts.some((p) => "thoughtSignature" in p && p.thoughtSignature));
+  const skipPrimary = fallbacks.length > 0 && Date.now() < primaryCooldownUntil;
+  const chain = skipPrimary ? fallbacks : [primary, ...fallbacks];
 
-  let res: Response;
-  const skipPrimary = fallback && Date.now() < primaryCooldownUntil;
-  // Avec un modèle de secours, le principal n'a qu'une partie du délai : s'il traîne, le secours
-  // répond avec le temps restant (au lieu de « l'assistant met trop de temps »).
-  const signal = AbortSignal.timeout(fallback && !skipPrimary ? Math.round(total * 0.6) : total);
-  try {
-    res = await callModel(skipPrimary ? fallback : primary, req, key, signal, fetchImpl, Boolean(skipPrimary && hasSignatures));
-  } catch (e) {
-    const slow = e instanceof Error && (e.name === "TimeoutError" || e.name === "AbortError");
+  let lastError: unknown = new GeminiError("Gemini : aucune réponse");
+  for (let i = 0; i < chain.length; i++) {
+    const model = chain[i];
     const left = total - (Date.now() - started);
-    if (slow && fallback && !skipPrimary && left > 3_000) {
-      primaryCooldownUntil = Date.now() + PRIMARY_COOLDOWN_MS;
-      console.warn(`[gemini] ${primary} trop lent, bascule sur ${fallback}`);
-      res = await callModel(fallback, req, key, AbortSignal.timeout(left), fetchImpl, hasSignatures);
-      return contentOf(res);
+    if (left < 1_500) break;
+    const isLast = i === chain.length - 1;
+    const budget = isLast ? left : Math.max(4_000, Math.round(left * 0.55));
+    // Conversation commencée sur le principal : ses signatures ne valent pas pour un autre modèle.
+    const foreign = hasSignatures && model !== primary;
+    try {
+      try {
+        return await contentOf(await callModel(model, req, key, AbortSignal.timeout(budget), fetchImpl, foreign));
+      } catch (e) {
+        // Signatures de réflexion refusées : on les neutralise et on réessaie ce modèle.
+        if (e instanceof GeminiHttpError && e.status === 400 && hasSignatures && !foreign && /signature/i.test(e.message)) {
+          return await contentOf(await callModel(model, req, key, AbortSignal.timeout(Math.max(1_000, total - (Date.now() - started))), fetchImpl, true));
+        }
+        throw e;
+      }
+    } catch (e) {
+      lastError = e;
+      if (!retriable(e) || isLast) throw e;
+      if (model === primary) primaryCooldownUntil = Date.now() + PRIMARY_COOLDOWN_MS;
+      console.warn(`[gemini] ${model} indisponible (${e instanceof GeminiHttpError ? e.status : "délai dépassé"}), bascule sur ${chain[i + 1]}`);
     }
-    // Conversation poursuivie après une bascule : signatures d'un autre modèle refusées → on les neutralise.
-    if (e instanceof GeminiHttpError && e.status === 400 && hasSignatures && /signature/i.test(e.message)) {
-      res = await callModel(skipPrimary ? fallback : primary, req, key, AbortSignal.timeout(Math.max(1_000, total - (Date.now() - started))), fetchImpl, true);
-      return contentOf(res);
-    }
-    const saturated = e instanceof GeminiHttpError && (e.status === 429 || e.status === 503);
-    if (!saturated || !fallback || skipPrimary) throw e;
-    primaryCooldownUntil = Date.now() + PRIMARY_COOLDOWN_MS;
-    console.warn(`[gemini] ${primary} indisponible (${(e as GeminiHttpError).status}), bascule sur ${fallback}`);
-    res = await callModel(fallback, req, key, AbortSignal.timeout(Math.max(1_000, total - (Date.now() - started))), fetchImpl, hasSignatures);
   }
-  return contentOf(res);
+  throw lastError;
 }
 
 async function contentOf(res: Response): Promise<GeminiContent> {

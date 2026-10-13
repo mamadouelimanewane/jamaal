@@ -109,3 +109,13 @@ test("sans modèle de secours, le 429 remonte", async () => {
   assert.equal(calls.length, 1);
   delete process.env.GEMINI_FALLBACK_MODEL;
 });
+
+test("chaîne de secours : modèle saturé puis modèle retiré → le suivant répond", async () => {
+  process.env.GEMINI_MODEL = "modele-h";
+  delete process.env.GEMINI_FALLBACK_MODEL;
+  resetGeminiCooldown();
+  const calls: Call[] = [];
+  await generateContent({ contents: [{ role: "user", parts: [{ text: "x" }] }] }, fakeFetch([{ status: 503, body: "high demand" }, { status: 404, body: "no longer available" }, { status: 200, body: OK }], calls));
+  assert.deepEqual(calls.map((c) => c.url.match(/models\/([^:]+):/)?.[1]), ["modele-h", "gemini-flash-lite-latest", "gemini-3-flash-preview"]);
+  resetGeminiCooldown();
+});
