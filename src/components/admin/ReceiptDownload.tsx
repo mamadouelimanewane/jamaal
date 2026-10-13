@@ -89,7 +89,7 @@ export function ReceiptDownload({
       </div>
       <p className="mt-2 max-w-sm text-xs text-navy/70">
         Sur mobile, « Envoyer sur WhatsApp » ouvre directement le partage de l&apos;image. Sur ordinateur,
-        l&apos;image est téléchargée puis WhatsApp Web s&apos;ouvre pour que vous l&apos;joigniez.
+        l&apos;image est téléchargée puis WhatsApp Web s&apos;ouvre pour que vous la joigniez.
       </p>
 
       <div className="mt-6 w-full max-w-[480px] overflow-hidden rounded-2xl">
