@@ -142,11 +142,16 @@ export async function getVersusPayment(paymentReference: string): Promise<Versus
   return { status: String(p.status), amount: Number(p.amount), currency: String(p.currency ?? ""), externalReference: String(p.external_reference ?? "") };
 }
 
+/** Les paiements gérés par Versus sont repérés par ce préfixe sur la référence enregistrée (le moyen réel — Wave, Orange Money ou carte — est choisi chez Versus). */
+export const VERSUS_REF_PREFIX = "versus:";
+export const isVersusRef = (ref?: string | null) => !!ref && ref.startsWith(VERSUS_REF_PREFIX);
+export const rawVersusRef = (ref: string) => (isVersusRef(ref) ? ref.slice(VERSUS_REF_PREFIX.length) : ref);
+
 /** Adaptateur commun aux trois moyens de paiement : le client est redirigé vers la page de paiement Versus. */
 export async function payViaVersus(
   input: import("./types").CreatePaymentInput,
   channel: "choice" | "card"
 ): Promise<import("./types").CreatePaymentResult> {
   const { url, paymentReference } = await createVersusPayment({ ...input, channel });
-  return { redirect: true, url, externalRef: paymentReference };
+  return { redirect: true, url, externalRef: VERSUS_REF_PREFIX + paymentReference };
 }

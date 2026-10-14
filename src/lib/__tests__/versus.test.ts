@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { createVersusPayment, externalReferenceFor, getVersusPayment, orderIdFromReference, splitName, versusConfigured } from "../payment/versus";
+import { isVersusRef, rawVersusRef, createVersusPayment, externalReferenceFor, getVersusPayment, orderIdFromReference, splitName, versusConfigured } from "../payment/versus";
 
 test("nom du client coupé en prénom et nom", () => {
   assert.deepEqual(splitName("Awa Diop Ndiaye"), { first: "Awa", last: "Diop Ndiaye" });
@@ -51,4 +51,12 @@ test("création et relecture d'un paiement Versus (serveur simulé)", async () =
   } finally {
     globalThis.fetch = realFetch;
   }
+});
+
+test("les références Versus sont repérées par leur préfixe", () => {
+  assert.ok(isVersusRef("versus:abc"));
+  assert.ok(!isVersusRef("cs_test_123"));
+  assert.ok(!isVersusRef(null));
+  assert.equal(rawVersusRef("versus:abc"), "abc");
+  assert.equal(rawVersusRef("abc"), "abc");
 });

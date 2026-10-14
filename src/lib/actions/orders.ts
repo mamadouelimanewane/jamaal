@@ -7,6 +7,7 @@ import { OrderStatus } from "@prisma/client";
 import { placeOrder, type CheckoutCustomer, type CheckoutDelivery, type CheckoutItem } from "@/lib/orders/place-order";
 export type { CheckoutCustomer, CheckoutDelivery, CheckoutItem };
 import { setOrderStatus } from "@/lib/orders/status";
+import { isVersusRef } from "@/lib/payment/versus";
 
 /**
  * Crée une commande publique (checkout client).
@@ -111,6 +112,7 @@ export async function getOrderConfirmation(id: string) {
       createdAt: true,
       address: true,
       paymentMethod: true,
+      paymentRef: true,
       paymentStatus: true,
       giftWrap: true,
       giftMessage: true,
@@ -133,7 +135,10 @@ export async function getOrderConfirmation(id: string) {
       },
     },
   });
-  return order;
+  if (!order) return order;
+  // La référence de paiement reste côté serveur : la page n'en reçoit qu'un indicateur.
+  const { paymentRef, ...rest } = order;
+  return { ...rest, paidViaVersus: isVersusRef(paymentRef) };
 }
 
 /** Articles disponibles, avec les prix actuels, pour un nouvel ajout au panier. */

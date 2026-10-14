@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { timingSafeEqual } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { markOrderPaid } from "@/lib/payment/mark-paid";
-import { getVersusPayment, orderIdFromReference, versusConfigured } from "@/lib/payment/versus";
+import { getVersusPayment, orderIdFromReference, rawVersusRef, versusConfigured } from "@/lib/payment/versus";
 import { DEPOSIT_PREFIX } from "@/lib/wallet";
 import { alertPaymentFailed } from "@/lib/whatsapp/alerts";
 
@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
     : (await prisma.order.findUnique({ where: { id }, select: { paymentRef: true } }))?.paymentRef;
   if (!stored) return NextResponse.json({ received: true });
 
-  const payment = await getVersusPayment(stored);
+  const payment = await getVersusPayment(rawVersusRef(stored));
   if (!payment || orderIdFromReference(payment.externalReference) !== id) return NextResponse.json({ received: true });
 
   if (payment.status === "COMPLETED") {

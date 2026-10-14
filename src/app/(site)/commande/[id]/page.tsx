@@ -107,7 +107,7 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
           {!resa && <div className="mt-2 flex justify-between">
             <span className="text-navy/60">Paiement</span>
             <span className="font-semibold text-navy">
-              {paymentMethodLabels[paymentMethod] ?? paymentMethod}
+              {order.paidViaVersus ? "Paiement en ligne (Wave, Orange Money, carte)" : paymentMethodLabels[paymentMethod] ?? paymentMethod}
               {" · "}
               <span
                 className={
