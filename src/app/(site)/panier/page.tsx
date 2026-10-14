@@ -132,7 +132,7 @@ export default function CartPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!customer.name || !customer.phone) {
-      setError("Merci de renseigner au moins votre nom et votre téléphone.");
+      setError("Merci de renseigner votre nom et prénom, et votre téléphone.");
       return;
     }
     if (!acceptCgv) {
@@ -362,7 +362,7 @@ export default function CartPage() {
             <div className="mt-4 flex flex-col gap-3">
               <input
                 required
-                placeholder="Nom complet"
+                placeholder="Nom et prénom"
                 value={customer.name}
                 onChange={(e) => setCustomer((c) => ({ ...c, name: e.target.value }))}
                 className="rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-navy"
@@ -374,15 +374,8 @@ export default function CartPage() {
                 onChange={(e) => setCustomer((c) => ({ ...c, phone: e.target.value }))}
                 className="rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-navy"
               />
-              <input
-                type="email"
-                placeholder="E-mail (optionnel)"
-                value={customer.email}
-                onChange={(e) => setCustomer((c) => ({ ...c, email: e.target.value }))}
-                className="rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-navy"
-              />
               <textarea
-                placeholder={delivery.mode === "LIVRAISON" ? "Adresse de livraison (quartier, rue, repère)" : "Adresse (facultatif)"}
+                placeholder={delivery.mode === "LIVRAISON" ? "Adresse de livraison (quartier, rue, repère)" : "Adresse"}
                 rows={2}
                 value={customer.address}
                 onChange={(e) => setCustomer((c) => ({ ...c, address: e.target.value }))}
@@ -445,7 +438,7 @@ export default function CartPage() {
                 />
               ) : (
                 <p role="alert" className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-900">
-                  Le paiement en ligne (Wave, Orange Money) n&apos;est pas encore disponible. Contactez-nous sur WhatsApp pour passer votre commande.
+                  Le paiement en ligne n&apos;est pas encore disponible. Contactez-nous sur WhatsApp pour passer votre commande.
                 </p>
               )}
 
@@ -478,7 +471,7 @@ export default function CartPage() {
             <p className="mt-3 text-center text-[11px] text-navy/40">
               {paymentMethod === "cod"
                 ? "Règlement à la livraison."
-                : "Vous serez redirigé vers Wave ou Orange Money pour payer en toute sécurité."}
+                : "Vous serez redirigé vers la page de paiement sécurisée, où vous choisirez Wave, Orange Money ou carte."}
             </p>
             <div className="mt-4 border-t border-line pt-4 text-center">
               <p className="mb-2 text-[11px] text-navy/50">Vous préférez finaliser avec une conseillère ?</p>

@@ -3,13 +3,15 @@ import { codProvider } from "./providers/cod";
 import { waveProvider } from "./providers/wave";
 import { orangeMoneyProvider } from "./providers/orange-money";
 import { stripeProvider } from "./providers/stripe";
+import { versusProvider } from "./providers/versus";
 
-const all: PaymentProvider[] = [codProvider, waveProvider, orangeMoneyProvider, stripeProvider];
+const all: PaymentProvider[] = [codProvider, waveProvider, orangeMoneyProvider, stripeProvider, versusProvider];
 
 type Acceptance = { acceptWave: boolean; acceptOrangeMoney: boolean; acceptCard: boolean; acceptCashOnDelivery: boolean };
 
 /** Le moyen de paiement est-il autorisé par le modèle économique (Admin > Modèle économique) ? */
 export function isPaymentAccepted(id: PaymentProviderId, model: Acceptance): boolean {
+  if (id === "versus") return model.acceptWave || model.acceptOrangeMoney || model.acceptCard;
   if (id === "wave") return model.acceptWave;
   if (id === "orange_money") return model.acceptOrangeMoney;
   if (id === "stripe") return model.acceptCard;
@@ -23,7 +25,8 @@ export function isPaymentAccepted(id: PaymentProviderId, model: Acceptance): boo
  * Orange Money est configuré.
  */
 export function getAvailablePaymentProviders(model: Acceptance): PaymentProvider[] {
-  const online = all.filter((p) => p.id !== "cod" && p.available && isPaymentAccepted(p.id, model));
+  // Versus configuré : un seul paiement en ligne (le client choisit Wave / Orange Money / carte chez Versus).
+  const online = all.filter((p) => p.id !== "cod" && p.available && isPaymentAccepted(p.id, model) && (p.id === "versus" || !versusProvider.available));
   if (online.length) return model.acceptCashOnDelivery ? [...online, codProvider] : online;
   return [codProvider];
 }

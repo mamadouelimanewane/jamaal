@@ -35,7 +35,7 @@ export default async function MyWalletPage({ searchParams }: { searchParams: Pro
       {w.viewAs ? (
         <p className="rounded-xl bg-cream px-4 py-3 text-sm text-navy/80">Mode consultation : seul le membre peut retirer ou recharger son wallet.</p>
       ) : (
-        <WalletActions balance={bal.balance} min={min} account={account} depositNumbers={numbers} onlineDeposit={{ WAVE: online.includes("wave"), ORANGE_MONEY: online.includes("orange_money") }} />
+        <WalletActions balance={bal.balance} min={min} account={account} depositNumbers={numbers} onlineDeposit={{ WAVE: online.includes("wave") || online.includes("versus"), ORANGE_MONEY: online.includes("orange_money") || online.includes("versus") }} />
       )}
 
       <section aria-labelledby="historique" className="rounded-2xl border border-line bg-white">

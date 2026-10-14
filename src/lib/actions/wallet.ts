@@ -72,7 +72,7 @@ export async function depositAction(_prev: WalletActionState, fd: FormData): Pro
       refresh();
       return { ok: true, message: "Dépôt déclaré : il sera ajouté à votre solde dès que JAMAAL l'aura vérifié." };
     }
-    const id = provider === "WAVE" ? "wave" : "orange_money";
+    const id = getPaymentProvider("versus")?.available ? "versus" : provider === "WAVE" ? "wave" : "orange_money";
     const p = getPaymentProvider(id);
     const offered = getAvailablePaymentProviders(await getBusinessModel()).some((x) => x.id === id);
     if (!p || !p.available || !offered) {

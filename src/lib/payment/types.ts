@@ -1,4 +1,4 @@
-export type PaymentProviderId = "cod" | "wave" | "orange_money" | "stripe";
+export type PaymentProviderId = "cod" | "wave" | "orange_money" | "stripe" | "versus";
 
 export interface CreatePaymentInput {
   orderId: string;
