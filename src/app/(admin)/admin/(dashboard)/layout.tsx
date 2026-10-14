@@ -124,6 +124,7 @@ const consultantLinks = [
   { href: "/admin/mes-filleuls", label: "Mon équipe", icon: UsersRound },
   { href: "/admin/mes-gains", label: "Mes gains", icon: Banknote },
   { href: "/admin/mes-defis", label: "Mes défis", icon: Trophy },
+  { href: "/admin/mon-classement", label: "Mon classement", icon: Trophy },
   { href: "/admin/formation", label: "Formation & quiz", icon: GraduationCap },
   { href: "/admin/mon-marketing", label: "Mon marketing", icon: Share2 },
   { href: "/admin/ma-communication", label: "Ma communication", icon: Megaphone },
