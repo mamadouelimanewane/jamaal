@@ -53,6 +53,8 @@ const handler = auth((req) => {
   const requestHeaders = new Headers(req.headers);
   requestHeaders.set("x-nonce", nonce);
   requestHeaders.set("Content-Security-Policy-Report-Only", csp);
+  // Next.js lit le nonce dans cet en-tête de la requête interne (jamais renvoyé au navigateur sous ce nom).
+  requestHeaders.set("Content-Security-Policy", csp);
   const response = NextResponse.next({ request: { headers: requestHeaders } });
   response.headers.set("Content-Security-Policy-Report-Only", csp);
 
