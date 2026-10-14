@@ -9,6 +9,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "./auth-guard";
 import { slugify } from "@/lib/ref";
+import { notifyResellerWelcome } from "@/lib/whatsapp/welcome";
 
 async function ensureUniqueSlug(base: string, excludeId?: string): Promise<string> {
   let slug = slugify(base);
@@ -86,7 +87,8 @@ async function consultantDataFromForm(formData: FormData, existingId?: string) {
 
 async function createConsultantImpl(formData: FormData) {
   await requireAdmin();
-  await prisma.consultant.create({ data: await consultantDataFromForm(formData) });
+  const created = await prisma.consultant.create({ data: await consultantDataFromForm(formData), select: { id: true } });
+  notifyResellerWelcome(created.id);
   revalidatePath("/admin/consultants");
   revalidatePath("/consultants");
   redirect("/admin/consultants");

@@ -18,6 +18,7 @@ import { sponsorCapacity, sponsorRefusal, TITLE_RANK } from "@/lib/network";
 import { fillProtocol, pieceLabel } from "@/lib/protocol";
 import { getProtocol, textHash } from "@/lib/protocol-store";
 import { alertNewTeamMember } from "@/lib/whatsapp/alerts";
+import { notifyResellerWelcome } from "@/lib/whatsapp/welcome";
 import { normalizeSponsorCode, resolveSponsorCode } from "@/lib/sponsor-codes";
 
 export type ApplicationState = {
@@ -189,6 +190,7 @@ export async function approveApplication(id: string, opts: { allowIncomplete?: b
   // Mot de passe aléatoire inutilisable tant que le lien d'activation n'a pas été utilisé.
   const passwordHash = await bcrypt.hash(randomBytes(32).toString("hex"), 10);
 
+  let createdId = "";
   await prisma.$transaction(async (tx) => {
     const consultant = await tx.consultant.create({
       data: {
@@ -197,6 +199,7 @@ export async function approveApplication(id: string, opts: { allowIncomplete?: b
         address: app.address, idType: app.idType, idNumber: app.idNumber,
       },
     });
+    createdId = consultant.id;
     if (app.signature) await tx.protocolSignature.update({ where: { id: app.signature.id }, data: { consultantId: consultant.id } });
     const user = reuseUserId
       ? await tx.user.update({ where: { id: reuseUserId }, data: { consultantId: consultant.id } })
@@ -211,6 +214,7 @@ export async function approveApplication(id: string, opts: { allowIncomplete?: b
   });
 
   alertNewTeamMember(sponsor.id, { name: app.name, city: app.city });
+  notifyResellerWelcome(createdId);
 
   // Action réservée aux admins : l'hôte de la requête est fiable (pas d'empoisonnement de lien).
   const siteUrl = await getSiteUrl();

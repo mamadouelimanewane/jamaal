@@ -15,6 +15,7 @@ export const AUTOMATIONS = {
   orderTracking: { key: "auto_suivi_commande", label: "Suivi de commande sur WhatsApp (clients)", help: "Commande reçue avec bouton « Payer », paiement reçu, confirmée, expédiée, annulée, remise." },
   staffWhatsApp: { key: "auto_whatsapp_equipe", label: "Assistant WhatsApp des revendeurs, de l'équipe et des livreurs", help: "Un revendeur, un admin ou un livreur qui écrit au numéro JAMAAL est reconnu et servi par son assistant." },
   alerts: { key: "auto_alertes_whatsapp", label: "Alertes WhatsApp (revendeurs et équipe)", help: "Commission créditée, retrait versé, nouveau filleul, défi presque atteint ; avis négatif, retour, paiement échoué." },
+  welcome: { key: "auto_bienvenue_revendeur", label: "Message de bienvenue aux nouveaux revendeurs", help: "Un seul message WhatsApp à chaque nouveau revendeur : bienvenue, lien de vente personnel, premiers pas." },
   morningKit: { key: "auto_kit_matin", label: "Kit du matin des revendeurs (8 h)", help: "Visuel du jour, texte prêt à publier et lien personnel, chaque matin sur WhatsApp." },
 } as const;
 

@@ -1,6 +1,7 @@
 "use server";
 
 import { backWithError } from "@/lib/form-error";
+import { notifyResellerWelcome } from "@/lib/whatsapp/welcome";
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -31,6 +32,7 @@ async function profileFor(role: Role, formData: FormData, name: string, email: s
       : null;
     if (free) return { consultantId: free.id, livreurId: null };
     const c = await prisma.consultant.create({ data: { name: tidyName(name), city, whatsapp: phone, email, active: true, slug: await uniqueConsultantSlug(name) } });
+    notifyResellerWelcome(c.id);
     return { consultantId: c.id, livreurId: null };
   }
   if (role === "LIVREUR") {

@@ -12,7 +12,7 @@ const daysAgo = (n: number) => new Date(Date.now() - n * 86_400_000);
 export const metadata = { title: "Automatisations" };
 export const maxDuration = 60;
 
-const PREFIX: Partial<Record<AutomationId, string>> = { relance45: "relance45:", birthday: "anniversaire:", cart: "panier:", reviews: "avis:", summary: "resume:", morningKit: "kit:", alerts: "defi80:" };
+const PREFIX: Partial<Record<AutomationId, string>> = { relance45: "relance45:", birthday: "anniversaire:", cart: "panier:", reviews: "avis:", summary: "resume:", morningKit: "kit:", welcome: "bienvenue:", alerts: "defi80:" };
 
 /** Modèles de message à faire valider chez Meta (WhatsApp Manager > Modèles de message). */
 const TEMPLATES = [
