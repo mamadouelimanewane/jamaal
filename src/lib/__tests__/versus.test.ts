@@ -36,6 +36,13 @@ test("création et relecture d'un paiement Versus (serveur simulé)", async () =
     const base = { orderId: "o1", amount: 100, customerName: "Awa Diop", successUrl: "s", cancelUrl: "c" };
     const choice = await createVersusPayment({ ...base, channel: "choice" });
     assert.deepEqual(choice, { url: "https://versus.test/pay/abc", paymentReference: "abc" });
+    // Versus refuse les retours non https : ils sont omis, jamais envoyés.
+    const b0 = calls.find((c) => c.url.endsWith("/api/payment"))?.body;
+    assert.equal(b0?.success_url, undefined);
+    await createVersusPayment({ ...base, successUrl: "https://x.sn/ok", cancelUrl: "http://localhost/no", channel: "choice" });
+    const b1 = calls.filter((c) => c.url.endsWith("/api/payment")).at(-1)?.body;
+    assert.equal(b1?.success_url, "https://x.sn/ok");
+    assert.equal(b1?.failure_url, undefined);
     assert.equal(calls.find((c) => c.url.endsWith("/api/payment"))?.body?.service_id, undefined);
     await createVersusPayment({ ...base, channel: "card" });
     assert.equal(calls.filter((c) => c.url.endsWith("/api/payment")).at(-1)?.body?.service_id, 13);

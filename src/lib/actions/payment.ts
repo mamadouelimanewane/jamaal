@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { getAvailablePaymentProviders, getPaymentProvider, type PaymentProviderId } from "@/lib/payment";
 import type { CreatePaymentResult } from "@/lib/payment/types";
 import { getBusinessModel } from "@/lib/business-model-store";
+import { getSiteUrl } from "@/lib/site-url";
 import { rateLimit, clientIpFromHeaders } from "@/lib/rate-limit";
 
 /**
@@ -70,10 +71,8 @@ async function startPayment(
     throw new Error("Mode de paiement indisponible.");
   }
 
-  const origin =
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    process.env.NEXTAUTH_URL ||
-    "http://localhost:3030";
+  // Domaine réellement utilisé par le client (les passerelles comme Versus exigent des retours en https).
+  const origin = (await getSiteUrl()) || process.env.NEXTAUTH_URL || "http://localhost:3030";
 
   const result = await provider.createPayment({
     orderId: order.id,

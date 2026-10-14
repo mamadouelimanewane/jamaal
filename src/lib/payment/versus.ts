@@ -76,6 +76,8 @@ export interface VersusPaymentInput {
   channel: "choice" | "card";
 }
 
+const secureUrl = (u: string) => /^https:\/\/\S+$/i.test(u);
+
 /** Sépare le prénom du reste du nom (Versus demande un prénom et un nom). */
 export function splitName(full: string): { first: string; last: string } {
   const parts = full.trim().split(/\s+/).filter(Boolean);
@@ -98,8 +100,9 @@ export async function createVersusPayment(input: VersusPaymentInput): Promise<{ 
     order_reference: input.orderId.slice(-12),
     amount: input.amount,
     currency: "XOF",
-    success_url: input.successUrl,
-    failure_url: input.cancelUrl,
+    // Versus refuse toute adresse de retour qui ne commence pas par https:// : on l'omet plutôt que d'échouer.
+    ...(secureUrl(input.successUrl) ? { success_url: input.successUrl } : {}),
+    ...(secureUrl(input.cancelUrl) ? { failure_url: input.cancelUrl } : {}),
     metadata: { orderId: input.orderId },
     ...(input.customerEmail ? { email: input.customerEmail } : {}),
     ...(input.customerPhone ? { phone_number: input.customerPhone } : {}),
