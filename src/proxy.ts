@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { buildCsp, newNonce } from "@/lib/csp";
 
 const REF_COOKIE = "jamaal_ref";
 const REF_MAX_AGE = 60 * 60 * 24 * 30; // 30 jours
@@ -47,16 +46,7 @@ const ADMIN_ONLY_PREFIXES = [
  */
 const handler = auth((req) => {
   const { pathname, searchParams } = req.nextUrl;
-  // CSP à nonce : essai en mode observation (Report-Only) avant de remplacer la politique actuelle.
-  const nonce = newNonce();
-  const csp = buildCsp(nonce, process.env.NODE_ENV !== "production");
-  const requestHeaders = new Headers(req.headers);
-  requestHeaders.set("x-nonce", nonce);
-  requestHeaders.set("Content-Security-Policy-Report-Only", csp);
-  // Next.js lit le nonce dans cet en-tête de la requête interne (jamais renvoyé au navigateur sous ce nom).
-  requestHeaders.set("Content-Security-Policy", csp);
-  const response = NextResponse.next({ request: { headers: requestHeaders } });
-  response.headers.set("Content-Security-Policy-Report-Only", csp);
+  const response = NextResponse.next();
 
   // ——— Attribution consultant via ?ref= ———
   // Le lien personnel /c/<slug> pose aussi le cookie ici : une page serveur n'a pas le droit
