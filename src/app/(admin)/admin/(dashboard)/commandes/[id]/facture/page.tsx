@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { AutoPrint } from "@/components/admin/AutoPrint";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/currency";
 import { BrandLogo } from "@/components/BrandLogo";
@@ -164,12 +165,7 @@ export default async function OrderInvoicePage({
         </div>
       </div>
 
-      {/* Script d'impression automatique quand la page s'ouvre avec ?print=true */}
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `if (new URLSearchParams(window.location.search).get('print') === 'true') { window.print(); }`,
-        }}
-      />
+      <AutoPrint />
     </div>
   );
 }
