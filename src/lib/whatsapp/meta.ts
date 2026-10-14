@@ -8,6 +8,8 @@ export interface RichOptions {
   free?: boolean;
   /** Modèle à utiliser hors fenêtre de 24 h (défaut : WHATSAPP_TEMPLATE_NAME). */
   template?: string;
+  /** Variables {{1}}, {{2}}… du modèle (sinon tout le texte devient {{1}}). Utile pour un modèle dédié. */
+  templateVars?: string[];
   /** Boutons de réponse rapide (20 caractères au plus chacun). */
   buttons?: string[];
   /** Bouton qui ouvre un lien (ex. « Payer maintenant »). */
@@ -25,6 +27,16 @@ const clip = (s: string, n: number) => (s.length > n ? `${s.slice(0, n - 1)}…`
  */
 export function buildMetaPayload(to: string, text: string, opts: RichOptions = {}, envTemplate = process.env.WHATSAPP_TEMPLATE_NAME, lang = process.env.WHATSAPP_TEMPLATE_LANG ?? "fr") {
   const template = opts.free ? undefined : opts.template || envTemplate;
+  if (template && opts.template && opts.templateVars?.length) {
+    // Modèle dédié : une variable par champ (Meta refuse retours à la ligne et suites d'espaces).
+    const parameters = opts.templateVars.map((v) => ({ type: "text", text: v.replace(/\s+/g, " ").trim().slice(0, 200) || "-" }));
+    return {
+      messaging_product: "whatsapp",
+      to,
+      type: "template",
+      template: { name: template, language: { code: lang }, components: [{ type: "body", parameters }] },
+    };
+  }
   if (template) {
     const withLink = opts.cta ? `${text}\n${opts.cta.label} : ${opts.cta.url}` : opts.imageUrl ? `${text}\n${opts.imageUrl}` : text;
     return {

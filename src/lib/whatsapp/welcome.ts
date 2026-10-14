@@ -32,6 +32,12 @@ export function welcomeMessage(
   return { text: lines.join("\n"), cta: { label: "Ouvrir mon espace", url: `${site}/admin/login` } };
 }
 
+/** Variables du modèle dédié « bienvenue_revendeur » : {{1}} prénom, {{2}} parrain, {{3}} lien de vente. */
+export function welcomeTemplateVars(r: { name: string; slug: string | null; sponsorName: string | null }, site: string): string[] {
+  const first = r.name.trim().split(/\s+/)[0] || r.name;
+  return [first, r.sponsorName || "JAMAAL", r.slug && site ? `${site}/c/${r.slug}` : site || "jamaal-nine.vercel.app"];
+}
+
 export async function sendResellerWelcome(consultantId: string): Promise<void> {
   try {
     if (!(await automationEnabled("welcome"))) return;
@@ -48,7 +54,15 @@ export async function sendResellerWelcome(consultantId: string): Promise<void> {
     }
     const site = await getSiteUrl().catch(() => process.env.NEXT_PUBLIC_SITE_URL ?? "");
     const msg = welcomeMessage({ name: c.name, slug: c.slug, sponsorName: c.sponsor?.name ?? null }, site);
-    const res = await sendWhatsApp({ to: c.whatsapp, kind: "reseller", text: msg.text, cta: msg.cta });
+    // Modèle dédié (WHATSAPP_TEMPLATE_WELCOME) si configuré ; sinon le modèle générique de WHATSAPP_TEMPLATE_NAME.
+    const template = process.env.WHATSAPP_TEMPLATE_WELCOME || undefined;
+    const res = await sendWhatsApp({
+      to: c.whatsapp,
+      kind: "reseller",
+      text: msg.text,
+      cta: msg.cta,
+      ...(template ? { template, templateVars: welcomeTemplateVars({ name: c.name, slug: c.slug, sponsorName: c.sponsor?.name ?? null }, site) } : {}),
+    });
     // Échec d'envoi : on libère l'envoi pour qu'un nouvel essai (ou un renvoi) reste possible.
     if (res.status === "ECHEC") await prisma.automationSent.delete({ where: { key: `bienvenue:${consultantId}` } }).catch(() => null);
   } catch (e) {

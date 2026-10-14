@@ -41,7 +41,7 @@ export function whatsappConfig() {
 export async function sendWhatsApp(opts: { to: string; text: string; kind: WhatsAppKind; campaignId?: string } & RichOptions): Promise<SendResult> {
   const to = canonicalizePhone(opts.to);
   const body = opts.text.slice(0, 1500);
-  const rich: RichOptions = { free: opts.free, template: opts.template, buttons: opts.buttons, cta: opts.cta, imageUrl: opts.imageUrl };
+  const rich: RichOptions = { free: opts.free, template: opts.template, templateVars: opts.templateVars, buttons: opts.buttons, cta: opts.cta, imageUrl: opts.imageUrl };
   let result: SendResult;
 
   try {
