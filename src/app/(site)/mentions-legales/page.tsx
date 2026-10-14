@@ -1,3 +1,5 @@
+export const metadata = { title: "Mentions légales", description: "Mentions légales du site JAMAAL, revendeur officiel Chogan au Sénégal." };
+
 export default function MentionsLegalesPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-14 text-sm leading-relaxed text-navy/80 sm:px-6">

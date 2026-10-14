@@ -1,5 +1,7 @@
 import { Gift, Users } from "lucide-react";
 
+export const metadata = { title: "Parrainage", description: "Parrainez vos proches : un avantage pour vous et pour eux sur les produits Chogan de JAMAAL." };
+
 export default function ParrainagePage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-12">

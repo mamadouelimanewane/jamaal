@@ -2,6 +2,8 @@ import { getConsultants } from "@/lib/db-content";
 import { getConsultantRankings } from "@/lib/ranking";
 import { RankBadge } from "@/components/admin/RankBadge";
 
+export const metadata = { title: "Nos consultants", description: "Trouvez un consultant JAMAAL près de chez vous, revendeur officiel Chogan au Sénégal." };
+
 export const dynamic = "force-dynamic";
 
 const rankOrder = { GOLD: 0, SILVER: 1, BRONZE: 2 } as const;

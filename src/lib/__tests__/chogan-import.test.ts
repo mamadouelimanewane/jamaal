@@ -135,8 +135,10 @@ test("archive ZIP lisible par un outil standard", () => {
     const out = execFileSync("python3", ["-c", "import sys,zipfile;z=zipfile.ZipFile(sys.argv[1]);assert z.testzip() is None;print('|'.join(i.filename+':'+str(i.file_size) for i in z.infolist()))", file]).toString().trim();
     assert.equal(out, "MM041-peach-1.jpg:4|été/é.txt:7");
   } catch (e) {
-    // Sans python3 (poste Windows), on vérifie au moins la signature de fin d'archive.
-    if ((e as NodeJS.ErrnoException).code !== "ENOENT") throw e;
+    // Sans Python utilisable (poste Windows : absent, ou simple raccourci du Microsoft Store), on
+    // vérifie au moins la signature de fin d'archive.
+    const absent = (e as NodeJS.ErrnoException).code === "ENOENT" || /Python was not found/i.test(String((e as { stderr?: unknown }).stderr ?? e));
+    if (!absent) throw e;
     assert.equal(new DataView(zip.buffer).getUint32(zip.length - 22, true), 0x06054b50);
   } finally {
     fs.rmSync(file, { force: true });

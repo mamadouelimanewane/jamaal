@@ -1,6 +1,8 @@
 import { reviews } from "@/data/reviews";
 import { StarRating } from "@/components/StarRating";
 
+export const metadata = { title: "Avis clients", description: "Ce que disent nos clientes et clients des produits Chogan vendus par JAMAAL au Sénégal." };
+
 export default function ReviewsPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6">

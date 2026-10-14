@@ -2,6 +2,8 @@ import Link from "next/link";
 import { getGiftSets } from "@/lib/db-products";
 import { ProductCard } from "@/components/ProductCard";
 
+export const metadata = { title: "Coffrets découverte", description: "Découvrez les parfums JAMAAL en format découverte : des coffrets pour trouver votre sillage avant de choisir." };
+
 export const dynamic = "force-dynamic";
 
 export default async function DiscoverySetsPage() {

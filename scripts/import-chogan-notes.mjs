@@ -19,9 +19,10 @@
  * Usage : node scripts/import-chogan-notes.mjs
  */
 import fs from "node:fs";
+import { fileURLToPath } from "node:url";
 import path from "node:path";
 
-const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const SRC = path.join(ROOT, "import/chogan-notes.txt");
 const OUT_SQL = path.join(ROOT, "db/sql/20261011-11-notes-olfactives.sql");
 const OUT_JSON = path.join(ROOT, "src/data/chogan-notes.json");
@@ -194,4 +195,4 @@ function main() {
   console.log(Object.entries(fam).sort((a, b) => b[1] - a[1]).map(([f, n]) => `${f}: ${n}`).join(" · "));
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) main();
+if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) main();

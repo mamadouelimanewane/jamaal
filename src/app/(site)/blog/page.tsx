@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { getBlogPosts } from "@/lib/db-content";
 
+export const metadata = { title: "Le journal JAMAAL", description: "Conseils parfum, beauté et bien-être : les articles du journal JAMAAL." };
+
 export const dynamic = "force-dynamic";
 
 export default async function BlogPage() {

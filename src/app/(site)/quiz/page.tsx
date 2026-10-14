@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { PerfumeQuiz } from "@/components/PerfumeQuiz";
 
+export const metadata = { title: "Trouver mon sillage", description: "Répondez à quelques questions : le conseil JAMAAL vous propose les parfums qui vous ressemblent." };
+
 export const dynamic = "force-dynamic";
 
 /**

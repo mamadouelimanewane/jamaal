@@ -1,3 +1,5 @@
+export const metadata = { title: "Conditions générales de vente", description: "Conditions générales de vente de JAMAAL : commande, paiement, livraison, retours." };
+
 export default function CgvPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-14 text-sm leading-relaxed text-navy/80 sm:px-6">

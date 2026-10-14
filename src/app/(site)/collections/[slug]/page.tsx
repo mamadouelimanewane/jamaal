@@ -7,6 +7,13 @@ import { CollectionGrid } from "@/components/CollectionGrid";
 
 export const dynamic = "force-dynamic";
 
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const category = await getCategory(slug).catch(() => null);
+  if (!category) return { title: "Collection introuvable" };
+  return { title: category.label, description: (category.description || `Découvrez la collection ${category.label} de JAMAAL, revendeur officiel Chogan au Sénégal.`).slice(0, 160) };
+}
+
 export default async function CollectionPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const [category, products] = await Promise.all([getCategory(slug), getProductsByCategory(slug)]);

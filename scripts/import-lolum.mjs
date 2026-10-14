@@ -10,9 +10,10 @@
  * distribué au Sénégal… ») : une fiche réécrite au back-office est conservée.
  */
 import fs from "node:fs";
+import { fileURLToPath } from "node:url";
 import path from "node:path";
 
-const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const items = JSON.parse(fs.readFileSync(path.join(ROOT, "import/lolum-catalogue.json"), "utf8"));
 
 export const ESSENTIAL_OIL_CAUTION =
@@ -63,4 +64,4 @@ function main() {
   console.log(`${items.length} fiches LOLUM.`);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) main();
+if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) main();
