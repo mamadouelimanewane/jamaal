@@ -1,4 +1,5 @@
 import type { PaymentProvider, CreatePaymentInput, CreatePaymentResult } from "../types";
+import { payViaVersus, versusConfigured } from "../versus";
 
 /**
  * Orange Money Web Payment (Sénégal)
@@ -21,13 +22,16 @@ export const orangeMoneyProvider: PaymentProvider = {
   id: "orange_money",
   label: "Orange Money",
   description: "Payez avec Orange Money (OTP SMS).",
-  available: !!(
-    process.env.ORANGE_MONEY_CLIENT_ID &&
-    process.env.ORANGE_MONEY_CLIENT_SECRET &&
-    process.env.ORANGE_MONEY_MERCHANT_KEY
-  ),
+  available:
+    !!(
+      process.env.ORANGE_MONEY_CLIENT_ID &&
+      process.env.ORANGE_MONEY_CLIENT_SECRET &&
+      process.env.ORANGE_MONEY_MERCHANT_KEY
+    ) || versusConfigured(),
 
   async createPayment(input: CreatePaymentInput): Promise<CreatePaymentResult> {
+    // Versus (si configuré) : ouverture directe d'Orange Money avec le montant et le numéro déjà saisi.
+    if (versusConfigured()) return payViaVersus(input, "orange_money");
     const clientId = process.env.ORANGE_MONEY_CLIENT_ID!;
     const clientSecret = process.env.ORANGE_MONEY_CLIENT_SECRET!;
     const merchantKey = process.env.ORANGE_MONEY_MERCHANT_KEY!;

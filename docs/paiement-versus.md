@@ -25,8 +25,10 @@ partent alors comme pour les autres moyens de paiement.
 
 ## Parcours client
 
-- Wave / Orange Money : redirection vers la page Versus, où le client choisit son moyen et paie.
-- Carte bancaire : redirection directe vers le paiement par carte.
+- Le client choisit **une seule fois**, dans le panier : Wave, Orange Money ou carte bancaire (la carte apparaît si elle est acceptée dans Admin → Modèle économique).
+- Son numéro, déjà saisi dans le formulaire, est transmis à Versus : il n'est jamais redemandé.
+- Le site demande à Versus de préparer le paiement avec ce moyen, attend le lien (2 à 5 secondes) puis envoie le client directement vers **l'application Wave** (ou Orange Money / Max it, ou la page carte), avec le montant de la commande déjà indiqué. Sur un téléphone, le lien Wave ouvre l'application.
+- Si le lien tarde, ou si le numéro n'est pas un numéro sénégalais valide, le client arrive sur la page Versus où il choisit et saisit lui-même.
 - Retour sur `/commande/<id>?paid=1` ou `?canceled=1`.
 
 ## Test

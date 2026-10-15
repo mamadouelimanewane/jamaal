@@ -1,4 +1,5 @@
 import type { PaymentProvider, CreatePaymentInput, CreatePaymentResult } from "../types";
+import { payViaVersus, versusConfigured } from "../versus";
 
 /**
  * Wave Business Checkout API
@@ -13,9 +14,11 @@ export const waveProvider: PaymentProvider = {
   id: "wave",
   label: "Wave",
   description: "Payez avec votre compte Wave (recommandé au Sénégal).",
-  available: !!process.env.WAVE_API_KEY,
+  available: !!process.env.WAVE_API_KEY || versusConfigured(),
 
   async createPayment(input: CreatePaymentInput): Promise<CreatePaymentResult> {
+    // Versus (si configuré) : ouverture directe de Wave avec le montant et le numéro déjà saisi.
+    if (versusConfigured()) return payViaVersus(input, "wave");
     const apiKey = process.env.WAVE_API_KEY;
     const base = process.env.WAVE_API_BASE || "https://api.wave.com/v1";
 

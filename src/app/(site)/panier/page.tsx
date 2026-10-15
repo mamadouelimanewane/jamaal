@@ -471,7 +471,7 @@ export default function CartPage() {
             <p className="mt-3 text-center text-[11px] text-navy/40">
               {paymentMethod === "cod"
                 ? "Règlement à la livraison."
-                : "Vous serez redirigé vers la page de paiement sécurisée, où vous choisirez Wave, Orange Money ou carte."}
+                : "Vous serez dirigé directement vers le moyen de paiement choisi, avec le montant déjà indiqué : rien à ressaisir."}
             </p>
             <div className="mt-4 border-t border-line pt-4 text-center">
               <p className="mb-2 text-[11px] text-navy/50">Vous préférez finaliser avec une conseillère ?</p>

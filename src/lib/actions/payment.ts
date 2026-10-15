@@ -89,8 +89,8 @@ async function startPayment(
   const methodEnum =
     method === "cod"
       ? "A_LA_LIVRAISON"
-      : method === "wave" || method === "versus"
-        ? "WAVE" // Versus : le moyen réellement utilisé est choisi sur sa page, Wave sert d'étiquette par défaut
+      : method === "wave"
+        ? "WAVE"
         : method === "orange_money"
           ? "ORANGE_MONEY"
           : "STRIPE";

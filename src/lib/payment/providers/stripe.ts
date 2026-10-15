@@ -1,4 +1,5 @@
 import type { PaymentProvider, CreatePaymentInput, CreatePaymentResult } from "../types";
+import { payViaVersus, versusConfigured } from "../versus";
 
 /**
  * Stripe Checkout (cartes internationales / diaspora).
@@ -14,9 +15,11 @@ export const stripeProvider: PaymentProvider = {
   id: "stripe",
   label: "Carte bancaire",
   description: "Visa, Mastercard (Stripe).",
-  available: !!process.env.STRIPE_SECRET_KEY,
+  available: !!process.env.STRIPE_SECRET_KEY || versusConfigured(),
 
   async createPayment(input: CreatePaymentInput): Promise<CreatePaymentResult> {
+    // Versus (si configuré) : page de paiement par carte bancaire.
+    if (versusConfigured()) return payViaVersus(input, "card");
     const secret = process.env.STRIPE_SECRET_KEY;
     if (!secret) throw new Error("Stripe n'est pas configuré.");
 
