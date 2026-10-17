@@ -9,6 +9,7 @@ const STATIC_PAGES = [
   "",
   "/collections",
   "/coffrets-decouverte",
+  "/petits-formats",
   "/quiz",
   "/blog",
   "/avis-clients",

@@ -1,6 +1,7 @@
 import { prisma } from "./prisma";
 import { Product, VolumeOption, CategorySlug } from "@/data/types";
-import type { Product as DbProduct, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
+import type { Product as DbProduct } from "@prisma/client";
 
 function toUiProduct(p: DbProduct): Product {
   return {
@@ -50,6 +51,21 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
     labels.map((label) => [label, row.variants.length ? Math.max(0, row.variants.find((v) => v.volumeLabel === label)?.stock ?? 0) : Math.max(0, row.stock)])
   );
   return product;
+}
+
+/** Parfums proposés en petit format (30 ml ou 15 ml recharge) : le plus petit format et son prix, du moins cher au plus cher. */
+export async function getSmallFormatPerfumes(): Promise<{ product: Product; label: string; price: number }[]> {
+  const rows = await prisma.product.findMany({ where: { category: { startsWith: "parfum-" }, volumes: { not: Prisma.DbNull } }, orderBy: { name: "asc" } });
+  const out: { product: Product; label: string; price: number }[] = [];
+  for (const row of rows) {
+    const product = toUiProduct(row);
+    const small = (product.volumes ?? [])
+      .map((v) => ({ v, ml: Number(v.label.match(/\d+/)?.[0] ?? 0) }))
+      .filter((x) => x.ml > 0 && x.ml <= 30 && x.v.price > 0)
+      .sort((a, b) => a.ml - b.ml)[0];
+    if (small) out.push({ product, label: small.v.label, price: small.v.price });
+  }
+  return out.sort((a, b) => a.price - b.price || a.product.name.localeCompare(b.product.name, "fr"));
 }
 
 /** Coffrets, kits et sets du catalogue Chogan (pour la page Coffrets). */

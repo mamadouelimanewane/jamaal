@@ -68,6 +68,12 @@ export default async function AdminProductsPage({
             Importer depuis Chogan
           </Link>
           <Link
+            href="/admin/produits/listino"
+            className="rounded-full border border-line px-4 py-2 text-sm font-semibold text-navy hover:bg-cream"
+          >
+            Listino Chogan
+          </Link>
+          <Link
             href="/admin/produits/import"
             className="rounded-full border border-line px-4 py-2 text-sm font-semibold text-navy hover:bg-cream"
           >
