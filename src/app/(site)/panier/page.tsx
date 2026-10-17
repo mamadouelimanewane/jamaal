@@ -156,7 +156,7 @@ export default function CartPage() {
             return;
           }
         }
-        setError("Indiquez où livrer : « Utiliser ma position », ou collez un lien de localisation, ou écrivez votre adresse.");
+        setError("Indiquez où livrer : écrivez votre adresse, ou utilisez votre position, un lien de localisation ou la carte.");
         return;
       }
       if (forOther && (!recipient.name.trim() || recipient.phone.replace(/\D/g, "").length < 8)) {

@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { LocateFixed, MapPin, Store } from "lucide-react";
+import { LocateFixed, Map as MapIcon, MapPin, Store } from "lucide-react";
+import { DeliveryMap } from "@/components/maps/DeliveryMap";
 import { ApproxNotice, LocationInput } from "@/components/maps/LocationInput";
 import { getCartDeliveryInfo, quoteDeliveryForCart, type CartDeliveryInfo } from "@/lib/actions/delivery-quote";
 import type { DeliveryQuote } from "@/lib/delivery";
@@ -25,6 +26,8 @@ export function DeliveryChooser({ productsTotal, value, onChange, recipientPhone
   const [info, setInfo] = useState<CartDeliveryInfo | null>(null);
   const [locating, setLocating] = useState(false);
   const [geoError, setGeoError] = useState<string | null>(null);
+  // Par défaut le client écrit son adresse ; la carte interactive n'apparaît que s'il la demande.
+  const [showMap, setShowMap] = useState(false);
   const seq = useRef(0);
   const latest = useRef(value);
   useEffect(() => {
@@ -54,7 +57,7 @@ export function DeliveryChooser({ productsTotal, value, onChange, recipientPhone
 
   function locate() {
     if (!navigator.geolocation) {
-      setGeoError("La géolocalisation n'est pas disponible sur cet appareil : collez un lien de localisation ou écrivez votre adresse ci-dessous.");
+      setGeoError("La géolocalisation n'est pas disponible sur cet appareil : écrivez votre adresse, collez un lien de localisation ou choisissez sur la carte.");
       return;
     }
     setLocating(true);
@@ -66,7 +69,7 @@ export function DeliveryChooser({ productsTotal, value, onChange, recipientPhone
       },
       () => {
         setLocating(false);
-        setGeoError("Position refusée ou introuvable : collez un lien de localisation ou écrivez votre adresse ci-dessous.");
+        setGeoError("Position refusée ou introuvable : écrivez votre adresse, collez un lien de localisation ou choisissez sur la carte.");
       },
       { enableHighAccuracy: true, timeout: 15_000 }
     );
@@ -103,6 +106,24 @@ export function DeliveryChooser({ productsTotal, value, onChange, recipientPhone
             recipientPhone={recipientPhone}
             onLocated={(l) => onChange({ mode: "LIVRAISON", lat: l.lat, lng: l.lng, quote: null, approx: l.approx, place: l.label })}
           />
+          <button type="button" onClick={() => setShowMap((v) => !v)} aria-expanded={showMap} className="inline-flex items-center gap-2 rounded-full border border-navy/30 px-4 py-2 text-sm font-semibold text-navy hover:bg-navy/5">
+            <MapIcon size={16} /> {showMap ? "Masquer la carte" : "Choisir sur la carte"}
+          </button>
+          {showMap && (
+            <>
+              <p className="text-xs text-navy/75">Touchez la carte à l&apos;endroit de la livraison ; vous pouvez déplacer le repère.</p>
+              {info && (
+                <DeliveryMap
+                  height={260}
+                  onMove={(la, ln) => onChange({ mode: "LIVRAISON", lat: la, lng: ln, quote: null, approx: false, place: value.place ?? null })}
+                  points={[
+                    { id: "depot", kind: "depot", lat: info.depot.lat, lng: info.depot.lng, label: info.depot.label },
+                    ...(lat != null && lng != null ? [{ id: "client", kind: "client" as const, lat, lng, label: "Livraison ici", draggable: true }] : []),
+                  ]}
+                />
+              )}
+            </>
+          )}
           {value.approx && lat != null && <ApproxNotice label={value.place || "adresse"} />}
           {value.quote && (
             value.quote.ok ? (
