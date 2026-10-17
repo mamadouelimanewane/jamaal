@@ -9,7 +9,7 @@ import { createReservation } from "@/lib/actions/orders";
 import { initiatePayment } from "@/lib/actions/payment";
 import { listPaymentOptions } from "@/lib/actions/payment-options";
 import { getActiveConsultantsForCheckout, getCheckoutPrefill } from "@/lib/actions/public-data";
-import { loadCheckoutMemory, saveCheckoutMemory } from "@/lib/checkout-memory";
+import { forgetCheckoutMemory, loadCheckoutMemory, saveCheckoutMemory } from "@/lib/checkout-memory";
 import { DeliveryChooser, type DeliveryChoice } from "@/components/DeliveryChooser";
 import { PaymentMethodSelector, type PaymentOption } from "@/components/PaymentMethodSelector";
 import type { PaymentProviderId } from "@/lib/payment/types";
@@ -39,6 +39,7 @@ export function ReservationForm({
   const [format, setFormat] = useState(initialFormat);
   const [qty, setQty] = useState(initialQty);
   const [customer, setCustomer] = useState({ name: "", phone: "", address: "" });
+  const [prefilled, setPrefilled] = useState(false);
   const [delivery, setDelivery] = useState<DeliveryChoice>({ mode: "RETRAIT" });
   const [consultants, setConsultants] = useState<{ id: string; name: string; city: string; slug?: string | null }[]>([]);
   const [consultantId, setConsultantId] = useState("");
@@ -54,11 +55,17 @@ export function ReservationForm({
     let alive = true;
     Promise.resolve().then(() => {
       const memory = loadCheckoutMemory();
-      if (alive && memory) setCustomer((c) => ({ ...c, name: c.name || memory.name, phone: c.phone || memory.phone }));
+      if (alive && memory) {
+        setCustomer((c) => ({ ...c, name: c.name || memory.name, phone: c.phone || memory.phone }));
+        setPrefilled(true);
+      }
     });
     getCheckoutPrefill()
       .then((p) => {
-        if (alive && p) setCustomer((c) => ({ ...c, name: c.name || p.name, phone: c.phone || p.phone }));
+        if (alive && p) {
+          setCustomer((c) => ({ ...c, name: c.name || p.name, phone: c.phone || p.phone }));
+          setPrefilled(true);
+        }
       })
       .catch(() => {});
     return () => {
@@ -167,6 +174,12 @@ export function ReservationForm({
           <legend className="px-1 text-sm font-semibold text-navy">Vos coordonnées</legend>
           <input required placeholder="Nom et prénom" value={customer.name} onChange={(e) => setCustomer((c) => ({ ...c, name: e.target.value }))} className={field} />
           <input required placeholder="Téléphone (WhatsApp)" inputMode="tel" value={customer.phone} onChange={(e) => setCustomer((c) => ({ ...c, phone: e.target.value }))} className={field} />
+          {prefilled && (
+            <p className="text-xs text-navy/65 sm:col-span-2">
+              Informations pré-remplies, modifiables si vous réservez pour quelqu&apos;un d&apos;autre.{" "}
+              <button type="button" onClick={() => { forgetCheckoutMemory(); setCustomer((c) => ({ ...c, name: "", phone: "" })); setPrefilled(false); }} className="font-semibold text-rose-dark underline">Effacer</button>
+            </p>
+          )}
           {consultants.length > 0 && (
             <select value={consultantId} onChange={(e) => setConsultantId(e.target.value)} disabled={refLocked} className={`${field} sm:col-span-2 disabled:bg-navy/5`}>
               <option value="">Consultant·e qui vous a recommandé JAMAAL (optionnel)</option>

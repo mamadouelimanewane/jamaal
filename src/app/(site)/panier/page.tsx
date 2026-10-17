@@ -11,7 +11,7 @@ import { locateFromText } from "@/lib/actions/delivery-quote";
 import { getCartPrices, previewCartDiscounts, saveCartDraft, type CartDiscounts } from "@/lib/actions/cart";
 import { DeliveryChooser, type DeliveryChoice } from "@/components/DeliveryChooser";
 import { getActiveConsultantsForCheckout, getCheckoutPrefill } from "@/lib/actions/public-data";
-import { loadCheckoutMemory, saveCheckoutMemory } from "@/lib/checkout-memory";
+import { forgetCheckoutMemory, loadCheckoutMemory, saveCheckoutMemory } from "@/lib/checkout-memory";
 import { OrderOnWhatsApp } from "@/components/OrderOnWhatsApp";
 import { initiatePayment } from "@/lib/actions/payment";
 import { listPaymentOptions } from "@/lib/actions/payment-options";
@@ -39,6 +39,7 @@ export default function CartPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [customer, setCustomer] = useState({ name: "", phone: "", address: "" });
+  const [prefilled, setPrefilled] = useState(false);
   const [consultantId, setConsultantId] = useState("");
   // Destinataire : le client lui-même, ou une autre personne (cadeau, famille…).
   const [forOther, setForOther] = useState(false);
@@ -112,11 +113,17 @@ export default function CartPage() {
     let alive = true;
     Promise.resolve().then(() => {
       const memory = loadCheckoutMemory();
-      if (alive && memory) setCustomer((c) => ({ ...c, name: c.name || memory.name, phone: c.phone || memory.phone }));
+      if (alive && memory) {
+        setCustomer((c) => ({ ...c, name: c.name || memory.name, phone: c.phone || memory.phone }));
+        setPrefilled(true);
+      }
     });
     getCheckoutPrefill()
       .then((p) => {
-        if (alive && p) setCustomer((c) => ({ ...c, name: c.name || p.name, phone: c.phone || p.phone }));
+        if (alive && p) {
+          setCustomer((c) => ({ ...c, name: c.name || p.name, phone: c.phone || p.phone }));
+          setPrefilled(true);
+        }
       })
       .catch(() => {});
     return () => {
@@ -389,6 +396,22 @@ export default function CartPage() {
                 onChange={(e) => setCustomer((c) => ({ ...c, phone: e.target.value }))}
                 className="rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-navy"
               />
+              {prefilled && (
+                <p className="-mt-1 text-xs text-navy/65">
+                  Informations pré-remplies, modifiables si vous commandez pour quelqu&apos;un d&apos;autre.{" "}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      forgetCheckoutMemory();
+                      setCustomer((c) => ({ ...c, name: "", phone: "" }));
+                      setPrefilled(false);
+                    }}
+                    className="font-semibold text-rose-dark underline"
+                  >
+                    Effacer
+                  </button>
+                </p>
+              )}
 
               {delivery.mode === "LIVRAISON" && (
                 <fieldset className="space-y-2 rounded-xl border border-line px-3 py-2.5">

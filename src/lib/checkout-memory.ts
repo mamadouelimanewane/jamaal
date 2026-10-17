@@ -14,7 +14,24 @@ export function loadCheckoutMemory(): { name: string; phone: string } | null {
   }
 }
 
+const digits = (s: string) => s.replace(/\D/g, "").slice(-9);
+
+/** Efface l'identité mémorisée (« ce n'est pas moi »). */
+export function forgetCheckoutMemory() {
+  try {
+    window.localStorage.removeItem(KEY);
+  } catch {
+    // sans conséquence
+  }
+}
+
+/**
+ * Mémorise nom et téléphone pour le prochain achat. Si une identité est déjà mémorisée avec un autre numéro, on la
+ * garde : le client a sans doute commandé pour quelqu'un d'autre. Il peut l'effacer pour mémoriser la nouvelle.
+ */
 export function saveCheckoutMemory(v: { name: string; phone: string }) {
+  const existing = loadCheckoutMemory();
+  if (existing && existing.phone && digits(existing.phone) !== digits(v.phone)) return;
   try {
     window.localStorage.setItem(KEY, JSON.stringify({ name: v.name.trim(), phone: v.phone.trim() }));
   } catch {
