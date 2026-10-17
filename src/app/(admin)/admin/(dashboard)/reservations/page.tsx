@@ -6,6 +6,7 @@ import { formatPrice } from "@/lib/currency";
 import { arrivalMessage, RESERVATION_LABELS, type ReservationStatus } from "@/lib/reservation";
 import { getSiteUrl } from "@/lib/site-url";
 import { getReservationSettings } from "@/lib/reservation-store";
+import { pendingReservations } from "@/lib/reservation-orders";
 import { ReservationActions, ReservationSettingsForm } from "@/components/admin/ReservationActions";
 
 export const dynamic = "force-dynamic";
@@ -28,9 +29,10 @@ export default async function ReservationsPage() {
   const session = await auth();
   if (session?.user?.role !== "ADMIN") redirect("/admin");
   const month = daysAgo(30);
-  const [settings, base, orders] = await Promise.all([
+  const [settings, base, toOrder, orders] = await Promise.all([
     getReservationSettings(),
     getSiteUrl(),
+    pendingReservations(),
     prisma.order.findMany({
       where: { isReservation: true, OR: [{ reservationStatus: { in: OPEN } }, { updatedAt: { gte: month } }] },
       orderBy: { createdAt: "asc" },
@@ -100,6 +102,11 @@ export default async function ReservationsPage() {
         Produits en rupture réservés par les clients avec un acompte. Commandez chez Chogan les quantités indiquées ; à la réception,
         cliquez « Produit arrivé » : le stock est attribué au client, la commande passe en préparation et le client est prévenu pour le solde.
       </p>
+
+      <Link href="/admin/reservations/a-commander" className={`mt-4 flex flex-wrap items-center justify-between gap-2 rounded-2xl border px-4 py-3 text-sm ${toOrder.units > 0 ? "border-amber-300 bg-amber-50 text-amber-950" : "border-line bg-white text-navy"}`}>
+        <span><strong>{toOrder.units}</strong> article{toOrder.units > 1 ? "s" : ""} réservé{toOrder.units > 1 ? "s" : ""} à commander chez Chogan</span>
+        <span className="font-semibold underline">Ouvrir la liste en temps réel →</span>
+      </Link>
 
       <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
         <div className="rounded-xl border border-line bg-white px-4 py-3"><p className="text-sm text-navy/80">En attente</p><p className="text-xl font-semibold text-ink">{list.reduce((s, g) => s + g.orders.length, 0)}</p></div>

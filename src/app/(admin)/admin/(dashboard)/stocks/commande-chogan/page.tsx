@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireAdminPage } from "@/lib/admin-page-guard";
 import { prisma } from "@/lib/prisma";
 import { getStockRows } from "@/lib/inventory-report";
+import { getOrderedUntil } from "@/lib/reservation-orders";
 import { applyChoganPrice, dismissChoganPrice } from "@/lib/actions/growth";
 import { CopyButton } from "@/components/admin/CopyButton";
 import { PrintButton } from "@/components/admin/PrintButton";
@@ -15,10 +16,12 @@ export const metadata = { title: "Commande Chogan" };
 export default async function ChoganOrderPage({ searchParams }: { searchParams: Promise<{ tout?: string }> }) {
   await requireAdminPage();
   const all = (await searchParams).tout === "1";
+  const orderedUntil = await getOrderedUntil();
   const [rows, reservations, changes, watched, total] = await Promise.all([
     getStockRows(),
     prisma.orderItem.findMany({
-      where: { order: { isReservation: true, reservationStatus: "RESERVEE", status: { not: "ANNULEE" } } },
+      // Seules les réservations pas encore commandées chez Chogan (voir « À commander (réservations) »).
+      where: { order: { isReservation: true, reservationStatus: "RESERVEE", status: { not: "ANNULEE" }, ...(orderedUntil ? { depositPaidAt: { gt: orderedUntil } } : {}) } },
       select: { productId: true, volumeLabel: true, productName: true, quantity: true },
     }),
     prisma.choganPriceChange.findMany({ where: { seen: false }, orderBy: { detectedAt: "desc" }, take: 50 }).then(async (list) => {
