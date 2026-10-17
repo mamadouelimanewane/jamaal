@@ -4,6 +4,8 @@ import { getOrderConfirmation } from "@/lib/actions/orders";
 import { formatPrice } from "@/lib/currency";
 import { ReorderButton } from "@/components/ReorderButton";
 import { PayOrderButton } from "@/components/PayOrderButton";
+import { PaymentWatcher } from "@/components/PaymentWatcher";
+import { settleVersusPayment } from "@/lib/payment/settle-versus";
 import { amountDue, RESERVATION_LABELS, type ReservationStatus } from "@/lib/reservation";
 
 type Props = {
@@ -28,12 +30,19 @@ const paymentStatusLabels: Record<string, string> = {
 export default async function OrderConfirmationPage({ params, searchParams }: Props) {
   const { id } = await params;
   const sp = await searchParams;
-  const order = await getOrderConfirmation(id);
+  let order = await getOrderConfirmation(id);
   if (!order) notFound();
+  // Paiement Versus en attente : on le vérifie auprès de Versus (même si le webhook n'est pas arrivé),
+  // puis on relit la commande. Un paiement ou un acompte payé n'est ainsi jamais oublié.
+  if (order.paymentStatus === "EN_ATTENTE" && amountDue(order)) {
+    const result = await settleVersusPayment(id).catch(() => "unknown");
+    if (result === "paid") order = (await getOrderConfirmation(id)) ?? order;
+  }
 
   const paymentStatus = (order as { paymentStatus?: string }).paymentStatus ?? "NONE";
   const paymentMethod = (order as { paymentMethod?: string }).paymentMethod ?? "COD";
-  const isPaid = paymentStatus === "PAYE" || sp.paid === "1";
+  // Le statut vient de la base (vérifié auprès de Versus) : l'adresse « ?paid=1 » seule ne prouve rien.
+  const isPaid = paymentStatus === "PAYE";
   const isCanceled = sp.canceled === "1" && !isPaid;
   const isPending = paymentStatus === "EN_ATTENTE" && !isPaid;
   const due = amountDue(order);
@@ -42,6 +51,7 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
 
   return (
     <div className="mx-auto max-w-lg px-4 py-16">
+      <PaymentWatcher active={isPending && !!due} />
       <div className="rounded-2xl border border-line bg-white p-8 text-center shadow-sm">
         <p className="text-xs font-semibold uppercase tracking-widest text-rose-dark">
           {resa ? `Réservation · ${RESERVATION_LABELS[resa]}` : isPaid

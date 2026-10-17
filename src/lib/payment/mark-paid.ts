@@ -81,6 +81,8 @@ export async function markDepositPaid(orderId: string, externalRef: string | nul
     data: { depositPaidAt: new Date(), reservationStatus: "RESERVEE", ...(externalRef ? { paymentRef: externalRef } : {}) },
   });
   if (res.count === 0) return false;
+  // Le client est prévenu tout de suite et automatiquement : commande confirmée, acompte versé, reste à payer.
+  notifyOrderUpdate(orderId, "ACOMPTE");
   const order = await prisma.order.findUnique({ where: { id: orderId }, select: { customerName: true, depositAmount: true, items: { select: { productName: true, volumeLabel: true, quantity: true } } } });
   const admins = await prisma.user.findMany({ where: { role: "ADMIN" }, select: { id: true } });
   if (order && admins.length) {

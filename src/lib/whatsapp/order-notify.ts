@@ -10,7 +10,7 @@ import { automationEnabled } from "@/lib/automation-settings";
 import { phoneOptedOut } from "@/lib/phone-match";
 import { sendWhatsApp } from "./index";
 
-export type OrderEvent = "CREEE" | "PAYEE" | "CONFIRMEE" | "EXPEDIEE" | "ANNULEE" | "LIVREE";
+export type OrderEvent = "CREEE" | "PAYEE" | "ACOMPTE" | "CONFIRMEE" | "EXPEDIEE" | "ANNULEE" | "LIVREE";
 
 const ref = (id: string) => id.slice(-8).toUpperCase();
 const fcfa = (n: number) => `${n.toLocaleString("fr-FR")} FCFA`;
@@ -18,7 +18,7 @@ const fcfa = (n: number) => `${n.toLocaleString("fr-FR")} FCFA`;
 /** Texte et bouton du message (pur, testé). */
 export function orderMessage(
   event: OrderEvent,
-  o: { id: string; customerName: string; total: number; paymentStatus: string; channel: string; deliveryMode: string },
+  o: { id: string; customerName: string; total: number; paymentStatus: string; channel: string; deliveryMode: string; isReservation?: boolean; depositAmount?: number; reservationDelay?: string | null },
   site: string
 ): { text: string; cta?: { label: string; url: string } } | null {
   const first = o.customerName.split(/\s+/)[0] || o.customerName;
@@ -28,10 +28,25 @@ export function orderMessage(
     case "CREEE":
       // Une commande prise par l'assistant WhatsApp a déjà son récapitulatif dans la conversation.
       if (o.channel === "WHATSAPP") return null;
+      if (o.isReservation) {
+        const deposit = o.depositAmount ?? 0;
+        return {
+          text: `Bonjour ${first}, votre réservation JAMAAL n° ${ref(o.id)} est enregistrée. Pour la confirmer, réglez l'acompte de ${fcfa(deposit)} (reste ${fcfa(Math.max(0, o.total - deposit))} à l'arrivée du produit). Dès réception, nous commandons votre produit et vous écrivons ici.`,
+          cta: pay,
+        };
+      }
       return {
         text: `Bonjour ${first}, merci pour votre commande JAMAAL n° ${ref(o.id)} (${fcfa(o.total)}).${o.paymentStatus === "PAYE" ? " Paiement bien reçu." : " Vous pouvez la payer par Wave ou Orange Money depuis votre page de commande."}\nRépondez à ce message pour toute question.`,
         cta: o.paymentStatus === "PAYE" ? track : pay,
       };
+    case "ACOMPTE": {
+      // Réservation : l'acompte est reçu, la commande est confirmée ; on rappelle le montant versé et le reste à payer.
+      const deposit = o.depositAmount ?? 0;
+      return {
+        text: `Acompte reçu ✅ Merci ${first} ! Votre réservation JAMAAL n° ${ref(o.id)} est confirmée. Montant versé : ${fcfa(deposit)}. Reste à payer à l'arrivée du produit : ${fcfa(Math.max(0, o.total - deposit))}.${o.reservationDelay ? ` Délai annoncé : ${o.reservationDelay}.` : ""} Nous vous prévenons dès que votre produit est arrivé.`,
+        cta: track,
+      };
+    }
     case "PAYEE":
       return { text: `Paiement reçu ✅ Merci ${first} ! Votre commande n° ${ref(o.id)} (${fcfa(o.total)}) est en préparation.`, cta: track };
     case "CONFIRMEE":
@@ -52,7 +67,7 @@ export async function sendOrderUpdate(orderId: string, event: OrderEvent): Promi
     if (!(await automationEnabled("orderTracking"))) return;
     const o = await prisma.order.findUnique({
       where: { id: orderId },
-      select: { id: true, customerName: true, customerPhone: true, total: true, paymentStatus: true, channel: true, deliveryMode: true, deliveryTarget: true },
+      select: { id: true, customerName: true, customerPhone: true, total: true, paymentStatus: true, channel: true, deliveryMode: true, deliveryTarget: true, isReservation: true, depositAmount: true, reservationDelay: true },
     });
     if (!o?.customerPhone || (await phoneOptedOut(o.customerPhone))) return;
     const site = await getSiteUrl().catch(() => process.env.NEXT_PUBLIC_SITE_URL ?? "");

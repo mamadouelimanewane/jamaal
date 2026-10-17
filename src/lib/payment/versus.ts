@@ -150,6 +150,9 @@ export async function createVersusPayment(input: VersusPaymentInput): Promise<{ 
     throw new Error("Impossible d'initier le paiement. Réessayez.");
   }
   if (!body.service_id) return { url: hosted, paymentReference, direct: false };
+  // Orange Money : le lien direct d'Orange n'ouvre que l'application Max it et se bloque (« installez Max it »)
+  // sur un appareil qui ne l'a pas. La page Versus propose en plus le code QR, à scanner depuis un autre téléphone.
+  if (input.channel === "orange_money") return { url: hosted, paymentReference, direct: false };
 
   // Les instructions de paiement (lien Wave / Orange Money / carte) arrivent quelques secondes après la création.
   for (let i = 0; i < linkPolling.tries; i++) {

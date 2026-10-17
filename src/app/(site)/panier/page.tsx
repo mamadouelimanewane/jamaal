@@ -156,7 +156,7 @@ export default function CartPage() {
             return;
           }
         }
-        setError("Indiquez la position de livraison : « Utiliser ma position », collez un lien ou une adresse, ou touchez la carte.");
+        setError("Indiquez où livrer : « Utiliser ma position », ou collez un lien de localisation, ou écrivez votre adresse.");
         return;
       }
       if (forOther && (!recipient.name.trim() || recipient.phone.replace(/\D/g, "").length < 8)) {
@@ -374,13 +374,17 @@ export default function CartPage() {
                 onChange={(e) => setCustomer((c) => ({ ...c, phone: e.target.value }))}
                 className="rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-navy"
               />
-              <textarea
-                placeholder={delivery.mode === "LIVRAISON" ? "Adresse de livraison (quartier, rue, repère)" : "Adresse"}
-                rows={2}
-                value={customer.address}
-                onChange={(e) => setCustomer((c) => ({ ...c, address: e.target.value }))}
-                className="rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-navy"
-              />
+              {/* Retrait chez le consultant : aucune adresse. Livraison : adresse écrite, qui sert aussi à calculer les frais. */}
+              {delivery.mode === "LIVRAISON" && (
+                <textarea
+                  required
+                  placeholder="Adresse de livraison (quartier, rue, repère)"
+                  rows={2}
+                  value={customer.address}
+                  onChange={(e) => setCustomer((c) => ({ ...c, address: e.target.value }))}
+                  className="rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-navy"
+                />
+              )}
 
               {delivery.mode === "LIVRAISON" && (
                 <fieldset className="space-y-2 rounded-xl border border-line px-3 py-2.5">
@@ -465,7 +469,7 @@ export default function CartPage() {
               disabled={submitting || !paymentMethod}
               className="mt-5 w-full rounded-full bg-navy py-3 text-sm font-semibold text-white transition hover:bg-navy-light disabled:opacity-60"
             >
-              {submitting ? "Envoi…" : paymentMethod === "cod" ? "Passer la commande" : "Payer et commander"}
+              {submitting ? "Redirection vers le paiement…" : paymentMethod === "cod" ? "Passer la commande" : "Payer"}
             </button>
 
             <p className="mt-3 text-center text-[11px] text-navy/40">

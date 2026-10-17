@@ -90,4 +90,6 @@ test("Kit du matin, admins déclarés, bouton « Commander sur WhatsApp »", () 
   assert.deepEqual(envAdminTails("+221 77 752 92 88, 776700996;bad"), ["777529288", "776700996"]);
   assert.equal(orderWhatsAppText(["Aqua Soul — 16 300 FCFA"], "moussa-diop"), "Bonjour JAMAAL, je souhaite commander :\n• Aqua Soul — 16 300 FCFA\nRevendeur : moussa-diop");
   assert.equal(orderWhatsAppText(["X"], ""), "Bonjour JAMAAL, je souhaite commander :\n• X");
+  // Avec le nom du revendeur : clair pour le client et pour l'assistant, code conservé.
+  assert.equal(orderWhatsAppText(["X"], "moussa-diop", "Moussa Diop (Dakar)"), "Bonjour JAMAAL, je souhaite commander :\n• X\nRevendeur : Moussa Diop (Dakar) — code moussa-diop");
 });

@@ -20,8 +20,18 @@ const statusColors: Record<string, string> = {
   ANNULEE: "bg-red-100 text-red-700",
 };
 
-export default async function AdminOrdersPage() {
+const CHANNELS: { id: string; label: string }[] = [
+  { id: "", label: "Toutes" },
+  { id: "SITE", label: "Site" },
+  { id: "WHATSAPP", label: "WhatsApp" },
+  { id: "REVENDEUR", label: "Revendeur" },
+];
+
+export default async function AdminOrdersPage({ searchParams }: { searchParams: Promise<{ canal?: string }> }) {
+  const { canal } = await searchParams;
+  const channel = CHANNELS.some((c) => c.id && c.id === canal) ? canal : undefined;
   const orders = await prisma.order.findMany({
+    where: channel ? { channel } : undefined,
     orderBy: { createdAt: "desc" },
     include: { items: true, consultant: true, livreur: true },
   });
@@ -39,6 +49,18 @@ export default async function AdminOrdersPage() {
           Exporter Excel ↓
         </a>
       </div>
+
+      <nav aria-label="Filtrer par canal" className="mt-4 flex flex-wrap gap-2">
+        {CHANNELS.map((c) => (
+          <Link
+            key={c.id || "all"}
+            href={c.id ? `/admin/commandes?canal=${c.id}` : "/admin/commandes"}
+            className={`rounded-full border px-3 py-1 text-xs font-semibold ${(channel ?? "") === c.id ? "border-navy bg-navy text-white" : "border-line text-navy hover:bg-cream"}`}
+          >
+            {c.label}
+          </Link>
+        ))}
+      </nav>
 
       <div className="mt-6 overflow-x-auto rounded-2xl border border-line bg-white">
         <table className="w-full text-sm">
@@ -67,7 +89,7 @@ export default async function AdminOrdersPage() {
                 </td>
                 <td className="px-4 py-3 text-navy/85">{o.items.length}</td>
                 <td className="px-4 py-3 text-navy/85">{formatPrice(o.total)}</td>
-                <td className="px-4 py-3 text-navy/85">{o.consultant?.name ?? "—"}</td>
+                <td className="px-4 py-3 text-navy/85">{o.consultant?.name ?? <span className="text-navy/60">{o.channel === "WHATSAPP" ? "Non précisé (WhatsApp)" : "Aucun revendeur"}</span>}</td>
                 <td className="px-4 py-3 text-navy/85">
                   {o.deliveryMode === "LIVRAISON_JAMAAL" ? (
                     <span>JAMAAL{o.livreur ? ` · ${o.livreur.name}` : ""}</span>

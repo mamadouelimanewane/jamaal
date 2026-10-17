@@ -93,7 +93,8 @@ test("Wave : le numéro déjà saisi est transmis et le client est envoyé direc
     reads = 5;
     const om = await createVersusPayment({ ...base, channel: "orange_money" });
     assert.equal(calls.filter((c) => c.url.endsWith("/api/payment")).at(-1)?.body?.service_id, 4);
-    assert.equal(om.direct, false); // ce faux serveur ne fournit qu'un lien Wave : repli sur la page Versus
+    // Orange Money : jamais le lien direct (il se bloque sans Max it), toujours la page Versus avec son code QR.
+    assert.equal(om.direct, false);
     assert.equal(om.url, "https://versus.test/pay/abc");
 
     // Carte : service carte, aucun numéro de téléphone requis.

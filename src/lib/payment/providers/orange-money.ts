@@ -21,7 +21,7 @@ import { payViaVersus, versusConfigured } from "../versus";
 export const orangeMoneyProvider: PaymentProvider = {
   id: "orange_money",
   label: "Orange Money",
-  description: "Payez avec Orange Money (OTP SMS).",
+  description: versusConfigured() ? "S'ouvre dans l'application Max it d'Orange. Sans cette application, choisissez Wave ou la carte." : "Payez avec Orange Money (OTP SMS).",
   available:
     !!(
       process.env.ORANGE_MONEY_CLIENT_ID &&

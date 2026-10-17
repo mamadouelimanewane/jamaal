@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import { LocateFixed, MapPin, Store } from "lucide-react";
-import { DeliveryMap } from "@/components/maps/DeliveryMap";
 import { ApproxNotice, LocationInput } from "@/components/maps/LocationInput";
 import { getCartDeliveryInfo, quoteDeliveryForCart, type CartDeliveryInfo } from "@/lib/actions/delivery-quote";
 import type { DeliveryQuote } from "@/lib/delivery";
@@ -55,7 +54,7 @@ export function DeliveryChooser({ productsTotal, value, onChange, recipientPhone
 
   function locate() {
     if (!navigator.geolocation) {
-      setGeoError("La géolocalisation n'est pas disponible sur cet appareil : placez le repère sur la carte.");
+      setGeoError("La géolocalisation n'est pas disponible sur cet appareil : collez un lien de localisation ou écrivez votre adresse ci-dessous.");
       return;
     }
     setLocating(true);
@@ -67,7 +66,7 @@ export function DeliveryChooser({ productsTotal, value, onChange, recipientPhone
       },
       () => {
         setLocating(false);
-        setGeoError("Position refusée ou introuvable : touchez la carte à l'endroit de la livraison.");
+        setGeoError("Position refusée ou introuvable : collez un lien de localisation ou écrivez votre adresse ci-dessous.");
       },
       { enableHighAccuracy: true, timeout: 15_000 }
     );
@@ -104,17 +103,6 @@ export function DeliveryChooser({ productsTotal, value, onChange, recipientPhone
             recipientPhone={recipientPhone}
             onLocated={(l) => onChange({ mode: "LIVRAISON", lat: l.lat, lng: l.lng, quote: null, approx: l.approx, place: l.label })}
           />
-          <p className="text-xs text-navy/75">Ou touchez la carte à l&apos;endroit de la livraison ; vous pouvez déplacer le repère.</p>
-          {info && (
-            <DeliveryMap
-              height={260}
-              onMove={(la, ln) => onChange({ mode: "LIVRAISON", lat: la, lng: ln, quote: null, approx: false, place: value.place ?? null })}
-              points={[
-                { id: "depot", kind: "depot", lat: info.depot.lat, lng: info.depot.lng, label: info.depot.label },
-                ...(lat != null && lng != null ? [{ id: "client", kind: "client" as const, lat, lng, label: "Livraison ici", draggable: true }] : []),
-              ]}
-            />
-          )}
           {value.approx && lat != null && <ApproxNotice label={value.place || "adresse"} />}
           {value.quote && (
             value.quote.ok ? (
