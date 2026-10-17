@@ -8,6 +8,8 @@ import { runRelances } from "./relances";
 import { requestReviews } from "./reviews";
 import { awardChallenges } from "./challenges";
 import { watchChoganPrices } from "./chogan-watch";
+import { sweepMissedCommissions } from "@/lib/payouts/engine";
+import { creditLivreurEarnings } from "@/lib/wallet";
 import { alertChallengesAlmostDone } from "@/lib/whatsapp/alerts";
 import { whatsappConfig } from "@/lib/whatsapp";
 
@@ -24,6 +26,8 @@ export async function runDailyJobs(origin: string, opts: { budgetMs?: number; no
       report[name] = { erreur: e instanceof Error ? e.message : String(e) };
     }
   };
+  // Commissions et parts de livraison : rattrape tout ce qui n'aurait pas été réparti sur les wallets.
+  await step("commissions", async () => ({ ...(await sweepMissedCommissions(now)), livraisonsCreditees: await creditLivreurEarnings() }));
   await step("defis", () => awardChallenges(now));
   if (whatsappConfig().active) await step("defis80", () => alertChallengesAlmostDone(now));
   await step("relances", () => runRelances(origin, now));

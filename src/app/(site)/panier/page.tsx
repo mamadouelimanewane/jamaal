@@ -10,7 +10,8 @@ import { createOrder } from "@/lib/actions/orders";
 import { locateFromText } from "@/lib/actions/delivery-quote";
 import { getCartPrices, previewCartDiscounts, saveCartDraft, type CartDiscounts } from "@/lib/actions/cart";
 import { DeliveryChooser, type DeliveryChoice } from "@/components/DeliveryChooser";
-import { getActiveConsultantsForCheckout } from "@/lib/actions/public-data";
+import { getActiveConsultantsForCheckout, getCheckoutPrefill } from "@/lib/actions/public-data";
+import { loadCheckoutMemory, saveCheckoutMemory } from "@/lib/checkout-memory";
 import { OrderOnWhatsApp } from "@/components/OrderOnWhatsApp";
 import { initiatePayment } from "@/lib/actions/payment";
 import { listPaymentOptions } from "@/lib/actions/payment-options";
@@ -37,7 +38,7 @@ export default function CartPage() {
   const [pricesChecked, setPricesChecked] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [customer, setCustomer] = useState({ name: "", phone: "", email: "", address: "" });
+  const [customer, setCustomer] = useState({ name: "", phone: "", address: "" });
   const [consultantId, setConsultantId] = useState("");
   // Destinataire : le client lui-même, ou une autre personne (cadeau, famille…).
   const [forOther, setForOther] = useState(false);
@@ -106,6 +107,23 @@ export default function CartPage() {
     };
   }, [items, pricesChecked, syncPrices]);
 
+  // Nom et téléphone pré-remplis : compte client connecté, sinon le dernier achat fait sur cet appareil.
+  useEffect(() => {
+    let alive = true;
+    Promise.resolve().then(() => {
+      const memory = loadCheckoutMemory();
+      if (alive && memory) setCustomer((c) => ({ ...c, name: c.name || memory.name, phone: c.phone || memory.phone }));
+    });
+    getCheckoutPrefill()
+      .then((p) => {
+        if (alive && p) setCustomer((c) => ({ ...c, name: c.name || p.name, phone: c.phone || p.phone }));
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
+
   useEffect(() => {
     getActiveConsultantsForCheckout().then((list) => {
       setConsultants(list);
@@ -167,10 +185,6 @@ export default function CartPage() {
         setError(delivery.quote.error);
         return;
       }
-      if (!customer.address.trim()) {
-        setError("Précisez votre adresse de livraison (quartier, repère).");
-        return;
-      }
     }
 
     setSubmitting(true);
@@ -181,8 +195,8 @@ export default function CartPage() {
         {
           name: customer.name,
           phone: customer.phone,
-          email: customer.email,
-          address: customer.address,
+          // L'adresse vient du champ « coller une localisation ou écrire une adresse » ; à défaut, le lieu repéré ou la position GPS.
+          address: customer.address.trim() || (delivery.mode === "LIVRAISON" ? delivery.place || "Position GPS partagée" : ""),
         },
         items.map((i) => ({
           productId: i.productId,
@@ -214,6 +228,7 @@ export default function CartPage() {
         return;
       }
       const id = res.id;
+      saveCheckoutMemory({ name: customer.name, phone: customer.phone });
       clear();
 
       const pay = await initiatePayment(id, paymentMethod);
@@ -374,17 +389,6 @@ export default function CartPage() {
                 onChange={(e) => setCustomer((c) => ({ ...c, phone: e.target.value }))}
                 className="rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-navy"
               />
-              {/* Retrait chez le consultant : aucune adresse. Livraison : adresse écrite, qui sert aussi à calculer les frais. */}
-              {delivery.mode === "LIVRAISON" && (
-                <textarea
-                  required
-                  placeholder="Adresse de livraison (quartier, rue, repère)"
-                  rows={2}
-                  value={customer.address}
-                  onChange={(e) => setCustomer((c) => ({ ...c, address: e.target.value }))}
-                  className="rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-navy"
-                />
-              )}
 
               {delivery.mode === "LIVRAISON" && (
                 <fieldset className="space-y-2 rounded-xl border border-line px-3 py-2.5">
@@ -402,7 +406,7 @@ export default function CartPage() {
                 </fieldset>
               )}
 
-              <DeliveryChooser productsTotal={Math.max(0, total() - discountTotal)} value={delivery} onChange={setDelivery} recipientPhone={forOther ? recipient.phone : customer.phone} />
+              <DeliveryChooser productsTotal={Math.max(0, total() - discountTotal)} value={delivery} onChange={setDelivery} recipientPhone={forOther ? recipient.phone : customer.phone} onAddressText={(t) => setCustomer((c) => ({ ...c, address: t }))} />
 
               {consultants.length > 0 && (
                 <div>

@@ -10,7 +10,7 @@ export type Located = { lat: number; lng: number; approx: boolean; label: string
  * Champ « Coller la localisation » : lien Google Maps ou WhatsApp, coordonnées, Plus Code,
  * ou simple adresse (« Sacré-Cœur 3 près de la pharmacie ») localisée approximativement.
  */
-export function LocationInput({ onLocated, recipientPhone, className = "" }: { onLocated: (l: Located) => void; recipientPhone?: string | null; className?: string }) {
+export function LocationInput({ onLocated, onText, recipientPhone, className = "" }: { onLocated: (l: Located) => void; onText?: (text: string) => void; recipientPhone?: string | null; className?: string }) {
   const [text, setText] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
@@ -35,7 +35,10 @@ export function LocationInput({ onLocated, recipientPhone, className = "" }: { o
           <Link2 size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-navy/45" />
           <input
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            onChange={(e) => {
+              setText(e.target.value);
+              onText?.(e.target.value);
+            }}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 e.preventDefault();

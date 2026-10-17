@@ -13,6 +13,7 @@ import type { Prisma } from "@prisma/client";
 import { getBusinessModel } from "./business-model-store";
 import { isWalletProvider, payoutProvidersConfig, sendPayout, WALLET_LABELS, type WalletProvider } from "./payouts/providers";
 import { alertWalletCredits, alertWithdrawalPaid } from "@/lib/whatsapp/alerts";
+import { notifyWalletCredits, type WalletCreditNotice } from "./wallet-notify";
 
 export type OwnerType = "CONSULTANT" | "LIVREUR";
 export type Owner = { type: OwnerType; id: string };
@@ -73,11 +74,13 @@ export async function ownerWallet(owner: Owner) {
 export async function creditCommissionEntries(where: Prisma.CommissionEntryWhereInput = {}) {
   const entries = await prisma.commissionEntry.findMany({ where: { ...where, status: "A_VERSER", payoutId: null, amount: { gt: 0 } } });
   const credited: { consultantId: string; amount: number; prime: boolean }[] = [];
+  const notices: WalletCreditNotice[] = [];
   for (const e of entries) {
     await prisma.$transaction(async (tx) => {
       const claim = await tx.commissionEntry.updateMany({ where: { id: e.id, status: "A_VERSER", payoutId: null }, data: { status: "WALLET" } });
       if (!claim.count) return;
       credited.push({ consultantId: e.consultantId, amount: e.amount, prime: e.level.startsWith("PRIME_") });
+      notices.push({ ownerType: "CONSULTANT", ownerId: e.consultantId, amount: e.amount, level: e.level, orderId: e.orderId, rate: e.rate, base: e.base });
       await tx.walletTransaction.upsert({
         where: { sourceId: `ce:${e.id}` },
         update: {},
@@ -94,16 +97,20 @@ export async function creditCommissionEntries(where: Prisma.CommissionEntryWhere
     });
   }
   alertWalletCredits(credited);
+  // Notification dans l'application pour chaque bénéficiaire (vendeur, parrains, primes).
+  await notifyWalletCredits(notices);
   return entries.length;
 }
 
 /** Crédite la part du livreur d'une livraison effectuée (idempotent). */
 export async function creditLivreurEarnings(where: Prisma.LivreurEarningWhereInput = {}) {
   const earnings = await prisma.livreurEarning.findMany({ where: { ...where, status: "A_VERSER", amount: { gt: 0 } } });
+  const notices: WalletCreditNotice[] = [];
   for (const e of earnings) {
     await prisma.$transaction(async (tx) => {
       const claim = await tx.livreurEarning.updateMany({ where: { id: e.id, status: "A_VERSER" }, data: { status: "WALLET" } });
       if (!claim.count) return;
+      notices.push({ ownerType: "LIVREUR", ownerId: e.livreurId, amount: e.amount, level: "LIVRAISON", orderId: e.orderId });
       await tx.walletTransaction.upsert({
         where: { sourceId: `le:${e.id}` },
         update: {},
@@ -111,6 +118,7 @@ export async function creditLivreurEarnings(where: Prisma.LivreurEarningWhereInp
       });
     });
   }
+  await notifyWalletCredits(notices);
   return earnings.length;
 }
 

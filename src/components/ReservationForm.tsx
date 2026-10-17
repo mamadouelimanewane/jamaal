@@ -8,7 +8,8 @@ import { formatPrice } from "@/lib/currency";
 import { createReservation } from "@/lib/actions/orders";
 import { initiatePayment } from "@/lib/actions/payment";
 import { listPaymentOptions } from "@/lib/actions/payment-options";
-import { getActiveConsultantsForCheckout } from "@/lib/actions/public-data";
+import { getActiveConsultantsForCheckout, getCheckoutPrefill } from "@/lib/actions/public-data";
+import { loadCheckoutMemory, saveCheckoutMemory } from "@/lib/checkout-memory";
 import { DeliveryChooser, type DeliveryChoice } from "@/components/DeliveryChooser";
 import { PaymentMethodSelector, type PaymentOption } from "@/components/PaymentMethodSelector";
 import type { PaymentProviderId } from "@/lib/payment/types";
@@ -37,7 +38,7 @@ export function ReservationForm({
   const router = useRouter();
   const [format, setFormat] = useState(initialFormat);
   const [qty, setQty] = useState(initialQty);
-  const [customer, setCustomer] = useState({ name: "", phone: "", email: "", address: "" });
+  const [customer, setCustomer] = useState({ name: "", phone: "", address: "" });
   const [delivery, setDelivery] = useState<DeliveryChoice>({ mode: "RETRAIT" });
   const [consultants, setConsultants] = useState<{ id: string; name: string; city: string; slug?: string | null }[]>([]);
   const [consultantId, setConsultantId] = useState("");
@@ -47,6 +48,23 @@ export function ReservationForm({
   const [accept, setAccept] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  // Nom et téléphone pré-remplis : compte client connecté, sinon le dernier achat fait sur cet appareil.
+  useEffect(() => {
+    let alive = true;
+    Promise.resolve().then(() => {
+      const memory = loadCheckoutMemory();
+      if (alive && memory) setCustomer((c) => ({ ...c, name: c.name || memory.name, phone: c.phone || memory.phone }));
+    });
+    getCheckoutPrefill()
+      .then((p) => {
+        if (alive && p) setCustomer((c) => ({ ...c, name: c.name || p.name, phone: c.phone || p.phone }));
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   useEffect(() => {
     getActiveConsultantsForCheckout()
@@ -82,12 +100,12 @@ export function ReservationForm({
     if (delivery.mode === "LIVRAISON") {
       if (delivery.lat == null || delivery.lng == null) return setError("Indiquez la position de livraison, ou choisissez le retrait.");
       if (delivery.quote && !delivery.quote.ok) return setError(delivery.quote.error);
-      if (!customer.address.trim()) return setError("Précisez votre adresse de livraison (quartier, repère).");
     }
     setSubmitting(true);
     try {
       const res = await createReservation(
-        customer,
+        // L'adresse vient du champ « coller une localisation ou écrire une adresse » ; à défaut, le lieu repéré ou la position GPS.
+        { name: customer.name, phone: customer.phone, address: customer.address.trim() || (delivery.mode === "LIVRAISON" ? (delivery.place || "Position GPS partagée") : "") },
         { productId: product.id, productName: product.name, volumeLabel: format, price: unit, quantity: qty },
         consultantId || null,
         accept,
@@ -99,6 +117,7 @@ export function ReservationForm({
         setError(res.error);
         return;
       }
+      saveCheckoutMemory({ name: customer.name, phone: customer.phone });
       if (method) {
         try {
           const pay = await initiatePayment(res.id, method);
@@ -146,10 +165,8 @@ export function ReservationForm({
 
         <fieldset className="grid gap-3 rounded-2xl border border-line bg-white p-4 sm:grid-cols-2">
           <legend className="px-1 text-sm font-semibold text-navy">Vos coordonnées</legend>
-          <input required placeholder="Nom complet" value={customer.name} onChange={(e) => setCustomer((c) => ({ ...c, name: e.target.value }))} className={field} />
+          <input required placeholder="Nom et prénom" value={customer.name} onChange={(e) => setCustomer((c) => ({ ...c, name: e.target.value }))} className={field} />
           <input required placeholder="Téléphone (WhatsApp)" inputMode="tel" value={customer.phone} onChange={(e) => setCustomer((c) => ({ ...c, phone: e.target.value }))} className={field} />
-          <input type="email" placeholder="E-mail (optionnel)" value={customer.email} onChange={(e) => setCustomer((c) => ({ ...c, email: e.target.value }))} className={`${field} sm:col-span-2`} />
-          <textarea rows={2} placeholder={delivery.mode === "LIVRAISON" ? "Adresse de livraison (quartier, rue, repère)" : "Adresse (facultatif)"} value={customer.address} onChange={(e) => setCustomer((c) => ({ ...c, address: e.target.value }))} className={`${field} sm:col-span-2`} />
           {consultants.length > 0 && (
             <select value={consultantId} onChange={(e) => setConsultantId(e.target.value)} disabled={refLocked} className={`${field} sm:col-span-2 disabled:bg-navy/5`}>
               <option value="">Consultant·e qui vous a recommandé JAMAAL (optionnel)</option>
@@ -159,7 +176,7 @@ export function ReservationForm({
         </fieldset>
 
         <div className="rounded-2xl border border-line bg-white p-4">
-          <DeliveryChooser productsTotal={productsTotal} value={delivery} onChange={setDelivery} recipientPhone={customer.phone} />
+          <DeliveryChooser productsTotal={productsTotal} value={delivery} onChange={setDelivery} recipientPhone={customer.phone} onAddressText={(t) => setCustomer((c) => ({ ...c, address: t }))} />
           <p className="mt-2 text-xs text-navy/70">La livraison est faite à l&apos;arrivée du produit ; les frais s&apos;ajoutent au solde.</p>
         </div>
       </div>

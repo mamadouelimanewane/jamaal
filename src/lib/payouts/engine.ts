@@ -174,6 +174,33 @@ export async function runPayoutsForOrder(orderId: string) {
   }
 }
 
+/**
+ * Filet de sécurité (tâche quotidienne) : une commande payée ou livrée dont les commissions n'ont pas été
+ * enregistrées (erreur passagère), et les gains restés « à verser », sont répartis sur les wallets.
+ * Idempotent : ne crédite jamais deux fois. Retourne ce qui a été rattrapé.
+ */
+export async function sweepMissedCommissions(now: Date = new Date(), max = 60) {
+  const model = await getBusinessModel();
+  const since = new Date(now.getTime() - 45 * 86_400_000);
+  const candidates = await prisma.order.findMany({
+    where: {
+      consultantId: { not: null },
+      status: { not: "ANNULEE" },
+      createdAt: { gte: since },
+      OR: [{ paymentStatus: "PAYE" }, { paymentMethod: "A_LA_LIVRAISON", status: "LIVREE" }],
+    },
+    select: { id: true, status: true, paymentStatus: true, paymentMethod: true },
+    orderBy: { createdAt: "desc" },
+    take: 500,
+  });
+  const payable = candidates.filter((o) => isPayable(o, model));
+  const done = new Set((await prisma.commissionEntry.findMany({ where: { orderId: { in: payable.map((o) => o.id) } }, select: { orderId: true } })).map((e) => e.orderId));
+  const missed = payable.filter((o) => !done.has(o.id)).slice(0, max);
+  for (const o of missed) await runPayoutsForOrder(o.id);
+  const stuck = await creditCommissionEntries();
+  return { commandesRattrapees: missed.length, gainsCredites: stuck };
+}
+
 /** Relit l'état d'un versement en cours (Wave). */
 export async function refreshPayout(payoutId: string) {
   const payout = await prisma.payout.findUnique({ where: { id: payoutId } });

@@ -22,7 +22,7 @@ export type DeliveryChoice =
     };
 
 /** Choix de la remise au panier : livraison géolocalisée (frais selon la distance) ou retrait. */
-export function DeliveryChooser({ productsTotal, value, onChange, recipientPhone }: { productsTotal: number; value: DeliveryChoice; onChange: (v: DeliveryChoice) => void; recipientPhone?: string | null }) {
+export function DeliveryChooser({ productsTotal, value, onChange, recipientPhone, onAddressText }: { productsTotal: number; value: DeliveryChoice; onChange: (v: DeliveryChoice) => void; recipientPhone?: string | null; onAddressText?: (text: string) => void }) {
   const [info, setInfo] = useState<CartDeliveryInfo | null>(null);
   const [locating, setLocating] = useState(false);
   const [geoError, setGeoError] = useState<string | null>(null);
@@ -66,6 +66,8 @@ export function DeliveryChooser({ productsTotal, value, onChange, recipientPhone
       (pos) => {
         setLocating(false);
         onChange({ mode: "LIVRAISON", lat: pos.coords.latitude, lng: pos.coords.longitude, quote: null, approx: false, place: null });
+        // La carte se place sur la position obtenue, pour que le client vérifie le repère.
+        setShowMap(true);
       },
       () => {
         setLocating(false);
@@ -98,12 +100,13 @@ export function DeliveryChooser({ productsTotal, value, onChange, recipientPhone
             <LocateFixed size={16} /> {locating ? "Localisation…" : "Utiliser ma position"}
           </button>
           {geoError && <p role="alert" className="text-xs text-rose-dark">{geoError}</p>}
+          <p className="text-xs font-semibold text-navy">Ou collez une localisation, ou écrivez une adresse</p>
           <p className="text-xs text-navy/75">
-            Vous n&apos;êtes pas sur place ? Collez la localisation reçue sur WhatsApp, un lien Google Maps, un Plus Code, ou écrivez
-            simplement l&apos;adresse (« Sacré-Cœur 3, près de la pharmacie »).
+            Localisation reçue sur WhatsApp, lien Google Maps, Plus Code, ou simplement l&apos;adresse (« Sacré-Cœur 3, près de la pharmacie »).
           </p>
           <LocationInput
             recipientPhone={recipientPhone}
+            onText={onAddressText}
             onLocated={(l) => onChange({ mode: "LIVRAISON", lat: l.lat, lng: l.lng, quote: null, approx: l.approx, place: l.label })}
           />
           <button type="button" onClick={() => setShowMap((v) => !v)} aria-expanded={showMap} className="inline-flex items-center gap-2 rounded-full border border-navy/30 px-4 py-2 text-sm font-semibold text-navy hover:bg-navy/5">
