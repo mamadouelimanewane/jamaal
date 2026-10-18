@@ -25,8 +25,12 @@ export type BusinessModel = {
   salePct: number;
   /** Arrondi des prix de vente (FCFA). */
   priceRounding: number;
-  /** Commission du vendeur, en % du prix de vente. */
+  /** Commission du vendeur Consultant (filleul), en % du prix de vente. */
   sellerPct: number;
+  /** Commission d'un Parrain sur ses propres ventes, en % du prix de vente. */
+  sellerParrainPct: number;
+  /** Commission d'un Leader sur ses propres ventes, en % du prix de vente. */
+  sellerLeaderPct: number;
   /** Part du parrain direct quand personne n'est au-dessus de lui (ex. Leader sur la vente d'un Parrain). */
   sponsorAlonePct: number;
   /** Part du parrain direct quand il a lui-même un parrain (ex. Parrain direct sur la vente d'un Consultant). */
@@ -90,9 +94,11 @@ export const DEFAULT_BUSINESS_MODEL: BusinessModel = {
   salePct: 125,
   priceRounding: 100,
   sellerPct: 18,
+  sellerParrainPct: 19,
+  sellerLeaderPct: 20,
   sponsorAlonePct: 6,
-  sponsorSharedPct: 3,
-  grandSponsorPct: 3,
+  sponsorSharedPct: 4,
+  grandSponsorPct: 2,
   shippingPct: 10,
   miscPct: 15,
   foreignPartnerPct: 0,
@@ -161,6 +167,8 @@ export function normalizeBusinessModel(raw: unknown): BusinessModel {
   num("salePct");
   num("priceRounding", 1, 10_000);
   num("sellerPct", 0, 100);
+  num("sellerParrainPct", 0, 100);
+  num("sellerLeaderPct", 0, 100);
   num("sponsorAlonePct", 0, 100);
   num("sponsorSharedPct", 0, 100);
   num("grandSponsorPct", 0, 100);
@@ -190,7 +198,21 @@ export function normalizeBusinessModel(raw: unknown): BusinessModel {
   if (Array.isArray(r.primeTiers)) base.primeTiers = normalizeTiers(r.primeTiers);
   if (Array.isArray(r.leaderTeamTiers)) base.leaderTeamTiers = normalizeTiers(r.leaderTeamTiers);
   if (Array.isArray(r.parrainTeamTiers)) base.parrainTeamTiers = normalizeTiers(r.parrainTeamTiers);
+  // Modèle enregistré avant les commissions par rang : on applique les règles du 18 octobre 2026
+  // (Leader 20 %, Parrain 19 %, Consultant 18 % ; sur la vente d'un filleul, Parrain direct 4 % et Leader 2 %).
+  // Dès le premier enregistrement depuis Admin > Modèle économique, ces valeurs deviennent les siennes.
+  if (r.sellerLeaderPct === undefined && r.sellerParrainPct === undefined) {
+    base.sellerLeaderPct = 20;
+    base.sellerParrainPct = 19;
+    base.sponsorSharedPct = 4;
+    base.grandSponsorPct = 2;
+  }
   return base;
+}
+
+/** Commission d'un vendeur sur ses propres ventes, selon son rang. */
+export function sellerRateFor(title: "Leader" | "Parrain" | "Consultant", model: BusinessModel): number {
+  return title === "Leader" ? model.sellerLeaderPct : title === "Parrain" ? model.sellerParrainPct : model.sellerPct;
 }
 
 /** Prix de vente JAMAAL à partir du prix public Chogan (arrondi au multiple configuré). */

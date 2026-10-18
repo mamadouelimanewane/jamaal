@@ -36,7 +36,7 @@ export default async function SettingsPage() {
             <h2>Commissions consultants</h2>
           </div>
           <p className="mt-1 text-xs text-navy/75">
-            Vendeur : <strong>{model.sellerPct} %</strong> · parrain seul : <strong>{model.sponsorAlonePct} %</strong> · parrain + grand-parrain :{" "}
+            Vendeur : Leader <strong>{model.sellerLeaderPct} %</strong>, Parrain <strong>{model.sellerParrainPct} %</strong>, Consultant <strong>{model.sellerPct} %</strong> · parrain seul : <strong>{model.sponsorAlonePct} %</strong> · parrain + grand-parrain :{" "}
             <strong>{model.sponsorSharedPct} % + {model.grandSponsorPct} %</strong> du prix de vente.
           </p>
           <Link href="/admin/modele-economique" className="mt-6 inline-block rounded-xl bg-navy px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-navy-light">

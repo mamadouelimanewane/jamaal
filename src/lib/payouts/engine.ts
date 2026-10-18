@@ -14,7 +14,8 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getBusinessModel } from "@/lib/business-model-store";
-import { sponsorRatesFor, type BusinessModel } from "@/lib/business-model";
+import { sellerRateFor, sponsorRatesFor, type BusinessModel } from "@/lib/business-model";
+import { effectiveTitle } from "@/lib/network";
 import { commissionBase } from "@/lib/commission";
 import { creditCommissionEntries, reverseWalletCreditsForOrder } from "@/lib/wallet";
 import { isWalletProvider, payoutProvidersConfig, refreshWave, sendPayout, WALLET_LABELS, type PayoutResult } from "./providers";
@@ -54,7 +55,7 @@ export async function plannedCommissions(orderId: string, model?: BusinessModel)
       paymentStatus: true,
       paymentMethod: true,
       consultant: {
-        select: { id: true, name: true, sponsor: { select: { id: true, name: true, sponsorId: true, sponsor: { select: { id: true, name: true } } } } },
+        select: { id: true, name: true, rank: true, sponsor: { select: { id: true, name: true, sponsorId: true, sponsor: { select: { id: true, name: true } } } } },
       },
     },
   });
@@ -66,7 +67,9 @@ export async function plannedCommissions(orderId: string, model?: BusinessModel)
     const sponsor = seller.sponsor;
     const grand = sponsor?.sponsor;
     const rates = sponsorRatesFor(!!sponsor?.sponsorId, m);
-    rows.push({ consultantId: seller.id, name: seller.name, level: "VENTE", rate: m.sellerPct, base, amount: 0 });
+    // Le vendeur touche selon son rang : Leader, Parrain ou Consultant (rang attribué, sinon sa place dans la chaîne).
+    const depth = !sponsor ? 0 : !sponsor.sponsorId ? 1 : 2;
+    rows.push({ consultantId: seller.id, name: seller.name, level: "VENTE", rate: sellerRateFor(effectiveTitle(seller.rank, depth), m), base, amount: 0 });
     if (sponsor) rows.push({ consultantId: sponsor.id, name: sponsor.name, level: "NIVEAU_1", rate: rates.level1, base, amount: 0 });
     if (sponsor && grand) rows.push({ consultantId: grand.id, name: grand.name, level: "NIVEAU_2", rate: rates.level2, base, amount: 0 });
   }

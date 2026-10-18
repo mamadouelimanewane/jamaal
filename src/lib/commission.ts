@@ -1,7 +1,8 @@
 import { prisma } from "./prisma";
 import type { Prisma } from "@prisma/client";
 import { getBusinessModel } from "./business-model-store";
-import { sponsorRatesFor } from "./business-model";
+import { sellerRateFor, sponsorRatesFor } from "./business-model";
+import { effectiveTitle, getNetworkDepth } from "./network";
 import { getRefundedTotal } from "./revenue";
 
 function startOfMonth(): Date {
@@ -62,7 +63,7 @@ export async function getConsultantCommission(consultantId: string): Promise<Com
   const since = startOfMonth();
 
   const [me, level1, model] = await Promise.all([
-    prisma.consultant.findUnique({ where: { id: consultantId }, select: { sponsorId: true } }),
+    prisma.consultant.findUnique({ where: { id: consultantId }, select: { sponsorId: true, rank: true } }),
     prisma.consultant.findMany({ where: { sponsorId: consultantId }, select: { id: true } }),
     getBusinessModel(),
   ]);
@@ -72,7 +73,7 @@ export async function getConsultantCommission(consultantId: string): Promise<Com
     : [];
   const l2Ids = level2.map((t) => t.id);
 
-  const rate = model.sellerPct;
+  const rate = sellerRateFor(effectiveTitle(me?.rank, await getNetworkDepth(consultantId)), model);
   // Parrain seul : il prend toute l'enveloppe (6 %) ; s'il a lui-même un parrain, il la partage (3 % + 3 %).
   const { level1: sponsorRate, level2: sponsorL2Rate } = sponsorRatesFor(!!me?.sponsorId, model);
 

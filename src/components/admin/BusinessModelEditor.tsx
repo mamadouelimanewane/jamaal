@@ -41,6 +41,8 @@ type NumKey =
   | "salePct"
   | "priceRounding"
   | "sellerPct"
+  | "sellerParrainPct"
+  | "sellerLeaderPct"
   | "sponsorAlonePct"
   | "sponsorSharedPct"
   | "grandSponsorPct"
@@ -190,8 +192,8 @@ function CommissionChain({ sale, net, model }: { sale: number; net: number; mode
     seller === "Consultant"
       ? { Leader: { rate: model.grandSponsorPct, role: "sur la vente de son Consultant" }, Parrain: { rate: model.sponsorSharedPct, role: "parrain direct du vendeur" }, Consultant: { rate: model.sellerPct, role: "vend" } }
       : seller === "Parrain"
-        ? { Leader: { rate: model.sponsorAlonePct, role: "parrain direct du vendeur" }, Parrain: { rate: model.sellerPct, role: "vend" }, Consultant: null }
-        : { Leader: { rate: model.sellerPct, role: "vend" }, Parrain: null, Consultant: null };
+        ? { Leader: { rate: model.sponsorAlonePct, role: "parrain direct du vendeur" }, Parrain: { rate: model.sellerParrainPct, role: "vend" }, Consultant: null }
+        : { Leader: { rate: model.sellerLeaderPct, role: "vend" }, Parrain: null, Consultant: null };
   const paidNetwork = (rates.Leader?.rate ?? 0) + (rates.Parrain?.rate ?? 0) + (rates.Consultant?.rate ?? 0) - model.sellerPct;
   const jamaal = net + amount(fullEnvelope - paidNetwork);
   const steps: { key: string; title: string; detail: string; value: number | null; rate?: number; color: string }[] = [
@@ -232,8 +234,8 @@ function CommissionChain({ sale, net, model }: { sale: number; net: number; mode
         {seller === "Consultant"
           ? `Le Consultant vend : il touche ${pts(model.sellerPct)} %, son Parrain direct ${pts(model.sponsorSharedPct)} % et le Leader ${pts(model.grandSponsorPct)} %.`
           : seller === "Parrain"
-            ? `Le Parrain vend : il touche ${pts(model.sellerPct)} % et son Leader ${pts(model.sponsorAlonePct)} %.${fullEnvelope > model.sponsorAlonePct ? ` Le reste de l'enveloppe réseau (${pts(fullEnvelope - model.sponsorAlonePct)} %) reste à JAMAAL.` : ""}`
-            : `Le Leader vend : il touche ${pts(model.sellerPct)} %. Personne au-dessus de lui : l'enveloppe réseau (${pts(fullEnvelope)} %) reste à JAMAAL.`}
+            ? `Le Parrain vend : il touche ${pts(model.sellerParrainPct)} % et son Leader ${pts(model.sponsorAlonePct)} %.${fullEnvelope > model.sponsorAlonePct ? ` Le reste de l'enveloppe réseau (${pts(fullEnvelope - model.sponsorAlonePct)} %) reste à JAMAAL.` : ""}`
+            : `Le Leader vend : il touche ${pts(model.sellerLeaderPct)} %. Personne au-dessus de lui : l'enveloppe réseau (${pts(fullEnvelope)} %) reste à JAMAAL.`}
       </p>
     </div>
   );
@@ -353,7 +355,12 @@ export function BusinessModelEditor({
           <section className={card}>
             <SectionTitle icon={Percent} title="Commissions" text="En % du prix de vente, hors livraison, sur les ventes encaissées." tone="#2f6f9f" />
             <div className="mt-5 flex flex-col gap-4">
-              <NumberField label="Vendeur (Consultant, Parrain ou Leader, sur ses propres ventes)" name="sellerPct" value={model.sellerPct} onChange={set} suffix="%" />
+              <p className="-mb-1 text-sm font-medium text-ink">Sur ses propres ventes, chacun touche selon son rang :</p>
+              <div className="grid grid-cols-3 gap-3">
+                <NumberField label="Leader" name="sellerLeaderPct" value={model.sellerLeaderPct} onChange={set} suffix="%" />
+                <NumberField label="Parrain" name="sellerParrainPct" value={model.sellerParrainPct} onChange={set} suffix="%" />
+                <NumberField label="Consultant (filleul)" name="sellerPct" value={model.sellerPct} onChange={set} suffix="%" />
+              </div>
               <NumberField label="Leader, sur les ventes de ses Parrains" name="sponsorAlonePct" value={model.sponsorAlonePct} onChange={set} suffix="%" hint="Le Leader est le parrain direct du Parrain : il touche toute l'enveloppe." />
               <p className="-mb-1 text-sm font-medium text-ink">Sur les ventes d&apos;un Consultant (vendeur final), l&apos;enveloppe est partagée :</p>
               <div className="grid grid-cols-2 gap-3">

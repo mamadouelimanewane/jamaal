@@ -395,7 +395,7 @@ export const RESELLER_TOOLS: Record<string, ResellerToolDef> = {
       const [m, minW] = await Promise.all([getBusinessModel(), minWithdrawal()]);
       const tiers = (ts: { threshold: number; amount: number; extra?: string }[]) => ts.map((t) => ({ seuil: t.threshold, prime: t.amount, bonus: t.extra ?? null }));
       return {
-        commissionVente: `${m.sellerPct} % du prix de vente (hors livraison), sur les commandes encaissées`,
+        commissionVente: `Sur ses propres ventes (prix de vente hors livraison, commandes encaissées) : Leader ${m.sellerLeaderPct} %, Parrain ${m.sellerParrainPct} %, Consultant ${m.sellerPct} %`,
         parrainDirect: `${m.sponsorSharedPct} % des ventes de ses filleuls (${m.sponsorAlonePct} % s'il n'a pas lui-même de parrain)`,
         grandParrain: `${m.grandSponsorPct} % des ventes des filleuls de ses filleuls`,
         primesMensuelles: m.primesEnabled ? tiers(m.primeTiers) : "désactivées",
