@@ -37,6 +37,10 @@ export type BusinessModel = {
   shippingPct: number;
   /** Frais divers, en % du prix public. */
   miscPct: number;
+  /** Partenaire étranger (Europe), en % du prix public. À définir : 0 tant que le pourcentage n'est pas décidé. */
+  foreignPartnerPct: number;
+  /** Partenaire local, en % du prix public. À définir : 0 tant que le pourcentage n'est pas décidé. */
+  localPartnerPct: number;
   /** Primes mensuelles activées ? */
   primesEnabled: boolean;
   primeTiers: PrimeTier[];
@@ -91,6 +95,8 @@ export const DEFAULT_BUSINESS_MODEL: BusinessModel = {
   grandSponsorPct: 3,
   shippingPct: 10,
   miscPct: 15,
+  foreignPartnerPct: 0,
+  localPartnerPct: 0,
   primesEnabled: false,
   primeTiers: [
     { threshold: 75_000, amount: 5_000 },
@@ -160,6 +166,8 @@ export function normalizeBusinessModel(raw: unknown): BusinessModel {
   num("grandSponsorPct", 0, 100);
   num("shippingPct", 0, 100);
   num("miscPct", 0, 100);
+  num("foreignPartnerPct", 0, 100);
+  num("localPartnerPct", 0, 100);
   num("topSellerBonus", 0, 100_000_000);
   num("maxDirectRecruits", 0, 1000);
   num("maxParrainsPerLeader", 0, 1000);
@@ -205,7 +213,8 @@ export type MarginLine = { label: string; points: number; amount: number; total?
 
 /**
  * Décomposition de la marge pour un produit (feuille « Marge par produit »).
- * `costPct` remplace expédition + frais divers pour simuler un autre scénario.
+ * `costPct` remplace expédition + frais divers pour simuler un autre scénario. Les parts du partenaire étranger
+ * (Europe) et du partenaire local viennent en plus (0 tant que leur pourcentage n'est pas décidé).
  * `withGrandSponsor` : false = un seul parrain (part « seul »), true = parrain + grand-parrain.
  */
 export function productMargin(
@@ -220,9 +229,11 @@ export function productMargin(
   const sponsors = (sale * sponsorPct) / 100;
   const costPct = opts.costPct ?? model.shippingPct + model.miscPct;
   const costs = (publicPrice * costPct) / 100;
+  const foreignPartner = (publicPrice * model.foreignPartnerPct) / 100;
+  const localPartner = (publicPrice * model.localPartnerPct) / 100;
   const gross = sale - purchase;
   const afterCommissions = gross - seller - sponsors;
-  const net = afterCommissions - costs;
+  const net = afterCommissions - costs - foreignPartner - localPartner;
   const pts = (v: number) => (publicPrice > 0 ? (v / publicPrice) * 100 : 0);
 
   const lines: MarginLine[] = [
@@ -233,6 +244,8 @@ export function productMargin(
     { label: "Commission parrains", points: -pts(sponsors), amount: -sponsors },
     { label: "Reste après commissions", points: pts(afterCommissions), amount: afterCommissions, total: true },
     { label: "Expédition + frais divers", points: -pts(costs), amount: -costs },
+    { label: "Partenaire étranger (Europe)", points: -pts(foreignPartner), amount: -foreignPartner },
+    { label: "Partenaire local", points: -pts(localPartner), amount: -localPartner },
     { label: "Marge nette JAMAAL", points: pts(net), amount: net, total: true },
   ];
   return {

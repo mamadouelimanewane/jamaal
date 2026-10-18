@@ -31,6 +31,8 @@ const SEGMENTS = {
   parrain: { label: "Parrain direct", color: "#6fa3c9" },
   leader: { label: "Leader", color: "#a9c9e2" },
   costs: { label: "Expédition et frais", color: "#d4a93c" },
+  foreign: { label: "Partenaire étranger (Europe)", color: "#5b8c5a" },
+  local: { label: "Partenaire local", color: "#7a6aa8" },
   net: { label: "Marge JAMAAL", color: "#9b5c4d" },
 } as const;
 
@@ -44,6 +46,8 @@ type NumKey =
   | "grandSponsorPct"
   | "shippingPct"
   | "miscPct"
+  | "foreignPartnerPct"
+  | "localPartnerPct"
   | "topSellerBonus"
   | "maxDirectRecruits"
   | "maxParrainsPerLeader"
@@ -110,7 +114,7 @@ function SectionTitle({ icon: Icon, title, text, tone }: { icon: typeof Tag; tit
 
 /** Barre « où va le prix de vente » : la pièce maîtresse de la page. */
 function PriceSplit({ margin, publicPrice, model }: { margin: ReturnType<typeof productMargin>; publicPrice: number; model: BusinessModel }) {
-  const [sale, purchase, , seller, , , costs, net] = margin.lines.map((l) => Math.abs(l.amount));
+  const [sale, purchase, , seller, , , costs, foreign, local, net] = margin.lines.map((l) => Math.abs(l.amount));
   // Chaîne complète : vente d'un Consultant, son Parrain direct et le Leader touchent leur part.
   const parrain = (sale * model.sponsorSharedPct) / 100;
   const leader = (sale * model.grandSponsorPct) / 100;
@@ -120,6 +124,9 @@ function PriceSplit({ margin, publicPrice, model }: { margin: ReturnType<typeof 
     { ...SEGMENTS.parrain, value: parrain },
     { ...SEGMENTS.leader, value: leader },
     { ...SEGMENTS.costs, value: costs },
+    // Partenaires : pourcentage encore à décider, la ligne est déjà là (0 F tant qu'il n'est pas renseigné).
+    { ...SEGMENTS.foreign, label: SEGMENTS.foreign.label + (model.foreignPartnerPct ? "" : " (à définir)"), value: foreign },
+    { ...SEGMENTS.local, label: SEGMENTS.local.label + (model.localPartnerPct ? "" : " (à définir)"), value: local },
     ...(margin.net > 0 ? [{ ...SEGMENTS.net, value: net }] : []),
   ];
   const total = Math.max(sale, parts.reduce((s, p) => s + p.value, 0));
@@ -357,10 +364,13 @@ export function BusinessModelEditor({
           </section>
 
           <section className={card}>
-            <SectionTitle icon={Truck} title="Coûts" text="En % du prix public. Servent au calcul de marge." tone="#b8902a" />
+            <SectionTitle icon={Truck} title="Coûts et partenaires" text="En % du prix public. Servent au calcul de marge." tone="#b8902a" />
             <div className="mt-5 flex flex-col gap-4">
               <NumberField label="Expédition Italie → Dakar" name="shippingPct" value={model.shippingPct} onChange={set} suffix="%" />
               <NumberField label="Frais divers" name="miscPct" value={model.miscPct} onChange={set} suffix="%" />
+              <p className="-mb-1 mt-1 text-sm font-medium text-ink">Partenaires (pourcentages à définir) :</p>
+              <NumberField label="Partenaire étranger (Europe)" name="foreignPartnerPct" value={model.foreignPartnerPct} onChange={set} suffix="%" hint="À décider : laissez 0 tant que le pourcentage n'est pas fixé. Le calcul des commissions viendra plus tard." />
+              <NumberField label="Partenaire local" name="localPartnerPct" value={model.localPartnerPct} onChange={set} suffix="%" hint="À décider : laissez 0 tant que le pourcentage n'est pas fixé. Le calcul des commissions viendra plus tard." />
             </div>
           </section>
         </div>

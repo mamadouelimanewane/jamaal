@@ -51,8 +51,11 @@ export async function OrderSplit({ orderId }: { orderId: string }) {
   const publicTotal = items.reduce((s, i) => s + (i.product?.publicPrice ?? 0) * i.quantity, 0);
   const purchase = Math.round((publicTotal * model.purchasePct) / 100);
   const costs = Math.round((publicTotal * (model.shippingPct + model.miscPct)) / 100);
+  // Partenaires : lignes prévues, à 0 tant que leur pourcentage n'est pas décidé (Admin > Modèle économique).
+  const foreignPartner = Math.round((publicTotal * model.foreignPartnerPct) / 100);
+  const localPartner = Math.round((publicTotal * model.localPartnerPct) / 100);
   const knownCost = publicTotal > 0;
-  const jamaal = plan.base - commissions - (knownCost ? purchase + costs : 0);
+  const jamaal = plan.base - commissions - (knownCost ? purchase + costs + foreignPartner + localPartner : 0);
 
   return (
     <div className="mt-6 rounded-2xl border border-line bg-white p-5">
@@ -92,6 +95,14 @@ export async function OrderSplit({ orderId }: { orderId: string }) {
             <div className="flex justify-between py-2">
               <dt className="text-navy/85">Expédition et frais (estimés, {model.shippingPct + model.miscPct} %)</dt>
               <dd className="font-semibold text-ink">− {formatPrice(costs)}</dd>
+            </div>
+            <div className="flex justify-between py-2">
+              <dt className="text-navy/85">Partenaire étranger (Europe) <span className="text-sm">({model.foreignPartnerPct ? `${model.foreignPartnerPct} % du prix public` : "pourcentage à définir"})</span></dt>
+              <dd className="font-semibold text-ink">− {formatPrice(foreignPartner)}</dd>
+            </div>
+            <div className="flex justify-between py-2">
+              <dt className="text-navy/85">Partenaire local <span className="text-sm">({model.localPartnerPct ? `${model.localPartnerPct} % du prix public` : "pourcentage à définir"})</span></dt>
+              <dd className="font-semibold text-ink">− {formatPrice(localPartner)}</dd>
             </div>
           </>
         )}

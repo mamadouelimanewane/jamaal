@@ -19,6 +19,8 @@ const PCT_FIELDS = [
   "grandSponsorPct",
   "shippingPct",
   "miscPct",
+  "foreignPartnerPct",
+  "localPartnerPct",
 ] as const;
 
 function readNumber(formData: FormData, name: string): number {
