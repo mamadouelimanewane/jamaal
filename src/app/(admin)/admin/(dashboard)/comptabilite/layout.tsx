@@ -4,7 +4,7 @@ import { AccountingNav } from "@/components/accounting/AccountingNav";
 import { FlashOk } from "@/components/accounting/FlashOk";
 
 export default async function ComptabiliteLayout({ children }: { children: React.ReactNode }) {
-  await requireAdminPage();
+  await requireAdminPage("comptabilite");
   return (
     <div className="accounting">
       <div className="print:hidden">

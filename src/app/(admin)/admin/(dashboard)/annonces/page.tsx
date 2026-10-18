@@ -6,7 +6,7 @@ import { AnnouncementRowActions } from "@/components/admin/AnnouncementRowAction
 export const dynamic = "force-dynamic";
 
 export default async function AnnoncesPage() {
-  await requireAdmin();
+  await requireAdmin("marketing", "read");
   const announcements = await prisma.announcement.findMany({ orderBy: [{ pinned: "desc" }, { createdAt: "desc" }], take: 100 });
 
   return (

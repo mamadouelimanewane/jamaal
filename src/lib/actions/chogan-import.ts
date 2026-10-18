@@ -83,7 +83,7 @@ async function resultFor(number: number): Promise<ResolveResult> {
 
 /** Une ligne de la saisie (lien, n° de fiche, code ou nom) → fiche Chogan trouvée, à préciser ou introuvable. */
 export async function resolveChoganQuery(raw: string): Promise<ResolveResult> {
-  await requireAdmin();
+  await requireAdmin("catalogue");
   const q = classifyQuery(String(raw ?? "").slice(0, 300));
   if (!q) return { status: "notfound", message: "Saisie vide." };
   try {
@@ -161,7 +161,7 @@ export type ImportResult = { ok: true; id: string; slug: string; name: string; p
 
 /** Crée une fiche JAMAAL à partir d'une fiche Chogan. Prix et photos sont relus chez Chogan (jamais pris du navigateur). */
 export async function importChoganProduct(input: ImportInput): Promise<ImportResult> {
-  const session = await requireAdmin();
+  const session = await requireAdmin("catalogue");
   try {
     const number = Number(input?.number);
     const found = await previewFor(number);
@@ -231,7 +231,7 @@ export async function importChoganProduct(input: ImportInput): Promise<ImportRes
 
 /** Remplace les photos d'une fiche existante par celles de sa fiche Chogan. */
 export async function refreshChoganPhotos(productId: string, number?: number): Promise<{ ok: boolean; error?: string; photo?: string | null; count?: number }> {
-  const session = await requireAdmin();
+  const session = await requireAdmin("catalogue");
   try {
     const product = await prisma.product.findUnique({ where: { id: String(productId) }, select: { id: true, slug: true, name: true, number: true } });
     if (!product) return { ok: false, error: "Fiche introuvable." };

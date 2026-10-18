@@ -44,7 +44,7 @@ async function buildTree(consultantId: string, depth = 0, ancestors = new Set<st
 }
 
 export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
-  const forbidden = await requireAdminForApi();
+  const forbidden = await requireAdminForApi("revendeurs");
   if (forbidden) return forbidden;
 
   const { id } = await params;

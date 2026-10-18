@@ -3,7 +3,7 @@ import { requireAdminForApi } from "@/lib/api-guard";
 
 /** Photo de la pièce d'identité d'un candidat (recto ou verso) : réservée aux administrateurs. */
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const forbidden = await requireAdminForApi();
+  const forbidden = await requireAdminForApi("revendeurs");
   if (forbidden) return forbidden;
   const { id } = await params;
   const face = new URL(req.url).searchParams.get("face") === "verso" ? "verso" : "recto";

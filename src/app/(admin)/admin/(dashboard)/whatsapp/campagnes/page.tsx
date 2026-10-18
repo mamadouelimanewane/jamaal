@@ -14,7 +14,7 @@ const STATUS: Record<string, string> = { BROUILLON: "Brouillon", EN_COURS: "En c
 type SP = { target?: string; inactiveDays?: string; category?: string; consultantId?: string; body?: string; title?: string; ctaLabel?: string; ctaUrl?: string; erreur?: string; c?: string };
 
 export default async function CampagnesPage({ searchParams }: { searchParams: Promise<SP> }) {
-  await requireAdmin();
+  await requireAdmin("whatsapp", "read");
   const sp = await searchParams;
   const audience = parseAudience({ target: sp.target, inactiveDays: sp.inactiveDays, category: sp.category, consultantId: sp.consultantId, cta: { label: sp.ctaLabel, url: sp.ctaUrl } });
   const [categories, consultants, campaigns, recipients] = await Promise.all([

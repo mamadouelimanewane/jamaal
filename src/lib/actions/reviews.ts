@@ -39,7 +39,7 @@ export async function submitReview(productSlug: string, formData: FormData) {
 }
 
 export async function approveReview(id: string) {
-  const session = await requireAdmin();
+  const session = await requireAdmin("clients");
   const review = await prisma.review.update({ where: { id }, data: { approved: true } });
 
   const agg = await prisma.review.aggregate({
@@ -61,7 +61,7 @@ export async function approveReview(id: string) {
 }
 
 export async function deleteReview(id: string) {
-  const session = await requireAdmin();
+  const session = await requireAdmin("clients");
   await prisma.review.delete({ where: { id } });
   await logActivity(session, "Suppression avis client", "Review", id);
   revalidatePath("/admin/avis");

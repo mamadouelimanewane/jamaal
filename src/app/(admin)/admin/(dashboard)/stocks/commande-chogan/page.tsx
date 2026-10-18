@@ -14,7 +14,7 @@ const daysAgo = (n: number) => new Date(Date.now() - n * 86_400_000);
 export const metadata = { title: "Commande Chogan" };
 
 export default async function ChoganOrderPage({ searchParams }: { searchParams: Promise<{ tout?: string }> }) {
-  await requireAdminPage();
+  await requireAdminPage("stocks");
   const all = (await searchParams).tout === "1";
   const orderedUntil = await getOrderedUntil();
   const [rows, reservations, changes, watched, total] = await Promise.all([

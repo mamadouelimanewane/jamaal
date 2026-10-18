@@ -6,7 +6,7 @@ import { getAccounts } from "@/lib/accounting/ledger";
 import { parsePeriod } from "@/lib/accounting/period";
 
 export async function GET(req: Request) {
-  const forbidden = await requireAdminForApi();
+  const forbidden = await requireAdminForApi("comptabilite");
   if (forbidden) return forbidden;
   const sp = Object.fromEntries(new URL(req.url).searchParams);
   const period = parsePeriod(sp, new Date(), new Date("2000-01-01T00:00:00Z"), "tout");

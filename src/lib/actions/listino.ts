@@ -17,7 +17,7 @@ export type ListinoApplyResult = { ok: boolean; message?: string; error?: string
  * (sinon une vente du format principal serait décomptée sur le mauvais format).
  */
 export async function applyListinoAction(): Promise<ListinoApplyResult> {
-  const session = await requireAdmin();
+  const session = await requireAdmin("catalogue");
   try {
     const plan = await loadListinoPlan();
     if (!plan.items.length) return { ok: true, message: "Rien à ajouter : tous les formats du listing sont déjà sur le site." };

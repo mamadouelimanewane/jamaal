@@ -11,7 +11,7 @@ const day = (d?: Date | null) => (d ? d.toISOString().slice(0, 10) : "");
 const fmt = (n: number, m: string) => (m === "CA" ? `${n.toLocaleString("fr-FR")} FCFA` : `${n} vente${n > 1 ? "s" : ""}`);
 
 export default async function ChallengesAdminPage({ searchParams }: { searchParams: Promise<{ edit?: string }> }) {
-  await requireAdminPage();
+  await requireAdminPage("revendeurs");
   const { edit } = await searchParams;
   const challenges = await prisma.challenge.findMany({ orderBy: [{ endsAt: "desc" }], take: 30 });
   const current = edit ? challenges.find((c) => c.id === edit) : null;

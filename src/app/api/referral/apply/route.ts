@@ -13,7 +13,7 @@ function normalizePhone(phone: string) {
 }
 
 export async function POST(request: Request) {
-  const forbidden = await requireAdminForApi();
+  const forbidden = await requireAdminForApi("clients", "write");
   if (forbidden) return forbidden;
 
   let body: unknown;

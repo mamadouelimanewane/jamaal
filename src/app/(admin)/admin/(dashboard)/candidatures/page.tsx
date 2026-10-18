@@ -18,7 +18,7 @@ const statusStyle = {
 } as const;
 
 export default async function CandidaturesPage({ searchParams }: { searchParams: Promise<{ ok?: string; erreur?: string }> }) {
-  await requireAdmin();
+  await requireAdmin("revendeurs", "read");
   const { ok, erreur } = await searchParams;
   const [codes, sponsors] = await Promise.all([
     prisma.sponsorCode.findMany({ orderBy: { createdAt: "desc" } }).catch(() => []),

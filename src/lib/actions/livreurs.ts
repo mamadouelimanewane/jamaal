@@ -14,21 +14,21 @@ function livreurDataFromForm(formData: FormData) {
 }
 
 export async function createLivreur(formData: FormData) {
-  await requireAdmin();
+  await requireAdmin("livraison");
   await prisma.livreur.create({ data: livreurDataFromForm(formData) });
   revalidatePath("/admin/livreurs");
   redirect("/admin/livreurs");
 }
 
 export async function updateLivreur(id: string, formData: FormData) {
-  await requireAdmin();
+  await requireAdmin("livraison");
   await prisma.livreur.update({ where: { id }, data: livreurDataFromForm(formData) });
   revalidatePath("/admin/livreurs");
   redirect("/admin/livreurs");
 }
 
 export async function deleteLivreur(id: string) {
-  await requireAdmin();
+  await requireAdmin("livraison");
   await prisma.livreur.delete({ where: { id } });
   revalidatePath("/admin/livreurs");
 }

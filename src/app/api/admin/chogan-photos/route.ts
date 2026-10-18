@@ -11,7 +11,7 @@ const MAX_FICHES = 10;
 
 /** GET /api/admin/chogan-photos?n=9479,9474 → ZIP des photos de ces fiches Chogan, nommées proprement. */
 export async function GET(req: Request) {
-  const forbidden = await requireAdminForApi();
+  const forbidden = await requireAdminForApi("catalogue", "write");
   if (forbidden) return forbidden;
 
   const numbers = [...new Set((new URL(req.url).searchParams.get("n") ?? "").split(",").map((s) => Number(s.trim())).filter((n) => Number.isInteger(n) && n > 0))].slice(0, MAX_FICHES);

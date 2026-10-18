@@ -21,7 +21,7 @@ const fail = (e: unknown): TeamActionResult => ({ ok: false, error: e instanceof
 
 /** Admin : attribuer un rang (Promouvoir en Leader / Parrain, ou repasser Consultant). */
 export async function setRankAction(_prev: TeamActionResult, formData: FormData): Promise<TeamActionResult> {
-  const session = await requireAdmin();
+  const session = await requireAdmin("revendeurs");
   const id = String(formData.get("consultantId") ?? "");
   const rank = formData.get("rank");
   if (!isRank(rank)) return { ok: false, error: "Rang inconnu." };
@@ -70,7 +70,7 @@ export async function addTeamMemberAction(_prev: TeamActionResult, formData: For
 
 /** Admin : clôture d'un mois écoulé, primes d'équipe enregistrées puis versées sur les wallets. */
 export async function closeTeamPrimesAction(_prev: TeamActionResult, formData: FormData): Promise<TeamActionResult> {
-  const session = await requireAdmin();
+  const session = await requireAdmin("revendeurs");
   const key = String(formData.get("month") ?? "");
   const range = monthRange(key);
   if (!range) return { ok: false, error: "Mois invalide." };

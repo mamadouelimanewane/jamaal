@@ -14,7 +14,7 @@ function normalizePhone(phone: string): string {
 
 /** Consulter le solde par téléphone (page compte / suivi). */
 export async function getLoyaltyBalance(phone: string) {
-  await requireAdmin();
+  await requireAdmin("clients");
   const p = normalizePhone(phone);
   if (!p) return null;
   const account = await prisma.loyaltyAccount.findUnique({ where: { phone: p } });
@@ -29,7 +29,7 @@ export async function getLoyaltyBalance(phone: string) {
 
 /** Échanger des lots de points (admin ou flux futur checkout). */
 export async function redeemLoyaltyPoints(phone: string, lots: number) {
-  await requireAdmin();
+  await requireAdmin("clients");
   if (lots < 1) throw new Error("Nombre de lots invalide");
 
   const p = normalizePhone(phone);

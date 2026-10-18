@@ -11,7 +11,7 @@ const back = (msg: string, ok = false) => redirect(`/admin/candidatures?${ok ? "
 
 /** Admin : créer un code de parrainage rattaché à un parrain (revendeur actif). */
 export async function createSponsorCode(formData: FormData): Promise<void> {
-  const session = await requireAdmin();
+  const session = await requireAdmin("revendeurs");
   const code = normalizeSponsorCode(String(formData.get("code") ?? ""));
   const consultantId = String(formData.get("consultantId") ?? "");
   const label = String(formData.get("label") ?? "").trim().slice(0, 120) || null;
@@ -27,14 +27,14 @@ export async function createSponsorCode(formData: FormData): Promise<void> {
 }
 
 export async function toggleSponsorCode(id: string): Promise<void> {
-  await requireAdmin();
+  await requireAdmin("revendeurs");
   const c = await prisma.sponsorCode.findUnique({ where: { id }, select: { active: true } });
   if (c) await prisma.sponsorCode.update({ where: { id }, data: { active: !c.active } });
   revalidatePath("/admin/candidatures");
 }
 
 export async function deleteSponsorCode(id: string): Promise<void> {
-  await requireAdmin();
+  await requireAdmin("revendeurs");
   await prisma.sponsorCode.deleteMany({ where: { id } });
   revalidatePath("/admin/candidatures");
 }

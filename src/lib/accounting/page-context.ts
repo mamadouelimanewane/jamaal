@@ -6,7 +6,7 @@ import { parsePeriod } from "./period";
 export type SP = Promise<Record<string, string | string[] | undefined>>;
 
 export async function accountingContext(searchParams: SP, defaultPreset = "mois") {
-  await requireAdminPage();
+  await requireAdminPage("comptabilite");
   const [sp, L] = await Promise.all([searchParams, loadLedger()]);
   const period = parsePeriod(sp, new Date(), L.start, defaultPreset);
   const query = period.preset === "perso" ? `du=${period.fromStr}&au=${period.toStr}` : `p=${period.preset}`;

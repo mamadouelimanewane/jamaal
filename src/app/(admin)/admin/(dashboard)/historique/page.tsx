@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
 
 export default async function ActivityHistoryPage() {
-  await requireAdmin();
+  await requireAdmin("utilisateurs", "read");
   const entries = await prisma.activityLog.findMany({ orderBy: { createdAt: "desc" }, take: 200 });
   return <div className="max-w-5xl">
     <h1 className="font-serif-display text-2xl font-semibold text-navy">Journal des actions</h1>

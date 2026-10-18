@@ -21,7 +21,7 @@ const TEMPLATES = [
 ];
 
 export default async function AutomationsPage() {
-  await requireAdminPage();
+  await requireAdminPage("whatsapp");
   const since = daysAgo(30);
   const step = async <T,>(name: string, p: Promise<T>, fallback: T): Promise<T> => {
     try {

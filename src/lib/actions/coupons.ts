@@ -26,7 +26,7 @@ function couponDataFromForm(formData: FormData, usedCount = 0) {
 }
 
 async function createCouponImpl(formData: FormData) {
-  const session = await requireAdmin();
+  const session = await requireAdmin("marketing");
   const coupon = await prisma.coupon.create({ data: couponDataFromForm(formData) });
   await logActivity(session, "Création code promo", "Coupon", coupon.id);
   revalidatePath("/admin/coupons");
@@ -34,7 +34,7 @@ async function createCouponImpl(formData: FormData) {
 }
 
 async function updateCouponImpl(id: string, formData: FormData) {
-  const session = await requireAdmin();
+  const session = await requireAdmin("marketing");
   const existing = await prisma.coupon.findUniqueOrThrow({ where: { id }, select: { usedCount: true } });
   await prisma.coupon.update({ where: { id }, data: couponDataFromForm(formData, existing.usedCount) });
   await logActivity(session, "Modification code promo", "Coupon", id);
@@ -43,7 +43,7 @@ async function updateCouponImpl(id: string, formData: FormData) {
 }
 
 async function deleteCouponImpl(id: string) {
-  const session = await requireAdmin();
+  const session = await requireAdmin("marketing");
   const existing = await prisma.coupon.findUniqueOrThrow({ where: { id }, select: { usedCount: true } });
   if (existing.usedCount > 0) await prisma.coupon.update({ where: { id }, data: { active: false } });
   else await prisma.coupon.delete({ where: { id } });

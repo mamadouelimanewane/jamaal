@@ -7,7 +7,7 @@ export const metadata = { title: "Importer depuis Chogan" };
 export const maxDuration = 60;
 
 export default async function ChoganImportPage() {
-  await requireAdminPage();
+  await requireAdminPage("catalogue");
   const categories = await getCategories();
   return (
     <div className="space-y-6">

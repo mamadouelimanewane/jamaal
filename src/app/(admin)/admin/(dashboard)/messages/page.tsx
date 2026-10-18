@@ -5,7 +5,7 @@ import { ContactMessageActions } from "@/components/admin/ContactMessageActions"
 export const dynamic = "force-dynamic";
 
 export default async function MessagesPage() {
-  await requireAdmin();
+  await requireAdmin("clients", "read");
   const messages = await prisma.contactMessage.findMany({ orderBy: [{ read: "asc" }, { createdAt: "desc" }], take: 200 });
   const unread = messages.filter((m) => !m.read).length;
 

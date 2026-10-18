@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 const PER_PAGE = 60;
 
 export default async function StockMovementsPage({ searchParams }: { searchParams: Promise<{ q?: string; type?: string; du?: string; au?: string; page?: string }> }) {
-  await requireAdminPage();
+  await requireAdminPage("stocks");
   const { q = "", type = "", du = "", au = "", page = "1" } = await searchParams;
   const where: Prisma.StockMovementWhereInput = {
     ...(type ? { kind: type } : {}),

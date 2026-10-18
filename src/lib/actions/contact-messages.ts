@@ -50,13 +50,13 @@ export async function submitContactMessage(_prev: ContactState, formData: FormDa
 }
 
 export async function setContactMessageRead(id: string, read: boolean) {
-  await requireAdmin();
+  await requireAdmin("clients");
   await prisma.contactMessage.update({ where: { id }, data: { read } });
   revalidatePath("/admin/messages");
 }
 
 export async function deleteContactMessage(id: string) {
-  await requireAdmin();
+  await requireAdmin("clients");
   await prisma.contactMessage.delete({ where: { id } });
   revalidatePath("/admin/messages");
 }

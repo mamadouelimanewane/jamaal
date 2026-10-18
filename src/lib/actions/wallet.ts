@@ -100,7 +100,7 @@ export async function depositAction(_prev: WalletActionState, fd: FormData): Pro
 // ---------- Admin ----------
 
 export async function resolveWithdrawalAction(txId: string, paid: boolean, note?: string): Promise<WalletActionState> {
-  const session = await requireAdmin();
+  const session = await requireAdmin("comptabilite");
   try {
     await resolveWithdrawal(txId, paid, session.user?.id ?? null, note);
     await logActivity(session, `Retrait wallet ${paid ? "marqué versé" : "refusé"}`, "WalletTransaction", txId);
@@ -112,7 +112,7 @@ export async function resolveWithdrawalAction(txId: string, paid: boolean, note?
 }
 
 export async function retryWithdrawalAction(txId: string): Promise<WalletActionState> {
-  await requireAdmin();
+  await requireAdmin("comptabilite");
   await sendWithdrawal(txId);
   const t = await prisma.walletTransaction.findUnique({ where: { id: txId } });
   refresh();
@@ -120,7 +120,7 @@ export async function retryWithdrawalAction(txId: string): Promise<WalletActionS
 }
 
 export async function resolveDepositAction(txId: string, ok: boolean): Promise<WalletActionState> {
-  const session = await requireAdmin();
+  const session = await requireAdmin("comptabilite");
   const res = await prisma.walletTransaction.updateMany({ where: { id: txId, kind: "DEPOT", status: "EN_ATTENTE" }, data: { status: ok ? "VALIDE" : "ANNULE", createdBy: session.user?.id ?? null } });
   if (!res.count) return { ok: false, error: "Ce dépôt n'est plus en attente." };
   await logActivity(session, `Dépôt wallet ${ok ? "validé" : "refusé"}`, "WalletTransaction", txId);
@@ -129,7 +129,7 @@ export async function resolveDepositAction(txId: string, ok: boolean): Promise<W
 }
 
 export async function adjustWalletAction(_prev: WalletActionState, fd: FormData): Promise<WalletActionState> {
-  const session = await requireAdmin();
+  const session = await requireAdmin("comptabilite");
   const [type, id] = String(fd.get("owner") ?? "").split(":");
   if ((type !== "CONSULTANT" && type !== "LIVREUR") || !id) return { ok: false, error: "Choisissez un membre." };
   const sign = fd.get("sign") === "debit" ? -1 : 1;
@@ -144,7 +144,7 @@ export async function adjustWalletAction(_prev: WalletActionState, fd: FormData)
 }
 
 export async function saveDepositNumbersAction(_prev: WalletActionState, fd: FormData): Promise<WalletActionState> {
-  await requireAdmin();
+  await requireAdmin("comptabilite");
   await saveDepositNumbers({ WAVE: String(fd.get("WAVE") ?? ""), ORANGE_MONEY: String(fd.get("ORANGE_MONEY") ?? "") });
   refresh();
   return { ok: true, message: "Numéros enregistrés." };

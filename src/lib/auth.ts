@@ -32,6 +32,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const tokenHash = createHash("sha256").update(`login:${token}`).digest("hex");
         const record = await prisma.passwordResetToken.findUnique({ where: { tokenHash }, include: { user: { include: { consultant: { select: { whatsapp: true } }, livreur: { select: { phone: true } } } } } });
         if (!record || record.expiresAt <= new Date()) return null;
+        if (!record.user.active) return null; // compte suspendu
         // Usage unique : la suppression atomique garantit qu'un seul appel réussit.
         const consumed = await prisma.passwordResetToken.deleteMany({ where: { id: record.id } });
         if (consumed.count !== 1) return null;
@@ -41,6 +42,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           .filter((v): v is string => !!v)
           .map((v) => (v.includes("@") ? v : canonicalizePhone(v)));
         if (ids.length) await prisma.loginAttempt.deleteMany({ where: { identifiant: { in: ids } } }).catch(() => {});
+        await prisma.user.update({ where: { id: u.id }, data: { lastLoginAt: new Date() } }).catch(() => {});
         return { id: u.id, email: u.email, phone: u.phone, name: u.name, role: u.role, via: "magic" as const };
       },
     }),
@@ -86,7 +88,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return null;
         }
 
+        // Compte suspendu : même mot de passe exact, l'accès est refusé (sans révéler la raison à l'écran de connexion).
+        const state = await prisma.user.findUnique({ where: { id: user.id }, select: { active: true } });
+        if (!state?.active) return null;
         await prisma.loginAttempt.deleteMany({ where: { identifiant } });
+        await prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } }).catch(() => {});
         return { id: user.id, email: user.email, phone: user.phone, name: user.name, role: user.role };
       },
     }),
@@ -107,8 +113,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       const checkedAt = typeof token.checkedAt === "number" ? token.checkedAt : 0;
       if (token.id && now - checkedAt > ROLE_REFRESH_MS) {
         try {
-          const fresh = await prisma.user.findUnique({ where: { id: token.id as string }, select: { role: true } });
-          if (!fresh) return null;
+          const fresh = await prisma.user.findUnique({ where: { id: token.id as string }, select: { role: true, active: true } });
+          if (!fresh || !fresh.active) return null; // compte supprimé ou suspendu : session coupée
           token.role = fresh.role;
           token.checkedAt = now;
         } catch {

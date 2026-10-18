@@ -12,7 +12,7 @@ const OCCASIONS = ["Tabaski", "KoritÃ©", "Magal", "Gamou", "Saint-Valentin", "FÃ
 const day = (d?: Date | null) => (d ? d.toISOString().slice(0, 10) : "");
 
 export default async function OffersPage({ searchParams }: { searchParams: Promise<{ edit?: string }> }) {
-  await requireAdminPage();
+  await requireAdminPage("marketing");
   const { edit } = await searchParams;
   const [offers, products] = await Promise.all([
     prisma.offer.findMany({ orderBy: [{ active: "desc" }, { endsAt: "desc" }] }),

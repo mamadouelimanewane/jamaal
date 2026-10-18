@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "./auth-guard";
 
 export async function updateCustomerNotes(id: string, formData: FormData) {
-  await requireAdmin();
+  await requireAdmin("clients");
   const notes = String(formData.get("notes") ?? "").trim() || null;
   await prisma.customer.update({ where: { id }, data: { notes } });
   revalidatePath("/admin/clients");

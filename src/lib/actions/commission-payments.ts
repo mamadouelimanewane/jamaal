@@ -8,7 +8,7 @@ import { requireAdmin } from "./auth-guard";
 import { logActivity } from "@/lib/activity-log";
 
 async function recordCommissionPaymentImpl(consultantId: string, formData: FormData) {
-  const session = await requireAdmin();
+  const session = await requireAdmin("comptabilite");
   const amount = Number(formData.get("amount") ?? 0) || 0;
   const periodLabel = String(formData.get("periodLabel") ?? "").trim();
   const note = String(formData.get("note") ?? "").trim() || null;
@@ -23,7 +23,7 @@ async function recordCommissionPaymentImpl(consultantId: string, formData: FormD
 }
 
 async function deleteCommissionPaymentImpl(id: string, consultantId: string) {
-  const session = await requireAdmin();
+  const session = await requireAdmin("comptabilite");
   await prisma.commissionPayment.delete({ where: { id } });
   await logActivity(session, "Suppression paiement de commission", "CommissionPayment", id);
   revalidatePath(`/admin/consultants/${consultantId}`);

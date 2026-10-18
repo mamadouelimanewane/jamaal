@@ -35,7 +35,7 @@ const dateOf = (f: FormData, k: string) => {
 /* ---------- Automatisations ---------- */
 
 export async function toggleAutomation(id: string, on: boolean) {
-  const session = await requireAdmin();
+  const session = await requireAdmin("whatsapp");
   if (!(id in AUTOMATIONS)) throw new Error("Automatisation inconnue.");
   await setAutomation(id as AutomationId, on);
   await logActivity(session, `${on ? "Activation" : "Arrêt"} : ${AUTOMATIONS[id as AutomationId].label}`, "Setting", id);
@@ -44,7 +44,7 @@ export async function toggleAutomation(id: string, on: boolean) {
 
 /** Lance la tâche quotidienne tout de suite (test ou rattrapage) ; rien n'est envoyé deux fois. */
 export async function runDailyNow(): Promise<Record<string, unknown>> {
-  const session = await requireAdmin();
+  const session = await requireAdmin("whatsapp");
   const report = await runDailyJobs(siteBaseUrl(), { budgetMs: 45_000 });
   await logActivity(session, "Tâche quotidienne lancée à la main", "Setting", "cron");
   revalidatePath("/admin/automatisations");
@@ -54,7 +54,7 @@ export async function runDailyNow(): Promise<Record<string, unknown>> {
 /* ---------- Offres de fêtes ---------- */
 
 export async function saveOffer(formData: FormData) {
-  const session = await requireAdmin();
+  const session = await requireAdmin("marketing");
   try {
     const id = text(formData, "id", 40);
     const title = text(formData, "title", 120);
@@ -99,7 +99,7 @@ export async function saveOffer(formData: FormData) {
 }
 
 export async function deleteOffer(id: string) {
-  const session = await requireAdmin();
+  const session = await requireAdmin("marketing");
   await prisma.offer.delete({ where: { id } });
   await logActivity(session, "Suppression d'une offre", "Offer", id);
   revalidatePath("/admin/offres");
@@ -110,7 +110,7 @@ export async function deleteOffer(id: string) {
 /* ---------- Défis ---------- */
 
 export async function saveChallenge(formData: FormData) {
-  const session = await requireAdmin();
+  const session = await requireAdmin("revendeurs");
   try {
     const id = text(formData, "id", 40);
     const title = text(formData, "title", 120);
@@ -146,7 +146,7 @@ export async function saveChallenge(formData: FormData) {
 }
 
 export async function deleteChallenge(id: string) {
-  const session = await requireAdmin();
+  const session = await requireAdmin("revendeurs");
   const ch = await prisma.challenge.findUnique({ where: { id }, select: { awardedAt: true } });
   if (ch?.awardedAt) throw new Error("Défi clôturé : il reste dans l'historique.");
   await prisma.challenge.delete({ where: { id } });
@@ -224,7 +224,7 @@ export async function submitOrderReviews(_prev: ReviewFormState, formData: FormD
 
 /** Applique un nouveau prix public Chogan : prix public et prix de vente JAMAAL recalculé. */
 export async function applyChoganPrice(changeId: string) {
-  const session = await requireAdmin();
+  const session = await requireAdmin("catalogue");
   const change = await prisma.choganPriceChange.findUnique({ where: { id: changeId } });
   if (!change) return;
   const model = await getBusinessModel();
@@ -243,7 +243,7 @@ export async function applyChoganPrice(changeId: string) {
 }
 
 export async function dismissChoganPrice(changeId: string) {
-  await requireAdmin();
+  await requireAdmin("catalogue");
   await prisma.choganPriceChange.update({ where: { id: changeId }, data: { seen: true } });
   revalidatePath("/admin/stocks/commande-chogan");
 }
@@ -251,7 +251,7 @@ export async function dismissChoganPrice(changeId: string) {
 /* ---------- Anniversaire d'un client ---------- */
 
 export async function setCustomerBirthday(customerId: string, formData: FormData) {
-  await requireAdmin();
+  await requireAdmin("clients");
   try {
     const raw = text(formData, "birthday", 10);
     const birthday = raw ? birthdayKey(raw) : null;

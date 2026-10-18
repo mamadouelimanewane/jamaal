@@ -18,7 +18,7 @@ const ageMs = (d: Date) => Date.now() - d.getTime();
 type Row = { phone: string; name: string | null; lastMessageAt: Date; botPausedUntil: Date | null; body: string | null; direction: string | null; unread: bigint };
 
 export default async function ConversationsPage({ searchParams }: { searchParams: Promise<{ p?: string; q?: string }> }) {
-  await requireAdmin();
+  await requireAdmin("whatsapp", "read");
   const { p, q } = await searchParams;
   const search = (q ?? "").trim();
   const like = `%${search.replace(/[%_]/g, "")}%`;

@@ -8,7 +8,7 @@ export type TestState = { ok: boolean; message?: string };
 
 /** Envoie un message de test au numéro indiqué (administrateur uniquement). */
 export async function sendTestWhatsApp(_prev: TestState, formData: FormData): Promise<TestState> {
-  await requireAdmin();
+  await requireAdmin("whatsapp");
   const to = normalizePhone(String(formData.get("to") ?? ""));
   const text = String(formData.get("text") ?? "").trim() || "Test JAMAAL : ceci est un message de test envoyé depuis le back-office.";
   if (to.length < 9 || to.length > 15) return { ok: false, message: "Numéro invalide (format international, ex. 221770000000)." };

@@ -7,7 +7,7 @@ import { requireAdmin } from "./auth-guard";
 import { setCommissionRate, setSponsorCommissionRate, setLoyaltySettings } from "@/lib/settings";
 
 async function updateCommissionRateImpl(formData: FormData) {
-  await requireAdmin();
+  await requireAdmin("reglages");
   const rate = Number(formData.get("rate") ?? 0);
   if (!Number.isFinite(rate) || rate < 0 || rate > 100) throw new Error("Taux invalide");
   await setCommissionRate(rate);
@@ -16,7 +16,7 @@ async function updateCommissionRateImpl(formData: FormData) {
 }
 
 async function updateSponsorCommissionRateImpl(formData: FormData) {
-  await requireAdmin();
+  await requireAdmin("reglages");
   const rate = Number(formData.get("rate") ?? 0);
   if (!Number.isFinite(rate) || rate < 0 || rate > 100) throw new Error("Taux invalide");
   await setSponsorCommissionRate(rate);
@@ -25,7 +25,7 @@ async function updateSponsorCommissionRateImpl(formData: FormData) {
 }
 
 async function updateLoyaltySettingsActionImpl(formData: FormData) {
-  await requireAdmin();
+  await requireAdmin("reglages");
   const earningRate = Number(formData.get("earningRate") ?? 1);
   const spendThreshold = Number(formData.get("spendThreshold") ?? 10000);
   await setLoyaltySettings(earningRate, spendThreshold);

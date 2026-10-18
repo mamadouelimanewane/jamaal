@@ -9,7 +9,7 @@ import { requireAdmin } from "./auth-guard";
 import type { ReturnStatus } from "@prisma/client";
 
 async function createReturnImpl(formData: FormData) {
-  await requireAdmin();
+  await requireAdmin("commandes");
   const orderId = String(formData.get("orderId") ?? "");
   const reason = String(formData.get("reason") ?? "").trim();
   const amount = Number(formData.get("amount") ?? 0) || 0;
@@ -22,7 +22,7 @@ async function createReturnImpl(formData: FormData) {
 }
 
 async function updateReturnStatusImpl(id: string, status: ReturnStatus) {
-  await requireAdmin();
+  await requireAdmin("commandes");
   await prisma.return.update({
     where: { id },
     data: { status, processedAt: status === "EN_ATTENTE" ? null : new Date() },
@@ -33,7 +33,7 @@ async function updateReturnStatusImpl(id: string, status: ReturnStatus) {
 }
 
 async function deleteReturnImpl(id: string) {
-  await requireAdmin();
+  await requireAdmin("commandes");
   await prisma.return.delete({ where: { id } });
   revalidatePath("/admin/retours");
   revalidatePath("/admin/comptabilite");

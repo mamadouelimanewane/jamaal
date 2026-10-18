@@ -7,7 +7,7 @@ import { CopyButton } from "@/components/admin/CopyButton";
 export const dynamic = "force-dynamic";
 
 export default async function CentreWhatsAppPage() {
-  await requireAdmin();
+  await requireAdmin("whatsapp", "read");
 
   return (
     <div className="max-w-4xl">

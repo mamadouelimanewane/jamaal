@@ -14,7 +14,7 @@ const schema = z.object({
 
 /** Publie une annonce visible par tous les consultants, et les prévient par notification. */
 export async function createAnnouncement(_prev: AnnouncementState, formData: FormData): Promise<AnnouncementState> {
-  await requireAdmin();
+  await requireAdmin("marketing");
   const parsed = schema.safeParse({ title: formData.get("title") ?? "", body: formData.get("body") ?? "" });
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Formulaire invalide." };
 
@@ -32,14 +32,14 @@ export async function createAnnouncement(_prev: AnnouncementState, formData: For
 }
 
 export async function deleteAnnouncement(id: string) {
-  await requireAdmin();
+  await requireAdmin("marketing");
   await prisma.announcement.delete({ where: { id } });
   revalidatePath("/admin/annonces");
   revalidatePath("/admin/ma-communication");
 }
 
 export async function togglePinAnnouncement(id: string) {
-  await requireAdmin();
+  await requireAdmin("marketing");
   const a = await prisma.announcement.findUnique({ where: { id }, select: { pinned: true } });
   if (!a) return;
   await prisma.announcement.update({ where: { id }, data: { pinned: !a.pinned } });

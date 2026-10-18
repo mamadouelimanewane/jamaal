@@ -14,7 +14,7 @@ const PAUSE_MS = 2 * 3_600_000;
 
 /** Réponse d'un conseiller depuis la boîte de réception : l'assistant se met en pause 2 h. */
 export async function replyToThread(_prev: InboxState, formData: FormData): Promise<InboxState> {
-  await requireAdmin();
+  await requireAdmin("whatsapp");
   const phone = canonicalizePhone(String(formData.get("phone") ?? ""));
   const text = String(formData.get("text") ?? "").trim().slice(0, 1500);
   if (phone.length < 8) return { ok: false, message: "Numéro invalide." };
@@ -34,7 +34,7 @@ export async function replyToThread(_prev: InboxState, formData: FormData): Prom
 
 /** Met l'assistant en pause (heures > 0) ou le relance (0) sur une conversation. */
 export async function setThreadBot(phone: string, hours: number) {
-  await requireAdmin();
+  await requireAdmin("whatsapp");
   const p = canonicalizePhone(phone);
   const until = hours > 0 ? new Date(Date.now() + Math.min(hours, 24 * 30) * 3_600_000) : null;
   await prisma.whatsAppThread.upsert({ where: { phone: p }, create: { phone: p, botPausedUntil: until }, update: { botPausedUntil: until } });
@@ -42,7 +42,7 @@ export async function setThreadBot(phone: string, hours: number) {
 }
 
 export async function createCampaign(formData: FormData) {
-  const session = await requireAdmin();
+  const session = await requireAdmin("whatsapp");
   const title = String(formData.get("title") ?? "").trim().slice(0, 120);
   const body = String(formData.get("body") ?? "").trim().slice(0, 1000);
   if (!title || body.length < 5) redirect("/admin/whatsapp/campagnes?erreur=" + encodeURIComponent("Titre et message requis."));
@@ -60,7 +60,7 @@ export async function createCampaign(formData: FormData) {
 }
 
 export async function continueCampaign(id: string) {
-  await requireAdmin();
+  await requireAdmin("whatsapp");
   await runCampaign(id);
   revalidatePath("/admin/whatsapp/campagnes");
 }

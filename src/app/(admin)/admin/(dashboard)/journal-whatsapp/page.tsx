@@ -16,7 +16,7 @@ const STATUS: Record<string, string> = {
 const KIND: Record<string, string> = { team: "Équipe", reseller: "Consultant", test: "Test", inbound: "Reçu", client: "Client", bot: "Assistant", relance: "Relance", avis: "Avis", resume: "Résumé", suivi: "Suivi commande", livreur: "Livreur", kit: "Kit du matin", campagne: "Campagne", conseiller: "Conseiller" };
 
 export default async function JournalWhatsAppPage() {
-  await requireAdmin();
+  await requireAdmin("whatsapp", "read");
   const cfg = whatsappConfig();
   const messages = await prisma.whatsAppMessage.findMany({ orderBy: { createdAt: "desc" }, take: 100 }).catch(() => null);
 

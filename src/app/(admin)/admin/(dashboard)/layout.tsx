@@ -51,6 +51,8 @@ import { walletBalance } from "@/lib/wallet";
 import { Suspense } from "react";
 import { AssistantLauncher } from "@/components/admin/AdminAssistant";
 import { geminiConfigured } from "@/lib/ai/gemini";
+import { getAccess } from "@/lib/access";
+import { allows, moduleForPath } from "@/lib/permissions";
 
 const adminGroups = [
   {
@@ -152,6 +154,14 @@ export default async function DashboardLayout({ children }: { children: React.Re
   // Les comptes clients n'ont rien à faire dans le back-office : leur espace est /compte.
   if (role === "CLIENT") redirect("/compte");
 
+  // Compte relu en base : suspendu ou rôle modifié depuis la connexion = déconnexion immédiate.
+  const access = session.user?.id ? await getAccess(session.user.id) : null;
+  if (!access || !access.active || access.role !== role) redirect(`/admin/deconnexion?motif=${access && !access.active ? "suspendu" : "session"}`);
+  // Administrateur restreint : le menu ne montre que les modules de son profil.
+  const perms = access.perms;
+  const canSee = (href: string) => href === "/admin" || allows(perms, moduleForPath(href), "read");
+  const visibleGroups = adminGroups.map((g) => ({ ...g, links: g.links.filter((l) => canSee(l.href)) })).filter((g) => g.links.length > 0);
+
   // Mode « voir l'espace d'un consultant » (administrateur uniquement)
   const viewAsId = role === "ADMIN" ? (await cookies()).get("jamaal_viewas")?.value : undefined;
   const viewingAs = viewAsId ? await prisma.consultant.findUnique({ where: { id: viewAsId }, select: { name: true } }) : null;
@@ -183,7 +193,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
       <nav className="mt-6 flex flex-1 flex-col gap-5 overflow-y-auto">
         {role === "ADMIN" && !viewingAs &&
-          adminGroups.map((group) => (
+          visibleGroups.map((group) => (
             <div key={group.title}>
               <p className="mb-1.5 px-3 text-xs font-semibold uppercase tracking-wider text-white/60">
                 {group.title}
@@ -203,12 +213,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
             </p>
             <div className="flex flex-col gap-0.5">
               <SidebarNavLink href="/admin/notifications" label="Notifications" icon={<Bell size={16} />} badge={unreadCount} />
-              <SidebarNavLink href="/admin/utilisateurs" label="Utilisateurs" icon={<UserCog size={16} />} />
-              <SidebarNavLink href="/admin/wallets" label="Wallets des membres" icon={<Wallet size={16} />} />
-              <SidebarNavLink href="/admin/versements" label="Versements" icon={<Wallet size={16} />} />
-              <SidebarNavLink href="/admin/modele-economique" label="Modèle économique" icon={<Calculator size={16} />} />
-              <SidebarNavLink href="/admin/reglages" label="Réglages & Fidélité" icon={<Settings size={16} />} />
-              <SidebarNavLink href="/admin/historique" label="Journal des actions" icon={<ClipboardList size={16} />} />
+              {canSee("/admin/utilisateurs") && <SidebarNavLink href="/admin/utilisateurs" label="Utilisateurs" icon={<UserCog size={16} />} />}
+              {canSee("/admin/wallets") && <SidebarNavLink href="/admin/wallets" label="Wallets des membres" icon={<Wallet size={16} />} />}
+              {canSee("/admin/versements") && <SidebarNavLink href="/admin/versements" label="Versements" icon={<Wallet size={16} />} />}
+              {canSee("/admin/modele-economique") && <SidebarNavLink href="/admin/modele-economique" label="Modèle économique" icon={<Calculator size={16} />} />}
+              {canSee("/admin/reglages") && <SidebarNavLink href="/admin/reglages" label="Réglages & Fidélité" icon={<Settings size={16} />} />}
+              {canSee("/admin/historique") && <SidebarNavLink href="/admin/historique" label="Journal des actions" icon={<ClipboardList size={16} />} />}
             </div>
           </div>
         )}

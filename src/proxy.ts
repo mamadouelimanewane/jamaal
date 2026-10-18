@@ -67,7 +67,7 @@ const handler = auth((req) => {
 
   const isLoggedIn = !!req.auth;
   const isLoginPage = pathname === "/admin/login";
-  const isRecoveryPage = pathname === "/admin/forgot-password" || pathname === "/admin/reset-password" || pathname === "/admin/acces" || pathname === "/admin/sw.js";
+  const isRecoveryPage = pathname === "/admin/forgot-password" || pathname === "/admin/reset-password" || pathname === "/admin/acces" || pathname === "/admin/sw.js" || pathname === "/admin/deconnexion";
 
   if (!isLoggedIn && !isLoginPage && !isRecoveryPage) {
     return NextResponse.redirect(new URL("/admin/login", req.nextUrl));

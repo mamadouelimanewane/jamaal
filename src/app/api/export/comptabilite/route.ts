@@ -14,7 +14,7 @@ const d = (x: Date) => x.toLocaleDateString("fr-FR", { timeZone: "UTC" });
 const ymd = (x: Date) => x.toISOString().slice(0, 10).replace(/-/g, "");
 
 export async function GET(req: Request) {
-  const forbidden = await requireAdminForApi();
+  const forbidden = await requireAdminForApi("comptabilite");
   if (forbidden) return forbidden;
   const url = new URL(req.url);
   const sp = Object.fromEntries(url.searchParams);

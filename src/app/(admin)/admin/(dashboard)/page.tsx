@@ -15,6 +15,8 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { auth } from "@/lib/auth";
+import { getAccess } from "@/lib/access";
+import { RestrictedHome } from "@/components/admin/RestrictedHome";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/currency";
 import { StatCard } from "@/components/admin/StatCard";
@@ -343,11 +345,16 @@ async function LivreurOverview({ userId }: { userId: string }) {
   );
 }
 
-export default async function AdminDashboardPage() {
+export default async function AdminDashboardPage({ searchParams }: { searchParams: Promise<{ refus?: string }> }) {
   const session = await auth();
   const role = session?.user?.role;
 
   if (role === "CONSULTANT" && session?.user?.id) return <ConsultantOverview userId={session.user.id} />;
   if (role === "LIVREUR" && session?.user?.id) return <LivreurOverview userId={session.user.id} />;
+  // Administrateur restreint (profil de privilèges) : accueil limité à ses modules, sans les chiffres de l'entreprise.
+  if (role === "ADMIN" && session?.user?.id) {
+    const access = await getAccess(session.user.id);
+    if (access?.perms) return <RestrictedHome name={session.user.name ?? ""} profileName={access.profileName} perms={access.perms} refus={(await searchParams).refus} />;
+  }
   return <AdminOverview />;
 }

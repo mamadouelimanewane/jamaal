@@ -11,6 +11,9 @@ import { requireAdmin } from "./auth-guard";
 import { Role } from "@prisma/client";
 import { uniqueConsultantSlug } from "@/lib/unique-slug";
 import { canonicalizePhone, phoneLookupVariants } from "@/lib/phone";
+import { logActivity } from "@/lib/activity-log";
+import { countFullAdmins } from "@/lib/access";
+import { checkUserChange, passwordProblem } from "@/lib/user-rules";
 
 /** Nom propre : « AWA HAYIBOR » → « Awa Hayibor ». */
 const tidyName = (n: string) => (n === n.toUpperCase() ? n.toLowerCase().replace(/(^|[\s'-])\p{L}/gu, (m) => m.toUpperCase()) : n);
@@ -50,7 +53,7 @@ async function profileFor(role: Role, formData: FormData, name: string, email: s
 }
 
 async function createUserImpl(formData: FormData) {
-  await requireAdmin();
+  const session = await requireAdmin("utilisateurs");
   const emailRaw = String(formData.get("email") ?? "").trim().toLowerCase();
   const phoneRaw = String(formData.get("phone") ?? "").trim();
   const phone = phoneRaw ? canonicalizePhone(phoneRaw) : "";
@@ -62,7 +65,8 @@ async function createUserImpl(formData: FormData) {
   if (name.length < 2) throw new Error("Indiquez le nom.");
   if (email && !/^\S+@\S+\.\S+$/.test(email)) throw new Error("E-mail invalide.");
   if (!email && phone.length < 8) throw new Error("Indiquez un e-mail ou un numéro de téléphone valide.");
-  if (password.length < 8) throw new Error("Mot de passe : 8 caractères au moins.");
+  const weak = passwordProblem(password);
+  if (weak) throw new Error(weak);
   if (email && (await prisma.user.findFirst({ where: { email: { equals: email, mode: "insensitive" } }, select: { id: true } })))
     throw new Error("Un compte existe déjà avec cet e-mail.");
   if (phone && (await prisma.user.findFirst({ where: { phone: { in: phoneLookupVariants(phone) } }, select: { id: true } })))
@@ -70,7 +74,11 @@ async function createUserImpl(formData: FormData) {
 
   const links = await profileFor(role, formData, name, email);
   const passwordHash = await bcrypt.hash(password, 10);
-  await prisma.user.create({ data: { email, phone: phone || null, name: tidyName(name), passwordHash, role, ...links } });
+  // Un administrateur peut recevoir un profil de privilèges (restreint) dès sa création ; sans profil, il a l'accès complet.
+  const profileRaw = String(formData.get("profileId") ?? "");
+  const profileId = role === Role.ADMIN && profileRaw && profileRaw !== "__full__" && (await prisma.accessProfile.findUnique({ where: { id: profileRaw }, select: { id: true } })) ? profileRaw : null;
+  const created = await prisma.user.create({ data: { email, phone: phone || null, name: tidyName(name), passwordHash, role, profileId, ...links } });
+  await logActivity(session, `Compte créé : ${tidyName(name)} (${role}${profileId ? ", profil restreint" : ""})`, "User", created.id);
   revalidatePath("/admin/utilisateurs");
   revalidatePath("/admin/consultants");
   redirect("/admin/utilisateurs");
@@ -78,7 +86,7 @@ async function createUserImpl(formData: FormData) {
 
 /** Rattache un compte existant (revendeur ou livreur sans fiche) à une fiche, ou lui en crée une. */
 async function attachUserImpl(userId: string, formData: FormData) {
-  await requireAdmin();
+  await requireAdmin("utilisateurs");
   const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true, name: true, email: true, role: true, consultantId: true, livreurId: true } });
   if (!user) throw new Error("Compte introuvable.");
   if (user.role === "ADMIN") throw new Error("Un administrateur n'a pas de fiche.");
@@ -90,15 +98,18 @@ async function attachUserImpl(userId: string, formData: FormData) {
 }
 
 async function deleteUserImpl(id: string) {
-  const session = await requireAdmin();
-  if (session.user?.id === id) throw new Error("Vous ne pouvez pas supprimer votre propre compte");
+  const session = await requireAdmin("utilisateurs");
+  const target = await prisma.user.findUnique({ where: { id }, select: { id: true, role: true, active: true, profileId: true, consultantId: true, livreurId: true, customerId: true } });
+  if (!target) throw new Error("Compte introuvable.");
+  const problem = checkUserChange(session.user!.id, target, { kind: "delete" }, await countFullAdmins(id));
+  if (problem) throw new Error(problem);
   await prisma.user.delete({ where: { id } });
   revalidatePath("/admin/utilisateurs");
 }
 
 /** L'administrateur fixe directement un nouveau mot de passe pour n'importe quel compte. */
 async function resetUserPasswordImpl(userId: string, formData: FormData) {
-  await requireAdmin();
+  await requireAdmin("utilisateurs");
   const password = String(formData.get("password") ?? "");
   if (password.length < 8) throw new Error("Mot de passe : 8 caractères au moins.");
   const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true, name: true, email: true, phone: true } });

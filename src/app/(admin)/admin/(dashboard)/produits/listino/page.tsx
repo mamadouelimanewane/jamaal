@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Listino Chogan" };
 
 export default async function ListinoPage() {
-  await requireAdminPage();
+  await requireAdminPage("catalogue");
   const plan = await loadListinoPlan();
   const shown = plan.items.slice(0, 80);
 

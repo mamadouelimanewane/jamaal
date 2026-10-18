@@ -9,7 +9,7 @@ import { getStockRows } from "@/lib/inventory-report";
 export const dynamic = "force-dynamic";
 
 export default async function StockReceptionPage() {
-  await requireAdminPage();
+  await requireAdminPage("stocks");
   const rows = (await getStockRows()).filter((r) => r.stock > 0);
   const units = rows.reduce((s, r) => s + r.stock, 0);
   return (

@@ -8,7 +8,7 @@ const FAST_START_BONUS = 15_000;
 const DAY_MS = 86_400_000;
 
 export async function POST() {
-  const forbidden = await requireAdminForApi();
+  const forbidden = await requireAdminForApi("revendeurs", "write");
   if (forbidden) return forbidden;
 
   const now = new Date();

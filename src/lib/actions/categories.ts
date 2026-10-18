@@ -18,7 +18,7 @@ function categoryDataFromForm(formData: FormData) {
 }
 
 export async function createCategory(formData: FormData) {
-  await requireAdmin();
+  await requireAdmin("catalogue");
   await prisma.category.create({ data: categoryDataFromForm(formData) });
   invalidateSearchIndex();
   revalidatePath("/admin/categories");
@@ -27,7 +27,7 @@ export async function createCategory(formData: FormData) {
 }
 
 export async function updateCategory(id: string, formData: FormData) {
-  await requireAdmin();
+  await requireAdmin("catalogue");
   await prisma.category.update({ where: { id }, data: categoryDataFromForm(formData) });
   invalidateSearchIndex();
   revalidatePath("/admin/categories");
@@ -36,7 +36,7 @@ export async function updateCategory(id: string, formData: FormData) {
 }
 
 export async function deleteCategory(id: string) {
-  await requireAdmin();
+  await requireAdmin("catalogue");
   await prisma.category.delete({ where: { id } });
   invalidateSearchIndex();
   revalidatePath("/admin/categories");

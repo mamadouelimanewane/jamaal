@@ -5,7 +5,7 @@ import { getConsultantRankings, RANK_LABELS } from "@/lib/ranking";
 import { getConsultantCommission } from "@/lib/commission";
 
 export async function GET() {
-  const forbidden = await requireAdminForApi();
+  const forbidden = await requireAdminForApi("revendeurs");
   if (forbidden) return forbidden;
 
   const [consultants, rankings] = await Promise.all([

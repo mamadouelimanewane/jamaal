@@ -31,24 +31,28 @@ export function envAdminTails(raw = process.env.WHATSAPP_ADMIN_NUMBERS ?? ""): s
 export async function identifyStaff(phone: string): Promise<StaffIdentity | null> {
   const tail = phoneTail(phone);
   if (!tail) return null;
-  const users = await prisma.$queryRaw<{ id: string; name: string; role: string; consultantId: string | null; livreurId: string | null }[]>`
-    SELECT id, name, role::text AS role, "consultantId", "livreurId" FROM "User" WHERE right(regexp_replace(coalesce(phone, ''), '[^0-9]', '', 'g'), 9) = ${tail} LIMIT 3`;
-  const admin = users.find((u) => u.role === "ADMIN");
+  const users = await prisma.$queryRaw<{ id: string; name: string; role: string; consultantId: string | null; livreurId: string | null; active: boolean; profileId: string | null }[]>`
+    SELECT id, name, role::text AS role, "consultantId", "livreurId", active, "profileId" FROM "User" WHERE right(regexp_replace(coalesce(phone, ''), '[^0-9]', '', 'g'), 9) = ${tail} LIMIT 3`;
+  // Un compte suspendu n'est jamais reconnu ; un administrateur restreint (profil) n'a pas les pouvoirs complets par WhatsApp.
+  if (users.some((u) => !u.active)) return null;
+  const admin = users.find((u) => u.role === "ADMIN" && !u.profileId);
   if (admin) return { role: "ADMIN", userId: admin.id, name: admin.name };
   if (envAdminTails().includes(tail)) {
-    const first = await prisma.user.findFirst({ where: { role: "ADMIN" }, select: { id: true } });
+    const first = await prisma.user.findFirst({ where: { role: "ADMIN", active: true, profileId: null }, select: { id: true } });
     return { role: "ADMIN", userId: first?.id ?? null, name: "Équipe JAMAAL" };
   }
   const livreurs = await prisma.$queryRaw<{ id: string; name: string }[]>`
     SELECT id, name FROM "Livreur" WHERE active = true AND right(regexp_replace(phone, '[^0-9]', '', 'g'), 9) = ${tail} LIMIT 1`;
   if (livreurs[0]) {
-    const u = await prisma.user.findFirst({ where: { livreurId: livreurs[0].id }, select: { id: true } });
+    const u = await prisma.user.findFirst({ where: { livreurId: livreurs[0].id }, select: { id: true, active: true } });
+    if (u && !u.active) return null;
     return { role: "LIVREUR", livreurId: livreurs[0].id, userId: u?.id ?? null, name: livreurs[0].name };
   }
   const consultants = await prisma.$queryRaw<{ id: string; name: string }[]>`
     SELECT id, name FROM "Consultant" WHERE active = true AND right(regexp_replace(whatsapp, '[^0-9]', '', 'g'), 9) = ${tail} LIMIT 1`;
   if (consultants[0]) {
-    const u = await prisma.user.findFirst({ where: { consultantId: consultants[0].id }, select: { id: true } });
+    const u = await prisma.user.findFirst({ where: { consultantId: consultants[0].id }, select: { id: true, active: true } });
+    if (u && !u.active) return null;
     return { role: "CONSULTANT", consultantId: consultants[0].id, userId: u?.id ?? null, name: consultants[0].name };
   }
   return null;

@@ -12,7 +12,7 @@ export type ReservationOrderedResult = { ok: boolean; message?: string; error?: 
  * `asOf` est l'instant où l'écran a été affiché : une réservation payée depuis reste dans le compteur.
  */
 export async function markReservationsOrderedAction(asOf: string): Promise<ReservationOrderedResult> {
-  const session = await requireAdmin();
+  const session = await requireAdmin("commandes");
   const at = new Date(asOf);
   if (Number.isNaN(at.getTime()) || at.getTime() > Date.now() + 60_000) return { ok: false, error: "Date invalide : rechargez la page." };
   const batch = await markReservationsOrdered(at, session.user?.name ?? "Admin");

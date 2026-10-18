@@ -9,7 +9,7 @@ import { ManualEntryForm } from "@/components/accounting/ManualEntryForm";
 export const dynamic = "force-dynamic";
 
 export default async function ManualEntryPage({ searchParams }: { searchParams: Promise<{ id?: string }> }) {
-  await requireAdminPage();
+  await requireAdminPage("comptabilite");
   const { id } = await searchParams;
   const [accounts, entry] = await Promise.all([getAccounts(), id ? prisma.journalEntry.findUnique({ where: { id } }) : null]);
   const closed = entry ? !!(await prisma.accountingPeriod.findUnique({ where: { month: isoDay(entry.date).slice(0, 7) } })) : false;

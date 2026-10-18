@@ -74,9 +74,27 @@ model User {
   customerId String?   @unique
   customer   Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
 
+  /// Compte actif ? Un compte suspendu ne peut plus se connecter (session coupée au plus tard sous 5 minutes).
+  active      Boolean   @default(true)
+  lastLoginAt DateTime?
+  /// Profil de privilèges (administrateur restreint). Sans profil, un administrateur a l'accès complet.
+  profileId   String?
+  profile     AccessProfile? @relation(fields: [profileId], references: [id], onDelete: SetNull)
+
   notifications       Notification[]
   passwordResetTokens PasswordResetToken[]
   stockMovements      StockMovement[]
+}
+
+/// Profil de privilèges d'équipe : accès par module (lecture / écriture). Voir src/lib/permissions.ts.
+model AccessProfile {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  permissions Json     @default("{}")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  users       User[]
 }
 
 /// Verrouillage anti-force-brute par identifiant de connexion (e-mail ou téléphone normalisé,

@@ -9,7 +9,7 @@ const esc = (v: string | number | null | undefined) => `"${String(v ?? "").repla
  * WhatsApp Business : id, titre, description, disponibilité, prix, lien, image, marque.
  */
 export async function GET() {
-  const forbidden = await requireAdminForApi();
+  const forbidden = await requireAdminForApi("catalogue");
   if (forbidden) return forbidden;
 
   const origin = await getSiteUrl();

@@ -6,7 +6,7 @@ const STATUS = { rupture: "Rupture", bas: "Stock bas", ok: "En stock" } as const
 
 /** État complet des stocks (une ligne par format), pour l'inventaire ou la commande Chogan. */
 export async function GET() {
-  const forbidden = await requireAdminForApi();
+  const forbidden = await requireAdminForApi("stocks");
   if (forbidden) return forbidden;
   const rows = await getStockRows();
   const day = new Date().toISOString().slice(0, 10);

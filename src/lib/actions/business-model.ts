@@ -32,7 +32,7 @@ function readNumber(formData: FormData, name: string): number {
 
 /** Enregistre le modèle économique (taux, coûts, primes). */
 export async function saveBusinessModelAction(_prev: BusinessModelState, formData: FormData): Promise<BusinessModelState> {
-  const session = await requireAdmin();
+  const session = await requireAdmin("reglages");
 
   const input: Partial<BusinessModel> = {};
   for (const field of PCT_FIELDS) {
@@ -120,7 +120,7 @@ export async function saveBusinessModelAction(_prev: BusinessModelState, formDat
  * prix de vente = prix public × % de vente, arrondi.
  */
 export async function applyCatalogPricingAction(): Promise<BusinessModelState> {
-  const session = await requireAdmin();
+  const session = await requireAdmin("reglages");
   const model = await getBusinessModel();
   const products = await prisma.product.findMany({
     where: { publicPrice: { gt: 0 } },

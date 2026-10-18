@@ -17,7 +17,7 @@ const STATUS: Record<string, { label: string; className: string }> = {
 };
 
 export default async function VersementsPage() {
-  await requireAdminPage();
+  await requireAdminPage("comptabilite");
   const [model, pendingByMember, payouts, monthPaid] = await Promise.all([
     getBusinessModel(),
     prisma.commissionEntry.groupBy({ by: ["consultantId"], where: { status: "A_VERSER", payoutId: null }, _sum: { amount: true } }),

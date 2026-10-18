@@ -16,7 +16,7 @@ function timeAgo(date: Date | null): string {
 }
 
 export default async function FleetMapPage() {
-  await requireAdmin();
+  await requireAdmin("livraison", "read");
 
   const livreurs = await prisma.livreur.findMany({
     where: { active: true },

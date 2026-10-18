@@ -12,7 +12,7 @@ export const metadata = { title: "À commander chez Chogan (réservations)" };
 const dateTime = (d: Date | string) => new Date(d).toLocaleString("fr-FR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
 
 export default async function ReservedToOrderPage() {
-  await requireAdminPage();
+  await requireAdminPage("commandes");
   const asOf = new Date();
   const [{ lines, units, orders, since }, batches] = await Promise.all([pendingReservations(asOf), getOrderedBatches()]);
   const listText = [

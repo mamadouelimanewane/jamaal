@@ -61,12 +61,12 @@ export async function createOrder(
 
 
 export async function updateOrderStatus(id: string, status: OrderStatus) {
-  await requireAdmin();
+  await requireAdmin("commandes");
   await setOrderStatus(id, status);
 }
 
 export async function assignOrderLogistics(id: string, formData: FormData) {
-  await requireAdmin();
+  await requireAdmin("commandes");
   const consultantId = String(formData.get("consultantId") ?? "") || null;
   const livreurId = String(formData.get("livreurId") ?? "") || null;
   const deliveryMode = String(formData.get("deliveryMode") ?? "RETRAIT_CONSULTANT") as

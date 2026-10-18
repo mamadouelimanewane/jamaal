@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rate-limit";
+import { getAccess } from "@/lib/access";
 import { geminiConfigured, GeminiError } from "@/lib/ai/gemini";
 import { runAssistant, type ChatMessage } from "@/lib/ai/assistant";
 import type { AssistantScope } from "@/lib/ai/assistant-tools";
@@ -15,6 +16,8 @@ export async function askAssistant(history: ChatMessage[]): Promise<AssistantRes
   const userId = session.user?.id;
   const role = session.user?.role;
   if (!userId || (role !== "ADMIN" && role !== "CONSULTANT" && role !== "LIVREUR")) return { ok: false, error: "Session invalide." };
+  // L'assistant d'administration voit toutes les données : il est réservé à l'administrateur complet (sans profil restreint).
+  if (role === "ADMIN" && (await getAccess(userId))?.perms) return { ok: false, error: "L'assistant d'administration est réservé à l'administrateur principal." };
   if (!geminiConfigured()) return { ok: false, error: "L'assistant n'est pas encore activé : la clé GOOGLE_AI_API_KEY manque sur le serveur." };
   if (!Array.isArray(history) || !history.length) return { ok: false, error: "Question vide." };
 

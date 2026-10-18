@@ -38,7 +38,7 @@ export async function livreurAdvanceDelivery(
 
 /** L'admin attribue (ou réattribue) un livreur. */
 export async function assignLivreurAction(orderId: string, livreurId: string): Promise<DeliveryActionResult> {
-  const session = await requireAdmin();
+  const session = await requireAdmin("livraison");
   const livreur = await prisma.livreur.findFirst({ where: { id: livreurId, active: true }, select: { id: true, name: true } });
   if (!livreur) return { ok: false, error: "Livreur introuvable ou inactif." };
   try {
@@ -52,7 +52,7 @@ export async function assignLivreurAction(orderId: string, livreurId: string): P
 
 /** L'admin force une étape (ex. échec signalé par téléphone, livraison confirmée hors application). */
 export async function adminSetDeliveryStatus(orderId: string, to: string, note?: string): Promise<DeliveryActionResult> {
-  const session = await requireAdmin();
+  const session = await requireAdmin("livraison");
   const status = asStatus(to);
   if (!status) return { ok: false, error: "Étape inconnue." };
   try {
@@ -66,7 +66,7 @@ export async function adminSetDeliveryStatus(orderId: string, to: string, note?:
 
 /** Verse les parts « à verser » des livreurs sur leur wallet. */
 export async function payLivreursAction(): Promise<DeliveryActionResult & { sent?: number }> {
-  const session = await requireAdmin();
+  const session = await requireAdmin("livraison");
   const sent = await payLivreurs();
   await logActivity(session, `Versements livreurs (${sent})`, "LivreurEarning");
   revalidatePath("/admin/livraisons");

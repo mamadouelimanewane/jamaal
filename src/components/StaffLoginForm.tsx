@@ -9,6 +9,9 @@ export interface LoginNotice {
   lien?: string;
   reset?: string;
   id?: string;
+  /** Compte suspendu ou droits modifiés : la session a été coupée. */
+  suspendu?: string;
+  session?: string;
 }
 
 /**
@@ -20,7 +23,11 @@ export function StaffLoginForm({ from, next, notice }: { from: "/admin/login" | 
   const id = (notice.id ?? "").slice(0, 80);
   const help = `https://wa.me/${WHATSAPP_CONTACTS[0].number}?text=${encodeURIComponent(`Bonjour JAMAAL, je n'arrive pas à me connecter à mon espace revendeur.${id ? ` Mon numéro / identifiant : ${id}` : ""}`)}`;
   const msg =
-    notice.erreur === "bloque"
+    notice.suspendu
+      ? { tone: "err", text: "Votre compte est suspendu. Contactez l'administrateur JAMAAL pour le réactiver." }
+      : notice.session
+        ? { tone: "err", text: "Vos droits ont changé : reconnectez-vous pour les appliquer." }
+        : notice.erreur === "bloque"
       ? { tone: "err", text: "Trop d'essais : par sécurité, la connexion par mot de passe est bloquée 15 minutes pour ce compte. Pas besoin d'attendre : recevez un lien de connexion sur WhatsApp ci-dessous." }
       : notice.erreur
         ? { tone: "err", text: "Numéro (ou e-mail) ou mot de passe incorrect. Revendeurs et livreurs : tapez votre numéro WhatsApp, par exemple 77 123 45 67. Mot de passe oublié ? Recevez un lien de connexion ci-dessous." }

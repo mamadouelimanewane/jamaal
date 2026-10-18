@@ -7,7 +7,7 @@ import { formatPrice } from "@/lib/currency";
 export const dynamic = "force-dynamic";
 
 export default async function AdminCouponsPage() {
-  await requireAdminPage();
+  await requireAdminPage("marketing");
   const coupons = await prisma.coupon.findMany({ orderBy: { createdAt: "desc" }, include: { _count: { select: { orders: true } } } });
   const now = new Date();
   const activeCount = coupons.filter((coupon) => coupon.active && (!coupon.expiresAt || coupon.expiresAt > now) && (coupon.usageLimit === null || coupon.usedCount < coupon.usageLimit)).length;

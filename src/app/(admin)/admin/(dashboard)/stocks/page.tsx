@@ -31,7 +31,7 @@ const SORTS = [
 ] as const;
 
 export default async function AdminStockPage({ searchParams }: { searchParams: Promise<{ q?: string; cat?: string; statut?: string; tri?: string; page?: string }> }) {
-  await requireAdminPage();
+  await requireAdminPage("stocks");
   const { q = "", cat = "", statut = "", tri = "", page = "1" } = await searchParams;
   const query = q.trim().slice(0, 80);
   const [all, categories, ranking] = await Promise.all([getStockRows(), getCategories(), query ? rankProducts(query) : Promise.resolve(null)]);

@@ -15,7 +15,7 @@ function zoneDataFromForm(formData: FormData) {
 }
 
 export async function createDeliveryZone(formData: FormData) {
-  const session = await requireAdmin();
+  const session = await requireAdmin("livraison");
   const zone = await prisma.deliveryZone.create({ data: zoneDataFromForm(formData) });
   await logActivity(session, "Création zone de livraison", "DeliveryZone", zone.id);
   revalidatePath("/admin/zones-livraison");
@@ -23,7 +23,7 @@ export async function createDeliveryZone(formData: FormData) {
 }
 
 export async function updateDeliveryZone(id: string, formData: FormData) {
-  const session = await requireAdmin();
+  const session = await requireAdmin("livraison");
   await prisma.deliveryZone.update({ where: { id }, data: zoneDataFromForm(formData) });
   await logActivity(session, "Modification zone de livraison", "DeliveryZone", id);
   revalidatePath("/admin/zones-livraison");
@@ -31,7 +31,7 @@ export async function updateDeliveryZone(id: string, formData: FormData) {
 }
 
 export async function deleteDeliveryZone(id: string) {
-  const session = await requireAdmin();
+  const session = await requireAdmin("livraison");
   await prisma.deliveryZone.delete({ where: { id } });
   await logActivity(session, "Suppression zone de livraison", "DeliveryZone", id);
   revalidatePath("/admin/zones-livraison");

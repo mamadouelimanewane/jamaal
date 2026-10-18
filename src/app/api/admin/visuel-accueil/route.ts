@@ -6,7 +6,7 @@ const MAX = 4 * 1024 * 1024;
 
 /** Envoi d'un visuel du carrousel d'accueil (4 Mo au plus) ; renvoie son adresse publique. */
 export async function POST(req: Request) {
-  const forbidden = await requireAdminForApi();
+  const forbidden = await requireAdminForApi("marketing", "write");
   if (forbidden) return forbidden;
   const form = await req.formData().catch(() => null);
   const file = form?.get("file");

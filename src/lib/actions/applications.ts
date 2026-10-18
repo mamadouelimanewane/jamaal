@@ -162,7 +162,7 @@ export type ApproveResult = { ok: boolean; error?: string; activationUrl?: strin
  * d'activation valable 7 jours — aucun mot de passe n'est communiqué.
  */
 export async function approveApplication(id: string, opts: { allowIncomplete?: boolean } = {}): Promise<ApproveResult> {
-  const session = await requireAdmin();
+  const session = await requireAdmin("revendeurs");
   const app = await prisma.consultantApplication.findUnique({ where: { id }, include: { signature: { select: { id: true } } } });
   if (!app) return { ok: false, error: "Candidature introuvable." };
   if (app.status !== "NOUVELLE") return { ok: false, error: "Candidature déjà traitée." };
@@ -249,7 +249,7 @@ export async function approveApplication(id: string, opts: { allowIncomplete?: b
 }
 
 export async function rejectApplication(id: string, note?: string): Promise<{ ok: boolean; error?: string }> {
-  await requireAdmin();
+  await requireAdmin("revendeurs");
   const res = await prisma.consultantApplication.updateMany({
     where: { id, status: "NOUVELLE" },
     data: { status: "REFUSEE", adminNote: note?.trim().slice(0, 300) || null, processedAt: new Date() },
@@ -262,7 +262,7 @@ export async function rejectApplication(id: string, note?: string): Promise<{ ok
 
 /** Admin : rattacher une candidature en attente à un autre parrain (code personnel ou code admin). */
 export async function setApplicationSponsor(id: string, formData: FormData): Promise<void> {
-  const session = await requireAdmin();
+  const session = await requireAdmin("revendeurs");
   const code = normalizeSponsorCode(String(formData.get("sponsorCode") ?? ""));
   const sponsor = await resolveSponsorCode(code);
   if (!sponsor) return redirect(`/admin/candidatures?erreur=${encodeURIComponent(`Code « ${code} » inconnu ou inactif.`)}`);

@@ -9,7 +9,7 @@ import { isCashFallbackActive, paymentProvidersStatus } from "@/lib/payment";
 export const dynamic = "force-dynamic";
 
 export default async function BusinessModelPage() {
-  await requireAdminPage();
+  await requireAdminPage("reglages");
   const [model, products] = await Promise.all([
     getBusinessModel(),
     prisma.product.findMany({ where: { publicPrice: { gt: 0 } }, select: { publicPrice: true, regularPrice: true } }),

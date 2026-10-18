@@ -122,7 +122,7 @@ async function productDataFromForm(formData: FormData) {
 }
 
 async function createProductImpl(formData: FormData) {
-  const session = await requireAdmin();
+  const session = await requireAdmin("catalogue");
   const formats = parseFormats(formData.get("formats")) ?? [];
   const data = await productDataFromForm(formData);
   const product = await prisma.product.create({ data: { ...data, ...(formats.length ? { volumes: volumesJson(formats), stock: 0 } : {}) } });
@@ -136,7 +136,7 @@ async function createProductImpl(formData: FormData) {
 }
 
 async function updateProductImpl(id: string, formData: FormData) {
-  const session = await requireAdmin();
+  const session = await requireAdmin("catalogue");
   const formats = parseFormats(formData.get("formats"));
   const data = await productDataFromForm(formData);
   const previous = await prisma.product.findUnique({ where: { id }, include: { variants: { select: { id: true } } } });
@@ -162,7 +162,7 @@ async function updateProductImpl(id: string, formData: FormData) {
 }
 
 async function deleteProductImpl(id: string) {
-  const session = await requireAdmin();
+  const session = await requireAdmin("catalogue");
   const product = await prisma.product.delete({ where: { id } });
   invalidateSearchIndex();
   await logActivity(session, "Suppression produit", "Product", id);

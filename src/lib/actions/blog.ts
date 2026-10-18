@@ -21,7 +21,7 @@ function blogDataFromForm(formData: FormData) {
 }
 
 export async function createBlogPost(formData: FormData) {
-  await requireAdmin();
+  await requireAdmin("marketing");
   const data = blogDataFromForm(formData);
   await prisma.blogPost.create({ data });
   revalidatePath("/admin/blog");
@@ -30,7 +30,7 @@ export async function createBlogPost(formData: FormData) {
 }
 
 export async function updateBlogPost(id: string, formData: FormData) {
-  await requireAdmin();
+  await requireAdmin("marketing");
   const previous = await prisma.blogPost.findUnique({ where: { id } });
   const data = blogDataFromForm(formData);
   await prisma.blogPost.update({ where: { id }, data });
@@ -42,7 +42,7 @@ export async function updateBlogPost(id: string, formData: FormData) {
 }
 
 export async function deleteBlogPost(id: string) {
-  await requireAdmin();
+  await requireAdmin("marketing");
   await prisma.blogPost.delete({ where: { id } });
   revalidatePath("/admin/blog");
   revalidatePath("/blog");

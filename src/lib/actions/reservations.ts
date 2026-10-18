@@ -28,7 +28,7 @@ function refresh(orderId?: string) {
 }
 
 export async function saveReservationSettingsAction(_prev: ReservationActionResult, formData: FormData): Promise<ReservationActionResult> {
-  const session = await requireAdmin();
+  const session = await requireAdmin("commandes");
   const pct = Number(formData.get("depositPercent"));
   if (!Number.isInteger(pct) || pct < 10 || pct > 100) return { ok: false, error: "L'acompte doit être compris entre 10 et 100 %." };
   const delay = String(formData.get("delayLabel") ?? "").trim();
@@ -43,7 +43,7 @@ export async function saveReservationSettingsAction(_prev: ReservationActionResu
 
 /** Acompte reçu hors paiement en ligne (Wave manuel, espèces…). */
 export async function reservationDepositReceivedAction(orderId: string): Promise<ReservationActionResult> {
-  const session = await requireAdmin();
+  const session = await requireAdmin("commandes");
   const done = await markDepositPaid(orderId, null);
   if (!done) return { ok: false, error: "Acompte déjà enregistré, ou réservation annulée." };
   await logActivity(session, `Acompte reçu · réservation ${short(orderId)}`, "Order", orderId);
@@ -56,7 +56,7 @@ export async function reservationDepositReceivedAction(orderId: string): Promise
  * circuit normal (préparation, livraison) et le client est prévenu pour régler le solde.
  */
 export async function reservationArrivedAction(orderId: string): Promise<ReservationActionResult> {
-  const session = await requireAdmin();
+  const session = await requireAdmin("commandes");
   const userId = session.user?.id ?? null;
   try {
     await prisma.$transaction(async (tx) => {
@@ -107,7 +107,7 @@ export async function reservationArrivedAction(orderId: string): Promise<Reserva
 
 /** Annule une réservation ; remet le stock s'il avait été attribué. */
 export async function reservationCancelAction(orderId: string): Promise<ReservationActionResult> {
-  const session = await requireAdmin();
+  const session = await requireAdmin("commandes");
   const order = await prisma.order.findUnique({ where: { id: orderId }, select: { reservationStatus: true, depositPaidAt: true, depositAmount: true, paymentStatus: true } });
   if (!order || !order.reservationStatus || ["ANNULEE", "SOLDEE"].includes(order.reservationStatus)) return { ok: false, error: "Cette réservation ne peut plus être annulée ici." };
   await prisma.order.update({ where: { id: orderId }, data: { status: "ANNULEE", reservationStatus: "ANNULEE", deliveryStatus: null } });

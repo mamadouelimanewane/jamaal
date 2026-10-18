@@ -31,7 +31,7 @@ async function refFor(productId: string, variantId: string | null) {
 
 /** Mouvement sur une ligne du tableau : entrée, sortie ou stock compté (inventaire). */
 export async function adjustStockAction(_prev: StockActionState, formData: FormData): Promise<StockActionState> {
-  const session = await requireAdmin();
+  const session = await requireAdmin("stocks");
   const productId = String(formData.get("productId") ?? "");
   const variantId = String(formData.get("variantId") ?? "") || null;
   const mode = String(formData.get("mode") ?? "in");
@@ -69,7 +69,7 @@ export async function adjustStockAction(_prev: StockActionState, formData: FormD
 
 /** Seuil d'alerte d'une ligne. */
 export async function updateThresholdAction(_prev: StockActionState, formData: FormData): Promise<StockActionState> {
-  await requireAdmin();
+  await requireAdmin("stocks");
   const productId = String(formData.get("productId") ?? "");
   const variantId = String(formData.get("variantId") ?? "") || null;
   const threshold = Number(formData.get("threshold"));
@@ -85,7 +85,7 @@ export async function updateThresholdAction(_prev: StockActionState, formData: F
  * Toutes les lignes sont vérifiées d'abord ; rien n'est enregistré s'il y a une erreur.
  */
 export async function batchStockAction(_prev: StockActionState, formData: FormData): Promise<StockActionState> {
-  const session = await requireAdmin();
+  const session = await requireAdmin("stocks");
   const mode = formData.get("mode") === "INVENTAIRE" ? "INVENTAIRE" : "RECEPTION";
   const reference = String(formData.get("reference") ?? "").trim().slice(0, 80) || null;
   const raw = String(formData.get("lines") ?? "");
@@ -153,7 +153,7 @@ export async function batchStockAction(_prev: StockActionState, formData: FormDa
  * Chaque format non nul reçoit un mouvement « Inventaire » tracé, puis tous les stocks passent à 0.
  */
 export async function resetAllStockAction(_prev: StockActionState, formData: FormData): Promise<StockActionState> {
-  const session = await requireAdmin();
+  const session = await requireAdmin("stocks");
   if (String(formData.get("confirm") ?? "").trim().toUpperCase() !== "ZERO") {
     return { ok: false, error: "Tapez ZERO dans la case de confirmation pour remettre tout le stock à zéro." };
   }

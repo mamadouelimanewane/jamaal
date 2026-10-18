@@ -3,7 +3,7 @@ import { requireAdminForApi } from "@/lib/api-guard";
 
 /** Justificatif d'une dépense (photo ou PDF) : réservé aux administrateurs. */
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const forbidden = await requireAdminForApi();
+  const forbidden = await requireAdminForApi("comptabilite");
   if (forbidden) return forbidden;
   const { id } = await params;
   const e = await prisma.expense.findUnique({ where: { id }, select: { receipt: true, receiptMime: true, receiptName: true } });

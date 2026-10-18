@@ -8,7 +8,7 @@ import { Settings, Percent, Gift } from "lucide-react";
 export const dynamic = "force-dynamic";
 
 export default async function SettingsPage() {
-  await requireAdminPage();
+  await requireAdminPage("reglages");
   const model = await getBusinessModel();
   const loyalty = await getLoyaltySettings();
 

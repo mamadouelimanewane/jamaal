@@ -1,4 +1,6 @@
 import { auth } from "@/lib/auth";
+import { getAccess } from "@/lib/access";
+import { allows } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import { pieceLabel } from "@/lib/protocol";
 import { protocolPdf } from "@/lib/protocol-pdf";
@@ -13,7 +15,10 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   const { id } = await params;
   const sig = await prisma.protocolSignature.findUnique({ where: { id }, include: { application: { select: { processedAt: true, status: true } } } });
   if (!sig) return new Response("Introuvable", { status: 404 });
-  if (session.user.role !== "ADMIN") {
+  if (session.user.role === "ADMIN") {
+    const a = await getAccess(session.user.id);
+    if (!a || !a.active || !allows(a.perms, "revendeurs", "read")) return new Response("Forbidden", { status: 403 });
+  } else {
     const me = await prisma.user.findUnique({ where: { id: session.user.id }, select: { consultantId: true } });
     if (!me?.consultantId || me.consultantId !== sig.consultantId) return new Response("Forbidden", { status: 403 });
   }

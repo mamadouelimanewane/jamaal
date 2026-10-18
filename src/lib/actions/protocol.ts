@@ -14,7 +14,7 @@ export type ProtocolActionResult = { ok: boolean; message?: string; error?: stri
 
 /** Admin : nouveau texte du protocole (nouvelle version si le texte change). */
 export async function saveProtocolAction(_prev: ProtocolActionResult, formData: FormData): Promise<ProtocolActionResult> {
-  const session = await requireAdmin();
+  const session = await requireAdmin("revendeurs");
   const text = String(formData.get("text") ?? "").replace(/\r\n/g, "\n").trim();
   if (text.length < 200) return { ok: false, error: "Le protocole semble incomplet (200 caractères au minimum)." };
   if (text.length > 60_000) return { ok: false, error: "Texte trop long (60 000 caractères au maximum)." };

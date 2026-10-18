@@ -10,7 +10,7 @@ import { logActivity } from "@/lib/activity-log";
 import { uploadMarketingAsset } from "@/lib/upload";
 
 async function createMarketingAssetImpl(formData: FormData) {
-  const session = await requireAdmin();
+  const session = await requireAdmin("marketing");
   const title = String(formData.get("title") ?? "").trim();
   const category = String(formData.get("category") ?? "Général").trim() || "Général";
   const file = formData.get("file") as File | null;
@@ -32,7 +32,7 @@ async function createMarketingAssetImpl(formData: FormData) {
 }
 
 async function deleteMarketingAssetImpl(id: string) {
-  const session = await requireAdmin();
+  const session = await requireAdmin("marketing");
   await prisma.marketingAsset.delete({ where: { id } });
   await logActivity(session, "Suppression document marketing", "MarketingAsset", id);
   revalidatePath("/admin/kit-marketing");

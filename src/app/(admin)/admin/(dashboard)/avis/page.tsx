@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Avis clients" };
 
 export default async function ReviewsAdminPage() {
-  await requireAdminPage();
+  await requireAdminPage("clients");
   const [pending, approved] = await Promise.all([
     prisma.review.findMany({ where: { approved: false }, orderBy: { createdAt: "desc" }, take: 100, include: { product: { select: { name: true, slug: true } } } }),
     prisma.review.findMany({ where: { approved: true }, orderBy: { createdAt: "desc" }, take: 30, include: { product: { select: { name: true, slug: true } } } }),

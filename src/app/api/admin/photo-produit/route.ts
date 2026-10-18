@@ -27,7 +27,7 @@ async function store(data: Blob | Buffer, contentType: string, hint: string) {
  * La photo est copiée sur le stockage du site ; la réponse donne son adresse publique.
  */
 export async function POST(req: Request) {
-  const forbidden = await requireAdminForApi();
+  const forbidden = await requireAdminForApi("catalogue", "write");
   if (forbidden) return forbidden;
   if (!process.env.BLOB_READ_WRITE_TOKEN) return fail("Stockage d'images non configuré (variable BLOB_READ_WRITE_TOKEN sur Vercel).", 500);
 

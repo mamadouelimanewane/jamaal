@@ -6,7 +6,7 @@ import { requireAdmin } from "./auth-guard";
 import { logActivity } from "@/lib/activity-log";
 
 export async function setMonthlyTarget(consultantId: string | null, formData: FormData) {
-  const session = await requireAdmin();
+  const session = await requireAdmin("revendeurs");
   const year = Number(formData.get("year") ?? new Date().getFullYear());
   const month = Number(formData.get("month") ?? new Date().getMonth() + 1);
   const targetRevenue = Number(formData.get("targetRevenue") ?? 0) || 0;

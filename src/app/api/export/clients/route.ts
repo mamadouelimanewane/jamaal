@@ -3,7 +3,7 @@ import { requireAdminForApi } from "@/lib/api-guard";
 import { excelResponse } from "@/lib/excel";
 
 export async function GET() {
-  const forbidden = await requireAdminForApi();
+  const forbidden = await requireAdminForApi("clients");
   if (forbidden) return forbidden;
 
   const clients = await prisma.customer.findMany({

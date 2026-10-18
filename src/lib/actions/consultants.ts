@@ -86,7 +86,7 @@ async function consultantDataFromForm(formData: FormData, existingId?: string) {
 }
 
 async function createConsultantImpl(formData: FormData) {
-  await requireAdmin();
+  await requireAdmin("revendeurs");
   const created = await prisma.consultant.create({ data: await consultantDataFromForm(formData), select: { id: true } });
   notifyResellerWelcome(created.id);
   revalidatePath("/admin/consultants");
@@ -95,7 +95,7 @@ async function createConsultantImpl(formData: FormData) {
 }
 
 async function updateConsultantImpl(id: string, formData: FormData) {
-  await requireAdmin();
+  await requireAdmin("revendeurs");
   await prisma.consultant.update({
     where: { id },
     data: await consultantDataFromForm(formData, id),
@@ -106,7 +106,7 @@ async function updateConsultantImpl(id: string, formData: FormData) {
 }
 
 async function deleteConsultantImpl(id: string) {
-  await requireAdmin();
+  await requireAdmin("revendeurs");
   // Le compte de connexion part avec la fiche : sinon il resterait un compte revendeur sans fiche.
   await prisma.$transaction([prisma.user.deleteMany({ where: { consultantId: id, role: "CONSULTANT" } }), prisma.consultant.delete({ where: { id } })]);
   revalidatePath("/admin/consultants");

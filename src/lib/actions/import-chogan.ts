@@ -25,7 +25,7 @@ const slugify = (s: string) => norm(s).slice(0, 60).replace(/-$/, "");
 
 export async function importChoganExcelAction(formData: FormData) {
   try {
-    await requireAdmin();
+    await requireAdmin("catalogue");
     const file = formData.get("file") as File;
     if (!file) return { success: false, error: "Aucun fichier fourni." };
     

@@ -27,7 +27,7 @@ function ago(d: Date | null) {
 }
 
 export default async function LivraisonsPage() {
-  await requireAdminPage();
+  await requireAdminPage("livraison");
   const [model, orders, livreurs, toPay, deliveredToday] = await Promise.all([
     getBusinessModel(),
     prisma.order.findMany({

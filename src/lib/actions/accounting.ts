@@ -65,7 +65,7 @@ const MAX_RECEIPT = 3 * 1024 * 1024;
 
 export async function saveExpenseAction(fd: FormData) {
   try {
-    const session = await requireAdmin();
+    const session = await requireAdmin("comptabilite");
     const id = str(fd, "id", 40);
     const label = str(fd, "label", 160);
     if (label.length < 2) throw new AccountingError("Indiquez le libellé de la dépense.");
@@ -128,7 +128,7 @@ export async function saveExpenseAction(fd: FormData) {
 
 export async function deleteExpenseAction(id: string) {
   try {
-    const session = await requireAdmin();
+    const session = await requireAdmin("comptabilite");
     const old = await prisma.expense.findUnique({ where: { id }, select: { date: true, paidAt: true, label: true, amount: true } });
     if (!old) throw new AccountingError("Dépense introuvable.");
     await assertOpen(old.date, old.paidAt);
@@ -142,7 +142,7 @@ export async function deleteExpenseAction(id: string) {
 
 export async function payExpenseAction(fd: FormData) {
   try {
-    const session = await requireAdmin();
+    const session = await requireAdmin("comptabilite");
     const id = str(fd, "id", 40);
     const channel = str(fd, "channel", 20);
     if (!CHANNELS[channel]) throw new AccountingError("Choisissez le moyen de paiement.");
@@ -162,7 +162,7 @@ export async function payExpenseAction(fd: FormData) {
 export async function saveManualEntryAction(fd: FormData) {
   let id = str(fd, "id", 40);
   try {
-    const session = await requireAdmin();
+    const session = await requireAdmin("comptabilite");
     const date = dateOf(fd, "date")!;
     const label = str(fd, "label", 160);
     if (label.length < 2) throw new AccountingError("Indiquez le libellé de l'écriture.");
@@ -201,7 +201,7 @@ export async function saveManualEntryAction(fd: FormData) {
 
 export async function deleteManualEntryAction(id: string) {
   try {
-    const session = await requireAdmin();
+    const session = await requireAdmin("comptabilite");
     const old = await prisma.journalEntry.findUnique({ where: { id }, select: { date: true, label: true } });
     if (!old) throw new AccountingError("Écriture introuvable.");
     await assertOpen(old.date);
@@ -219,7 +219,7 @@ export async function deleteManualEntryAction(id: string) {
 export async function declareVatAction(fd: FormData) {
   const month = str(fd, "month", 7);
   try {
-    const session = await requireAdmin();
+    const session = await requireAdmin("comptabilite");
     if (!/^\d{4}-\d{2}$/.test(month)) throw new AccountingError("Mois invalide.");
     const { entries } = await loadLedger();
     const existing = await prisma.journalEntry.findFirst({ where: { template: "TVA", reference: `TVA-${month}` } });
@@ -246,7 +246,7 @@ export async function declareVatAction(fd: FormData) {
 export async function saveBudgetsAction(fd: FormData) {
   const month = str(fd, "month", 7);
   try {
-    const session = await requireAdmin();
+    const session = await requireAdmin("comptabilite");
     if (!/^\d{4}-\d{2}$/.test(month)) throw new AccountingError("Mois invalide.");
     const values: { account: string; amount: number }[] = [];
     for (const [k, v] of fd.entries()) {
@@ -275,7 +275,7 @@ export async function saveBudgetsAction(fd: FormData) {
 export async function closeMonthAction(fd: FormData) {
   const month = str(fd, "month", 7);
   try {
-    const session = await requireAdmin();
+    const session = await requireAdmin("comptabilite");
     if (!/^\d{4}-\d{2}$/.test(month)) throw new AccountingError("Mois invalide.");
     if (month >= monthKeyOf(new Date())) throw new AccountingError("On ne clôture qu'un mois terminé.");
     const { entries } = await loadLedger();
@@ -296,7 +296,7 @@ export async function closeMonthAction(fd: FormData) {
 
 export async function reopenMonthAction(month: string) {
   try {
-    const session = await requireAdmin();
+    const session = await requireAdmin("comptabilite");
     await prisma.accountingPeriod.delete({ where: { month } });
     await logActivity(session, `Réouverture comptable de ${month}`, "AccountingPeriod", month);
   } catch (e) {
@@ -311,7 +311,7 @@ export async function reopenMonthAction(month: string) {
 export async function saveCashCountAction(fd: FormData) {
   let msg = "";
   try {
-    const session = await requireAdmin();
+    const session = await requireAdmin("comptabilite");
     const account = str(fd, "account", 8);
     if (!/^5\d+$/.test(account)) throw new AccountingError("Choisissez un compte de trésorerie.");
     const date = dateOf(fd, "date")!;
@@ -338,7 +338,7 @@ export async function saveCashCountAction(fd: FormData) {
 /** Commande annulée déjà encaissée : remboursement fait au client, ou acompte conservé. */
 export async function markOrderRefundedAction(fd: FormData) {
   try {
-    const session = await requireAdmin();
+    const session = await requireAdmin("comptabilite");
     const orderId = str(fd, "orderId", 40);
     const channel = str(fd, "channel", 20);
     if (!CHANNELS[channel] && channel !== "CONSERVE") throw new AccountingError("Choisissez comment le client a été remboursé.");
@@ -357,7 +357,7 @@ export async function markOrderRefundedAction(fd: FormData) {
 
 export async function saveAccountingSettingsAction(fd: FormData) {
   try {
-    const session = await requireAdmin();
+    const session = await requireAdmin("comptabilite");
     const current = await getAccountingSettings();
     const next = normalizeAccounting({
       ...current,
@@ -379,7 +379,7 @@ export async function saveAccountingSettingsAction(fd: FormData) {
 
 export async function addAccountAction(fd: FormData) {
   try {
-    const session = await requireAdmin();
+    const session = await requireAdmin("comptabilite");
     const code = str(fd, "code", 8);
     const label = str(fd, "label", 80);
     if (!isValidAccount(code) || code.length < 3) throw new AccountingError("Numéro de compte : 3 à 8 chiffres, classe 1 à 8 (ex. 5211 pour une deuxième banque).");
@@ -396,7 +396,7 @@ export async function addAccountAction(fd: FormData) {
 
 export async function removeAccountAction(code: string) {
   try {
-    await requireAdmin();
+    await requireAdmin("comptabilite");
     const s = await getAccountingSettings();
     await saveAccountingSettings({ ...s, customAccounts: s.customAccounts.filter((a) => a.code !== code) });
   } catch (e) {

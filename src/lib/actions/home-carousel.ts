@@ -8,7 +8,7 @@ import { normalizeSlides, resetHomeSlides, saveHomeSlides, type HeroSlide } from
 export type CarouselResult = { ok: true; slides: HeroSlide[] } | { ok: false; error: string };
 
 export async function saveHomeCarouselAction(slides: HeroSlide[]): Promise<CarouselResult> {
-  const session = await requireAdmin();
+  const session = await requireAdmin("marketing");
   const clean = normalizeSlides(slides);
   if (clean.length !== slides.length) return { ok: false, error: "Chaque diapositive doit avoir un slogan." };
   if (!clean.some((s) => s.active)) return { ok: false, error: "Gardez au moins une diapositive affichée." };
@@ -20,7 +20,7 @@ export async function saveHomeCarouselAction(slides: HeroSlide[]): Promise<Carou
 }
 
 export async function resetHomeCarouselAction(): Promise<CarouselResult> {
-  const session = await requireAdmin();
+  const session = await requireAdmin("marketing");
   await resetHomeSlides();
   await logActivity(session, "Carrousel d'accueil remis par défaut", "Setting");
   revalidatePath("/");

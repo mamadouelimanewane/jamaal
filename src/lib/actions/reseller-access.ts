@@ -20,7 +20,7 @@ const emailSchema = z.string().trim().toLowerCase().email("E-mail invalide.").ma
  * Sans e-mail, son numéro WhatsApp (toujours renseigné) sert d'identifiant de connexion.
  */
 export async function createResellerAccess(consultantId: string, rawEmail?: string): Promise<AccessResult> {
-  await requireAdmin();
+  await requireAdmin("revendeurs");
   const consultant = await prisma.consultant.findUnique({
     where: { id: consultantId },
     select: { id: true, name: true, email: true, whatsapp: true, user: { select: { id: true } } },
@@ -78,7 +78,7 @@ export type LoginLinkResult = { ok: boolean; error?: string; loginUrl?: string }
  * avec le préfixe « login: » (voir src/lib/auth.ts, fournisseur « magic »).
  */
 export async function createResellerLoginLink(consultantId: string): Promise<LoginLinkResult> {
-  await requireAdmin();
+  await requireAdmin("revendeurs");
   const consultant = await prisma.consultant.findUnique({ where: { id: consultantId }, select: { active: true, user: { select: { id: true } } } });
   if (!consultant?.user) return { ok: false, error: "Ce consultant n'a pas encore de compte : créez d'abord son accès." };
   if (!consultant.active) return { ok: false, error: "Ce consultant est inactif." };
@@ -97,7 +97,7 @@ export async function createResellerLoginLink(consultantId: string): Promise<Log
 
 /** Lève le blocage « trop d'essais » d'un revendeur (toutes les formes de son identifiant). */
 export async function unlockResellerLogin(consultantId: string): Promise<{ ok: boolean; message: string }> {
-  await requireAdmin();
+  await requireAdmin("revendeurs");
   const c = await prisma.consultant.findUnique({ where: { id: consultantId }, select: { whatsapp: true, email: true, user: { select: { email: true, phone: true } } } });
   if (!c) return { ok: false, message: "Consultant introuvable." };
   const ids = [c.whatsapp, c.user?.phone, c.email, c.user?.email]
