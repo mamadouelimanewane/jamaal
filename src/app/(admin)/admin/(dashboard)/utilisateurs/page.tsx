@@ -2,7 +2,6 @@ import Link from "next/link";
 import type { Prisma } from "@prisma/client";
 import { requireAdminPage } from "@/lib/admin-page-guard";
 import { prisma } from "@/lib/prisma";
-import { createUser } from "@/lib/actions/users";
 import { ROLE_LABEL, isRoleName } from "@/lib/user-rules";
 
 export const dynamic = "force-dynamic";
@@ -27,14 +26,12 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
     ...(sp.profil === "complet" ? { role: "ADMIN", profileId: null } : sp.profil ? { profileId: sp.profil } : {}),
   };
 
-  const [users, total, byRole, suspended, profiles, consultants, livreurs] = await Promise.all([
+  const [users, total, byRole, suspended, profiles] = await Promise.all([
     prisma.user.findMany({ where, orderBy: [{ createdAt: "desc" }], take: 300, include: { consultant: { select: { name: true } }, livreur: { select: { name: true } }, profile: { select: { name: true } } } }),
     prisma.user.count(),
     prisma.user.groupBy({ by: ["role"], _count: { _all: true } }),
     prisma.user.count({ where: { active: false } }),
     prisma.accessProfile.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
-    prisma.consultant.findMany({ where: { user: null }, orderBy: { name: "asc" } }),
-    prisma.livreur.findMany({ where: { user: null }, orderBy: { name: "asc" } }),
   ]);
   const count = (r: string) => byRole.find((x) => x.role === r)?._count._all ?? 0;
   const filtered = !!(q || sp.role || sp.statut || sp.profil);
@@ -47,6 +44,7 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
           <p className="mt-1 text-sm text-navy/75">Comptes, rôles et privilèges. Un administrateur sans profil a l&apos;accès complet ; avec un profil, il n&apos;accède qu&apos;aux modules choisis.</p>
         </div>
         <div className="flex flex-wrap gap-2">
+          <Link href="/admin/utilisateurs/nouveau" className="rounded-full bg-rose-dark px-5 py-2 text-sm font-semibold text-white shadow-sm hover:opacity-90">+ Ajouter un nouvel utilisateur</Link>
           <Link href="/admin/utilisateurs/profils" className="rounded-full bg-navy px-4 py-2 text-sm font-semibold text-white hover:bg-navy-light">Profils et privilèges</Link>
           <Link href="/admin/historique" className="rounded-full border border-line px-4 py-2 text-sm font-semibold text-navy hover:bg-cream">Journal des actions</Link>
         </div>
@@ -139,68 +137,6 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
           </tbody>
         </table>
       </div>
-
-      <section className="max-w-md">
-        <h2 className="mb-3 font-serif-display text-lg font-semibold text-navy">Ajouter un utilisateur</h2>
-        <p className="mb-3 text-xs text-navy/70">Pour un nouveau revendeur, préférez <strong>Consultants › Nouveau</strong> puis « Créer l&apos;accès » (il choisit lui-même son mot de passe). Ici, un compte Consultant ou Livreur reçoit toujours une fiche : la fiche choisie, ou une nouvelle.</p>
-        <form action={createUser} className="grid gap-4">
-          <div>
-            <label className={labelClass}>Nom</label>
-            <input name="name" required className={inputClass} />
-          </div>
-          <div>
-            <label className={labelClass}>E-mail</label>
-            <input type="email" name="email" className={inputClass} />
-            <p className="mt-1 text-xs text-navy/60">Facultatif si un téléphone est indiqué ci-dessous.</p>
-          </div>
-          <div>
-            <label className={labelClass}>Mot de passe</label>
-            <input type="password" name="password" required minLength={8} className={inputClass} />
-            <p className="mt-1 text-xs text-navy/60">8 caractères au moins, avec une lettre et un chiffre.</p>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className={labelClass}>Ville (nouvelle fiche)</label>
-              <input name="city" defaultValue="Dakar" className={inputClass} />
-            </div>
-            <div>
-              <label className={labelClass}>Téléphone (connexion + WhatsApp)</label>
-              <input name="phone" inputMode="tel" className={inputClass} />
-            </div>
-          </div>
-          <div>
-            <label className={labelClass}>Rôle</label>
-            <select name="role" defaultValue="CONSULTANT" className={inputClass}>
-              <option value="CONSULTANT">Consultant</option>
-              <option value="LIVREUR">Livreur</option>
-              <option value="ADMIN">Administrateur</option>
-            </select>
-          </div>
-          <div>
-            <label className={labelClass}>Privilèges (si rôle Administrateur)</label>
-            <select name="profileId" defaultValue="__full__" className={inputClass}>
-              <option value="__full__">Accès complet</option>
-              {profiles.map((p) => <option key={p.id} value={p.id}>Profil : {p.name}</option>)}
-            </select>
-            <p className="mt-1 text-xs text-navy/60">Un profil limite l&apos;administrateur aux modules choisis. <Link href="/admin/utilisateurs/profils" className="underline">Gérer les profils</Link></p>
-          </div>
-          <div>
-            <label className={labelClass}>Fiche revendeur (si rôle Consultant)</label>
-            <select name="consultantId" defaultValue="__new__" className={inputClass}>
-              <option value="__new__">Créer une nouvelle fiche revendeur</option>
-              {consultants.map((c) => <option key={c.id} value={c.id}>{c.name} ({c.city})</option>)}
-            </select>
-          </div>
-          <div>
-            <label className={labelClass}>Fiche livreur (si rôle Livreur)</label>
-            <select name="livreurId" defaultValue="__new__" className={inputClass}>
-              <option value="__new__">Créer une nouvelle fiche livreur</option>
-              {livreurs.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
-            </select>
-          </div>
-          <button className="rounded-full bg-navy px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-light">Créer le compte</button>
-        </form>
-      </section>
     </div>
   );
 }

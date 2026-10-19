@@ -8,7 +8,9 @@ import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "./auth-guard";
-import { Role } from "@prisma/client";
+import { Role, type Prisma } from "@prisma/client";
+import { randomBytes } from "node:crypto";
+import { PROFILE_TEMPLATES } from "@/lib/permissions";
 import { uniqueConsultantSlug } from "@/lib/unique-slug";
 import { canonicalizePhone, phoneLookupVariants } from "@/lib/phone";
 import { logActivity } from "@/lib/activity-log";
@@ -60,12 +62,16 @@ async function createUserImpl(formData: FormData) {
   const email = emailRaw || null;
   const name = String(formData.get("name") ?? "").trim();
   const password = String(formData.get("password") ?? "");
-  const roleRaw = String(formData.get("role") ?? "CONSULTANT");
+  // Type de compte choisi sur le bouton « Ajouter un nouvel utilisateur » : ADMIN_FULL, profil:<id>, modele:<n>, CONSULTANT ou LIVREUR.
+  // (Ancien format du formulaire : champs « role » et « profileId ».)
+  const type = String(formData.get("accountType") ?? "");
+  const roleRaw = type ? (type === "CONSULTANT" || type === "LIVREUR" ? type : "ADMIN") : String(formData.get("role") ?? "CONSULTANT");
   const role: Role = roleRaw === "ADMIN" ? Role.ADMIN : roleRaw === "LIVREUR" ? Role.LIVREUR : Role.CONSULTANT;
   if (name.length < 2) throw new Error("Indiquez le nom.");
   if (email && !/^\S+@\S+\.\S+$/.test(email)) throw new Error("E-mail invalide.");
   if (!email && phone.length < 8) throw new Error("Indiquez un e-mail ou un numéro de téléphone valide.");
-  const weak = passwordProblem(password);
+  // Mot de passe facultatif : sans mot de passe, la personne choisira le sien avec un lien d'accès (généré sur sa fiche).
+  const weak = password ? passwordProblem(password) : null;
   if (weak) throw new Error(weak);
   if (email && (await prisma.user.findFirst({ where: { email: { equals: email, mode: "insensitive" } }, select: { id: true } })))
     throw new Error("Un compte existe déjà avec cet e-mail.");
@@ -73,15 +79,30 @@ async function createUserImpl(formData: FormData) {
     throw new Error("Un compte existe déjà avec ce numéro de téléphone.");
 
   const links = await profileFor(role, formData, name, email);
-  const passwordHash = await bcrypt.hash(password, 10);
+  const passwordHash = await bcrypt.hash(password || randomBytes(24).toString("hex") + "Aa1", 10);
   // Un administrateur peut recevoir un profil de privilèges (restreint) dès sa création ; sans profil, il a l'accès complet.
-  const profileRaw = String(formData.get("profileId") ?? "");
-  const profileId = role === Role.ADMIN && profileRaw && profileRaw !== "__full__" && (await prisma.accessProfile.findUnique({ where: { id: profileRaw }, select: { id: true } })) ? profileRaw : null;
+  let profileId: string | null = null;
+  if (role === Role.ADMIN) {
+    if (type.startsWith("modele:")) {
+      // Profil proposé (Superviseur, Comptable…) : créé s'il n'existe pas encore.
+      const t = PROFILE_TEMPLATES[Number(type.slice(7))];
+      if (!t) throw new Error("Type de compte inconnu.");
+      const existing = await prisma.accessProfile.findFirst({ where: { name: { equals: t.name, mode: "insensitive" } }, select: { id: true } });
+      profileId = existing?.id ?? (await prisma.accessProfile.create({ data: { name: t.name, description: t.description, permissions: t.permissions as unknown as Prisma.InputJsonValue } })).id;
+    } else {
+      const profileRaw = type.startsWith("profil:") ? type.slice(7) : String(formData.get("profileId") ?? "");
+      if (profileRaw && profileRaw !== "__full__") {
+        if (!(await prisma.accessProfile.findUnique({ where: { id: profileRaw }, select: { id: true } }))) throw new Error("Profil introuvable.");
+        profileId = profileRaw;
+      }
+    }
+  }
   const created = await prisma.user.create({ data: { email, phone: phone || null, name: tidyName(name), passwordHash, role, profileId, ...links } });
   await logActivity(session, `Compte créé : ${tidyName(name)} (${role}${profileId ? ", profil restreint" : ""})`, "User", created.id);
   revalidatePath("/admin/utilisateurs");
   revalidatePath("/admin/consultants");
-  redirect("/admin/utilisateurs");
+  const next = password ? "Compte créé." : "Compte créé sans mot de passe : générez ci-dessous un lien d'accès, la personne choisira le sien.";
+  redirect(`/admin/utilisateurs/${created.id}?ok=${encodeURIComponent(next)}`);
 }
 
 /** Rattache un compte existant (revendeur ou livreur sans fiche) à une fiche, ou lui en crée une. */

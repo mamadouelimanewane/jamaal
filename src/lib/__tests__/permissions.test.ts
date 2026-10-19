@@ -49,4 +49,12 @@ test("profils proposés : valides, sans accès aux utilisateurs, sans doublon de
     assert.equal(t.permissions.utilisateurs, undefined, t.name);
   }
   assert.equal(MODULES.length, 12);
+  // Le profil Superviseur : il traite commandes et livraison, consulte le reste, sans finances ni réglages.
+  const sup = PROFILE_TEMPLATES.find((t) => t.name === "Superviseur")!;
+  assert.equal(PROFILE_TEMPLATES[0].name, "Superviseur");
+  assert.equal(sup.permissions.commandes, "write");
+  assert.equal(sup.permissions.livraison, "write");
+  assert.equal(sup.permissions.catalogue, "read");
+  assert.equal(sup.permissions.comptabilite, undefined);
+  assert.equal(sup.permissions.reglages, undefined);
 });

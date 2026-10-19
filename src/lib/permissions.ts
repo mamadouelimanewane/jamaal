@@ -97,6 +97,7 @@ export function summarizePermissions(perms: Permissions): string {
 
 /** Profils proposés en un clic (créés comme des profils ordinaires, modifiables ensuite). */
 export const PROFILE_TEMPLATES: { name: string; description: string; permissions: Permissions }[] = [
+  { name: "Superviseur", description: "Supervise l'activité : consulte catalogue, stocks, clients, revendeurs, statistiques, marketing et WhatsApp ; traite les commandes et la livraison. Pas d'accès aux finances ni aux réglages.", permissions: { catalogue: "read", commandes: "write", clients: "read", revendeurs: "read", livraison: "write", stocks: "read", statistiques: "read", marketing: "read", whatsapp: "read" } },
   { name: "Comptable", description: "Comptabilité et finances ; consultation des ventes et des clients.", permissions: { comptabilite: "write", statistiques: "read", commandes: "read", clients: "read" } },
   { name: "Gestionnaire de stock", description: "Catalogue et stocks ; consultation des commandes.", permissions: { catalogue: "write", stocks: "write", commandes: "read" } },
   { name: "Support client", description: "Clients, commandes, WhatsApp ; consultation de la livraison.", permissions: { clients: "write", commandes: "write", whatsapp: "write", livraison: "read" } },
