@@ -1,7 +1,7 @@
 import { prisma } from "./prisma";
 import type { Prisma } from "@prisma/client";
 import { getBusinessModel } from "./business-model-store";
-import { sellerRateFor, sponsorRatesFor } from "./business-model";
+import { commissionRatesFor } from "./business-model";
 import { effectiveTitle, getNetworkDepth } from "./network";
 import { getRefundedTotal } from "./revenue";
 
@@ -63,8 +63,8 @@ export async function getConsultantCommission(consultantId: string): Promise<Com
   const since = startOfMonth();
 
   const [me, level1, model] = await Promise.all([
-    prisma.consultant.findUnique({ where: { id: consultantId }, select: { sponsorId: true, rank: true } }),
-    prisma.consultant.findMany({ where: { sponsorId: consultantId }, select: { id: true } }),
+    prisma.consultant.findUnique({ where: { id: consultantId }, select: { sponsorId: true, rank: true, sponsor: { select: { sponsorId: true } } } }),
+    prisma.consultant.findMany({ where: { sponsorId: consultantId }, select: { id: true, rank: true } }),
     getBusinessModel(),
   ]);
   const l1Ids = level1.map((t) => t.id);
@@ -73,21 +73,34 @@ export async function getConsultantCommission(consultantId: string): Promise<Com
     : [];
   const l2Ids = level2.map((t) => t.id);
 
-  const rate = sellerRateFor(effectiveTitle(me?.rank, await getNetworkDepth(consultantId)), model);
-  // Parrain seul : il prend toute l'enveloppe (6 %) ; s'il a lui-même un parrain, il la partage (3 % + 3 %).
-  const { level1: sponsorRate, level2: sponsorL2Rate } = sponsorRatesFor(!!me?.sponsorId, model);
+  const depth = await getNetworkDepth(consultantId);
+  const myTitle = effectiveTitle(me?.rank, depth);
+  const rate = commissionRatesFor(myTitle, !!me?.sponsor?.sponsorId, model).seller;
+  // Ma part de parrain dépend du rang de chaque filleul (un Parrain sous moi, ou un Consultant directement sous moi) : calculée par groupe.
+  const partOf = (title: "Leader" | "Parrain" | "Consultant") => commissionRatesFor(title, !!me?.sponsorId, model).level1;
+  const l1Parrains = level1.filter((t) => effectiveTitle(t.rank, depth + 1) === "Parrain").map((t) => t.id);
+  const l1Others = level1.filter((t) => effectiveTitle(t.rank, depth + 1) !== "Parrain").map((t) => t.id);
+  const sponsorL2Rate = commissionRatesFor("Consultant", true, model).level2;
 
-  const [monthlyRevenue, lifetimeRevenue, monthlyTeamRevenue, lifetimeTeamRevenue, monthlyL2Revenue, lifetimeL2Revenue] =
+  const [monthlyRevenue, lifetimeRevenue, monthlyParrains, lifetimeParrains, monthlyOthers, lifetimeOthers, monthlyL2Revenue, lifetimeL2Revenue] =
     await Promise.all([
       paidSales([consultantId], since),
       paidSales([consultantId]),
-      paidSales(l1Ids, since),
-      paidSales(l1Ids),
+      paidSales(l1Parrains, since),
+      paidSales(l1Parrains),
+      paidSales(l1Others, since),
+      paidSales(l1Others),
       paidSales(l2Ids, since),
       paidSales(l2Ids),
     ]);
 
   const pct = (amount: number, r: number) => Math.round((amount * r) / 100);
+  const rParrain = partOf("Parrain");
+  const rOther = partOf("Consultant");
+  const monthlyTeamRevenue = monthlyParrains + monthlyOthers;
+  const lifetimeTeamRevenue = lifetimeParrains + lifetimeOthers;
+  // Taux affiché : celui du groupe de filleuls qui rapporte le plus (les gains, eux, sont calculés groupe par groupe).
+  const sponsorRate = lifetimeParrains > lifetimeOthers ? rParrain : rOther;
   return {
     rate,
     monthlyRevenue,
@@ -96,9 +109,9 @@ export async function getConsultantCommission(consultantId: string): Promise<Com
     lifetimeCommission: pct(lifetimeRevenue, rate),
     sponsorRate,
     monthlyTeamRevenue,
-    monthlySponsorCommission: pct(monthlyTeamRevenue, sponsorRate),
+    monthlySponsorCommission: pct(monthlyParrains, rParrain) + pct(monthlyOthers, rOther),
     lifetimeTeamRevenue,
-    lifetimeSponsorCommission: pct(lifetimeTeamRevenue, sponsorRate),
+    lifetimeSponsorCommission: pct(lifetimeParrains, rParrain) + pct(lifetimeOthers, rOther),
     sponsorL2Rate,
     monthlyL2Revenue,
     monthlyL2Commission: pct(monthlyL2Revenue, sponsorL2Rate),

@@ -16,6 +16,8 @@ const PCT_FIELDS = [
   "sellerPct",
   "sellerParrainPct",
   "sellerLeaderPct",
+  "sellerConsultantDirectPct",
+  "leaderDirectPct",
   "sponsorAlonePct",
   "sponsorSharedPct",
   "grandSponsorPct",

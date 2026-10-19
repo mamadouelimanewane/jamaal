@@ -1,6 +1,7 @@
 import { prisma } from "./prisma";
 import { getBusinessModel } from "./business-model-store";
-import { sponsorRatesFor } from "./business-model";
+import { commissionRatesFor } from "./business-model";
+import { effectiveTitle } from "./network";
 import { formatPrice } from "./currency";
 
 /**
@@ -26,8 +27,9 @@ export async function notifySponsorOnSale(
 
   const sponsorUserId = consultant.sponsor.user.id;
   const isFirstSale = consultant._count.orders === 1;
-  // 6 % si le parrain est seul, 3 % s'il a lui-même un parrain (le grand-parrain touche les 3 % restants).
-  const sponsorRate = sponsorRatesFor(!!consultant.sponsor.sponsorId, await getBusinessModel()).level1;
+  // Part du parrain : elle dépend du rang du filleul et de la chaîne au-dessus de lui (tableau des scénarios du modèle économique).
+  const title = effectiveTitle(consultant.rank, consultant.sponsor.sponsorId ? 2 : 1);
+  const sponsorRate = commissionRatesFor(title, !!consultant.sponsor.sponsorId, await getBusinessModel()).level1;
   const estimated = Math.round((orderTotal * sponsorRate) / 100);
 
   if (isFirstSale) {

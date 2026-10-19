@@ -4,9 +4,9 @@ import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/currency";
 import { getReseller, resellerLinks, startOfMonth } from "@/lib/reseller";
 import { getBusinessModel } from "@/lib/business-model-store";
-import { sponsorRatesFor } from "@/lib/business-model";
+import { commissionRatesFor } from "@/lib/business-model";
 import { COMMISSIONABLE_ORDER } from "@/lib/commission";
-import { canSponsor, getMemberTitle, recruitTitleFor, teamLimitFor, titleFromLoaded, titleLabel } from "@/lib/network";
+import { canSponsor, effectiveTitle, getMemberTitle, getNetworkDepth, recruitTitleFor, teamLimitFor, titleFromLoaded, titleLabel } from "@/lib/network";
 import { AddMemberForm, RemoveMemberButton } from "@/components/admin/TeamControls";
 import { NetworkTitleBadge } from "@/components/admin/NetworkTitleBadge";
 import { StatCard } from "@/components/admin/StatCard";
@@ -36,8 +36,10 @@ export default async function MesFilleulsPage() {
   const level2Title = recruitTitleFor(level1Title) ?? "Consultant";
   const finalSeller = !canSponsor(myTitle);
   const limit = teamLimitFor(myTitle, model);
-  // 6 % si je suis un parrain sans parrain au-dessus, 3 % sinon (+ 3 % sur le niveau 2).
-  const { level1: rate1, level2: rate2 } = sponsorRatesFor(!!me.sponsorId, model);
+  // Ma part dépend du rang de chaque filleul et de ma place dans la chaîne (tableau des scénarios du modèle économique).
+  const myDepth = await getNetworkDepth(me.id);
+  const rateOf = (rank: string | null) => commissionRatesFor(effectiveTitle(rank, myDepth + 1), !!me.sponsorId, model).level1;
+  const { level1: rate1, level2: rate2 } = commissionRatesFor(level1Title, !!me.sponsorId, model);
   const ids = l1.map((c) => c.id);
 
   const [monthly, lifetime, applications, bonuses] = await Promise.all([
@@ -129,7 +131,7 @@ export default async function MesFilleulsPage() {
               <th className="px-4 py-3">Ville</th>
               <th className="px-4 py-3">Ventes ce mois</th>
               <th className="px-4 py-3 text-right">CA du mois</th>
-              <th className="px-4 py-3 text-right">Votre gain ({rate1} %)</th>
+              <th className="px-4 py-3 text-right">Votre gain</th>
               <th className="px-4 py-3 text-right">CA total</th>
               <th className="px-4 py-3">Ses filleuls</th>
               <th className="px-4 py-3" />
@@ -147,7 +149,7 @@ export default async function MesFilleulsPage() {
                   <td className="px-4 py-3">{c.city}</td>
                   <td className="px-4 py-3">{mm?.n ?? 0}</td>
                   <td className="whitespace-nowrap px-4 py-3 text-right">{formatPrice(mm?.ca ?? 0)}</td>
-                  <td className="whitespace-nowrap px-4 py-3 text-right font-semibold text-emerald-700">{formatPrice(Math.round(((mm?.ca ?? 0) * rate1) / 100))}</td>
+                  <td className="whitespace-nowrap px-4 py-3 text-right font-semibold text-emerald-700">{formatPrice(Math.round(((mm?.ca ?? 0) * rateOf(c.rank)) / 100))} <span className="text-xs font-normal text-navy/60">({rateOf(c.rank)} %)</span></td>
                   <td className="whitespace-nowrap px-4 py-3 text-right">{formatPrice(l.get(c.id) ?? 0)}</td>
                   <td className="px-4 py-3">{c._count.sponsored}</td>
                   <td className="space-y-1 px-4 py-3 text-right">

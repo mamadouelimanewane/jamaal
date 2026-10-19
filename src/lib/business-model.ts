@@ -31,6 +31,10 @@ export type BusinessModel = {
   sellerParrainPct: number;
   /** Commission d'un Leader sur ses propres ventes, en % du prix de vente. */
   sellerLeaderPct: number;
+  /** Consultant qui vend directement sous un Leader (sans Parrain entre eux) : sa propre commission. */
+  sellerConsultantDirectPct: number;
+  /** Consultant qui vend directement sous un Leader : part du Leader. */
+  leaderDirectPct: number;
   /** Part du parrain direct quand personne n'est au-dessus de lui (ex. Leader sur la vente d'un Parrain). */
   sponsorAlonePct: number;
   /** Part du parrain direct quand il a lui-même un parrain (ex. Parrain direct sur la vente d'un Consultant). */
@@ -96,6 +100,8 @@ export const DEFAULT_BUSINESS_MODEL: BusinessModel = {
   sellerPct: 18,
   sellerParrainPct: 19,
   sellerLeaderPct: 20,
+  sellerConsultantDirectPct: 18,
+  leaderDirectPct: 6,
   sponsorAlonePct: 6,
   sponsorSharedPct: 4,
   grandSponsorPct: 2,
@@ -169,6 +175,8 @@ export function normalizeBusinessModel(raw: unknown): BusinessModel {
   num("sellerPct", 0, 100);
   num("sellerParrainPct", 0, 100);
   num("sellerLeaderPct", 0, 100);
+  num("sellerConsultantDirectPct", 0, 100);
+  num("leaderDirectPct", 0, 100);
   num("sponsorAlonePct", 0, 100);
   num("sponsorSharedPct", 0, 100);
   num("grandSponsorPct", 0, 100);
@@ -207,12 +215,42 @@ export function normalizeBusinessModel(raw: unknown): BusinessModel {
     base.sponsorSharedPct = 4;
     base.grandSponsorPct = 2;
   }
+  // Scénario « Consultant directement sous un Leader » ajouté ensuite : tant qu'il n'est pas enregistré, il reprend
+  // le comportement d'avant (même commission que le Consultant, part du Leader = celle d'un Leader sur la vente d'un Parrain).
+  if (r.sellerConsultantDirectPct === undefined) base.sellerConsultantDirectPct = base.sellerPct;
+  if (r.leaderDirectPct === undefined) base.leaderDirectPct = base.sponsorAlonePct;
   return base;
 }
 
 /** Commission d'un vendeur sur ses propres ventes, selon son rang. */
 export function sellerRateFor(title: "Leader" | "Parrain" | "Consultant", model: BusinessModel): number {
   return title === "Leader" ? model.sellerLeaderPct : title === "Parrain" ? model.sellerParrainPct : model.sellerPct;
+}
+
+export type SellerTitle = "Leader" | "Parrain" | "Consultant";
+export type Scenario = "LEADER" | "PARRAIN" | "CONSULTANT" | "CONSULTANT_DIRECT";
+
+/**
+ * Tableau des scénarios de commission : qui vend (rang) et qui est au-dessus de lui.
+ * - Leader : il touche sa commission de vendeur.
+ * - Parrain : sa commission de vendeur + la part de son Leader.
+ * - Consultant sous un Parrain : sa commission + celles du Parrain direct et du Leader.
+ * - Consultant directement sous un Leader (sans Parrain) : sa commission + la part du Leader.
+ * `sponsorHasSponsor` : le parrain direct du vendeur a-t-il lui-même un parrain ?
+ * Tout est modifiable dans Admin > Modèle économique.
+ */
+export function commissionRatesFor(sellerTitle: SellerTitle, sponsorHasSponsor: boolean, model: BusinessModel) {
+  const direct = sellerTitle === "Consultant" && !sponsorHasSponsor;
+  const scenario: Scenario = sellerTitle === "Leader" ? "LEADER" : sellerTitle === "Parrain" ? "PARRAIN" : direct ? "CONSULTANT_DIRECT" : "CONSULTANT";
+  return {
+    scenario,
+    /** Commission du vendeur sur ses propres ventes. */
+    seller: sellerTitle === "Leader" ? model.sellerLeaderPct : sellerTitle === "Parrain" ? model.sellerParrainPct : direct ? model.sellerConsultantDirectPct : model.sellerPct,
+    /** Part du parrain direct. */
+    level1: sponsorHasSponsor ? model.sponsorSharedPct : direct ? model.leaderDirectPct : model.sponsorAlonePct,
+    /** Part du grand-parrain. */
+    level2: model.grandSponsorPct,
+  };
 }
 
 /** Prix de vente JAMAAL à partir du prix public Chogan (arrondi au multiple configuré). */

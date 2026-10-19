@@ -43,6 +43,8 @@ type NumKey =
   | "sellerPct"
   | "sellerParrainPct"
   | "sellerLeaderPct"
+  | "sellerConsultantDirectPct"
+  | "leaderDirectPct"
   | "sponsorAlonePct"
   | "sponsorSharedPct"
   | "grandSponsorPct"
@@ -97,6 +99,67 @@ function NumberField({
       </div>
       {hint && <span className="mt-1.5 block text-xs font-normal text-navy/75">{hint}</span>}
     </label>
+  );
+}
+
+/** Tableau des scénarios de commission : une ligne par cas (qui vend, qui est au-dessus), une colonne par bénéficiaire. Tout est modifiable. */
+function CommissionMatrix({ model, set }: { model: BusinessModel; set: (key: NumKey, v: number) => void }) {
+  const rows: { title: string; hint: string; cells: [NumKey | null, NumKey | null, NumKey | null] }[] = [
+    { title: "Le Leader vend", hint: "Personne au-dessus de lui.", cells: ["sellerLeaderPct", null, null] },
+    { title: "Un Parrain vend", hint: "Son Leader est au-dessus de lui.", cells: ["sellerParrainPct", null, "sponsorAlonePct"] },
+    { title: "Un Consultant vend, sous un Parrain", hint: "Chaîne complète : Consultant → Parrain → Leader.", cells: ["sellerPct", "sponsorSharedPct", "grandSponsorPct"] },
+    { title: "Un Consultant vend, directement sous un Leader", hint: "Pas de Parrain entre eux.", cells: ["sellerConsultantDirectPct", null, "leaderDirectPct"] },
+  ];
+  return (
+    <div className="overflow-x-auto rounded-xl border border-line">
+      <table className="w-full min-w-[560px] text-sm">
+        <thead className="bg-cream text-left text-xs uppercase text-navy/75">
+          <tr>
+            <th className="px-3 py-2.5">Scénario</th>
+            <th className="px-2 py-2.5 text-center">Vendeur</th>
+            <th className="px-2 py-2.5 text-center">Parrain direct</th>
+            <th className="px-2 py-2.5 text-center">Leader</th>
+            <th className="px-2 py-2.5 text-right">Total versé</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => {
+            const total = r.cells.reduce((sum, k) => sum + (k && Number.isFinite(model[k]) ? model[k] : 0), 0);
+            return (
+              <tr key={r.title} className="border-t border-line">
+                <td className="px-3 py-2.5">
+                  <p className="font-semibold text-ink">{r.title}</p>
+                  <p className="text-xs text-navy/65">{r.hint}</p>
+                </td>
+                {r.cells.map((k, i) => (
+                  <td key={i} className="px-2 py-2.5 text-center">
+                    {k ? (
+                      <span className="relative inline-block">
+                        <input
+                          type="number"
+                          name={k}
+                          aria-label={`${r.title} : ${["vendeur", "parrain direct", "leader"][i]} (%)`}
+                          value={Number.isFinite(model[k]) ? model[k] : ""}
+                          step={0.5}
+                          min={0}
+                          required
+                          onChange={(e) => set(k, e.target.value === "" ? NaN : Number(e.target.value))}
+                          className="w-24 rounded-lg border border-line bg-white py-2 pl-2.5 pr-7 text-right text-base font-medium text-ink outline-none focus:border-navy focus:ring-4 focus:ring-navy/10"
+                        />
+                        <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-navy/70">%</span>
+                      </span>
+                    ) : (
+                      <span className="text-navy/40">—</span>
+                    )}
+                  </td>
+                ))}
+                <td className="px-2 py-2.5 text-right font-semibold text-ink">{pts(total)} %</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
@@ -180,7 +243,7 @@ function PriceSplit({ margin, publicPrice, model }: { margin: ReturnType<typeof 
 }
 
 
-type Seller = "Consultant" | "Parrain" | "Leader";
+type Seller = "Consultant" | "Direct" | "Parrain" | "Leader";
 
 /** Chaîne JAMAAL → Leader → Parrain direct → Consultant : qui touche quoi selon le vendeur. */
 function CommissionChain({ sale, net, model }: { sale: number; net: number; model: BusinessModel }) {
@@ -191,6 +254,8 @@ function CommissionChain({ sale, net, model }: { sale: number; net: number; mode
   const rates: Record<"Leader" | "Parrain" | "Consultant", { rate: number; role: string } | null> =
     seller === "Consultant"
       ? { Leader: { rate: model.grandSponsorPct, role: "sur la vente de son Consultant" }, Parrain: { rate: model.sponsorSharedPct, role: "parrain direct du vendeur" }, Consultant: { rate: model.sellerPct, role: "vend" } }
+      : seller === "Direct"
+        ? { Leader: { rate: model.leaderDirectPct, role: "sur la vente de son Consultant (sans Parrain)" }, Parrain: null, Consultant: { rate: model.sellerConsultantDirectPct, role: "vend" } }
       : seller === "Parrain"
         ? { Leader: { rate: model.sponsorAlonePct, role: "parrain direct du vendeur" }, Parrain: { rate: model.sellerParrainPct, role: "vend" }, Consultant: null }
         : { Leader: { rate: model.sellerLeaderPct, role: "vend" }, Parrain: null, Consultant: null };
@@ -210,9 +275,9 @@ function CommissionChain({ sale, net, model }: { sale: number; net: number; mode
         <div className="flex items-center gap-2 text-sm">
           <span className="whitespace-nowrap font-medium text-navy/80">Qui vend ?</span>
           <div className="flex rounded-xl border border-line bg-white p-1 font-semibold" role="group" aria-label="Qui vend ?">
-            {(["Consultant", "Parrain", "Leader"] as const).map((s) => (
+            {(["Consultant", "Direct", "Parrain", "Leader"] as const).map((s) => (
               <button key={s} type="button" onClick={() => setSeller(s)} aria-pressed={seller === s} className={`rounded-lg px-3 py-1.5 transition ${seller === s ? "bg-navy text-white" : "text-navy/80 hover:bg-cream"}`}>
-                {s}
+                {s === "Direct" ? "Consultant (sans Parrain)" : s}
               </button>
             ))}
           </div>
@@ -231,11 +296,16 @@ function CommissionChain({ sale, net, model }: { sale: number; net: number; mode
         ))}
       </ol>
       <p className="mt-3 text-xs text-navy/75">
-        {seller === "Consultant"
-          ? `Le Consultant vend : il touche ${pts(model.sellerPct)} %, son Parrain direct ${pts(model.sponsorSharedPct)} % et le Leader ${pts(model.grandSponsorPct)} %.`
-          : seller === "Parrain"
-            ? `Le Parrain vend : il touche ${pts(model.sellerParrainPct)} % et son Leader ${pts(model.sponsorAlonePct)} %.${fullEnvelope > model.sponsorAlonePct ? ` Le reste de l'enveloppe réseau (${pts(fullEnvelope - model.sponsorAlonePct)} %) reste à JAMAAL.` : ""}`
-            : `Le Leader vend : il touche ${pts(model.sellerLeaderPct)} %. Personne au-dessus de lui : l'enveloppe réseau (${pts(fullEnvelope)} %) reste à JAMAAL.`}
+        {(() => {
+          const label = seller === "Direct" ? "Le Consultant (directement sous un Leader)" : `${seller === "Consultant" ? "Le Consultant" : seller === "Parrain" ? "Le Parrain" : "Le Leader"}`;
+          const parts = [
+            rates.Consultant ? `le Consultant ${pts(rates.Consultant.rate)} %` : null,
+            rates.Parrain ? `le Parrain direct ${pts(rates.Parrain.rate)} %` : null,
+            rates.Leader ? `le Leader ${pts(rates.Leader.rate)} %` : null,
+          ].filter(Boolean);
+          const total = (rates.Leader?.rate ?? 0) + (rates.Parrain?.rate ?? 0) + (rates.Consultant?.rate ?? 0);
+          return `${label} vend : ${parts.join(", ")}. Total versé au réseau : ${pts(total)} % du prix de vente ; le reste revient à JAMAAL.`;
+        })()}
       </p>
     </div>
   );
@@ -355,18 +425,11 @@ export function BusinessModelEditor({
           <section className={card}>
             <SectionTitle icon={Percent} title="Commissions" text="En % du prix de vente, hors livraison, sur les ventes encaissées." tone="#2f6f9f" />
             <div className="mt-5 flex flex-col gap-4">
-              <p className="-mb-1 text-sm font-medium text-ink">Sur ses propres ventes, chacun touche selon son rang :</p>
-              <div className="grid grid-cols-3 gap-3">
-                <NumberField label="Leader" name="sellerLeaderPct" value={model.sellerLeaderPct} onChange={set} suffix="%" />
-                <NumberField label="Parrain" name="sellerParrainPct" value={model.sellerParrainPct} onChange={set} suffix="%" />
-                <NumberField label="Consultant (filleul)" name="sellerPct" value={model.sellerPct} onChange={set} suffix="%" />
-              </div>
-              <NumberField label="Leader, sur les ventes de ses Parrains" name="sponsorAlonePct" value={model.sponsorAlonePct} onChange={set} suffix="%" hint="Le Leader est le parrain direct du Parrain : il touche toute l'enveloppe." />
-              <p className="-mb-1 text-sm font-medium text-ink">Sur les ventes d&apos;un Consultant (vendeur final), l&apos;enveloppe est partagée :</p>
-              <div className="grid grid-cols-2 gap-3">
-                <NumberField label="Parrain direct" name="sponsorSharedPct" value={model.sponsorSharedPct} onChange={set} suffix="%" />
-                <NumberField label="Leader" name="grandSponsorPct" value={model.grandSponsorPct} onChange={set} suffix="%" />
-              </div>
+              <CommissionMatrix model={model} set={set} />
+              <p className="text-xs text-navy/70">
+                Chaque ligne est un cas possible ; chaque case est un pourcentage du prix de vente que vous fixez librement (0 pour ne rien verser). Un nouveau scénario, par exemple « le Parrain vend : 20 % pour lui et 4 % pour son Leader », se règle ici.
+                Les parts des partenaires étranger et local se règlent plus bas, dans « Coûts et partenaires ».
+              </p>
             </div>
           </section>
 

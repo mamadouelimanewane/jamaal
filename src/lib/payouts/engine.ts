@@ -14,7 +14,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getBusinessModel } from "@/lib/business-model-store";
-import { sellerRateFor, sponsorRatesFor, type BusinessModel } from "@/lib/business-model";
+import { commissionRatesFor, type BusinessModel } from "@/lib/business-model";
 import { effectiveTitle } from "@/lib/network";
 import { commissionBase } from "@/lib/commission";
 import { creditCommissionEntries, reverseWalletCreditsForOrder } from "@/lib/wallet";
@@ -66,10 +66,10 @@ export async function plannedCommissions(orderId: string, model?: BusinessModel)
   if (seller) {
     const sponsor = seller.sponsor;
     const grand = sponsor?.sponsor;
-    const rates = sponsorRatesFor(!!sponsor?.sponsorId, m);
-    // Le vendeur touche selon son rang : Leader, Parrain ou Consultant (rang attribué, sinon sa place dans la chaîne).
+    // Le scénario dépend du rang du vendeur (rang attribué, sinon sa place dans la chaîne) et de la chaîne au-dessus de lui.
     const depth = !sponsor ? 0 : !sponsor.sponsorId ? 1 : 2;
-    rows.push({ consultantId: seller.id, name: seller.name, level: "VENTE", rate: sellerRateFor(effectiveTitle(seller.rank, depth), m), base, amount: 0 });
+    const rates = commissionRatesFor(effectiveTitle(seller.rank, depth), !!sponsor?.sponsorId, m);
+    rows.push({ consultantId: seller.id, name: seller.name, level: "VENTE", rate: rates.seller, base, amount: 0 });
     if (sponsor) rows.push({ consultantId: sponsor.id, name: sponsor.name, level: "NIVEAU_1", rate: rates.level1, base, amount: 0 });
     if (sponsor && grand) rows.push({ consultantId: grand.id, name: grand.name, level: "NIVEAU_2", rate: rates.level2, base, amount: 0 });
   }
