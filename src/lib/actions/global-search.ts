@@ -1,6 +1,9 @@
 "use server";
 
+import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { getAccess } from "@/lib/access";
+import { searchScope } from "@/lib/search-scope";
 import { requireStaff } from "./auth-guard";
 
 export interface GlobalSearchResult {
@@ -11,55 +14,109 @@ export interface GlobalSearchResult {
   href: string;
 }
 
+/**
+ * Recherche du menu. Chacun ne trouve que ce qu'il a le droit de voir :
+ * - administrateur complet : tout ;
+ * - administrateur restreint : seulement les modules de son profil ;
+ * - revendeur : ses propres commandes et clients, et le catalogue ;
+ * - livreur : ses livraisons et le catalogue.
+ * Les données sont relues en base (rôle, profil, fiche rattachée), jamais prises de la session seule.
+ */
 export async function globalAdminSearch(query: string): Promise<GlobalSearchResult[]> {
-  await requireStaff();
+  const session = await requireStaff();
   const q = query.trim();
   if (!q || q.length < 2) return [];
 
-  const [orders, customers, products, consultants] = await Promise.all([
-    prisma.order.findMany({
-      where: {
-        OR: [
-          { customerName: { contains: q, mode: "insensitive" } },
-          { customerPhone: { contains: q } },
-          { id: { contains: q, mode: "insensitive" } },
-        ],
-      },
-      take: 5,
-      select: { id: true, customerName: true, total: true, status: true },
-    }),
-    prisma.customer.findMany({
-      where: {
-        OR: [
-          { name: { contains: q, mode: "insensitive" } },
-          { phone: { contains: q } },
-          { email: { contains: q, mode: "insensitive" } },
-        ],
-      },
-      take: 5,
-      select: { id: true, name: true, phone: true },
-    }),
-    prisma.product.findMany({
-      where: {
-        OR: [
-          { name: { contains: q, mode: "insensitive" } },
-          { slug: { contains: q, mode: "insensitive" } },
-        ],
-      },
-      take: 5,
-      select: { id: true, name: true, category: true, slug: true },
-    }),
-    prisma.consultant.findMany({
-      where: {
-        OR: [
-          { name: { contains: q, mode: "insensitive" } },
-          { city: { contains: q, mode: "insensitive" } },
-        ],
-      },
-      take: 5,
-      select: { id: true, name: true, city: true },
-    }),
+  const userId = session.user?.id;
+  if (!userId) return [];
+  const [access, user] = await Promise.all([
+    getAccess(userId),
+    prisma.user.findUnique({ where: { id: userId }, select: { consultantId: true, livreurId: true } }),
   ]);
+  if (!access) return [];
+
+  const scope = searchScope({ role: access.role, perms: access.perms, consultantId: user?.consultantId ?? null, livreurId: user?.livreurId ?? null });
+  const isAdmin = access.role === "ADMIN";
+  const role = access.role;
+  const orderScope = scope.orders;
+  const showCustomers = scope.customers !== "none";
+  const showProducts = scope.products;
+  const showConsultants = scope.consultants;
+
+  const orderMatch: Prisma.OrderWhereInput = {
+    OR: [
+      { customerName: { contains: q, mode: "insensitive" } },
+      { customerPhone: { contains: q } },
+      { id: { contains: q, mode: "insensitive" } },
+    ],
+  };
+
+  const [orders, customers, products, consultants] = await Promise.all([
+    orderScope
+      ? prisma.order.findMany({
+          where: { AND: [orderScope, orderMatch] },
+          orderBy: { createdAt: "desc" },
+          take: 5,
+          select: { id: true, customerName: true, total: true, status: true },
+        })
+      : Promise.resolve([]),
+    !showCustomers
+      ? Promise.resolve([])
+      : scope.customers === "all"
+        ? prisma.customer.findMany({
+            where: {
+              OR: [
+                { name: { contains: q, mode: "insensitive" } },
+                { phone: { contains: q } },
+                { email: { contains: q, mode: "insensitive" } },
+              ],
+            },
+            take: 5,
+            select: { id: true, name: true, phone: true },
+          })
+        : // Revendeur : uniquement les clients de ses propres commandes.
+          prisma.order
+            .findMany({
+              where: {
+                consultantId: user!.consultantId!,
+                OR: [{ customerName: { contains: q, mode: "insensitive" } }, { customerPhone: { contains: q } }],
+              },
+              orderBy: { createdAt: "desc" },
+              distinct: ["customerPhone"],
+              take: 5,
+              select: { id: true, customerName: true, customerPhone: true },
+            })
+            .then((rows) => rows.map((r) => ({ id: r.id, name: r.customerName, phone: r.customerPhone })),
+            ),
+    showProducts
+      ? prisma.product.findMany({
+          where: {
+            OR: [
+              { name: { contains: q, mode: "insensitive" } },
+              { slug: { contains: q, mode: "insensitive" } },
+              { choganCode: { contains: q, mode: "insensitive" } },
+            ],
+          },
+          take: 5,
+          select: { id: true, name: true, category: true, slug: true },
+        })
+      : Promise.resolve([]),
+    showConsultants
+      ? prisma.consultant.findMany({
+          where: {
+            OR: [
+              { name: { contains: q, mode: "insensitive" } },
+              { city: { contains: q, mode: "insensitive" } },
+            ],
+          },
+          take: 5,
+          select: { id: true, name: true, city: true },
+        })
+      : Promise.resolve([]),
+  ]);
+
+  const orderHref = (id: string) =>
+    isAdmin ? `/admin/commandes/${id}` : role === "CONSULTANT" ? `/admin/mes-commandes/${id}` : "/admin/mes-livraisons";
 
   const results: GlobalSearchResult[] = [];
 
@@ -69,7 +126,7 @@ export async function globalAdminSearch(query: string): Promise<GlobalSearchResu
       id: o.id,
       title: `Commande — ${o.customerName}`,
       subtitle: `${o.total.toLocaleString("fr-FR")} FCFA · Statut: ${o.status}`,
-      href: `/admin/commandes/${o.id}`,
+      href: orderHref(o.id),
     });
   }
 
@@ -79,7 +136,7 @@ export async function globalAdminSearch(query: string): Promise<GlobalSearchResu
       id: c.id,
       title: `Client — ${c.name}`,
       subtitle: `Tél: ${c.phone}`,
-      href: `/admin/clients/${c.id}`,
+      href: isAdmin ? `/admin/clients/${c.id}` : "/admin/mes-clients",
     });
   }
 
@@ -89,7 +146,7 @@ export async function globalAdminSearch(query: string): Promise<GlobalSearchResu
       id: p.id,
       title: `Produit — ${p.name}`,
       subtitle: `Catégorie: ${p.category}`,
-      href: `/admin/produits/${p.id}`,
+      href: isAdmin ? `/admin/produits/${p.id}/modifier` : `/produits/${p.slug}`,
     });
   }
 

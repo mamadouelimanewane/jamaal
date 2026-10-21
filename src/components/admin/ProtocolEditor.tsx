@@ -2,11 +2,11 @@
 
 import { useActionState, useState } from "react";
 import { saveProtocolAction, type ProtocolActionResult } from "@/lib/actions/protocol";
-import { fillProtocol } from "@/lib/protocol";
+import { fillProtocol, withRates } from "@/lib/protocol";
 import { ProtocolText } from "@/components/ProtocolText";
 
 /** Admin : texte du protocole avec aperçu. */
-export function ProtocolEditor({ text }: { text: string }) {
+export function ProtocolEditor({ text, ratesText = "" }: { text: string; ratesText?: string }) {
   const [state, action, pending] = useActionState(saveProtocolAction, { ok: false } as ProtocolActionResult);
   const [value, setValue] = useState(text);
   const [preview, setPreview] = useState(false);
@@ -19,7 +19,7 @@ export function ProtocolEditor({ text }: { text: string }) {
       <textarea name="text" value={value} onChange={(e) => setValue(e.target.value)} rows={28} spellCheck className={`${preview ? "hidden" : "block"} w-full rounded-xl border border-line bg-white p-4 font-mono text-[13px] leading-relaxed outline-none focus:border-navy`} />
       {preview && (
         <div className="max-h-[70vh] overflow-y-auto rounded-xl border border-line bg-white p-5">
-          <ProtocolText text={fillProtocol(value, { nom: "Awa Diop", piece: "Carte nationale d'identité n° 1 234 1990 01234", adresse: "Sacré-Cœur 3, villa 12, Dakar", telephone: "+221 77 123 45 67", code_parrain: "aminata" })} />
+          <ProtocolText text={fillProtocol(withRates(value, ratesText), { nom: "Awa Diop", piece: "Carte nationale d'identité n° 1 234 1990 01234", adresse: "Sacré-Cœur 3, villa 12, Dakar", telephone: "+221 77 123 45 67", code_parrain: "aminata" })} />
         </div>
       )}
       <div className="flex flex-wrap items-center gap-3">

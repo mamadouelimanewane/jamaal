@@ -13,7 +13,8 @@ test("protocole par défaut : 17 articles, champs du signataire remplis", () => 
 });
 
 test("protocole : version et texte enregistrés", () => {
-  assert.equal(normalizeProtocol(null).version, 1);
+  // Texte par défaut : version 2 (la v1 avait des taux de commission écrits en dur).
+  assert.equal(normalizeProtocol(null).version, 2);
   assert.equal(normalizeProtocol({ version: 3, text: "court" }).text, DEFAULT_PROTOCOL_TEXT);
   const long = "## Article 1\n\n" + "x".repeat(300);
   assert.deepEqual(normalizeProtocol({ version: 4, text: long }).version, 4);

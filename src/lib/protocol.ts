@@ -2,7 +2,8 @@
  * Protocole de partenariat signé à l'inscription. Le texte est modifiable dans le back-office
  * (Admin > Protocole) ; chaque modification crée une nouvelle version, à signer de nouveau.
  * Mise en forme légère : « ## » = titre d'article, « - » ou « 1. » = liste.
- * Champs remplis automatiquement : {nom} {piece} {adresse} {telephone} {code_parrain}.
+ * Champs remplis automatiquement : {nom} {piece} {adresse} {telephone} {code_parrain}, et {taux_commissions}
+ * (taux en vigueur, tirés du modèle économique : le contrat suit toujours ce que la plateforme paie).
  * Pur (utilisable partout).
  */
 
@@ -10,6 +11,45 @@ export interface ProtocolDoc {
   version: number;
   text: string;
   updatedAt: string | null;
+  /** Taux de commission inscrits dans cette version (pour en créer une nouvelle quand ils changent). */
+  rates?: string | null;
+}
+
+/** Article 8 de la toute première version, taux écrits en dur : remplacé par {taux_commissions}. */
+export const LEGACY_RATES_BLOCK = `- Vente d'un Consultant : 18 % au Consultant, 3 % à son Parrain, 3 % au Leader.
+- Vente d'un Parrain : 18 % au Parrain, 6 % au Leader.
+- Vente d'un Leader : 18 % au Leader.`;
+
+/** Version du texte par défaut (2 : taux de commission tirés du modèle économique). */
+export const DEFAULT_PROTOCOL_VERSION = 2;
+
+/** Taux utiles au protocole (sous-ensemble du modèle économique). */
+export interface ProtocolRates {
+  sellerPct: number;
+  sellerParrainPct: number;
+  sellerLeaderPct: number;
+  sellerConsultantDirectPct: number;
+  leaderDirectPct: number;
+  sponsorAlonePct: number;
+  sponsorSharedPct: number;
+  grandSponsorPct: number;
+}
+
+const pct = (n: number) => `${String(Math.round(n * 100) / 100).replace(".", ",")} %`;
+
+/** Liste des taux de commission telle qu'elle figure à l'article 8 (une puce par cas de vente). */
+export function commissionRatesText(r: ProtocolRates): string {
+  return [
+    `- Vente d'un Consultant rattaché à un Parrain : ${pct(r.sellerPct)} au Consultant, ${pct(r.sponsorSharedPct)} à son Parrain, ${pct(r.grandSponsorPct)} au Leader.`,
+    `- Vente d'un Consultant rattaché directement à un Leader : ${pct(r.sellerConsultantDirectPct)} au Consultant, ${pct(r.leaderDirectPct)} au Leader.`,
+    `- Vente d'un Parrain : ${pct(r.sellerParrainPct)} au Parrain, ${pct(r.sponsorAlonePct)} au Leader.`,
+    `- Vente d'un Leader : ${pct(r.sellerLeaderPct)} au Leader.`,
+  ].join("\n");
+}
+
+/** Remplace {taux_commissions} par les taux en vigueur. */
+export function withRates(text: string, ratesText: string): string {
+  return text.replace(/\{taux_commissions\}/g, ratesText);
 }
 
 export const DEFAULT_PROTOCOL_TEXT = `## Entre les soussignés
@@ -75,9 +115,7 @@ Les commandes passent par la plateforme JAMAAL (lien personnel du Partenaire ou 
 
 Les commissions sont calculées sur le prix de vente des produits, hors frais de livraison, une fois la commande payée (ou livrée et encaissée pour un paiement à la livraison). Taux en vigueur à la signature :
 
-- Vente d'un Consultant : 18 % au Consultant, 3 % à son Parrain, 3 % au Leader.
-- Vente d'un Parrain : 18 % au Parrain, 6 % au Leader.
-- Vente d'un Leader : 18 % au Leader.
+{taux_commissions}
 
 Une commande annulée, remboursée ou retournée n'ouvre pas droit à commission ; une commission déjà versée sur une telle commande est déduite des versements suivants.
 
@@ -137,13 +175,16 @@ Le Partenaire signe ce protocole à l'écran. Sa signature, la date et l'heure, 
 
 Les parties reconnaissent à cette signature et à cet exemplaire la même valeur qu'un original papier signé, conformément à la loi n° 2008-08 sur les transactions électroniques. Toute nouvelle version du protocole est soumise à une nouvelle signature.`;
 
-export const DEFAULT_PROTOCOL: ProtocolDoc = { version: 1, text: DEFAULT_PROTOCOL_TEXT, updatedAt: null };
+export const DEFAULT_PROTOCOL: ProtocolDoc = { version: DEFAULT_PROTOCOL_VERSION, text: DEFAULT_PROTOCOL_TEXT, updatedAt: null, rates: null };
 
 export function normalizeProtocol(raw: unknown): ProtocolDoc {
   const r = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
-  const text = typeof r.text === "string" && r.text.trim().length >= 200 ? r.text.trim().slice(0, 60_000) : DEFAULT_PROTOCOL_TEXT;
-  const version = Number.isInteger(r.version) && (r.version as number) > 0 ? (r.version as number) : 1;
-  return { version, text, updatedAt: typeof r.updatedAt === "string" ? r.updatedAt : null };
+  const custom = typeof r.text === "string" && r.text.trim().length >= 200;
+  const text = custom ? (r.text as string).trim().slice(0, 60_000) : DEFAULT_PROTOCOL_TEXT;
+  const stored = Number.isInteger(r.version) && (r.version as number) > 0 ? (r.version as number) : 1;
+  // Texte par défaut : au moins la version par défaut (la v1 avait des taux écrits en dur, à signer de nouveau).
+  const version = custom ? stored : Math.max(stored, DEFAULT_PROTOCOL_VERSION);
+  return { version, text, updatedAt: typeof r.updatedAt === "string" ? r.updatedAt : null, rates: typeof r.rates === "string" ? r.rates : null };
 }
 
 export interface SignerFields {

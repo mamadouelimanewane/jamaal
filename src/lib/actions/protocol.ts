@@ -8,7 +8,7 @@ import { logActivity } from "@/lib/activity-log";
 import { getReseller } from "@/lib/reseller";
 import { clientIpFromHeaders } from "@/lib/rate-limit";
 import { fillProtocol, pieceLabel } from "@/lib/protocol";
-import { getProtocol, saveProtocol, textHash } from "@/lib/protocol-store";
+import { getProtocol, getProtocolRaw, saveProtocol, textHash } from "@/lib/protocol-store";
 
 export type ProtocolActionResult = { ok: boolean; message?: string; error?: string; signatureId?: string };
 
@@ -18,7 +18,7 @@ export async function saveProtocolAction(_prev: ProtocolActionResult, formData: 
   const text = String(formData.get("text") ?? "").replace(/\r\n/g, "\n").trim();
   if (text.length < 200) return { ok: false, error: "Le protocole semble incomplet (200 caractères au minimum)." };
   if (text.length > 60_000) return { ok: false, error: "Texte trop long (60 000 caractères au maximum)." };
-  const before = await getProtocol();
+  const before = await getProtocolRaw();
   const doc = await saveProtocol(text);
   await logActivity(session, `Protocole de partenariat enregistré (version ${doc.version})`, "Setting");
   revalidatePath("/admin/protocole");

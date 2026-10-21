@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { getProtocol } from "@/lib/protocol-store";
+import { getProtocolRaw } from "@/lib/protocol-store";
 import { ProtocolEditor } from "@/components/admin/ProtocolEditor";
 
 export const dynamic = "force-dynamic";
@@ -11,7 +11,7 @@ export default async function ProtocolPage() {
   const session = await auth();
   if (session?.user?.role !== "ADMIN") redirect("/admin");
   const [doc, members, signed] = await Promise.all([
-    getProtocol(),
+    getProtocolRaw(),
     prisma.consultant.count({ where: { active: true } }),
     prisma.protocolSignature.findMany({ where: { consultantId: { not: null } }, select: { consultantId: true, version: true }, distinct: ["consultantId", "version"] }),
   ]);
@@ -29,8 +29,12 @@ export default async function ProtocolPage() {
         <li>Modifier le texte crée une nouvelle version : les signatures précédentes restent valables pour leur version, les membres sont invités à signer la nouvelle.</li>
         <li>Mise en forme : « ## » au début d&apos;une ligne pour un titre d&apos;article, « - » pour une puce, « 1. » pour une liste numérotée, une ligne vide entre deux paragraphes.</li>
         <li>Champs remplis automatiquement : {"{nom}"}, {"{piece}"}, {"{adresse}"}, {"{telephone}"}, {"{code_parrain}"}. Les passages entre crochets [ ] sont à compléter avant la mise en service.</li>
+        <li>
+          {"{taux_commissions}"} affiche les taux de commission en vigueur (Modèle économique). Quand vous changez ces taux, une nouvelle version du protocole est
+          créée automatiquement et les membres sont invités à la signer : le contrat suit toujours ce que la plateforme paie.
+        </li>
       </ul>
-      <div className="mt-5"><ProtocolEditor text={doc.text} /></div>
+      <div className="mt-5"><ProtocolEditor text={doc.text} ratesText={doc.rates ?? ""} /></div>
     </div>
   );
 }
