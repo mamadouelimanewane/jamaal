@@ -412,7 +412,7 @@ export function BusinessModelEditor({
       </section>
 
       <form action={saveAction} noValidate className="flex flex-col gap-6">
-        <div className="grid gap-6 lg:grid-cols-3">
+        <div className="grid gap-6 lg:grid-cols-2">
           <section className={card}>
             <SectionTitle icon={Tag} title="Prix" text="En % du prix public Chogan." tone="#8a93ad" />
             <div className="mt-5 flex flex-col gap-4">
@@ -422,16 +422,6 @@ export function BusinessModelEditor({
             </div>
           </section>
 
-          <section className={card}>
-            <SectionTitle icon={Percent} title="Commissions" text="En % du prix de vente, hors livraison, sur les ventes encaissées." tone="#2f6f9f" />
-            <div className="mt-5 flex flex-col gap-4">
-              <CommissionMatrix model={model} set={set} />
-              <p className="text-xs text-navy/70">
-                Chaque ligne est un cas possible ; chaque case est un pourcentage du prix de vente que vous fixez librement (0 pour ne rien verser). Un nouveau scénario, par exemple « le Parrain vend : 20 % pour lui et 4 % pour son Leader », se règle ici.
-                Les parts des partenaires étranger et local se règlent plus bas, dans « Coûts et partenaires ».
-              </p>
-            </div>
-          </section>
 
           <section className={card}>
             <SectionTitle icon={Truck} title="Coûts et partenaires" text="En % du prix public. Servent au calcul de marge." tone="#b8902a" />
@@ -441,6 +431,18 @@ export function BusinessModelEditor({
               <p className="-mb-1 mt-1 text-sm font-medium text-ink">Partenaires (pourcentages à définir) :</p>
               <NumberField label="Partenaire étranger (Europe)" name="foreignPartnerPct" value={model.foreignPartnerPct} onChange={set} suffix="%" hint="À décider : laissez 0 tant que le pourcentage n'est pas fixé. Le calcul des commissions viendra plus tard." />
               <NumberField label="Partenaire local" name="localPartnerPct" value={model.localPartnerPct} onChange={set} suffix="%" hint="À décider : laissez 0 tant que le pourcentage n'est pas fixé. Le calcul des commissions viendra plus tard." />
+            </div>
+          </section>
+
+          {/* Pleine largeur : le tableau des scénarios (5 colonnes) reste lisible sans défilement. */}
+          <section className={`${card} lg:col-span-2`}>
+            <SectionTitle icon={Percent} title="Commissions" text="En % du prix de vente, hors livraison, sur les ventes encaissées." tone="#2f6f9f" />
+            <div className="mt-5 flex flex-col gap-4">
+              <CommissionMatrix model={model} set={set} />
+              <p className="text-xs text-navy/70">
+                Chaque ligne est un cas possible ; chaque case est un pourcentage du prix de vente que vous fixez librement (0 pour ne rien verser). Un nouveau scénario, par exemple « le Parrain vend : 20 % pour lui et 4 % pour son Leader », se règle ici.
+                Les parts des partenaires étranger et local se règlent plus bas, dans « Coûts et partenaires ».
+              </p>
             </div>
           </section>
         </div>
