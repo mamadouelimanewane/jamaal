@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { approveApplication, rejectApplication, type ApproveResult } from "@/lib/actions/applications";
+import { approveApplication, rejectApplication, resendAcceptance, type ApproveResult } from "@/lib/actions/applications";
 
 /**
  * Reste monté pour toutes les candidatures (même acceptées) : après « Accepter », Next.js
@@ -19,7 +19,7 @@ export function ApplicationActions({ id, status, complete = true }: { id: string
     return (
       <div className="max-w-xs text-xs">
         <p className="font-semibold text-emerald-700">
-          Acceptée{result.emailed ? " — e-mail d'activation envoyé" : ""}.
+          {status === "ACCEPTEE" && !result.emailed ? "Nouveau lien prêt" : "Acceptée"}{result.emailed ? " — e-mail d'activation envoyé" : ""}.
         </p>
         {result.whatsappUrl && (
           <a href={result.whatsappUrl} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center rounded-full bg-[#25D366] px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90">
@@ -37,6 +37,29 @@ export function ApplicationActions({ id, status, complete = true }: { id: string
         >
           {copied ? "Copié ✓" : "Copier le lien"}
         </button>
+      </div>
+    );
+  }
+
+  if (status === "ACCEPTEE") {
+    // Après acceptation, à tout moment : nouveau lien d'activation et message WhatsApp direct au revendeur.
+    return (
+      <div className="flex flex-col items-start gap-1">
+        <button
+          type="button"
+          disabled={pending}
+          className="rounded-full bg-[#25D366] px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90 disabled:opacity-60"
+          onClick={() =>
+            start(async () => {
+              const r = await resendAcceptance(id);
+              if (r.ok) setResult(r);
+              else setError(r.error ?? "Erreur");
+            })
+          }
+        >
+          {pending ? "Préparation…" : "Envoyer l'accès par WhatsApp"}
+        </button>
+        {error && <p className="text-xs text-rose-dark">{error}</p>}
       </div>
     );
   }

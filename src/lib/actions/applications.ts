@@ -1,7 +1,7 @@
 "use server";
 
 import { createHash, randomBytes } from "node:crypto";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
@@ -20,6 +20,8 @@ import { getProtocol, textHash } from "@/lib/protocol-store";
 import { alertNewTeamMember } from "@/lib/whatsapp/alerts";
 import { notifyResellerWelcome } from "@/lib/whatsapp/welcome";
 import { normalizeSponsorCode, resolveSponsorCode } from "@/lib/sponsor-codes";
+import { effectiveSponsorCode, INVITE_COOKIE, inviteCode } from "@/lib/invite-lock";
+import { acceptanceWhatsAppUrl } from "@/lib/acceptance-message";
 
 export type ApplicationState = {
   ok: boolean;
@@ -27,6 +29,12 @@ export type ApplicationState = {
   /** Résumé renvoyé au navigateur pour préremplir le message WhatsApp envoyé à l'équipe. */
   applicant?: { name: string; city: string; phone: string };
 };
+
+/** Code d'invitation mémorisé (cookie), seulement s'il désigne encore un parrain actif. */
+async function activeInvite(): Promise<string> {
+  const code = inviteCode((await cookies()).get(INVITE_COOKIE)?.value);
+  return code && (await resolveSponsorCode(code)) ? code : "";
+}
 
 /** Candidature publique (page /devenir-consultant). */
 export async function submitApplication(_prev: ApplicationState, formData: FormData): Promise<ApplicationState> {
@@ -45,7 +53,8 @@ export async function submitApplication(_prev: ApplicationState, formData: FormD
     country: formData.get("country") || "Sénégal",
     experience: formData.get("experience") ?? "",
     motivation: formData.get("motivation") ?? "",
-    sponsorCode: formData.get("sponsorCode") ?? "",
+    // Invité par un revendeur : son code est imposé, même si le formulaire a été modifié.
+    sponsorCode: effectiveSponsorCode(await activeInvite(), String(formData.get("sponsorCode") ?? "")),
     acceptTerms: formData.get("acceptTerms") === "on",
     address: formData.get("address") ?? "",
     idType: formData.get("idType") ?? "",
@@ -253,19 +262,37 @@ export async function approveApplication(id: string, opts: { allowIncomplete?: b
   // Pas de revalidation de /admin/candidatures ici : elle ferait disparaître la ligne (et le lien
   // d'activation affiché par le composant) avant que l'admin ait pu le copier.
   revalidatePath("/admin/consultants");
-  const digits = app.phone.replace(/\D/g, "");
-  const first = app.name.trim().split(/\s+/)[0] || app.name;
-  const message = [
-    `Bonjour ${first}, bonne nouvelle : votre candidature JAMAAL est acceptée ! 🎉`,
-    `Vous rejoignez l'équipe de ${sponsor.name}.`,
-    "",
-    `1️⃣ Activez votre espace et choisissez votre mot de passe (lien valable 7 jours) : ${activationUrl}`,
-    `2️⃣ Votre lien de vente personnel : ${siteUrl}/c/${slug}`,
-    "",
-    "Une question ? Répondez simplement à ce message.",
-  ].join("\n");
-  const whatsappUrl = digits ? `https://wa.me/${digits}?text=${encodeURIComponent(message)}` : undefined;
+  const whatsappUrl = acceptanceWhatsAppUrl({ name: app.name, phone: app.phone, sponsorName: sponsor.name, activationUrl, shopUrl: `${siteUrl}/c/${slug}` });
   return { ok: true, activationUrl, emailed, whatsappUrl };
+}
+
+/**
+ * Candidature déjà acceptée : nouveau lien d'activation (7 jours) et message WhatsApp prêt à envoyer,
+ * pour la (re)prévenir directement à tout moment, même après avoir quitté la page.
+ */
+export async function resendAcceptance(id: string): Promise<ApproveResult> {
+  const session = await requireAdmin("revendeurs");
+  const app = await prisma.consultantApplication.findUnique({ where: { id }, select: { status: true, name: true, phone: true, consultantId: true } });
+  if (!app || app.status !== "ACCEPTEE" || !app.consultantId) return { ok: false, error: "Candidature introuvable ou pas encore acceptée." };
+  const consultant = await prisma.consultant.findUnique({
+    where: { id: app.consultantId },
+    select: { name: true, whatsapp: true, slug: true, sponsor: { select: { name: true } }, user: { select: { id: true } } },
+  });
+  const userId = consultant?.user?.id;
+  if (!consultant || !userId) return { ok: false, error: "Aucun compte revendeur rattaché : créez l'accès depuis Consultants." };
+  const token = randomBytes(32).toString("base64url");
+  await prisma.passwordResetToken.create({ data: { tokenHash: hashToken(token), userId, expiresAt: new Date(Date.now() + 7 * 24 * 3600_000) } });
+  const siteUrl = await getSiteUrl();
+  const activationUrl = `${siteUrl}/admin/reset-password?token=${encodeURIComponent(token)}`;
+  await logActivity(session, `Acceptation renvoyée par WhatsApp : ${consultant.name}`, "ConsultantApplication", id);
+  const whatsappUrl = acceptanceWhatsAppUrl({
+    name: consultant.name,
+    phone: consultant.whatsapp || app.phone,
+    sponsorName: consultant.sponsor?.name ?? null,
+    activationUrl,
+    shopUrl: consultant.slug ? `${siteUrl}/c/${consultant.slug}` : null,
+  });
+  return { ok: true, activationUrl, emailed: false, whatsappUrl };
 }
 
 export async function rejectApplication(id: string, note?: string): Promise<{ ok: boolean; error?: string }> {

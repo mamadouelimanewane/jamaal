@@ -16,7 +16,7 @@ export default async function KitMarketingPage() {
   const links = await resellerLinks(me?.slug ?? null);
   const products = await prisma.product.findMany({
     where: { isOfficial: true },
-    select: { id: true, slug: true, name: true, shortDescription: true, photo: true, regularPrice: true },
+    select: { id: true, slug: true, name: true, shortDescription: true, photo: true, regularPrice: true, choganCode: true, inspiredBy: true, inspiredBrand: true },
     orderBy: { name: "asc" },
   });
 
@@ -32,7 +32,7 @@ export default async function KitMarketingPage() {
       </p>
 
       <KitMarketingList
-        products={products.map((p) => ({ id: p.id, slug: p.slug, name: p.name, shortDescription: p.shortDescription, photo: p.photo, price: p.regularPrice }))}
+        products={products.map((p) => ({ id: p.id, slug: p.slug, name: p.name, shortDescription: p.shortDescription, photo: p.photo, price: p.regularPrice, choganCode: p.choganCode, inspiredBy: p.inspiredBy, inspiredBrand: p.inspiredBrand }))}
         origin={links.origin}
         refSlug={me?.slug ?? null}
       />

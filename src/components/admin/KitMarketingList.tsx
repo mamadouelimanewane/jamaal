@@ -4,17 +4,15 @@ import { useMemo, useState } from "react";
 import Image from "next/image";
 import { Download, Image as ImageIcon, MessageCircle, Search } from "lucide-react";
 import { CopyButton } from "@/components/admin/CopyButton";
+import { findProducts } from "@/lib/product-finder";
 
-export type KitProduct = { id: string; slug: string; name: string; shortDescription: string | null; photo: string | null; price: number | null };
-
-const norm = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+export type KitProduct = { id: string; slug: string; name: string; shortDescription: string | null; photo: string | null; price: number | null; choganCode?: string | null; inspiredBy?: string | null; inspiredBrand?: string | null };
 
 /** Kit marketing du revendeur : recherche de produits, texte prêt à publier et partage direct sur WhatsApp avec son lien. */
 export function KitMarketingList({ products, origin, refSlug }: { products: KitProduct[]; origin: string; refSlug: string | null }) {
   const [q, setQ] = useState("");
   const shown = useMemo(() => {
-    const t = norm(q.trim());
-    return t ? products.filter((p) => norm(`${p.name} ${p.shortDescription ?? ""}`).includes(t)) : products;
+    return q.trim().length >= 2 ? findProducts(products, q, products.length) : products;
   }, [q, products]);
 
   return (
@@ -25,7 +23,7 @@ export function KitMarketingList({ products, origin, refSlug }: { products: KitP
           type="search"
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Rechercher un produit (ex. Amphera, gel douche, café…)"
+          placeholder="Nom, code ou parfum (ex. Sauvage)"
           aria-label="Rechercher un produit"
           className="min-w-0 flex-1 text-sm outline-none"
         />

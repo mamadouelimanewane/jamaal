@@ -22,7 +22,7 @@ export default async function MonMarketingPage() {
   const links = await resellerLinks(me.slug);
 
   const [products, promos] = await Promise.all([
-    prisma.product.findMany({ select: { slug: true, name: true, regularPrice: true }, orderBy: { name: "asc" } }),
+    prisma.product.findMany({ select: { slug: true, name: true, regularPrice: true, choganCode: true, inspiredBy: true, inspiredBrand: true }, orderBy: { name: "asc" } }),
     prisma.promoCode.findMany({ where: { consultantId: me.id }, orderBy: { createdAt: "desc" } }),
   ]);
   const shareMsg = `Bonjour ! Découvre toute la gamme Chogan (parfums, soins, maison, nutrition) au Sénégal, avec mes conseils : ${links.shop ?? ""}`;
@@ -57,21 +57,22 @@ export default async function MonMarketingPage() {
         {links.shop && <QrCard url={links.shop} name={me.slug ?? me.name} />}
       </div>
 
-      <div className="mt-6 rounded-2xl border border-ia/30 bg-white p-5">
-        <h2 className="font-serif-display text-lg font-semibold text-navy">Visuels à partager</h2>
-        <p className="mb-4 mt-1 text-sm text-navy/75">Une image prête pour votre statut WhatsApp ou Instagram : photo, prix, votre prénom, votre WhatsApp et un QR code vers le produit avec votre lien.</p>
-        <VisualGenerator products={products.map((p) => ({ slug: p.slug, name: p.name }))} refSlug={me.slug} />
-      </div>
-
       <div className="mt-6 rounded-2xl border border-line bg-white p-5">
-        <h2 className="font-serif-display text-lg font-semibold text-navy">Lien d&apos;un produit précis</h2>
-        <p className="mt-1 mb-4 text-sm text-navy/75">Cherchez un produit, copiez son lien avec votre code, et envoyez-le à votre client.</p>
+        <h2 className="font-serif-display text-lg font-semibold text-navy">Envoyer un produit à un client</h2>
+        <p className="mt-1 mb-4 text-sm text-navy/75">Cherchez un produit par son nom, son code ou le parfum dont il s&apos;inspire, puis envoyez-le sur WhatsApp : le lien porte votre code, la vente vous revient.</p>
         <ProductLinkGenerator
-          products={products.map((p) => ({ slug: p.slug, name: p.name, price: p.regularPrice }))}
+          products={products.map((p) => ({ slug: p.slug, name: p.name, price: p.regularPrice, choganCode: p.choganCode, inspiredBy: p.inspiredBy, inspiredBrand: p.inspiredBrand }))}
           origin={links.origin}
           refSlug={me.slug}
         />
       </div>
+
+      <div className="mt-6 rounded-2xl border border-ia/30 bg-white p-5">
+        <h2 className="font-serif-display text-lg font-semibold text-navy">Visuels à partager</h2>
+        <p className="mb-4 mt-1 text-sm text-navy/75">Une image prête pour votre statut WhatsApp ou Instagram : photo, prix, votre prénom, votre WhatsApp et un QR code vers le produit avec votre lien.</p>
+        <VisualGenerator products={products.map((p) => ({ slug: p.slug, name: p.name, price: p.regularPrice, choganCode: p.choganCode, inspiredBy: p.inspiredBy, inspiredBrand: p.inspiredBrand }))} refSlug={me.slug} origin={links.origin} />
+      </div>
+
 
       <div className="mt-6 rounded-2xl border border-line bg-white p-5">
         <h2 className="flex items-center gap-2 font-serif-display text-lg font-semibold text-navy"><MessageSquareText size={18} /> Mes codes promo</h2>

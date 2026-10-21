@@ -1,3 +1,6 @@
+import { cookies } from "next/headers";
+import { INVITE_COOKIE, inviteCode } from "@/lib/invite-lock";
+import { resolveSponsorCode } from "@/lib/sponsor-codes";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { ApplicationForm } from "@/components/ApplicationForm";
@@ -22,7 +25,10 @@ export default async function DevenirConsultantPage({
   searchParams: Promise<{ ref?: string }>;
 }) {
   const { ref } = await searchParams;
-  const sponsorCode = ref && /^[a-z0-9-]{2,48}$/i.test(ref) ? ref.toLowerCase() : "";
+  // Code de l'invitation : dans l'adresse, ou mémorisé (cookie) si la personne revient sans le lien.
+  const candidate = inviteCode(ref) || inviteCode((await cookies()).get(INVITE_COOKIE)?.value);
+  // Verrouillé seulement si le parrain est encore actif : sinon la personne peut saisir un autre code.
+  const sponsorCode = candidate && (await resolveSponsorCode(candidate)) ? candidate : "";
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6">

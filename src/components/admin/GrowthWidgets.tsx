@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
+import { findProducts, inspirationLabel } from "@/lib/product-finder";
 import { Check, Loader2, Play, Search, X } from "lucide-react";
 import { runDailyNow, setMyAutoRelances, submitQuiz, toggleAutomation } from "@/lib/actions/growth";
 import type { Quiz } from "@/data/quiz-formation";
@@ -249,25 +250,40 @@ export function QuizRunner({ quiz, best }: { quiz: Quiz; best: { score: number; 
 }
 
 /** Visuels de produits à partager (statut WhatsApp, Instagram), avec QR code et coordonnées. */
-export function VisualGenerator({ products, refSlug }: { products: { slug: string; name: string }[]; refSlug: string | null }) {
+type VisualProduct = { slug: string; name: string; price?: number | null; choganCode?: string | null; inspiredBy?: string | null; inspiredBrand?: string | null };
+
+export function VisualGenerator({ products, refSlug, origin = "" }: { products: VisualProduct[]; refSlug: string | null; origin?: string }) {
   const [q, setQ] = useState("");
   const [slug, setSlug] = useState(products[0]?.slug ?? "");
   const [format, setFormat] = useState<"story" | "carre">("story");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
-  const norm = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
-  const matches = q.trim().length >= 2 ? products.filter((p) => norm(p.name).includes(norm(q.trim()))).slice(0, 8) : [];
+  const matches = findProducts(products, q, 8);
   const src = slug ? `/api/visuel/${slug}?format=${format}${refSlug ? `&ref=${refSlug}` : ""}` : "";
-  const name = products.find((p) => p.slug === slug)?.name ?? "produit";
+  const product = products.find((p) => p.slug === slug);
+  const name = product?.name ?? "produit";
+  const base = origin || (typeof window !== "undefined" ? window.location.origin : "");
+  const link = slug ? `${base}/produits/${slug}${refSlug ? `?ref=${refSlug}` : ""}` : "";
+  const text = `${name}${product?.price ? ` — ${product.price.toLocaleString("fr-FR")} FCFA` : ""}. Commande ici : ${link}`;
+  const waText = `https://wa.me/?text=${encodeURIComponent(text)}`;
 
+  /** Image + texte dans WhatsApp quand le téléphone le permet ; sinon l'image est téléchargée et WhatsApp s'ouvre avec le texte et le lien. */
   async function share() {
     setMsg(null);
     setBusy(true);
     try {
       const blob = await (await fetch(src)).blob();
       const file = new File([blob], `${slug}.png`, { type: "image/png" });
-      if (navigator.canShare?.({ files: [file] })) await navigator.share({ files: [file], text: name });
-      else setMsg("Partage direct non disponible sur cet appareil : téléchargez l'image puis publiez-la.");
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file], text });
+      } else {
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `${slug}.png`;
+        a.click();
+        window.open(waText, "_blank", "noopener");
+        setMsg("Image téléchargée et WhatsApp ouvert avec le texte et votre lien : joignez l'image à votre message ou à votre statut.");
+      }
     } catch {
       // partage annulé
     } finally {
@@ -280,7 +296,7 @@ export function VisualGenerator({ products, refSlug }: { products: { slug: strin
       <div className="space-y-3">
         <label className="flex items-center gap-2 rounded-lg border border-line px-3 py-2">
           <Search size={15} className="text-navy/50" />
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Chercher un produit" className="min-w-0 flex-1 text-sm outline-none" />
+          <input type="search" aria-label="Chercher un produit" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Nom, code ou parfum (ex. Sauvage)" className="min-w-0 flex-1 text-sm outline-none" />
         </label>
         {matches.length > 0 && (
           <ul className="rounded-lg border border-line">
@@ -294,7 +310,8 @@ export function VisualGenerator({ products, refSlug }: { products: { slug: strin
                   }}
                   className="w-full px-3 py-2 text-left text-sm hover:bg-cream"
                 >
-                  {p.name}
+                  <span className="block">{p.name}</span>
+                  {(p.choganCode || p.inspiredBy) && <span className="block truncate text-xs text-navy/60">{[p.choganCode, inspirationLabel(p)].filter(Boolean).join(" · ")}</span>}
                 </button>
               </li>
             ))}
@@ -312,8 +329,11 @@ export function VisualGenerator({ products, refSlug }: { products: { slug: strin
         </div>
         <div className="flex flex-wrap gap-2">
           <button type="button" onClick={share} disabled={!src || busy} className="inline-flex items-center gap-2 rounded-full bg-[#25D366] px-4 py-2 text-sm font-semibold text-white disabled:opacity-60">
-            {busy ? <Loader2 size={15} className="animate-spin" /> : null} Partager (WhatsApp…)
+            {busy ? <Loader2 size={15} className="animate-spin" /> : null} Partager l&apos;image (WhatsApp…)
           </button>
+          <a href={waText} target="_blank" rel="noopener noreferrer" className="rounded-full border border-[#25D366] px-4 py-2 text-sm font-semibold text-[#128C4B]">
+            Envoyer le lien sur WhatsApp
+          </a>
           <a href={src} download={`${slug}.png`} className="rounded-full border border-line px-4 py-2 text-sm font-semibold text-navy">
             Télécharger l&apos;image
           </a>

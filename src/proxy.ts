@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { INVITE_COOKIE, INVITE_MAX_AGE, inviteCode } from "@/lib/invite-lock";
 
 const REF_COOKIE = "jamaal_ref";
 const REF_MAX_AGE = 60 * 60 * 24 * 30; // 30 jours
@@ -60,6 +61,12 @@ const handler = auth((req) => {
       sameSite: "lax",
       httpOnly: false, // lisible côté client pour préremplir le select
     });
+  }
+
+  // ——— Lien d'invitation d'un revendeur : code de parrainage fixé (cookie httpOnly, imposé à la candidature) ———
+  const invite = pathname === "/devenir-consultant" ? inviteCode(searchParams.get("ref")) : "";
+  if (invite) {
+    response.cookies.set(INVITE_COOKIE, invite, { path: "/", maxAge: INVITE_MAX_AGE, sameSite: "lax", httpOnly: true, secure: req.nextUrl.protocol === "https:" });
   }
 
   // ——— Protection admin (inchangée) ———
