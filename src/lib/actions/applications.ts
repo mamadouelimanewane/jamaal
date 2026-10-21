@@ -154,7 +154,7 @@ function readSignature(v: FormDataEntryValue | null): Uint8Array<ArrayBuffer> | 
 
 const hashToken = (token: string) => createHash("sha256").update(token).digest("hex");
 
-export type ApproveResult = { ok: boolean; error?: string; activationUrl?: string; emailed?: boolean };
+export type ApproveResult = { ok: boolean; error?: string; activationUrl?: string; emailed?: boolean; /** Lien wa.me vers le candidat, message d'acceptation prérempli (avec le lien d'activation). */ whatsappUrl?: string };
 
 /**
  * Accepte une candidature : crée le profil consultant (avec lien personnel /c/slug)
@@ -200,6 +200,14 @@ export async function approveApplication(id: string, opts: { allowIncomplete?: b
       },
     });
     createdId = consultant.id;
+    // La pièce d'identité reçue avec la candidature reste modifiable ensuite depuis la fiche.
+    if (app.idFront || app.idBack) {
+      await tx.consultantPiece.upsert({
+        where: { consultantId: consultant.id },
+        create: { consultantId: consultant.id, front: app.idFront, back: app.idBack, mime: app.idMime },
+        update: {},
+      });
+    }
     if (app.signature) await tx.protocolSignature.update({ where: { id: app.signature.id }, data: { consultantId: consultant.id } });
     const user = reuseUserId
       ? await tx.user.update({ where: { id: reuseUserId }, data: { consultantId: consultant.id } })
@@ -245,7 +253,19 @@ export async function approveApplication(id: string, opts: { allowIncomplete?: b
   // Pas de revalidation de /admin/candidatures ici : elle ferait disparaître la ligne (et le lien
   // d'activation affiché par le composant) avant que l'admin ait pu le copier.
   revalidatePath("/admin/consultants");
-  return { ok: true, activationUrl, emailed };
+  const digits = app.phone.replace(/\D/g, "");
+  const first = app.name.trim().split(/\s+/)[0] || app.name;
+  const message = [
+    `Bonjour ${first}, bonne nouvelle : votre candidature JAMAAL est acceptée ! 🎉`,
+    `Vous rejoignez l'équipe de ${sponsor.name}.`,
+    "",
+    `1️⃣ Activez votre espace et choisissez votre mot de passe (lien valable 7 jours) : ${activationUrl}`,
+    `2️⃣ Votre lien de vente personnel : ${siteUrl}/c/${slug}`,
+    "",
+    "Une question ? Répondez simplement à ce message.",
+  ].join("\n");
+  const whatsappUrl = digits ? `https://wa.me/${digits}?text=${encodeURIComponent(message)}` : undefined;
+  return { ok: true, activationUrl, emailed, whatsappUrl };
 }
 
 export async function rejectApplication(id: string, note?: string): Promise<{ ok: boolean; error?: string }> {

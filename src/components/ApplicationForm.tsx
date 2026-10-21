@@ -6,23 +6,7 @@ import { WHATSAPP_CONTACTS, whatsappLink } from "@/lib/contact";
 import { fillProtocol, ID_TYPES, pieceLabel, type ProtocolDoc } from "@/lib/protocol";
 import { ProtocolText } from "@/components/ProtocolText";
 import { SignaturePad } from "@/components/SignaturePad";
-
-/** Réduit une photo (1600 px au plus, JPEG) pour un envoi rapide, même en 3G. */
-async function compressPhoto(file: File): Promise<Blob> {
-  if (!file.type.startsWith("image/")) return file;
-  try {
-    const bmp = await createImageBitmap(file);
-    const scale = Math.min(1, 1600 / Math.max(bmp.width, bmp.height));
-    const c = document.createElement("canvas");
-    c.width = Math.round(bmp.width * scale);
-    c.height = Math.round(bmp.height * scale);
-    c.getContext("2d")!.drawImage(bmp, 0, 0, c.width, c.height);
-    const blob = await new Promise<Blob | null>((r) => c.toBlob(r, "image/jpeg", 0.82));
-    return blob && blob.size < file.size ? blob : file;
-  } catch {
-    return file;
-  }
-}
+import { compressPhoto } from "@/lib/compress-photo";
 
 const initial: ApplicationState = { ok: false };
 
@@ -36,6 +20,8 @@ export function ApplicationForm({ sponsorCode = "", protocol }: { sponsorCode?: 
   const [f, setF] = useState({ name: "", phone: "", address: "", idType: "CNI", idNumber: "", sponsorCode });
   const [signature, setSignature] = useState<string | null>(null);
   const [localError, setLocalError] = useState<string | null>(null);
+  // Code reçu par lien d'invitation : fixe, le candidat ne peut pas le changer.
+  const locked = sponsorCode !== "";
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => setF((v) => ({ ...v, [k]: e.target.value }));
   const filled = fillProtocol(protocol.text, { nom: f.name, piece: pieceLabel(f.idType, f.idNumber), adresse: f.address, telephone: f.phone, code_parrain: f.sponsorCode.toLowerCase() });
 
@@ -134,8 +120,11 @@ export function ApplicationForm({ sponsorCode = "", protocol }: { sponsorCode?: 
       </div>
       <div className="sm:col-span-2">
         <label htmlFor="sponsorCode" className={label}>Code de parrainage (obligatoire)</label>
-        <input id="sponsorCode" name="sponsorCode" value={f.sponsorCode} onChange={set("sponsorCode")} required minLength={2} maxLength={48} placeholder="ex. aminata" className={input} />
-        <p className="mt-1.5 text-xs text-navy/70">
+        <input id="sponsorCode" name="sponsorCode" value={f.sponsorCode} onChange={set("sponsorCode")} readOnly={locked} aria-readonly={locked} required minLength={2} maxLength={48} placeholder="ex. aminata" className={`${input}${locked ? " cursor-not-allowed bg-cream font-semibold text-navy" : ""}`} />
+        {locked ? (
+          <p className="mt-1.5 text-xs text-navy/70">Ce code est celui de la personne qui vous a invité·e : il est fixe et ne peut pas être modifié.</p>
+        ) : null}
+        <p className={`mt-1.5 text-xs text-navy/70${locked ? " hidden" : ""}`}>
           On ne rejoint JAMAAL que par un membre du réseau : demandez son code (ou utilisez son lien d&apos;invitation). Pas de parrain ?{" "}
           <a href={whatsappLink(WHATSAPP_CONTACTS[0].number, "Bonjour JAMAAL, je souhaite devenir consultant·e mais je n'ai pas de code de parrainage.")} target="_blank" rel="noopener noreferrer" className="font-semibold text-rose-dark underline">Demandez un code à JAMAAL sur WhatsApp</a>.
         </p>

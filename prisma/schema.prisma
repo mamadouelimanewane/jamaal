@@ -449,6 +449,7 @@ model Consultant {
 
   user   User?
   orders Order[]
+  piece  ConsultantPiece?
 
   commissionPayments CommissionPayment[]
   commissionEntries  CommissionEntry[]
@@ -1079,4 +1080,14 @@ model SponsorCode {
   createdAt    DateTime @default(now())
 
   @@index([consultantId])
+}
+
+/// Photos de la pièce d'identité d'un consultant (privées, visibles des seuls admins).
+model ConsultantPiece {
+  consultantId String     @id
+  consultant   Consultant @relation(fields: [consultantId], references: [id], onDelete: Cascade)
+  front        Bytes?
+  back         Bytes?
+  mime         String?
+  updatedAt    DateTime   @default(now()) @updatedAt
 }

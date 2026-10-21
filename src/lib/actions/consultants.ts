@@ -10,6 +10,18 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "./auth-guard";
 import { slugify } from "@/lib/ref";
 import { notifyResellerWelcome } from "@/lib/whatsapp/welcome";
+import { isIdType } from "@/lib/protocol";
+import { logActivity } from "@/lib/activity-log";
+
+const PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
+/** Photo de pièce d'identité facultative : rien si le champ est vide, sinon image de 3 Mo au plus. */
+async function optionalIdPhoto(v: FormDataEntryValue | null, face: string): Promise<{ bytes: Uint8Array<ArrayBuffer>; mime: string } | null> {
+  if (!(v instanceof File) || v.size === 0) return null;
+  if (!PHOTO_TYPES.includes(v.type)) throw new Error(`Photo ${face} : format accepté JPG, PNG ou WebP.`);
+  if (v.size > 3 * 1024 * 1024) throw new Error(`Photo ${face} trop lourde (3 Mo au plus).`);
+  return { bytes: new Uint8Array(await v.arrayBuffer()), mime: v.type };
+}
 
 async function ensureUniqueSlug(base: string, excludeId?: string): Promise<string> {
   let slug = slugify(base);
@@ -74,6 +86,13 @@ async function consultantDataFromForm(formData: FormData, existingId?: string) {
     }
   }
 
+  // Identité (facultative) : adresse et pièce, modifiables à tout moment après l'enregistrement.
+  const address = String(formData.get("address") ?? "").trim() || null;
+  const rawType = String(formData.get("idType") ?? "");
+  const idType = isIdType(rawType) ? rawType : rawType.trim() ? rawType.trim().slice(0, 40) : null;
+  const idNumber = String(formData.get("idNumber") ?? "").trim().toUpperCase().slice(0, 30) || null;
+  if (idNumber && !/^[A-Z0-9 -]{3,30}$/.test(idNumber)) throw new Error("Numéro de pièce invalide (lettres, chiffres, espaces et tirets).");
+
   return {
     name,
     city,
@@ -82,7 +101,20 @@ async function consultantDataFromForm(formData: FormData, existingId?: string) {
     active,
     sponsorId,
     slug,
+    address,
+    idType,
+    idNumber,
   };
+}
+
+/** Enregistre les nouvelles photos de la pièce (seulement celles fournies : l'autre face est conservée). */
+async function saveIdPhotos(id: string, formData: FormData) {
+  const front = await optionalIdPhoto(formData.get("idFront"), "recto");
+  const back = await optionalIdPhoto(formData.get("idBack"), "verso");
+  if (!front && !back) return false;
+  const data = { ...(front ? { front: front.bytes, mime: front.mime } : {}), ...(back ? { back: back.bytes, ...(front ? {} : { mime: back.mime }) } : {}) };
+  await prisma.consultantPiece.upsert({ where: { consultantId: id }, create: { consultantId: id, ...data }, update: data });
+  return true;
 }
 
 async function createConsultantImpl(formData: FormData) {
@@ -95,11 +127,11 @@ async function createConsultantImpl(formData: FormData) {
 }
 
 async function updateConsultantImpl(id: string, formData: FormData) {
-  await requireAdmin("revendeurs");
-  await prisma.consultant.update({
-    where: { id },
-    data: await consultantDataFromForm(formData, id),
-  });
+  const session = await requireAdmin("revendeurs");
+  const data = await consultantDataFromForm(formData, id);
+  const photos = await saveIdPhotos(id, formData);
+  await prisma.consultant.update({ where: { id }, data });
+  await logActivity(session, `Fiche consultant modifiée : ${data.name}${photos ? " (pièce d'identité mise à jour)" : ""}`, "Consultant", id);
   revalidatePath("/admin/consultants");
   revalidatePath("/consultants");
   redirect("/admin/consultants");

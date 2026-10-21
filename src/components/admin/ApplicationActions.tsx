@@ -21,7 +21,12 @@ export function ApplicationActions({ id, status, complete = true }: { id: string
         <p className="font-semibold text-emerald-700">
           Acceptée{result.emailed ? " — e-mail d'activation envoyé" : ""}.
         </p>
-        <p className="mt-1 text-navy/75">Lien d&apos;activation (7 jours) à transmettre sur WhatsApp :</p>
+        {result.whatsappUrl && (
+          <a href={result.whatsappUrl} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center rounded-full bg-[#25D366] px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90">
+            Envoyer l&apos;acceptation par WhatsApp
+          </a>
+        )}
+        <p className="mt-2 text-navy/75">Lien d&apos;activation (7 jours) :</p>
         <input readOnly value={result.activationUrl} onFocus={(e) => e.currentTarget.select()} className="mt-1 w-full rounded-lg border border-line bg-cream px-2 py-1.5" />
         <button
           type="button"

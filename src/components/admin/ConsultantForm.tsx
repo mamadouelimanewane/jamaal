@@ -1,4 +1,6 @@
 import type { Consultant } from "@prisma/client";
+import { ID_TYPES } from "@/lib/protocol";
+import { IdPhotoInput } from "@/components/admin/IdPhotoInput";
 
 const inputClass =
   "mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-navy";
@@ -8,13 +10,16 @@ export function ConsultantForm({
   action,
   consultant,
   sponsorOptions,
+  pieces,
 }: {
   action: (formData: FormData) => void;
   consultant?: Consultant & { slug?: string | null };
   sponsorOptions: { id: string; name: string; city: string; title?: string }[];
+  /** Photos de pièce déjà enregistrées (fiche en modification). */
+  pieces?: { front: boolean; back: boolean };
 }) {
   return (
-    <form action={action} className="mt-6 grid max-w-lg gap-4">
+    <form action={action} className="mt-6 grid max-w-xl gap-4">
       <div>
         <label className={labelClass}>Nom</label>
         <input name="name" required defaultValue={consultant?.name} className={inputClass} />
@@ -61,6 +66,32 @@ export function ConsultantForm({
             ))}
         </select>
       </div>
+      <fieldset className="grid gap-3 rounded-xl border border-line bg-cream/40 p-4">
+        <legend className="px-1 text-sm font-semibold text-navy">Identité</legend>
+        <div>
+          <label className={labelClass}>Adresse</label>
+          <input name="address" maxLength={300} defaultValue={consultant?.address ?? ""} className={inputClass} />
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div>
+            <label className={labelClass}>Type de pièce</label>
+            <select name="idType" defaultValue={consultant?.idType ?? ""} className={inputClass}>
+              <option value="">— Non renseigné —</option>
+              {Object.entries(ID_TYPES).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+              {consultant?.idType && !(consultant.idType in ID_TYPES) && <option value={consultant.idType}>{consultant.idType}</option>}
+            </select>
+          </div>
+          <div>
+            <label className={labelClass}>Numéro de la pièce</label>
+            <input name="idNumber" maxLength={30} defaultValue={consultant?.idNumber ?? ""} className={inputClass} />
+          </div>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <IdPhotoInput name="idFront" label="Photo recto" previewSrc={consultant && pieces?.front ? `/api/admin/consultants/${consultant.id}/piece?face=recto` : undefined} />
+          <IdPhotoInput name="idBack" label="Photo verso" previewSrc={consultant && pieces?.back ? `/api/admin/consultants/${consultant.id}/piece?face=verso` : undefined} />
+        </div>
+        <p className="text-xs text-navy/60">Les photos sont privées : visibles des seuls administrateurs. Modifiable à tout moment.</p>
+      </fieldset>
       <label className="flex items-center gap-2 text-sm text-navy/85">
         <input type="checkbox" name="active" defaultChecked={consultant?.active ?? true} />
         Actif (visible sur le site)
