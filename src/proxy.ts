@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { INVITE_COOKIE, INVITE_MAX_AGE, inviteCode } from "@/lib/invite-lock";
+import { guardRequest, guardResponse } from "@/lib/bot-guard-store";
+import { clientIpFromHeaders } from "@/lib/rate-limit";
 
 const REF_COOKIE = "jamaal_ref";
 const REF_MAX_AGE = 60 * 60 * 24 * 30; // 30 jours
@@ -38,16 +40,28 @@ const ADMIN_ONLY_PREFIXES = [
   "/admin/offres",
   "/admin/defis",
   "/admin/avis",
+  "/admin/protection",
 ];
 
 /**
  * Proxy Next.js 16 :
+ * 0. Robot anti-aspiration : refuse les aspirateurs et freine les copies massives du site
  * 1. Pose le cookie jamaal_ref si ?ref=slug est présent
  * 2. Protège les routes /admin (logique existante)
  */
-const handler = auth((req) => {
+const handler = auth(async (req) => {
   const { pathname, searchParams } = req.nextUrl;
+
+  // ——— Robot anti-aspiration (src/lib/bot-guard.ts) ———
+  // Les membres connectés (équipe, revendeurs, livreurs) ne sont jamais freinés.
+  if (!req.auth) {
+    const verdict = await guardRequest({ method: req.method, pathname, headers: req.headers, ip: clientIpFromHeaders(req.headers) });
+    if (verdict.action !== "allow") return guardResponse(verdict);
+  }
+
   const response = NextResponse.next();
+  // Signale aux robots d'IA que le contenu ne doit pas servir à l'entraînement ni être recopié.
+  if (!pathname.startsWith("/api/")) response.headers.set("X-Robots-Tag", pathname.startsWith("/admin") ? "noindex, nofollow, noai, noimageai" : "noai, noimageai");
 
   // ——— Attribution consultant via ?ref= ———
   // Le lien personnel /c/<slug> pose aussi le cookie ici : une page serveur n'a pas le droit

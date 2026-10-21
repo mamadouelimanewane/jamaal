@@ -89,6 +89,11 @@ export function Footer({ categories }: { categories: Category[] }) {
           </div>
         </div>
       </div>
+      {/* Lien piège du robot anti-aspiration : invisible, ignoré des lecteurs d'écran et interdit dans robots.txt.
+          Seul un aspirateur le suit, et il est alors bloqué (src/lib/bot-guard.ts). */}
+      <a href="/catalogue-integral" rel="nofollow" tabIndex={-1} aria-hidden="true" style={{ position: "absolute", left: "-9999px", width: 1, height: 1, overflow: "hidden" }}>
+        Catalogue intégral
+      </a>
     </footer>
   );
 }

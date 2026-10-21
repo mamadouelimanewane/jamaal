@@ -116,6 +116,30 @@ model RateLimitBucket {
   @@index([resetAt])
 }
 
+/// Robot anti-aspiration : visiteur bloqué (clé = adresse IP + empreinte du navigateur).
+model BotBan {
+  key       String   @id
+  ip        String
+  userAgent String?
+  reason    String
+  path      String?
+  hits      Int      @default(1)
+  until     DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@index([until])
+}
+
+/// Requêtes refusées par jour (AAAA-MM-JJ) et par motif.
+model BotBlockStat {
+  day    String
+  reason String
+  count  Int    @default(0)
+
+  @@id([day, reason])
+}
+
 model PasswordResetToken {
   id        String   @id @default(cuid())
   tokenHash String   @unique

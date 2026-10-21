@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { stopViewAsReseller } from "@/lib/actions/view-as";
 import { redirect } from "next/navigation";
 import { Calculator,
+  ShieldCheck,
   LayoutDashboard,
   Package,
   Tags,
@@ -219,6 +220,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
               {canSee("/admin/modele-economique") && <SidebarNavLink href="/admin/modele-economique" label="Modèle économique" icon={<Calculator size={16} />} />}
               {canSee("/admin/reglages") && <SidebarNavLink href="/admin/reglages" label="Réglages & Fidélité" icon={<Settings size={16} />} />}
               {canSee("/admin/historique") && <SidebarNavLink href="/admin/historique" label="Journal des actions" icon={<ClipboardList size={16} />} />}
+              {canSee("/admin/protection") && <SidebarNavLink href="/admin/protection" label="Protection anti-aspiration" icon={<ShieldCheck size={16} />} />}
             </div>
           </div>
         )}
