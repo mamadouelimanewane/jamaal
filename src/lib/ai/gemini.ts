@@ -43,6 +43,8 @@ export interface GeminiRequest {
    * « minimal » pour une tâche simple (extraction de mots-clés), « low » pour l'assistant.
    */
   thinking?: "minimal" | "low";
+  /** Requête avec image : Gemini d'abord (les fournisseurs comme DeepSeek ne lisent pas les images). */
+  vision?: boolean;
 }
 
 /** Budget de réflexion équivalent pour les modèles 2.x, qui ne connaissent pas thinkingLevel. */
@@ -179,7 +181,8 @@ export async function generateContent(req: GeminiRequest, fetchImpl: typeof fetc
   // 1. Fournisseur compatible OpenAI (s'il est configuré), puis Gemini en secours.
   const oa = openAiConfig();
   const oaId = oa ? `oa:${oa.model}` : "";
-  if (oa && (cooldownUntil.get(oaId) ?? 0) <= Date.now()) {
+  const skipOa = req.vision && Boolean(process.env.GOOGLE_AI_API_KEY);
+  if (oa && !skipOa && (cooldownUntil.get(oaId) ?? 0) <= Date.now()) {
     const hasGemini = Boolean(process.env.GOOGLE_AI_API_KEY);
     try {
       const out = await callOpenAi(oa, req, AbortSignal.timeout(hasGemini ? Math.max(6_000, Math.round(total0 * 0.6)) : total0), fetchImpl);
@@ -279,4 +282,44 @@ export async function readMedia(media: { data: Uint8Array; mimeType: string }, k
     timeoutMs: 20_000,
   });
   return textOf(reply).slice(0, 1200);
+}
+
+/** Analyse d'image possible : clé Gemini, ou fournisseur compatible OpenAI qui lit les images. */
+export function visionConfigured(env: Record<string, string | undefined> = process.env): boolean {
+  if (env.GOOGLE_AI_API_KEY) return true;
+  const provider = (env.AI_PROVIDER ?? "").trim().toLowerCase();
+  return Boolean(env.AI_API_KEY) && (provider === "openai" || provider === "openrouter" || Boolean(env.AI_VISION));
+}
+
+/** Modèles de génération d'images Gemini, essayés dans l'ordre (GEMINI_IMAGE_MODEL d'abord). */
+export function imageModels(env: Record<string, string | undefined> = process.env): string[] {
+  return [...new Set([env.GEMINI_IMAGE_MODEL?.trim(), "gemini-2.5-flash-image", "gemini-3-pro-image-preview", "gemini-2.0-flash-preview-image-generation"].filter((m): m is string => !!m))];
+}
+
+/** Génère une image (Gemini). Renvoie le fichier, ou lève une erreur lisible. */
+export async function generateImage(prompt: string, fetchImpl: typeof fetch = fetch): Promise<{ data: Uint8Array; mimeType: string; model: string }> {
+  const key = process.env.GOOGLE_AI_API_KEY;
+  if (!key) throw new GeminiError("Génération d'images indisponible : ajoutez GOOGLE_AI_API_KEY dans Vercel.");
+  let last = "aucun modèle n'a répondu";
+  for (const model of imageModels()) {
+    try {
+      const res = await fetchImpl(`${GEMINI_BASE_URL}/${encodeURIComponent(model)}:generateContent`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-goog-api-key": key },
+        body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { responseModalities: ["TEXT", "IMAGE"] } }),
+        signal: AbortSignal.timeout(55_000),
+      });
+      if (!res.ok) {
+        last = `${model} : ${res.status} ${(await res.text().catch(() => "")).slice(0, 160)}`;
+        continue;
+      }
+      const data = (await res.json()) as { candidates?: { content?: { parts?: { inlineData?: { mimeType?: string; data?: string } }[] } }[] };
+      const img = data.candidates?.[0]?.content?.parts?.find((p) => p.inlineData?.data)?.inlineData;
+      if (img?.data) return { data: new Uint8Array(Buffer.from(img.data, "base64")), mimeType: img.mimeType || "image/png", model };
+      last = `${model} : aucune image dans la réponse (sujet refusé ?)`;
+    } catch (e) {
+      last = `${model} : ${e instanceof Error ? e.message : "erreur"}`;
+    }
+  }
+  throw new GeminiError(`Image non générée (${last}).`);
 }

@@ -20,6 +20,7 @@ export default async function ChoganImportPage() {
         <div>
           <h1 className="font-serif-display text-2xl font-semibold text-navy">Importer depuis Chogan</h1>
           <p className="text-sm text-navy/70">Codes, n° de fiche, liens ou noms de produit : la fiche, les prix et les photos sont repris du site Chogan.</p>
+          <p className="mt-1 text-sm text-navy/70"><strong>Nouveautés :</strong> tapez le nom d&apos;une gamme (ex. <em>Aurodhea</em>, <em>soin visage</em>) puis « Préparer ces fiches » pour ajouter d&apos;un coup tous les produits absents du catalogue.</p>
         </div>
       </div>
       <ChoganImporter categories={categories.map((c) => ({ slug: c.slug, label: c.label }))} />

@@ -8,8 +8,14 @@ export const productLink = (origin: string, slug: string, refSlug: string | null
 
 const fcfa = (n: number) => `${n.toLocaleString("fr-FR")} FCFA`;
 
-export function shareMessage(items: ShareItem[], origin: string, refSlug: string | null, channel: "whatsapp" | "tiktok" = "whatsapp"): string {
+export function shareMessage(items: ShareItem[], origin: string, refSlug: string | null, channel: "whatsapp" | "tiktok" | "instagram" = "whatsapp"): string {
   if (!items.length) return "";
+  if (channel === "instagram") {
+    // Instagram : liens non cliquables dans la légende → on renvoie au lien de la bio, avec la boutique en clair.
+    const names = items.map((p) => `${p.name}${p.price ? ` — ${fcfa(p.price)}` : ""}`).join("\n");
+    const shop = refSlug ? `${origin}/c/${refSlug}` : origin;
+    return `${names}\n✨ Parfums et soins Chogan au Sénégal.\n📩 Commande en message privé ou via le lien dans ma bio : ${shop.replace(/^https?:\/\//, "")}\n#JAMAAL #Chogan #parfum #skincare #Dakar #Senegal`;
+  }
   if (channel === "tiktok") {
     const names = items.map((p) => p.name).join(" · ");
     const shop = refSlug ? `${origin}/c/${refSlug}` : productLink(origin, items[0].slug, refSlug);

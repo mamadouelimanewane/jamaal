@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Copy, Download, ImageDown, Link2, Loader2, MessageCircle, Music2 } from "lucide-react";
+import { Camera, Copy, Download, ImageDown, Link2, Loader2, MessageCircle, Music2 } from "lucide-react";
 import { shareMessage, productLink, type ShareItem } from "@/lib/share-text";
 
 type Format = "story" | "carre" | "photo";
@@ -49,6 +49,7 @@ export function ShareStudio({ items, origin, refSlug, defaultFormat = "story" }:
   const target = digits.length === 9 ? `221${digits}` : digits.length >= 11 ? digits : "";
   const waUrl = `https://wa.me/${target}?text=${encodeURIComponent(text)}`;
   const tiktokText = useMemo(() => shareMessage(items, origin, refSlug, "tiktok"), [items, origin, refSlug]);
+  const instaText = useMemo(() => shareMessage(items, origin, refSlug, "instagram"), [items, origin, refSlug]);
 
   useEffect(() => {
     // Dépend seulement de la clé (format + produits) : retaper dans la recherche ne relance pas la préparation.
@@ -105,6 +106,22 @@ export function ShareStudio({ items, origin, refSlug, defaultFormat = "story" }:
     files.forEach(download);
     window.open(waUrl, "_blank", "noopener");
     setMsg(files.length ? `${files.length > 1 ? "Images enregistrées" : "Image enregistrée"} et WhatsApp ouvert avec le texte et vos liens : joignez ${files.length > 1 ? "les images" : "l'image"} (trombone 📎) ou publiez-${files.length > 1 ? "les" : "la"} en statut.` : "WhatsApp ouvert avec le texte et vos liens.");
+  }
+
+  async function onInstagram() {
+    setMsg(null);
+    const files = ready?.files ?? [];
+    copy(instaText);
+    if (canShareFiles(files)) {
+      setBusy(true);
+      const r = await shareFiles(files, undefined);
+      setBusy(false);
+      if (r === "ok") setMsg("Choisissez Instagram (publication, story ou reel). La légende est copiée : collez-la. Instagram ne rend pas les liens cliquables : mettez votre lien boutique dans votre bio.");
+      if (r !== "fail") return;
+    }
+    files.forEach(download);
+    window.open("https://www.instagram.com/", "_blank", "noopener");
+    setMsg("Images enregistrées et Instagram ouvert : touchez « + » (Créer) et ajoutez-les. La légende est copiée : collez-la. Pensez à mettre votre lien boutique dans votre bio.");
   }
 
   async function onTikTok() {
@@ -168,9 +185,12 @@ export function ShareStudio({ items, origin, refSlug, defaultFormat = "story" }:
         <span className="mt-1 block text-xs font-normal text-navy/60">Vide : vous choisissez la discussion ou votre statut dans WhatsApp.</span>
       </label>
 
-      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
         <button type="button" onClick={onWhatsApp} disabled={busy || loading} className={`${btn} bg-[#25D366] text-white hover:bg-[#1ebe5b]`}>
           {loading ? <Loader2 size={16} className="animate-spin" /> : <MessageCircle size={16} />} WhatsApp / statut
+        </button>
+        <button type="button" onClick={onInstagram} disabled={busy || loading} className={`${btn} bg-gradient-to-r from-[#f58529] via-[#dd2a7b] to-[#8134af] text-white hover:opacity-90`}>
+          {loading ? <Loader2 size={16} className="animate-spin" /> : <Camera size={16} />} Instagram
         </button>
         <button type="button" onClick={onTikTok} disabled={busy || loading} className={`${btn} bg-black text-white hover:bg-neutral-800`}>
           {loading ? <Loader2 size={16} className="animate-spin" /> : <Music2 size={16} />} TikTok

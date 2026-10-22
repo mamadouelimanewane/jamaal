@@ -90,6 +90,26 @@ export function ChoganImporter({ categories }: { categories: Category[] }) {
     setPhase("idle");
   }
 
+  /** Recherche large : ajoute au lot toutes les fiches Chogan absentes du catalogue, puis les prépare. */
+  async function addMissing(fromKey: string, missing: { number: number; name: string }[]) {
+    const known = new Set(rows.map((r) => (r.result?.status === "found" ? r.result.preview.number : null)).filter(Boolean));
+    const fresh: Row[] = missing
+      .filter((m) => !known.has(m.number))
+      .slice(0, MAX)
+      .map((m, i) => ({ key: `${Date.now()}-m${i}`, query: String(m.number), result: null, loading: false, selected: false, edit: null, importState: { kind: "idle" } }));
+    if (!fresh.length) return;
+    setRows((rs) => [...rs.filter((r) => r.key !== fromKey), ...fresh]);
+    stopRef.current = false;
+    setPhase("searching");
+    setProgress({ done: 0, total: fresh.length });
+    for (const [i, row] of fresh.entries()) {
+      if (stopRef.current) break;
+      await resolveRow(row.key, row.query);
+      setProgress({ done: i + 1, total: fresh.length });
+    }
+    setPhase("idle");
+  }
+
   async function importSelected() {
     const targets = rows.filter((r) => r.selected && r.result?.status === "found" && r.edit && r.importState.kind !== "done");
     if (!targets.length) return;
@@ -294,6 +314,14 @@ export function ChoganImporter({ categories }: { categories: Category[] }) {
               {res?.status === "choose" && (
                 <div className="mt-3">
                   <p className="text-sm text-navy/80">{res.message ?? "Plusieurs produits correspondent : choisissez le bon."}</p>
+                  {!!res.missing?.length && (
+                    <div className="mt-2 flex flex-wrap items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900">
+                      <span><strong>{res.missing.length}</strong> produit{res.missing.length > 1 ? "s" : ""} sur {res.total} {res.missing.length > 1 ? "ne sont" : "n'est"} pas encore au catalogue JAMAAL (nouveautés).</span>
+                      <button type="button" disabled={busy || r.loading} onClick={() => addMissing(r.key, res.missing!)} className="rounded-full bg-emerald-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-800 disabled:opacity-50">
+                        Préparer ces {res.missing.length} fiches
+                      </button>
+                    </div>
+                  )}
                   <ul className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                     {res.candidates.map((c) => (
                       <li key={c.number} className="flex items-center gap-3 rounded-xl border border-line p-2">

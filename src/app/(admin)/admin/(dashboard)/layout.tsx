@@ -115,7 +115,10 @@ const adminGroups = [
   },
   {
     title: "Contenu",
-    links: [{ href: "/admin/blog", label: "Blog", icon: Newspaper }],
+    links: [
+      { href: "/admin/blog", label: "Blog", icon: Newspaper },
+      { href: "/admin/skin-advisor", label: "Skin Advisor", icon: Sparkles },
+    ],
   },
 ];
 

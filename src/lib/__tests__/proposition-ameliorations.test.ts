@@ -131,3 +131,10 @@ test("mot de passe oublié sur WhatsApp : demandes reconnues, le reste non", () 
   for (const t of ["MOT DE PASSE", "mot de passe oublié", "Mdp", "J'ai oublié mon mot de passe", "réinitialiser mot de passe"]) assert.equal(isPasswordRequest(t), true, t);
   for (const t of ["Je veux commander un parfum", "le mot de passe du wifi ?", "bonjour"]) assert.equal(isPasswordRequest(t), false, t);
 });
+
+test("partage Instagram : liste des produits, renvoi au lien de la bio, hashtags", () => {
+  const t = shareMessage([{ slug: "a", name: "Aqua", price: 1000 }, { slug: "b", name: "Rose" }], "https://j.sn", "awa", "instagram");
+  assert.match(t, /^Aqua — 1\s000 FCFA\nRose\n/);
+  assert.match(t, /lien dans ma bio : j\.sn\/c\/awa/);
+  assert.match(t, /#skincare/);
+});

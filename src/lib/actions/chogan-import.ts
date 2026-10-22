@@ -17,7 +17,7 @@ export type ExistingProduct = { id: string; slug: string; name: string; photo: s
 export type ResolveResult =
   | { status: "found"; preview: ChoganPreview }
   | { status: "exists"; preview: ChoganPreview | null; existing: ExistingProduct }
-  | { status: "choose"; candidates: (ChoganCard & { existingId: string | null })[]; message?: string }
+  | { status: "choose"; candidates: (ChoganCard & { existingId: string | null })[]; message?: string; missing?: { number: number; name: string }[]; total?: number }
   | { status: "notfound"; message: string }
   | { status: "error"; message: string };
 
@@ -113,7 +113,11 @@ export async function resolveChoganQuery(raw: string): Promise<ResolveResult> {
     const exactCode = cards.filter((c) => c.code.toUpperCase() === q.text.replace(/\s+/g, "").toUpperCase());
     if (exactCode.length === 1) return resultFor(exactCode[0].number);
     if (cards.length === 1) return resultFor(cards[0].number);
-    return { status: "choose", candidates: await candidatesOf(cards) };
+    // Recherche large (« Aurodhea », « soin visage »…) : toutes les fiches absentes du catalogue, pour les ajouter d'un coup.
+    const all = cards.slice(0, 40);
+    const missing: { number: number; name: string }[] = [];
+    for (const c of all) if (!(await findExisting(c.number, [c.code]))) missing.push({ number: c.number, name: c.name });
+    return { status: "choose", candidates: await candidatesOf(cards), missing, total: cards.length };
   } catch (e) {
     return { status: "error", message: errorMessage(e) };
   }

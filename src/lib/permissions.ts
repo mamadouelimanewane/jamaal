@@ -41,7 +41,7 @@ export const MODULES: ModuleDef[] = [
   { id: "stocks", label: "Stocks", description: "Stocks par format, mouvements, réception, commande Chogan.", paths: ["/admin/stocks"] },
   { id: "comptabilite", label: "Comptabilité et finances", description: "Comptabilité, wallets, versements, dépenses.", paths: ["/admin/comptabilite", "/admin/wallets", "/admin/versements"] },
   { id: "statistiques", label: "Statistiques", description: "Tableaux de bord et statistiques de ventes.", paths: ["/admin/statistiques"] },
-  { id: "marketing", label: "Marketing et contenu", description: "Page d'accueil, blog, annonces, offres, codes promo.", paths: ["/admin/accueil", "/admin/blog", "/admin/annonces", "/admin/offres", "/admin/coupons"] },
+  { id: "marketing", label: "Marketing et contenu", description: "Page d'accueil, blog, annonces, offres, codes promo.", paths: ["/admin/accueil", "/admin/blog", "/admin/annonces", "/admin/offres", "/admin/coupons", "/admin/skin-advisor"] },
   { id: "whatsapp", label: "WhatsApp et automatisations", description: "Conversations, campagnes, journal, automatisations.", paths: ["/admin/whatsapp", "/admin/journal-whatsapp", "/admin/automatisations"] },
   { id: "reglages", label: "Réglages et modèle économique", description: "Réglages généraux, commissions, paiements, livraison.", paths: ["/admin/reglages", "/admin/modele-economique"] },
   { id: "utilisateurs", label: "Utilisateurs et journal", description: "Comptes, rôles, privilèges, journal d'activité.", paths: ["/admin/utilisateurs", "/admin/historique"] },

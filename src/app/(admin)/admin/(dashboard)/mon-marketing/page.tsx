@@ -43,6 +43,7 @@ export default async function MonMarketingPage({ searchParams }: { searchParams:
               <div className="mt-3 flex flex-wrap gap-2">
                 <CopyButton text={links.shop} label="Copier mon lien" />
                 <CopyButton text={shareMsg} label="Copier un message prêt à envoyer" />
+                <CopyButton text={links.shop} label="Lien pour ma bio Instagram / TikTok" />
                 <a href={`https://wa.me/?text=${encodeURIComponent(shareMsg)}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center rounded-full bg-[#25D366] px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90">
                   Partager sur WhatsApp
                 </a>
@@ -57,6 +58,19 @@ export default async function MonMarketingPage({ searchParams }: { searchParams:
         </div>
         {links.shop && <QrCard url={links.shop} name={me.slug ?? me.name} />}
       </div>
+
+      {links.shop && (
+        <div className="mt-6 overflow-hidden rounded-2xl bg-gradient-to-br from-[#3a2418] via-[#5a3524] to-[#8d5a3e] p-5 text-white">
+          <p className="text-xs font-semibold uppercase tracking-wider text-white/80">Nouveau</p>
+          <h2 className="mt-1 font-serif-display text-xl font-semibold">Mon Skin Advisor</h2>
+          <p className="mt-1 text-sm text-white/85">Vos clientes prennent un selfie et reçoivent leur routine de soins Chogan, pensée pour les peaux noires. Elles vous l&apos;envoient ensuite sur WhatsApp : la vente vous revient.</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <CopyButton text={`${links.origin}/skin-advisor?ref=${me.slug}`} label="Copier mon lien Skin Advisor" />
+            <a href={`https://wa.me/?text=${encodeURIComponent(`✨ Découvre ta routine de soins en un selfie, gratuite et pensée pour nos peaux : ${links.origin}/skin-advisor?ref=${me.slug}`)}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center rounded-full bg-[#25D366] px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90">Partager sur WhatsApp</a>
+            <a href={`/skin-advisor?ref=${me.slug}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center rounded-full border border-white/50 px-3 py-1.5 text-xs font-semibold text-white hover:bg-white/10">Essayer ↗</a>
+          </div>
+        </div>
+      )}
 
       <div id="partager" className="mt-6 scroll-mt-24 rounded-2xl border border-line bg-white p-5">
         <h2 className="font-serif-display text-lg font-semibold text-navy">Partager des produits</h2>

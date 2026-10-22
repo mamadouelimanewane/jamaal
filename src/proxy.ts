@@ -41,6 +41,7 @@ const ADMIN_ONLY_PREFIXES = [
   "/admin/defis",
   "/admin/avis",
   "/admin/protection",
+  "/admin/skin-advisor",
 ];
 
 /**
