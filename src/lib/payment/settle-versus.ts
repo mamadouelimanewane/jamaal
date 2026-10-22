@@ -7,12 +7,13 @@
 import { prisma } from "@/lib/prisma";
 import { DEPOSIT_PREFIX } from "@/lib/wallet";
 import { markOrderPaid } from "./mark-paid";
-import { getVersusPayment, orderIdFromReference, rawVersusRef, versusConfigured } from "./versus";
+import { getVersusPayment, isVersusRef, orderIdFromReference, rawVersusRef, versusCredentials } from "./versus";
 
 export type SettleResult = "paid" | "failed" | "pending" | "unknown";
 
 export async function settleVersusPayment(id: string): Promise<SettleResult> {
-  if (!versusConfigured()) return "unknown";
+  // Même passerelle en pause, un paiement lancé chez Versus avant la bascule est encore réglé.
+  if (!versusCredentials()) return "unknown";
   const isDeposit = id.startsWith(DEPOSIT_PREFIX);
 
   // Référence de paiement enregistrée à la création (jamais celle d'un message reçu).
@@ -20,6 +21,8 @@ export async function settleVersusPayment(id: string): Promise<SettleResult> {
     ? (await prisma.walletTransaction.findUnique({ where: { id: id.slice(DEPOSIT_PREFIX.length) }, select: { providerRef: true } }))?.providerRef
     : (await prisma.order.findUnique({ where: { id }, select: { paymentRef: true } }))?.paymentRef;
   if (!stored) return "unknown";
+  // Paiement Wave en direct (référence sans préfixe « versus: ») : ce n'est pas un paiement Versus.
+  if (!isVersusRef(stored) && /^cos-/i.test(stored)) return "unknown";
 
   const payment = await getVersusPayment(rawVersusRef(stored));
   if (!payment || orderIdFromReference(payment.externalReference) !== id) return "unknown";

@@ -7,8 +7,10 @@ import { payViaVersus, versusConfigured } from "../versus";
  * POST https://api.wave.com/v1/checkout/sessions
  *
  * Env:
- *   WAVE_API_KEY=secret_xxx
- *   WAVE_API_BASE=https://api.wave.com/v1  (prod)
+ *   WAVE_API_KEY=wave_sn_prod_xxx   (Wave Business > Développeurs > Clés API, accès « Checkout »)
+ *   WAVE_WEBHOOK_SECRET=wave_sn_WHS_xxx (secret du webhook /api/payment/wave/webhook)
+ *   WAVE_API_BASE=https://api.wave.com/v1  (facultatif)
+ *   PAYMENT_GATEWAY=direct  (met Versus en pause : Wave passe par cette intégration directe)
  */
 export const waveProvider: PaymentProvider = {
   id: "wave",
@@ -38,9 +40,8 @@ export const waveProvider: PaymentProvider = {
         success_url: input.successUrl,
         error_url: input.cancelUrl,
         client_reference: input.orderId,
-        ...(input.customerPhone
-          ? { restrict_payer_mobile: normalizeSnPhone(input.customerPhone) }
-          : {}),
+        // Pas de restrict_payer_mobile : le client peut payer depuis n'importe quel compte Wave
+        // (souvent le téléphone d'un proche) ; la commande est identifiée par client_reference.
       }),
     });
 
@@ -63,10 +64,3 @@ export const waveProvider: PaymentProvider = {
   },
 };
 
-function normalizeSnPhone(phone: string): string {
-  const digits = phone.replace(/\D/g, "");
-  if (digits.startsWith("221") && digits.length >= 12) return `+${digits}`;
-  if (digits.length === 9) return `+221${digits}`;
-  if (digits.length === 10 && digits.startsWith("0")) return `+221${digits.slice(1)}`;
-  return phone.startsWith("+") ? phone : `+${digits}`;
-}

@@ -15,7 +15,17 @@
  *   VERSUS_MERCHANT_NAME   (facultatif) nom affiché au client, « JAMAAL » par défaut
  */
 
-export const versusConfigured = () => !!(process.env.VERSUS_BASE_URL && process.env.VERSUS_LOGIN && process.env.VERSUS_PASSWORD);
+/** Identifiants Versus présents (pour relire et régler les paiements déjà lancés chez Versus). */
+export const versusCredentials = () => !!(process.env.VERSUS_BASE_URL && process.env.VERSUS_LOGIN && process.env.VERSUS_PASSWORD);
+
+/**
+ * Passerelle des nouveaux paiements. PAYMENT_GATEWAY=direct met Versus en pause sans effacer ses clés :
+ * Wave (WAVE_API_KEY), Orange Money et la carte passent alors par leurs propres intégrations directes.
+ */
+export const paymentGateway = (): "versus" | "direct" => (/^(direct|wave)$/i.test(process.env.PAYMENT_GATEWAY ?? "") ? "direct" : "versus");
+
+/** Versus utilisé pour les NOUVEAUX paiements. */
+export const versusConfigured = () => paymentGateway() === "versus" && versusCredentials();
 
 const base = () => (process.env.VERSUS_BASE_URL ?? "").replace(/\/$/, "");
 

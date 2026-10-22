@@ -1,3 +1,4 @@
+import { paymentGateway, versusConfigured, versusCredentials } from "@/lib/payment/versus";
 import { requireAdminForApi } from "@/lib/api-guard";
 import { GEMINI_BASE_URL, geminiFallbackModel, geminiModel } from "@/lib/ai/gemini";
 import { openAiConfig, toOpenAiBody, fromOpenAiResponse } from "@/lib/ai/openai-compat";
@@ -84,7 +85,28 @@ export async function GET(req: Request) {
       meta = { ok: false, message: e instanceof Error ? e.message : String(e) };
     }
   }
+  // Paiements : passerelle choisie et test (lecture seule) de la clé Wave : une session inconnue doit répondre
+  // 404 si la clé est valide, 401/403 si elle est refusée.
+  let waveCle: Record<string, unknown> | null = null;
+  if (process.env.WAVE_API_KEY) {
+    try {
+      const base = (process.env.WAVE_API_BASE || "https://api.wave.com/v1").replace(/\/$/, "");
+      const r = await fetch(`${base}/checkout/sessions/cos-verification-jamaal`, { headers: { Authorization: `Bearer ${process.env.WAVE_API_KEY}` }, signal: AbortSignal.timeout(8000) });
+      waveCle = r.status === 404 ? { ok: true, message: "clé acceptée par Wave" } : { ok: false, code: r.status, message: (await r.text()).slice(0, 200) };
+    } catch (e) {
+      waveCle = { ok: false, message: e instanceof Error ? e.message : String(e) };
+    }
+  }
+  const paiements = {
+    passerelle: paymentGateway() === "direct" ? "directe (Versus en pause)" : versusCredentials() ? "Versus" : "directe",
+    versusUtilise: versusConfigured(),
+    variables: Object.fromEntries(["PAYMENT_GATEWAY", "WAVE_API_KEY", "WAVE_WEBHOOK_SECRET", "VERSUS_BASE_URL", "VERSUS_LOGIN", "VERSUS_PASSWORD", "ORANGE_MONEY_CLIENT_ID", "STRIPE_SECRET_KEY"].map((k) => [k, present(k) ? "présente" : "ABSENTE"])),
+    cleWave: waveCle,
+    webhookWave: "/api/payment/wave/webhook",
+  };
+
   return Response.json({
+    paiements,
     ia: { cle: key ? `présente (${key.length} caractères)` : "absente", modeles: ai, fournisseur },
     whatsapp: {
       fournisseur: wa.provider,

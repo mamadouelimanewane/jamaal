@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { timingSafeEqual } from "crypto";
-import { orderIdFromReference, versusConfigured } from "@/lib/payment/versus";
+import { orderIdFromReference, versusCredentials } from "@/lib/payment/versus";
 import { settleVersusPayment } from "@/lib/payment/settle-versus";
 import { DEPOSIT_PREFIX } from "@/lib/wallet";
 import { alertPaymentFailed } from "@/lib/whatsapp/alerts";
@@ -15,7 +15,7 @@ import { alertPaymentFailed } from "@/lib/whatsapp/alerts";
  * aussi appelé par la page de commande : même sans webhook, un paiement n'est jamais oublié).
  */
 export async function POST(req: NextRequest) {
-  if (!versusConfigured()) return NextResponse.json({ error: "webhook non configuré" }, { status: 503 });
+  if (!versusCredentials()) return NextResponse.json({ error: "webhook non configuré" }, { status: 503 });
 
   const expected = process.env.VERSUS_WEBHOOK_TOKEN;
   if (expected) {

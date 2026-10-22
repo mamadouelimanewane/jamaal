@@ -1,3 +1,4 @@
+import { settleRecentDeposits } from "@/lib/payment/settle";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { viewerWallet } from "@/lib/wallet-owner";
@@ -18,6 +19,8 @@ export default async function MyWalletPage({ searchParams }: { searchParams: Pro
   const w = await viewerWallet();
   if (!w) redirect("/admin");
   const { depot } = await searchParams;
+  // Retour d'un dépôt en ligne : on vérifie tout de suite auprès du prestataire (sans attendre le webhook).
+  if (depot === "ok") await settleRecentDeposits(w.owner);
   const [bal, history, min, numbers, model] = await Promise.all([walletBalance(w.owner), walletHistory(w.owner, 100), minWithdrawal(), getDepositNumbers(), getBusinessModel()]);
   const acct =
     w.owner.type === "CONSULTANT"

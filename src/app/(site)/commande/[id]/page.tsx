@@ -5,7 +5,7 @@ import { formatPrice } from "@/lib/currency";
 import { ReorderButton } from "@/components/ReorderButton";
 import { PayOrderButton } from "@/components/PayOrderButton";
 import { PaymentWatcher } from "@/components/PaymentWatcher";
-import { settleVersusPayment } from "@/lib/payment/settle-versus";
+import { settlePendingPayment } from "@/lib/payment/settle";
 import { amountDue, RESERVATION_LABELS, type ReservationStatus } from "@/lib/reservation";
 
 type Props = {
@@ -32,16 +32,16 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
   const sp = await searchParams;
   let order = await getOrderConfirmation(id);
   if (!order) notFound();
-  // Paiement Versus en attente : on le vérifie auprès de Versus (même si le webhook n'est pas arrivé),
+  // Paiement en attente : on le vérifie auprès du prestataire (Versus ou Wave), même si le webhook n'est pas arrivé,
   // puis on relit la commande. Un paiement ou un acompte payé n'est ainsi jamais oublié.
   if (order.paymentStatus === "EN_ATTENTE" && amountDue(order)) {
-    const result = await settleVersusPayment(id).catch(() => "unknown");
+    const result = await settlePendingPayment(id);
     if (result === "paid") order = (await getOrderConfirmation(id)) ?? order;
   }
 
   const paymentStatus = (order as { paymentStatus?: string }).paymentStatus ?? "NONE";
   const paymentMethod = (order as { paymentMethod?: string }).paymentMethod ?? "COD";
-  // Le statut vient de la base (vérifié auprès de Versus) : l'adresse « ?paid=1 » seule ne prouve rien.
+  // Le statut vient de la base (vérifié auprès du prestataire) : l'adresse « ?paid=1 » seule ne prouve rien.
   const isPaid = paymentStatus === "PAYE";
   const isCanceled = sp.canceled === "1" && !isPaid;
   const isPending = paymentStatus === "EN_ATTENTE" && !isPaid;
