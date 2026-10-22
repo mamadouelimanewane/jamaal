@@ -27,6 +27,10 @@ export default async function VersementsPage() {
     prisma.payout.aggregate({ where: { status: "VERSE", createdAt: { gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1) } }, _sum: { amount: true } }),
   ]);
   const config = payoutProvidersConfig();
+  const waveError = await prisma.setting
+    .findUnique({ where: { key: "wave_last_error" } })
+    .then((r) => (r ? (JSON.parse(r.value) as { code: string; cause: string; fix: string; at: string }) : null))
+    .catch(() => null);
   const members = pendingByMember.length
     ? await prisma.consultant.findMany({ where: { id: { in: pendingByMember.map((p) => p.consultantId) } }, select: { id: true, name: true, walletProvider: true, walletNumber: true, walletHolderName: true } })
     : [];
@@ -68,6 +72,14 @@ export default async function VersementsPage() {
           <p className="mt-1 text-2xl font-semibold text-ink">{formatPrice(monthPaid._sum.amount ?? 0)}</p>
         </div>
       </div>
+
+      {waveError && (
+        <div className="mt-6 rounded-2xl border border-rose/40 bg-rose/5 p-4 text-sm text-navy">
+          <p className="font-semibold">Dernier paiement Wave refusé par Wave ({new Date(waveError.at).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short", timeZone: "Africa/Dakar" })}, code {waveError.code})</p>
+          <p className="mt-1">{waveError.cause}</p>
+          <p className="mt-1"><strong>Solution :</strong> {waveError.fix}</p>
+        </div>
+      )}
 
       <div className="mt-6">
         <CommissionDispatch model={model} admin />

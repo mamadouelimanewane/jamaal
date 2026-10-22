@@ -1,5 +1,7 @@
 import type { PaymentProvider, CreatePaymentInput, CreatePaymentResult } from "../types";
 import { payViaVersus, versusConfigured } from "../versus";
+import { explainWaveError } from "../wave-errors";
+import { prisma } from "@/lib/prisma";
 
 /**
  * Wave Business Checkout API
@@ -21,7 +23,7 @@ export const waveProvider: PaymentProvider = {
   async createPayment(input: CreatePaymentInput): Promise<CreatePaymentResult> {
     // Versus (si configuré) : ouverture directe de Wave avec le montant et le numéro déjà saisi.
     if (versusConfigured()) return payViaVersus(input, "wave");
-    const apiKey = process.env.WAVE_API_KEY;
+    const apiKey = process.env.WAVE_API_KEY?.trim();
     const base = process.env.WAVE_API_BASE || "https://api.wave.com/v1";
 
     if (!apiKey) {
@@ -48,7 +50,11 @@ export const waveProvider: PaymentProvider = {
     if (!res.ok) {
       const body = await res.text();
       console.error("[wave] checkout error", res.status, body);
-      throw new Error("Impossible d'initier le paiement Wave. Réessayez.");
+      const info = explainWaveError(res.status, body);
+      // Dernière erreur gardée pour l'administrateur (Admin › Versements › Tester Wave).
+      const value = JSON.stringify({ ...info, at: new Date().toISOString() });
+      await prisma.setting.upsert({ where: { key: "wave_last_error" }, create: { key: "wave_last_error", value }, update: { value } }).catch(() => {});
+      throw new Error(`Impossible d'initier le paiement Wave (code ${info.code}). Réessayez ou choisissez un autre moyen de paiement.`);
     }
 
     const data = (await res.json()) as {
