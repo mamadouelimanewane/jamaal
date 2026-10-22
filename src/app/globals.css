@@ -209,3 +209,14 @@ body {
   .admin-ui main table:not(.keep-table) td:empty { display: none; }
   .admin-ui main .overflow-x-auto:has(> table:not(.keep-table)) { overflow-x: visible; }
 }
+
+/* ---------- Menu latéral repliable (ordinateur) ---------- */
+/* Replié : seules les icônes restent (le libellé s'affiche au survol). Sur téléphone, le menu reste complet. */
+.side-mini { display: none; }
+@media (min-width: 1024px) {
+  .admin-ui aside[data-collapsed="true"] .side-label,
+  .admin-ui aside[data-collapsed="true"] .side-full { display: none; }
+  .admin-ui aside[data-collapsed="true"] .side-mini { display: flex; }
+  .admin-ui aside[data-collapsed="true"] .side-link { justify-content: center; padding-left: 0; padding-right: 0; position: relative; }
+  .admin-ui aside[data-collapsed="true"] .side-badge { position: absolute; top: 2px; right: 6px; height: 1rem; min-width: 1rem; font-size: 10px; }
+}

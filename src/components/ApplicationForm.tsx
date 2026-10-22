@@ -7,19 +7,24 @@ import { fillProtocol, ID_TYPES, pieceLabel, type ProtocolDoc } from "@/lib/prot
 import { ProtocolText } from "@/components/ProtocolText";
 import { SignaturePad } from "@/components/SignaturePad";
 import { compressPhoto } from "@/lib/compress-photo";
+import { IdPhotoPicker } from "@/components/IdPhotoPicker";
 
 const initial: ApplicationState = { ok: false };
 
 const input =
   "mt-1.5 w-full rounded-xl border border-line bg-white px-4 py-3 text-sm outline-none transition focus:border-rose-dark focus:ring-4 focus:ring-rose/10";
 const label = "text-xs font-semibold uppercase tracking-wide text-navy/60";
+const step = "flex items-center gap-2.5 font-serif-display text-xl text-navy sm:col-span-2";
+const stepNum = "flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-navy font-sans text-sm font-semibold text-white";
 
-export function ApplicationForm({ sponsorCode = "", protocol }: { sponsorCode?: string; protocol: ProtocolDoc }) {
+export function ApplicationForm({ sponsorCode = "", sponsorName = null, protocol }: { sponsorCode?: string; sponsorName?: string | null; protocol: ProtocolDoc }) {
   const [state, action, pending] = useActionState(submitApplication, initial);
   const [preparing, startPrep] = useTransition();
   const [f, setF] = useState({ name: "", phone: "", address: "", idType: "CNI", idNumber: "", sponsorCode });
   const [signature, setSignature] = useState<string | null>(null);
   const [localError, setLocalError] = useState<string | null>(null);
+  const [photos, setPhotos] = useState<{ idFront: File | null; idBack: File | null }>({ idFront: null, idBack: null });
+  const [triedSubmit, setTriedSubmit] = useState(false);
   // Code reçu par lien d'invitation : fixe, le candidat ne peut pas le changer.
   const locked = sponsorCode !== "";
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => setF((v) => ({ ...v, [k]: e.target.value }));
@@ -29,16 +34,22 @@ export function ApplicationForm({ sponsorCode = "", protocol }: { sponsorCode?: 
     e.preventDefault();
     setLocalError(null);
     const form = e.currentTarget;
+    setTriedSubmit(true);
     if (!form.reportValidity()) return;
+    if (!photos.idFront || !photos.idBack) {
+      setLocalError("Ajoutez la photo du recto et du verso de votre pièce d'identité (appareil photo ou galerie).");
+      document.getElementById("idFront")?.closest("fieldset")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
     if (!signature) {
       setLocalError("Signez le protocole dans le cadre prévu (au doigt ou à la souris).");
       return;
     }
     const fd = new FormData(form);
     startPrep(async () => {
-      for (const k of ["idFront", "idBack"]) {
-        const file = fd.get(k);
-        if (file instanceof File && file.size) fd.set(k, await compressPhoto(file), `${k}.jpg`);
+      for (const k of ["idFront", "idBack"] as const) {
+        const file = photos[k];
+        if (file) fd.set(k, await compressPhoto(file), `${k}.jpg`);
       }
       fd.set("signature", signature);
       fd.set("protocolVersion", String(protocol.version));
@@ -90,54 +101,64 @@ export function ApplicationForm({ sponsorCode = "", protocol }: { sponsorCode?: 
         </label>
       </div>
 
+      <h2 className={step}><span className={stepNum}>1</span> Vos informations</h2>
       <div className="sm:col-span-2">
         <label htmlFor="name" className={label}>Nom complet *</label>
-        <input id="name" name="name" required maxLength={100} autoComplete="name" value={f.name} onChange={set("name")} className={input} />
-      </div>
-      <div>
-        <label htmlFor="email" className={label}>E-mail *</label>
-        <input id="email" name="email" type="email" required maxLength={254} autoComplete="email" className={input} />
+        <input id="name" name="name" required maxLength={100} autoComplete="name" placeholder="Prénom et nom" value={f.name} onChange={set("name")} className={input} />
       </div>
       <div>
         <label htmlFor="phone" className={label}>Numéro WhatsApp *</label>
-        <input id="phone" name="phone" type="tel" required maxLength={30} autoComplete="tel" placeholder="+221 77 000 00 00" value={f.phone} onChange={set("phone")} className={input} />
+        <input id="phone" name="phone" type="tel" inputMode="tel" required maxLength={30} autoComplete="tel" placeholder="77 000 00 00" value={f.phone} onChange={set("phone")} className={input} />
+      </div>
+      <div>
+        <label htmlFor="email" className={label}>E-mail *</label>
+        <input id="email" name="email" type="email" required maxLength={254} autoComplete="email" placeholder="nom@exemple.com" className={input} />
       </div>
       <div>
         <label htmlFor="city" className={label}>Ville *</label>
-        <input id="city" name="city" required maxLength={80} autoComplete="address-level2" className={input} />
+        <input id="city" name="city" required maxLength={80} autoComplete="address-level2" placeholder="Dakar" className={input} />
       </div>
-      <div>
-        <label htmlFor="country" className={label}>Pays</label>
-        <input id="country" name="country" defaultValue="Sénégal" maxLength={60} className={input} />
-      </div>
-      <div className="sm:col-span-2">
-        <label htmlFor="experience" className={label}>Expérience en vente (facultatif)</label>
-        <textarea id="experience" name="experience" rows={2} maxLength={500} className={input} />
-      </div>
-      <div className="sm:col-span-2">
-        <label htmlFor="motivation" className={label}>Pourquoi souhaitez-vous devenir consultant·e ? (facultatif)</label>
-        <textarea id="motivation" name="motivation" rows={3} maxLength={1000} className={input} />
-      </div>
-      <div className="sm:col-span-2">
-        <label htmlFor="sponsorCode" className={label}>Code de parrainage (obligatoire)</label>
-        <input id="sponsorCode" name="sponsorCode" value={f.sponsorCode} onChange={set("sponsorCode")} readOnly={locked} aria-readonly={locked} required minLength={2} maxLength={48} placeholder="ex. aminata" className={`${input}${locked ? " cursor-not-allowed bg-cream font-semibold text-navy" : ""}`} />
-        {locked ? (
-          <p className="mt-1.5 text-xs text-navy/70">Ce code est celui de la personne qui vous a invité·e : il est fixe et ne peut pas être modifié.</p>
-        ) : null}
-        <p className={`mt-1.5 text-xs text-navy/70${locked ? " hidden" : ""}`}>
-          On ne rejoint JAMAAL que par un membre du réseau : demandez son code (ou utilisez son lien d&apos;invitation). Pas de parrain ?{" "}
-          <a href={whatsappLink(WHATSAPP_CONTACTS[0].number, "Bonjour JAMAAL, je souhaite devenir consultant·e mais je n'ai pas de code de parrainage.")} target="_blank" rel="noopener noreferrer" className="font-semibold text-rose-dark underline">Demandez un code à JAMAAL sur WhatsApp</a>.
-        </p>
+      {locked ? (
+        <input type="hidden" name="country" value="Sénégal" />
+      ) : (
+        <div>
+          <label htmlFor="country" className={label}>Pays</label>
+          <input id="country" name="country" defaultValue="Sénégal" maxLength={60} className={input} />
+        </div>
+      )}
+      <div className={locked ? "" : "sm:col-span-2"}>
+        <label htmlFor="address" className={label}>Adresse *</label>
+        <input id="address" name="address" required minLength={8} maxLength={300} autoComplete="street-address" placeholder="Quartier, rue, n° de maison" value={f.address} onChange={set("address")} className={input} />
       </div>
 
-      <div className="sm:col-span-2">
-        <label htmlFor="address" className={label}>Adresse complète *</label>
-        <textarea id="address" name="address" required minLength={8} maxLength={300} rows={2} placeholder="Quartier, rue, n° de maison, ville" value={f.address} onChange={set("address")} className={input} />
-      </div>
+      {locked ? (
+        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 sm:col-span-2">
+          <p className="text-sm text-emerald-900">Votre parrain : <strong>{sponsorName ?? f.sponsorCode}</strong> <span className="text-emerald-800/80">· code {f.sponsorCode}</span></p>
+          <input type="hidden" name="sponsorCode" value={f.sponsorCode} />
+        </div>
+      ) : (
+        <>
+          <div className="sm:col-span-2">
+            <label htmlFor="sponsorCode" className={label}>Code de parrainage *</label>
+            <input id="sponsorCode" name="sponsorCode" value={f.sponsorCode} onChange={set("sponsorCode")} required minLength={2} maxLength={48} placeholder="ex. aminata" className={input} />
+            <p className="mt-1.5 text-xs text-navy/70">
+              Demandez-le à la personne qui vous a invité·e. Pas de parrain ?{" "}
+              <a href={whatsappLink(WHATSAPP_CONTACTS[0].number, "Bonjour JAMAAL, je souhaite devenir consultant·e mais je n'ai pas de code de parrainage.")} target="_blank" rel="noopener noreferrer" className="font-semibold text-rose-dark underline">Demandez un code à JAMAAL</a>.
+            </p>
+          </div>
+          <div className="sm:col-span-2">
+            <label htmlFor="experience" className={label}>Expérience en vente (facultatif)</label>
+            <textarea id="experience" name="experience" rows={2} maxLength={500} className={input} />
+          </div>
+          <div className="sm:col-span-2">
+            <label htmlFor="motivation" className={label}>Pourquoi souhaitez-vous devenir consultant·e ? (facultatif)</label>
+            <textarea id="motivation" name="motivation" rows={2} maxLength={1000} className={input} />
+          </div>
+        </>
+      )}
 
-      <fieldset className="grid gap-4 rounded-2xl border border-line bg-cream/40 p-4 sm:col-span-2 sm:grid-cols-2">
-        <legend className="px-1 text-sm font-semibold text-navy">Pièce d&apos;identité</legend>
-        <p className="text-xs text-navy/70 sm:col-span-2">Obligatoire pour valider votre adhésion. Les photos sont conservées de façon privée et ne sont visibles que par l&apos;équipe JAMAAL.</p>
+      <fieldset className="grid gap-4 sm:col-span-2 sm:grid-cols-2">
+        <legend className={`${step} mb-4`}><span className={stepNum}>2</span> Pièce d&apos;identité</legend>
         <div>
           <label htmlFor="idType" className={label}>Type de pièce *</label>
           <select id="idType" name="idType" required value={f.idType} onChange={set("idType")} className={input}>
@@ -148,20 +169,15 @@ export function ApplicationForm({ sponsorCode = "", protocol }: { sponsorCode?: 
           <label htmlFor="idNumber" className={label}>Numéro de la pièce *</label>
           <input id="idNumber" name="idNumber" required pattern="[A-Za-z0-9 \-]{5,30}" maxLength={30} value={f.idNumber} onChange={set("idNumber")} className={input} />
         </div>
-        <div>
-          <label htmlFor="idFront" className={label}>Photo recto *</label>
-          <input id="idFront" name="idFront" type="file" accept="image/*" capture="environment" required className={`${input} file:mr-3 file:rounded-full file:border-0 file:bg-navy file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white`} />
-        </div>
-        <div>
-          <label htmlFor="idBack" className={label}>Photo verso *</label>
-          <input id="idBack" name="idBack" type="file" accept="image/*" capture="environment" required className={`${input} file:mr-3 file:rounded-full file:border-0 file:bg-navy file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white`} />
-        </div>
+        <IdPhotoPicker id="idFront" label="Photo recto *" file={photos.idFront} onChange={(file) => setPhotos((p) => ({ ...p, idFront: file }))} invalid={triedSubmit} />
+        <IdPhotoPicker id="idBack" label="Photo verso *" file={photos.idBack} onChange={(file) => setPhotos((p) => ({ ...p, idBack: file }))} invalid={triedSubmit} />
+        <p className="text-xs text-navy/60 sm:col-span-2">Visibles uniquement par l&apos;équipe JAMAAL.</p>
       </fieldset>
 
       <section aria-labelledby="protocol-title" className="space-y-3 sm:col-span-2">
         <div>
-          <h2 id="protocol-title" className="font-serif-display text-xl text-navy">Protocole de partenariat</h2>
-          <p className="text-xs text-navy/70">Version {protocol.version}. Lisez-le jusqu&apos;au bout : vos informations y sont reprises automatiquement. Vous recevrez l&apos;exemplaire signé en PDF.</p>
+          <h2 id="protocol-title" className={step}><span className={stepNum}>3</span> Contrat et signature</h2>
+          <p className="mt-1 text-xs text-navy/70">Protocole de partenariat, version {protocol.version}, rempli avec vos informations. Vous recevrez l&apos;exemplaire signé en PDF.</p>
         </div>
         <div tabIndex={0} aria-label="Texte du protocole de partenariat" className="max-h-96 overflow-y-auto rounded-2xl border border-line bg-white p-5">
           <ProtocolText text={filled} />

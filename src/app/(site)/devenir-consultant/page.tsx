@@ -28,7 +28,23 @@ export default async function DevenirConsultantPage({
   // Code de l'invitation : dans l'adresse, ou mémorisé (cookie) si la personne revient sans le lien.
   const candidate = inviteCode(ref) || inviteCode((await cookies()).get(INVITE_COOKIE)?.value);
   // Verrouillé seulement si le parrain est encore actif : sinon la personne peut saisir un autre code.
-  const sponsorCode = candidate && (await resolveSponsorCode(candidate)) ? candidate : "";
+  const sponsor = candidate ? await resolveSponsorCode(candidate) : null;
+  const sponsorCode = sponsor ? candidate : "";
+  const protocol = await getProtocol();
+
+  // Lien d'invitation : formulaire seul, sans présentation ni champs facultatifs.
+  if (sponsor) {
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
+        <p className="luxury-eyebrow">Invitation</p>
+        <h1 className="mt-2 font-serif-display text-3xl font-semibold text-navy">Rejoignez l&apos;équipe de {sponsor.name.split(/\s+/)[0]}</h1>
+        <p className="mt-2 text-sm text-navy/70">Remplissez le formulaire en 3 étapes : environ 3 minutes.</p>
+        <div className="mt-6 rounded-2xl border border-line bg-white p-5 sm:p-8">
+          <ApplicationForm sponsorCode={sponsorCode} sponsorName={sponsor.name} protocol={protocol} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
@@ -52,7 +68,7 @@ export default async function DevenirConsultantPage({
       </ul>
 
       <div className="mt-10 rounded-2xl border border-line bg-white p-5 sm:p-8">
-        <ApplicationForm sponsorCode={sponsorCode} protocol={await getProtocol()} />
+        <ApplicationForm sponsorCode="" protocol={protocol} />
       </div>
 
       <p className="mt-6 text-center text-sm text-navy/60">

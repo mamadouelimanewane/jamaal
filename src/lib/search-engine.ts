@@ -201,7 +201,16 @@ function tokenScore(t: string, p: Prepared): number {
 /** Recherche : tous les mots doivent trouver un écho (ET), classement par pertinence puis popularité. */
 export function search(index: Prepared[], query: string, limit = 60): { hits: SearchHit[]; total: number } {
   const tokens = tokenize(query);
-  if (!tokens.length) return { hits: [], total: 0 };
+  if (!tokens.length) {
+    // « parfum », « parfums », « eau de parfum » seuls : tous les parfums (les plus demandés d'abord),
+    // au lieu d'aucun résultat (ces mots sont ignorés dans une recherche plus précise).
+    if (/\b(parfums?|eau)\b/.test(normalize(query))) {
+      const perfumes = index.filter((p) => p.doc.category.startsWith("parfum")).map((p) => ({ doc: p.doc, score: 10 + Math.min(p.doc.popularity, 50) / 25 }));
+      perfumes.sort((a, b) => b.score - a.score || a.doc.name.localeCompare(b.doc.name, "fr"));
+      return { hits: perfumes.slice(0, limit), total: perfumes.length };
+    }
+    return { hits: [], total: 0 };
+  }
   const phrase = normalize(query);
   const hits: SearchHit[] = [];
   const whole = phrase.replace(/ /g, "");

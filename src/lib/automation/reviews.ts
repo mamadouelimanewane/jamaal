@@ -7,6 +7,7 @@ import { phoneOptedOut } from "@/lib/phone-match";
 import { sendWhatsApp, whatsappConfig } from "@/lib/whatsapp";
 import { automationEnabled, claimAutomation } from "@/lib/automation-settings";
 import { reviewLink } from "@/lib/review-token";
+import { messageText } from "@/lib/whatsapp/message-templates";
 
 const DAY = 86_400_000;
 
@@ -37,7 +38,13 @@ export async function requestReviews(origin: string, now = new Date()) {
     await sendWhatsApp({
       to: phone,
       kind: "avis",
-      text: reviewRequestText({ firstName: (o.customerName ?? "").split(/\s+/)[0], products: [...new Set(o.items.map((i) => i.productName))], link: reviewLink(origin, o.id) }),
+      text: await (async () => {
+        const firstName = (o.customerName ?? "").split(/\s+/)[0];
+        const products = [...new Set(o.items.map((i) => i.productName))];
+        const link = reviewLink(origin, o.id);
+        const custom = await messageText("avis", { prenom: firstName, produits: products.length > 1 ? "vos produits" : `*${products[0]}*`, lien: link }, "");
+        return custom ? `${custom}\n\n(Répondez STOP pour ne plus recevoir ces messages.)` : reviewRequestText({ firstName, products, link });
+      })(),
     });
     sent++;
   }

@@ -9,12 +9,12 @@ export const dynamic = "force-dynamic";
 /**
  * Visuel prêt à partager d'un produit (statut WhatsApp, Instagram) : photo, nom, parfum
  * d'inspiration, prix, QR code et coordonnées du revendeur (?ref=identifiant).
- * Formats : story (1080 × 1920, défaut) ou carre (1080 × 1080).
+ * Formats : story (1080 × 1920, défaut, aussi pour TikTok), carre (1080 × 1080) ou photo (la photo seule du produit).
  */
 export async function GET(req: Request, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const url = new URL(req.url);
-  const square = url.searchParams.get("format") === "carre";
+  const square = ["carre", "photo"].includes(url.searchParams.get("format") ?? "");
   const ref = (url.searchParams.get("ref") ?? "").toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 60);
   const origin = siteBaseUrl() || url.origin;
 
@@ -23,6 +23,21 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
     select: { name: true, slug: true, photo: true, regularPrice: true, volumes: true, inspiredBy: true, inspiredBrand: true, family: true, colorFrom: true, colorTo: true },
   });
   if (!product) return new Response("Produit introuvable", { status: 404 });
+
+  // Photo seule du produit (même adresse que le site : le navigateur peut la partager ou l'enregistrer).
+  if (url.searchParams.get("format") === "photo" && product.photo) {
+    try {
+      const src = product.photo.startsWith("/") ? `${url.origin}${product.photo}` : product.photo;
+      const res = allowedChoganUrl(src) ? await relayFetch(src, url.origin, 8_000) : await fetch(src, { signal: AbortSignal.timeout(8_000) });
+      if (res?.ok) {
+        const data = new Uint8Array(await res.arrayBuffer());
+        const type = data[0] === 0x89 && data[1] === 0x50 ? "image/png" : data[0] === 0xff && data[1] === 0xd8 ? "image/jpeg" : data[8] === 0x57 && data[9] === 0x45 ? "image/webp" : null;
+        if (type) return new Response(data, { headers: { "Content-Type": type, "Cache-Control": "public, max-age=3600", "Content-Disposition": `inline; filename="${product.slug}.${type.split("/")[1]}"` } });
+      }
+    } catch {
+      // photo injoignable : on renvoie le visuel carré
+    }
+  }
   const reseller = ref ? await prisma.consultant.findFirst({ where: { slug: ref, active: true }, select: { name: true, whatsapp: true, slug: true } }) : null;
 
   const volumes = ((product.volumes as { label: string; price: number }[] | null) ?? []).filter((v) => v.price > 0);

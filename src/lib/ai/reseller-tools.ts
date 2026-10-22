@@ -101,7 +101,7 @@ export const RESELLER_TOOLS: Record<string, ResellerToolDef> = {
           equipeDuMois: commission.monthlySponsorCommission + commission.monthlyL2Commission,
           depuisLeDebut: commission.lifetimeCommission + commission.lifetimeSponsorCommission + commission.lifetimeL2Commission,
         },
-        wallet: { soldeDisponible: wallet.balance, retraitsEnCours: wallet.pendingOut, totalGagne: wallet.earned, lien: "/admin/mon-wallet" },
+        wallet: { soldeDisponible: wallet.balance, retraitsEnCours: wallet.pendingOut, totalGagne: wallet.earned, lien: "/admin/mes-gains#wallet" },
         primeMensuelle: model.primesEnabled
           ? {
               palierAtteint: prime.reached ? { seuil: prime.reached.threshold, prime: prime.reached.amount, bonus: prime.reached.extra ?? null } : null,

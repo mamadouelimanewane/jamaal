@@ -1,5 +1,7 @@
 "use server";
 
+import { payoutChannels } from "@/lib/business-model";
+import { getBusinessModel } from "@/lib/business-model-store";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
@@ -49,9 +51,12 @@ export async function updateOwnWallet(_prev: WalletState, formData: FormData): P
   if (!provider && !raw) {
     await prisma.consultant.update({ where: { id: me.id }, data: { walletProvider: null, walletNumber: null, walletHolderName: null } });
     revalidatePath("/admin/mon-profil");
+    revalidatePath("/admin/mes-gains");
     return { ok: true };
   }
   if (provider !== "WAVE" && provider !== "ORANGE_MONEY") return { ok: false, error: "Choisissez Wave ou Orange Money." };
+  const allowed = payoutChannels(await getBusinessModel());
+  if (!allowed.includes(provider)) return { ok: false, error: `Les retraits sont proposés vers ${allowed.map((c) => (c === "WAVE" ? "Wave" : "Orange Money")).join(" ou ")} uniquement.` };
   const number = normalizeWalletNumber(raw);
   if (!number) return { ok: false, error: "Numéro invalide : indiquez un numéro mobile sénégalais (ex. 77 123 45 67)." };
 

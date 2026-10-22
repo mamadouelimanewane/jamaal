@@ -151,9 +151,9 @@ export default async function ConsultantProfilePage({
                 WhatsApp
               </a>
               {consultant.user && (
-                <span className="flex items-center gap-1 text-blue-600">
-                  Portail: {consultant.user.email ?? consultant.user.phone}
-                </span>
+                <Link href={`/admin/utilisateurs/${consultant.user.id}`} className="flex items-center gap-1 text-blue-700 hover:underline" title="Compte, accès et mot de passe">
+                  Portail : {consultant.user.email ?? consultant.user.phone} · accès et mot de passe →
+                </Link>
               )}
               {consultant.sponsor && (
                 <span>

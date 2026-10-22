@@ -4,6 +4,7 @@ import { requireAdmin } from "@/lib/actions/auth-guard";
 import { continueCampaign, createCampaign } from "@/lib/actions/whatsapp-inbox";
 import { campaignRecipients, parseAudience, personalize } from "@/lib/whatsapp/campaigns";
 import { whatsappConfig } from "@/lib/whatsapp";
+import { SearchSelect } from "@/components/admin/SearchSelect";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -19,7 +20,7 @@ export default async function CampagnesPage({ searchParams }: { searchParams: Pr
   const audience = parseAudience({ target: sp.target, inactiveDays: sp.inactiveDays, category: sp.category, consultantId: sp.consultantId, cta: { label: sp.ctaLabel, url: sp.ctaUrl } });
   const [categories, consultants, campaigns, recipients] = await Promise.all([
     prisma.category.findMany({ orderBy: { position: "asc" }, select: { slug: true, label: true } }),
-    prisma.consultant.findMany({ where: { active: true }, orderBy: { name: "asc" }, select: { id: true, name: true } }),
+    prisma.consultant.findMany({ where: { active: true }, orderBy: { name: "asc" }, select: { id: true, name: true, city: true } }),
     prisma.whatsAppCampaign.findMany({ orderBy: { createdAt: "desc" }, take: 30 }).catch(() => null),
     campaignRecipients(audience).catch(() => []),
   ]);
@@ -51,18 +52,12 @@ export default async function CampagnesPage({ searchParams }: { searchParams: Pr
           <label className="text-sm text-navy">Clients sans commande depuis (jours, 0 = tous)
             <input name="inactiveDays" type="number" min={0} max={3650} defaultValue={audience.inactiveDays ?? 0} className={field} />
           </label>
-          <label className="text-sm text-navy">Ont acheté dans la catégorie
-            <select name="category" defaultValue={audience.category ?? ""} className={field}>
-              <option value="">Toutes</option>
-              {categories.map((c) => <option key={c.slug} value={c.slug}>{c.label}</option>)}
-            </select>
-          </label>
-          <label className="text-sm text-navy">Clients du revendeur
-            <select name="consultantId" defaultValue={audience.consultantId ?? ""} className={field}>
-              <option value="">Tous</option>
-              {consultants.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-            </select>
-          </label>
+          <div className="text-sm text-navy">Ont acheté dans la catégorie
+            <SearchSelect name="category" defaultValue={audience.category ?? ""} emptyLabel="Toutes les catégories" placeholder="Rechercher une catégorie…" options={categories.map((c) => ({ value: c.slug, label: c.label }))} className="mt-1" />
+          </div>
+          <div className="text-sm text-navy">Clients du revendeur
+            <SearchSelect name="consultantId" defaultValue={audience.consultantId ?? ""} emptyLabel="Tous les revendeurs" placeholder="Rechercher un revendeur par nom…" options={consultants.map((c) => ({ value: c.id, label: c.name, hint: c.city ?? undefined }))} className="mt-1" />
+          </div>
           <label className="text-sm text-navy sm:col-span-2">Message ({"{prenom}"} est remplacé par le prénom)
             <textarea name="body" rows={4} maxLength={1000} defaultValue={body} className={field} />
           </label>

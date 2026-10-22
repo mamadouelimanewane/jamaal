@@ -32,12 +32,13 @@ const ADMIN_PAGES = `- Tableau de bord : /admin
 - Wallets des membres : /admin/wallets ; versements : /admin/versements ; modèle économique (prix, commissions) : /admin/modele-economique
 - Réglages et fidélité : /admin/reglages ; utilisateurs : /admin/utilisateurs ; journal des actions : /admin/historique ; blog : /admin/blog`;
 
-const CONSULTANT_PAGES = `- Tableau de bord : /admin ; mon wallet : /admin/mon-wallet
+const CONSULTANT_PAGES = `- Tableau de bord : /admin ; mes gains, wallet, retraits et dépôts : /admin/mes-gains
+- Produits (catalogue, visuels, partage WhatsApp / TikTok / galerie) : /admin/catalogue et /admin/catalogue/<identifiant du produit>
 - Mes ventes : /admin/mes-ventes ; mes commandes (et nouvelle commande pour un client) : /admin/mes-commandes, /admin/mes-commandes/nouvelle
 - Mes clients : /admin/mes-clients ; mon équipe : /admin/mes-filleuls ; mes gains : /admin/mes-gains
 - Mon marketing (lien personnel, QR code, catalogue à partager) : /admin/mon-marketing ; ma communication : /admin/ma-communication
 - Mon kit marketing (visuels) : /admin/mon-kit-marketing ; mes commissions et primes : /admin/mes-gains
-- Mon profil : /admin/mon-profil ; mon protocole : /admin/mon-protocole`;
+- Mon profil : /admin/mon-profil ; mon protocole : /admin/mon-protocole ; mon classement : /admin/mon-classement (aussi dans la barre du haut)`;
 
 /**
  * Rôle de coach pour le revendeur : vente, relance, marketing, équipe. Le modèle écrit lui-même

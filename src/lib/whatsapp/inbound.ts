@@ -19,6 +19,7 @@ import { describeCatalogOrder } from "./catalog";
 import { downloadMetaMedia } from "./meta";
 import { sendWhatsApp, touchThread } from "./index";
 import { optCommand, parseReplyMarkers, toWhatsAppText } from "./format";
+import { createResetLink, isPasswordRequest, userByPhone } from "@/lib/password-reset-link";
 
 export interface InboundMessage {
   phone: string;
@@ -110,6 +111,23 @@ export async function handleInboundWhatsApp(msg: InboundMessage): Promise<void> 
 
   const limited = await rateLimit(`wa-bot:${msg.phone}`, { limit: 30, windowMs: 3_600_000 });
   if (!limited.ok) return;
+
+  // 2 bis. « Mot de passe » : lien de réinitialisation envoyé dans la conversation ouverte par la personne
+  // (réponse dans les 24 h : aucun modèle Meta nécessaire). Le numéro est garanti par WhatsApp.
+  if (text && isPasswordRequest(text)) {
+    const user = await userByPhone(msg.phone).catch(() => null);
+    if (!user) {
+      await sendWhatsApp({ to: msg.phone, kind: "bot", free: true, text: "Ce numéro n'est lié à aucun compte revendeur ou livreur JAMAAL. Écrivez depuis le numéro WhatsApp enregistré sur votre compte, ou demandez de l'aide à l'équipe ici." });
+      return;
+    }
+    const url = await createResetLink(user.id, 24);
+    await sendWhatsApp(
+      url
+        ? { to: msg.phone, kind: "bot", free: true, text: `Bonjour ${user.name.split(/\s+/)[0]} 👋 Voici votre lien pour choisir un nouveau mot de passe JAMAAL (valable 24 h, à usage unique). Si vous n'avez rien demandé, ignorez ce message.`, cta: { label: "Choisir mon mot de passe", url } }
+        : { to: msg.phone, kind: "bot", free: true, text: "Un lien vient de vous être envoyé il y a moins de 2 minutes : utilisez-le, ou réessayez dans un instant." }
+    );
+    return;
+  }
 
   // 3. Équipe (livreur, revendeur, admin).
   if (await automationEnabled("staffWhatsApp")) {

@@ -25,7 +25,7 @@ export default async function UserDetailPage({ params, searchParams }: { params:
   const { ok } = await searchParams;
 
   const [user, profiles, logs, consultants, livreurs] = await Promise.all([
-    prisma.user.findUnique({ where: { id }, include: { consultant: { select: { id: true, name: true } }, livreur: { select: { id: true, name: true } }, customer: { select: { id: true, name: true } }, profile: { select: { id: true, name: true, permissions: true } } } }),
+    prisma.user.findUnique({ where: { id }, include: { consultant: { select: { id: true, name: true, whatsapp: true } }, livreur: { select: { id: true, name: true, phone: true } }, customer: { select: { id: true, name: true } }, profile: { select: { id: true, name: true, permissions: true } } } }),
     prisma.accessProfile.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
     prisma.activityLog.findMany({ where: { OR: [{ userId: id }, { entity: "User", entityId: id }] }, orderBy: { createdAt: "desc" }, take: 30 }),
     prisma.consultant.findMany({ where: { user: null }, orderBy: { name: "asc" } }),
@@ -118,7 +118,7 @@ export default async function UserDetailPage({ params, searchParams }: { params:
           </form>
           <div>
             <p className={labelClass}>Ou laisser la personne choisir</p>
-            <div className="mt-1"><AccessLinkButton userId={user.id} /></div>
+            <div className="mt-1"><AccessLinkButton userId={user.id} phone={user.phone ?? user.consultant?.whatsapp ?? user.livreur?.phone} name={user.name} /></div>
           </div>
         </div>
       </section>

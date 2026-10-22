@@ -6,8 +6,10 @@ import { getBusinessModel } from "@/lib/business-model-store";
 import { primeStatus } from "@/lib/business-model";
 import { getMemberTitle, recruitTitleFor } from "@/lib/network";
 import { salesBetween } from "@/lib/team";
-import { WalletHero } from "@/components/admin/WalletWidgets";
-import { walletBalance } from "@/lib/wallet";
+import { WalletPanel } from "@/components/admin/WalletPanel";
+import { CommissionDispatch } from "@/components/admin/CommissionDispatch";
+import { myCommissionCase } from "@/lib/reseller-catalog";
+import { settleRecentDeposits } from "@/lib/payment/settle";
 import { LiveEarnings } from "@/components/admin/LiveEarnings";
 import { getReseller, MONTHS_FR, startOfMonth } from "@/lib/reseller";
 import { StatCard } from "@/components/admin/StatCard";
@@ -15,9 +17,12 @@ import { NotReseller } from "@/components/admin/NotReseller";
 
 export const dynamic = "force-dynamic";
 
-export default async function MesGainsPage() {
+export default async function MesGainsPage({ searchParams }: { searchParams: Promise<{ depot?: string }> }) {
   const me = await getReseller();
   if (!me) return <NotReseller />;
+  const { depot } = await searchParams;
+  // Retour d'un dépôt en ligne : vérifié tout de suite auprès du prestataire (sans attendre le webhook).
+  if (depot === "ok" && !me.viewAs) await settleRecentDeposits({ type: "CONSULTANT", id: me.id });
   const now = new Date();
 
   const [info, model] = await Promise.all([getConsultantCommission(me.id), getBusinessModel()]);
@@ -91,7 +96,11 @@ export default async function MesGainsPage() {
       </div>
 
       <div className="mt-6">
-        <WalletHero {...(await walletBalance({ type: "CONSULTANT", id: me.id }))} />
+        <CommissionDispatch model={model} highlight={(await myCommissionCase(me.id)).scenario} />
+      </div>
+
+      <div className="mt-6">
+        <WalletPanel owner={{ type: "CONSULTANT", id: me.id }} viewAs={me.viewAs} depot={depot} historyLimit={30} />
       </div>
 
       <div className="mt-6 grid gap-4 lg:grid-cols-2">

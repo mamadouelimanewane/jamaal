@@ -1,5 +1,7 @@
 "use server";
 
+import { payoutChannels } from "@/lib/business-model";
+import { getBusinessModel } from "@/lib/business-model-store";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin, requireLivreurProfile } from "./auth-guard";
@@ -81,6 +83,8 @@ export async function updateLivreurWallet(_prev: LivreurWalletState, formData: F
   const provider = String(formData.get("walletProvider") ?? "");
   const raw = String(formData.get("walletNumber") ?? "").trim();
   if (provider !== "WAVE" && provider !== "ORANGE_MONEY") return { ok: false, error: "Choisissez Wave ou Orange Money." };
+  const allowed = payoutChannels(await getBusinessModel());
+  if (!allowed.includes(provider)) return { ok: false, error: `Les retraits sont proposés vers ${allowed.map((c) => (c === "WAVE" ? "Wave" : "Orange Money")).join(" ou ")} uniquement.` };
   const number = normalizeWalletNumber(raw);
   if (!number) return { ok: false, error: "Numéro invalide : indiquez un numéro mobile sénégalais (ex. 77 123 45 67)." };
   await prisma.livreur.update({ where: { id: livreur.id }, data: { walletProvider: provider, walletNumber: number } });

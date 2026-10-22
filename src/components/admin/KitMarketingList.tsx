@@ -1,19 +1,19 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
+import Link from "next/link";
 import Image from "next/image";
 import { Download, Image as ImageIcon, MessageCircle, Search } from "lucide-react";
 import { CopyButton } from "@/components/admin/CopyButton";
-import { findProducts } from "@/lib/product-finder";
+import { useCatalogSearch } from "./useCatalogSearch";
 
-export type KitProduct = { id: string; slug: string; name: string; shortDescription: string | null; photo: string | null; price: number | null; choganCode?: string | null; inspiredBy?: string | null; inspiredBrand?: string | null };
+export type KitProduct = { id: string; slug: string; name: string; shortDescription: string | null; photo: string | null; price: number | null; choganCode?: string | null; inspiredBy?: string | null; inspiredBrand?: string | null; categoryLabel?: string | null; family?: string | null };
 
 /** Kit marketing du revendeur : recherche de produits, texte prêt à publier et partage direct sur WhatsApp avec son lien. */
 export function KitMarketingList({ products, origin, refSlug }: { products: KitProduct[]; origin: string; refSlug: string | null }) {
   const [q, setQ] = useState("");
-  const shown = useMemo(() => {
-    return q.trim().length >= 2 ? findProducts(products, q, products.length) : products;
-  }, [q, products]);
+  const { results } = useCatalogSearch(products, q, products.length);
+  const shown = q.trim().length >= 2 ? results : products;
 
   return (
     <div>
@@ -23,7 +23,7 @@ export function KitMarketingList({ products, origin, refSlug }: { products: KitP
           type="search"
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Nom, code ou parfum (ex. Sauvage)"
+          placeholder="Nom, code ou catégorie (ex. Sauvage, 021M, parfum femme)"
           aria-label="Rechercher un produit"
           className="min-w-0 flex-1 text-sm outline-none"
         />
@@ -55,6 +55,9 @@ export function KitMarketingList({ products, origin, refSlug }: { products: KitP
                   >
                     <MessageCircle size={14} /> Partager sur WhatsApp
                   </a>
+                  <Link href={`/admin/catalogue/${p.slug}`} className="flex w-full items-center justify-center gap-2 rounded-xl border border-line px-3 py-2 text-xs font-semibold text-navy transition hover:bg-cream">
+                    Visuels, TikTok et galerie →
+                  </Link>
                   {p.photo && (
                     <a href={p.photo} target="_blank" rel="noreferrer" className="flex w-full items-center justify-center gap-2 rounded-xl bg-cream px-3 py-2 text-xs font-semibold text-navy transition hover:bg-line">
                       <Download size={14} /> Télécharger la photo

@@ -11,6 +11,7 @@
 import { prisma } from "./prisma";
 import type { Prisma } from "@prisma/client";
 import { getBusinessModel } from "./business-model-store";
+import { payoutChannels } from "./business-model";
 import { isWalletProvider, payoutProvidersConfig, sendPayout, WALLET_LABELS, type WalletProvider } from "./payouts/providers";
 import { alertWalletCredits, alertWithdrawalPaid } from "@/lib/whatsapp/alerts";
 import { notifyWalletCredits, type WalletCreditNotice } from "./wallet-notify";
@@ -152,6 +153,8 @@ export async function requestWithdrawal(owner: Owner, amount: number, by: string
   if (amount < min) throw new WalletError(`Retrait minimal : ${min.toLocaleString("fr-FR")} F.`);
   const w = await ownerWallet(owner);
   if (!w || !isWalletProvider(w.provider) || !w.number) throw new WalletError("Renseignez d'abord votre compte Wave ou Orange Money (numéro et titulaire).");
+  const channels = payoutChannels(await getBusinessModel());
+  if (!channels.includes(w.provider)) throw new WalletError(`Les retraits vers ${WALLET_LABELS[w.provider]} ne sont plus proposés : enregistrez un compte ${channels.map((c) => WALLET_LABELS[c]).join(" ou ")} ci-dessous.`);
   const tx = await prisma.$transaction(async (db) => {
     await lockOwner(db, owner);
     const { balance } = await walletBalance(owner, db);

@@ -5,15 +5,15 @@ import { updateLivreurWallet, type LivreurWalletState } from "@/lib/actions/deli
 
 const initial: LivreurWalletState = { ok: false };
 
-export function LivreurWalletForm({ provider, number }: { provider: string | null; number: string | null }) {
+export function LivreurWalletForm({ provider, number, channels = ["WAVE", "ORANGE_MONEY"] }: { provider: string | null; number: string | null; channels?: ("WAVE" | "ORANGE_MONEY")[] }) {
   const [state, action, pending] = useActionState(updateLivreurWallet, initial);
   return (
     <form action={action} className="flex flex-wrap items-end gap-3">
       <label className="text-sm font-medium text-ink">
         Wallet
-        <select name="walletProvider" defaultValue={provider ?? "WAVE"} className="mt-1.5 block rounded-xl border border-line px-3 py-2.5 text-[15px]">
-          <option value="WAVE">Wave</option>
-          <option value="ORANGE_MONEY">Orange Money</option>
+        <select name="walletProvider" defaultValue={provider ?? channels[0] ?? "WAVE"} className="mt-1.5 block rounded-xl border border-line px-3 py-2.5 text-[15px]">
+          {(channels.includes("WAVE") || provider === "WAVE") && <option value="WAVE">Wave</option>}
+          {(channels.includes("ORANGE_MONEY") || provider === "ORANGE_MONEY") && <option value="ORANGE_MONEY">Orange Money</option>}
         </select>
       </label>
       <label className="min-w-0 flex-1 text-sm font-medium text-ink">

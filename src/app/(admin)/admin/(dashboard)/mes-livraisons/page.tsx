@@ -60,7 +60,7 @@ export default async function MesLivraisonsPage() {
       </p>
 
       <div className="mt-5">
-        <WalletHero compact {...(await walletBalance({ type: "LIVREUR", id: livreur.id }))} />
+        <WalletHero compact href="/admin/mon-wallet" {...(await walletBalance({ type: "LIVREUR", id: livreur.id }))} />
       </div>
 
       <div className="mt-5 grid grid-cols-3 gap-3">

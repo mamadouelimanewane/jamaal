@@ -4,6 +4,7 @@
  * - équipe JAMAAL : avis négatif, paiement échoué.
  * Toujours en complément des notifications du back-office. Ne lève jamais d'erreur.
  */
+import { messageText } from "./message-templates";
 import { after } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { automationEnabled, claimAutomation } from "@/lib/automation-settings";
@@ -52,7 +53,9 @@ export function alertWithdrawalPaid(txId: string) {
         : (await prisma.livreur.findUnique({ where: { id: t.ownerId }, select: { phone: true } }))?.phone;
     if (!to) return;
     const via = t.provider === "WAVE" ? "Wave" : t.provider === "ORANGE_MONEY" ? "Orange Money" : "votre compte";
-    await sendWhatsApp({ to, kind: "reseller", text: `✅ Retrait versé : ${fcfa(Math.abs(t.amount))} envoyés sur ${via}${t.phone ? ` (${t.phone})` : ""}. Merci pour votre travail !` });
+    const compte = `${via}${t.phone ? ` (${t.phone})` : ""}`;
+    const original = `✅ Retrait versé : ${fcfa(Math.abs(t.amount))} envoyés sur ${compte}. Merci pour votre travail !`;
+    await sendWhatsApp({ to, kind: "reseller", text: await messageText("retrait_verse", { montant: fcfa(Math.abs(t.amount)), compte }, original) });
   });
 }
 
@@ -86,7 +89,11 @@ export function alertPaymentFailed(orderId: string, method: string) {
       await sendWhatsApp({
         to: o.customerPhone,
         kind: "suivi",
-        text: `Bonjour ${o.customerName.split(/\s+/)[0]}, le paiement de votre commande JAMAAL (${fcfa(o.total)}) n'a pas abouti. Vous pouvez réessayer, ou payer à la livraison si l'option est proposée. Répondez à ce message si besoin.`,
+        text: await messageText(
+          "paiement_echoue",
+          { prenom: o.customerName.split(/\s+/)[0], montant: fcfa(o.total) },
+          `Bonjour ${o.customerName.split(/\s+/)[0]}, le paiement de votre commande JAMAAL (${fcfa(o.total)}) n'a pas abouti. Vous pouvez réessayer, ou payer à la livraison si l'option est proposée. Répondez à ce message si besoin.`
+        ),
         ...(site ? { cta: { label: "Réessayer le paiement", url: `${site}/commande/${orderId}` } } : {}),
       });
     }

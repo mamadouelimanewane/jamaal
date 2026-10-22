@@ -333,7 +333,7 @@ async function LivreurOverview({ userId }: { userId: string }) {
       <p className="mt-1 text-sm text-navy/75">Vos livraisons JAMAAL.</p>
 
       <div className="mt-6">
-        <WalletHero {...(await walletBalance({ type: "LIVREUR", id: livreurId }))} />
+        <WalletHero href="/admin/mon-wallet" {...(await walletBalance({ type: "LIVREUR", id: livreurId }))} />
       </div>
 
       <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-3">

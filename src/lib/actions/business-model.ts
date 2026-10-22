@@ -77,6 +77,9 @@ export async function saveBusinessModelAction(_prev: BusinessModelState, formDat
   input.acceptCashOnDelivery = formData.get("acceptCashOnDelivery") === "on";
   input.payoutsEnabled = formData.get("payoutsEnabled") === "on";
   input.payoutTrigger = formData.get("payoutTrigger") === "DELIVERED" ? "DELIVERED" : "PAID";
+  input.payoutWave = formData.get("payoutWave") === "on";
+  input.payoutOrangeMoney = formData.get("payoutOrangeMoney") === "on";
+  if (!input.payoutWave && !input.payoutOrangeMoney) return { ok: false, error: "Gardez au moins un moyen de retrait (Wave ou Orange Money)." };
 
   // Livraison
   const depotLat = readNumber(formData, "depotLat");

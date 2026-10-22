@@ -9,6 +9,7 @@ import { getSiteUrl } from "@/lib/site-url";
 import { automationEnabled } from "@/lib/automation-settings";
 import { phoneOptedOut } from "@/lib/phone-match";
 import { sendWhatsApp } from "./index";
+import { messageText, type MessageKey } from "./message-templates";
 
 export type OrderEvent = "CREEE" | "PAYEE" | "ACOMPTE" | "CONFIRMEE" | "EXPEDIEE" | "ANNULEE" | "LIVREE";
 
@@ -62,6 +63,34 @@ export function orderMessage(
   }
 }
 
+/** Message modifiable (Admin › Journal WhatsApp) et ses variables, pour un évènement. Pur, testé. */
+export function orderMessageVars(
+  event: OrderEvent,
+  o: { id: string; customerName: string; total: number; paymentStatus: string; deliveryMode: string; isReservation?: boolean; depositAmount?: number; reservationDelay?: string | null }
+): { key: MessageKey; vars: Record<string, string> } {
+  const prenom = o.customerName.split(/\s+/)[0] || o.customerName;
+  const deposit = o.depositAmount ?? 0;
+  const base = { prenom, numero: ref(o.id), montant: fcfa(o.total) };
+  switch (event) {
+    case "CREEE":
+      return o.isReservation
+        ? { key: "suivi_reservation", vars: { ...base, acompte: fcfa(deposit), reste: fcfa(Math.max(0, o.total - deposit)) } }
+        : { key: "suivi_creee", vars: { ...base, paiement: o.paymentStatus === "PAYE" ? " Paiement bien reçu." : " Vous pouvez la payer par Wave ou Orange Money depuis votre page de commande." } };
+    case "ACOMPTE":
+      return { key: "suivi_acompte", vars: { ...base, acompte: fcfa(deposit), reste: fcfa(Math.max(0, o.total - deposit)), delai: o.reservationDelay ? ` Délai annoncé : ${o.reservationDelay}.` : "" } };
+    case "PAYEE":
+      return { key: "suivi_payee", vars: base };
+    case "CONFIRMEE":
+      return { key: "suivi_confirmee", vars: base };
+    case "EXPEDIEE":
+      return { key: "suivi_expediee", vars: { ...base, livraison: o.deliveryMode === "LIVRAISON_JAMAAL" ? "et arrive bientôt" : "chez votre revendeur, qui vous la remettra" } };
+    case "ANNULEE":
+      return { key: "suivi_annulee", vars: base };
+    case "LIVREE":
+      return { key: "suivi_livree", vars: base };
+  }
+}
+
 export async function sendOrderUpdate(orderId: string, event: OrderEvent): Promise<void> {
   try {
     if (!(await automationEnabled("orderTracking"))) return;
@@ -73,7 +102,8 @@ export async function sendOrderUpdate(orderId: string, event: OrderEvent): Promi
     const site = await getSiteUrl().catch(() => process.env.NEXT_PUBLIC_SITE_URL ?? "");
     const msg = orderMessage(event, o, site);
     if (!msg) return;
-    await sendWhatsApp({ to: o.customerPhone, kind: "suivi", text: msg.text, cta: msg.cta });
+    const { key, vars } = orderMessageVars(event, o);
+    await sendWhatsApp({ to: o.customerPhone, kind: "suivi", text: await messageText(key, vars, msg.text), cta: msg.cta });
   } catch (e) {
     console.error("[whatsapp] suivi commande", orderId, event, e);
   }

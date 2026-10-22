@@ -102,3 +102,12 @@ test("facettes marques et collections", () => {
   assert.equal(cats.find((c) => c.slug === "parfum-homme")?.count, 1);
   assert.equal(cats.reduce((s, c) => s + c.count, 0), 3);
 });
+
+test("« parfum » ou « parfums » seuls : tous les parfums (et plus aucun « 0 résultat »)", () => {
+  for (const q of ["parfum", "Parfums", "eau de parfum"]) {
+    const r = search(DOCS, q);
+    assert.ok(r.total > 0, q);
+    assert.ok(r.hits.every((h) => h.doc.category.startsWith("parfum")), q);
+  }
+  assert.equal(search(DOCS, "de la").total, 0);
+});

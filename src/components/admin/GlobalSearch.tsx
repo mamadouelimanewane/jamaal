@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { Search, ShoppingCart, User, Package, Users, Loader2 } from "lucide-react";
 import { globalAdminSearch, type GlobalSearchResult } from "@/lib/actions/global-search";
 
-export function GlobalSearch() {
+export function GlobalSearch({ tone = "dark" }: { tone?: "dark" | "light" }) {
+  const light = tone === "light";
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<GlobalSearchResult[]>([]);
   const [loading, setLoading] = useState(false);
@@ -69,7 +70,7 @@ export function GlobalSearch() {
   return (
     <div className="relative w-full max-w-md">
       <div className="relative flex items-center">
-        <Search size={16} className="absolute left-3.5 text-white/65" />
+        <Search size={16} className={`absolute left-3.5 ${light ? "text-navy/50" : "text-white/65"}`} />
         <input
           ref={inputRef}
           type="text"
@@ -79,10 +80,13 @@ export function GlobalSearch() {
             setQuery(e.target.value);
             setLoading(e.target.value.trim().length > 0);
           }}
-          placeholder="Recherche globale (Cmd+K)..."
-          className="w-full rounded-full border border-white/10 bg-white/10 py-1.5 pl-9 pr-10 text-xs text-white placeholder-white/40 outline-none transition focus:bg-white/15 focus:ring-1 focus:ring-rose"
+          placeholder={light ? "Rechercher un produit, une commande, un client…" : "Recherche globale (Cmd+K)..."}
+          aria-label="Recherche"
+          className={light
+            ? "w-full rounded-full border border-line bg-cream/60 py-2 pl-9 pr-12 text-sm text-navy placeholder-navy/45 outline-none transition focus:border-rose-dark focus:bg-white"
+            : "w-full rounded-full border border-white/10 bg-white/10 py-1.5 pl-9 pr-10 text-xs text-white placeholder-white/40 outline-none transition focus:bg-white/15 focus:ring-1 focus:ring-rose"}
         />
-        <kbd className="absolute right-3 hidden rounded border border-white/20 bg-white/5 px-1.5 py-0.5 text-xs font-mono text-white/65 sm:inline-block">
+        <kbd className={`absolute right-3 hidden rounded border px-1.5 py-0.5 text-xs font-mono sm:inline-block ${light ? "border-line text-navy/50" : "border-white/20 bg-white/5 text-white/65"}`}>
           ⌘K
         </kbd>
       </div>

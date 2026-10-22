@@ -77,6 +77,9 @@ export type BusinessModel = {
   payoutTrigger: "PAID" | "DELIVERED";
   /** Montant minimal d'un versement (FCFA) ; en dessous, la commission attend la suivante. */
   minPayout: number;
+  /** Comptes sur lesquels les membres peuvent recevoir leurs retraits (au moins un). */
+  payoutWave: boolean;
+  payoutOrangeMoney: boolean;
   /** Livraison : position et nom du dépôt (point de départ des livreurs). */
   depotLat: number;
   depotLng: number;
@@ -138,6 +141,8 @@ export const DEFAULT_BUSINESS_MODEL: BusinessModel = {
   payoutsEnabled: true,
   payoutTrigger: "PAID",
   minPayout: 0,
+  payoutWave: true,
+  payoutOrangeMoney: true,
   depotLat: 14.6928,
   depotLng: -17.4467,
   depotLabel: "Dépôt JAMAAL (Dakar)",
@@ -199,7 +204,7 @@ export function normalizeBusinessModel(raw: unknown): BusinessModel {
   num("deliveryMaxKm", 0, 2000);
   num("deliveryFreeAbove", 0, 100_000_000);
   num("livreurSharePct", 0, 100);
-  for (const key of ["primesEnabled", "teamPrimesEnabled", "acceptWave", "acceptOrangeMoney", "acceptCard", "acceptCashOnDelivery", "payoutsEnabled"] as const) {
+  for (const key of ["primesEnabled", "teamPrimesEnabled", "acceptWave", "acceptOrangeMoney", "acceptCard", "acceptCashOnDelivery", "payoutsEnabled", "payoutWave", "payoutOrangeMoney"] as const) {
     if (typeof r[key] === "boolean") base[key] = r[key] as boolean;
   }
   if (r.payoutTrigger === "PAID" || r.payoutTrigger === "DELIVERED") base.payoutTrigger = r.payoutTrigger;
@@ -327,4 +332,32 @@ export function primeStatus(monthlySales: number, model: BusinessModel, tiers: P
   const previousThreshold = reached?.threshold ?? 0;
   const progress = next ? Math.min(100, Math.round(((monthlySales - previousThreshold) / (next.threshold - previousThreshold)) * 100)) : 100;
   return { reached, next, progress, remaining: next ? next.threshold - monthlySales : 0 };
+}
+
+/** Comptes de retrait proposés aux membres (Wave, Orange Money). Jamais vide : sans choix, les deux. */
+export function payoutChannels(m: Pick<BusinessModel, "payoutWave" | "payoutOrangeMoney">): ("WAVE" | "ORANGE_MONEY")[] {
+  const list: ("WAVE" | "ORANGE_MONEY")[] = [];
+  if (m.payoutWave) list.push("WAVE");
+  if (m.payoutOrangeMoney) list.push("ORANGE_MONEY");
+  return list.length ? list : ["WAVE", "ORANGE_MONEY"];
+}
+
+export type DispatchScenario = { id: Scenario; label: string; parts: { actor: string; pct: number }[]; total: number };
+
+/**
+ * Répartition automatique d'une vente entre les wallets (vendeur, parrain direct, Leader), pour chaque cas.
+ * Sert aux pages « Versements » (admin) et « Mes gains » (revendeur). Pur, testé.
+ */
+export function dispatchScenarios(model: BusinessModel): DispatchScenario[] {
+  const leader = commissionRatesFor("Leader", false, model);
+  const parrain = commissionRatesFor("Parrain", false, model);
+  const consultant = commissionRatesFor("Consultant", true, model);
+  const direct = commissionRatesFor("Consultant", false, model);
+  const rows: Omit<DispatchScenario, "total">[] = [
+    { id: "LEADER", label: "Vente d'un Leader", parts: [{ actor: "Leader (vendeur)", pct: leader.seller }] },
+    { id: "PARRAIN", label: "Vente d'un Parrain", parts: [{ actor: "Parrain (vendeur)", pct: parrain.seller }, { actor: "son Leader", pct: parrain.level1 }] },
+    { id: "CONSULTANT", label: "Vente d'un Consultant (équipe d'un Parrain)", parts: [{ actor: "Consultant (vendeur)", pct: consultant.seller }, { actor: "son Parrain", pct: consultant.level1 }, { actor: "le Leader", pct: consultant.level2 }] },
+    { id: "CONSULTANT_DIRECT", label: "Vente d'un Consultant (directement sous un Leader)", parts: [{ actor: "Consultant (vendeur)", pct: direct.seller }, { actor: "son Leader", pct: direct.level1 }] },
+  ];
+  return rows.map((r) => ({ ...r, parts: r.parts.filter((p) => p.pct > 0), total: r.parts.reduce((s, p) => s + p.pct, 0) }));
 }

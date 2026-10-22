@@ -6,9 +6,8 @@ import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { rateLimit, clientIpFromHeaders } from "@/lib/rate-limit";
-import { phoneTail } from "@/lib/phone-match";
-import { canonicalizePhone, phoneLookupVariants } from "@/lib/phone";
-import { getSiteUrl } from "@/lib/site-url";
+import { canonicalizePhone } from "@/lib/phone";
+import { createResetLink, notifyAdminsOfResetRequest, userByPhone } from "@/lib/password-reset-link";
 import { sendWhatsApp, whatsappConfig } from "@/lib/whatsapp";
 
 const hashToken = (token: string) => createHash("sha256").update(token).digest("hex");
@@ -61,31 +60,14 @@ export async function requestPasswordReset(formData: FormData) {
   redirect("/admin/forgot-password?sent=1");
 }
 
-/** Compte (avec son numéro WhatsApp) correspondant à un téléphone : compte, revendeur ou livreur. */
-async function userByPhone(raw: string): Promise<{ id: string; name: string; whatsapp: string } | null> {
-  const tail = phoneTail(raw);
-  if (!tail) return null;
-  const direct = await prisma.user.findFirst({ where: { phone: { in: phoneLookupVariants(raw) } }, select: { id: true, name: true, phone: true, role: true } });
-  if (direct?.phone && direct.role !== "CLIENT") return { id: direct.id, name: direct.name, whatsapp: direct.phone };
-  const viaConsultant = await prisma.$queryRaw<{ id: string; name: string; whatsapp: string }[]>`
-    SELECT u.id, u.name, c.whatsapp FROM "Consultant" c JOIN "User" u ON u."consultantId" = c.id
-    WHERE right(regexp_replace(c.whatsapp, '[^0-9]', '', 'g'), 9) = ${tail} LIMIT 1`;
-  if (viaConsultant[0]) return viaConsultant[0];
-  const viaLivreur = await prisma.$queryRaw<{ id: string; name: string; whatsapp: string }[]>`
-    SELECT u.id, u.name, l.phone AS whatsapp FROM "Livreur" l JOIN "User" u ON u."livreurId" = l.id
-    WHERE right(regexp_replace(l.phone, '[^0-9]', '', 'g'), 9) = ${tail} LIMIT 1`;
-  return viaLivreur[0] ?? null;
-}
-
 async function sendResetByWhatsApp(raw: string) {
-  if (!whatsappConfig().active) return;
   const user = await userByPhone(raw);
   if (!user) return;
-  const recent = await prisma.passwordResetToken.findFirst({ where: { userId: user.id, createdAt: { gte: new Date(Date.now() - 2 * 60_000) } }, select: { id: true } });
-  if (recent) return;
-  const token = randomBytes(32).toString("base64url");
-  await prisma.passwordResetToken.create({ data: { tokenHash: hashToken(token), userId: user.id, expiresAt: new Date(Date.now() + 24 * 3600_000) } });
-  const url = `${(await getSiteUrl()).replace(/\/$/, "")}/admin/reset-password?token=${encodeURIComponent(token)}`;
+  // Toujours prévenir l'équipe : si le message WhatsApp n'arrive pas, elle envoie un lien d'accès à la main.
+  await notifyAdminsOfResetRequest(user);
+  if (!whatsappConfig().active) return;
+  const url = await createResetLink(user.id, 24);
+  if (!url) return;
   await sendWhatsApp({
     to: canonicalizePhone(user.whatsapp),
     kind: "reseller",

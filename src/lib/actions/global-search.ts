@@ -2,6 +2,7 @@
 
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { searchCatalog } from "@/lib/search-index";
 import { getAccess } from "@/lib/access";
 import { searchScope } from "@/lib/search-scope";
 import { requireStaff } from "./auth-guard";
@@ -89,17 +90,10 @@ export async function globalAdminSearch(query: string): Promise<GlobalSearchResu
             .then((rows) => rows.map((r) => ({ id: r.id, name: r.customerName, phone: r.customerPhone })),
             ),
     showProducts
-      ? prisma.product.findMany({
-          where: {
-            OR: [
-              { name: { contains: q, mode: "insensitive" } },
-              { slug: { contains: q, mode: "insensitive" } },
-              { choganCode: { contains: q, mode: "insensitive" } },
-            ],
-          },
-          take: 5,
-          select: { id: true, name: true, category: true, slug: true },
-        })
+      ? // Même moteur que la recherche du site : nom, code, catégorie, parfum d'inspiration, fautes de frappe.
+        searchCatalog(q, 6)
+          .then((r) => r.hits.map((h) => ({ id: h.doc.id, name: h.doc.name, category: h.doc.categoryLabel ?? h.doc.category, slug: h.doc.slug, code: h.doc.choganCode })))
+          .catch(() => [] as { id: string; name: string; category: string; slug: string; code: string | null }[])
       : Promise.resolve([]),
     showConsultants
       ? prisma.consultant.findMany({
@@ -145,8 +139,9 @@ export async function globalAdminSearch(query: string): Promise<GlobalSearchResu
       type: "product",
       id: p.id,
       title: `Produit — ${p.name}`,
-      subtitle: `Catégorie: ${p.category}`,
-      href: isAdmin ? `/admin/produits/${p.id}/modifier` : `/produits/${p.slug}`,
+      subtitle: [p.code && `Code ${p.code}`, p.category].filter(Boolean).join(" · "),
+      // Revendeur : la fiche de son catalogue (visuels et partage) ; livreur : la page du site.
+      href: isAdmin ? `/admin/produits/${p.id}/modifier` : role === "CONSULTANT" ? `/admin/catalogue/${p.slug}` : `/produits/${p.slug}`,
     });
   }
 

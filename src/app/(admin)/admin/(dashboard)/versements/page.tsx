@@ -1,3 +1,5 @@
+import { CommissionDispatch } from "@/components/admin/CommissionDispatch";
+import { payoutChannels } from "@/lib/business-model";
 import Link from "next/link";
 import { CircleAlert, CircleCheck, Wallet } from "lucide-react";
 import { prisma } from "@/lib/prisma";
@@ -65,6 +67,21 @@ export default async function VersementsPage() {
           <p className="text-sm font-medium text-navy/85">Versé ce mois-ci</p>
           <p className="mt-1 text-2xl font-semibold text-ink">{formatPrice(monthPaid._sum.amount ?? 0)}</p>
         </div>
+      </div>
+
+      <div className="mt-6">
+        <CommissionDispatch model={model} admin />
+      </div>
+
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        {(["WAVE", "ORANGE_MONEY"] as const).map((p) => {
+          const offered = payoutChannels(model).includes(p);
+          return (
+            <p key={p} className={`rounded-xl border px-4 py-3 text-sm ${offered ? "border-line bg-white text-navy" : "border-line bg-cream text-navy/60"}`}>
+              Retraits des membres vers <strong>{WALLET_LABELS[p]}</strong> : {offered ? (config[p] ? "proposés et envoyés automatiquement" : "proposés, versés à la main depuis « Wallets des membres » tant que la clé n'est pas configurée") : "non proposés"}.
+            </p>
+          );
+        })}
       </div>
 
       {!model.payoutsEnabled && (

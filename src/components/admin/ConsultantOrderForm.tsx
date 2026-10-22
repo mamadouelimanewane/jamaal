@@ -78,7 +78,7 @@ export function ConsultantOrderForm({
           <input
             value={query}
             onChange={(e) => search(e.target.value)}
-            placeholder="Nom, code Chogan (ex. 001M) ou n° de fiche…"
+            placeholder="Nom, code (ex. 001M), catégorie ou n° de fiche…"
             className="w-full rounded-lg border border-line py-2 pl-9 pr-3 text-sm outline-none focus:border-navy"
           />
         </div>

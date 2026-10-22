@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
 
   type Change = {
     value?: {
-      statuses?: { id: string; status: string; errors?: { title?: string }[] }[];
+      statuses?: { id: string; status: string; errors?: { code?: number; title?: string; message?: string; error_data?: { details?: string } }[] }[];
       messages?: {
         from: string;
         id: string;
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
         if (status) {
           await prisma.whatsAppMessage.updateMany({
             where: { providerId: s.id },
-            data: { status, ...(status === "ECHEC" ? { error: s.errors?.[0]?.title?.slice(0, 300) ?? "Échec de livraison" } : {}) },
+            data: { status, ...(status === "ECHEC" ? { error: s.errors?.[0] ? `${s.errors[0].code ?? ""} ${s.errors[0].title ?? ""}${s.errors[0].error_data?.details ? ` — ${s.errors[0].error_data.details}` : ""}`.trim().slice(0, 300) || "Échec de livraison" : "Échec de livraison" } : {}) },
           });
         }
       }

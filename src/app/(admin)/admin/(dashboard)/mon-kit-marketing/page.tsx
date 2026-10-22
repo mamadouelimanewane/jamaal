@@ -1,5 +1,5 @@
 import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { resellerCatalog } from "@/lib/reseller-catalog";
 import { MessageCircle } from "lucide-react";
 import { getReseller, resellerLinks } from "@/lib/reseller";
 import { KitMarketingList } from "@/components/admin/KitMarketingList";
@@ -14,11 +14,8 @@ export default async function KitMarketingPage() {
 
   const me = await getReseller();
   const links = await resellerLinks(me?.slug ?? null);
-  const products = await prisma.product.findMany({
-    where: { isOfficial: true },
-    select: { id: true, slug: true, name: true, shortDescription: true, photo: true, regularPrice: true, choganCode: true, inspiredBy: true, inspiredBrand: true },
-    orderBy: { name: "asc" },
-  });
+  // Tout le catalogue (parfums compris) : la recherche trouve chaque produit par nom, code ou catégorie.
+  const products = await resellerCatalog();
 
   return (
     <div className="max-w-5xl">
@@ -32,7 +29,7 @@ export default async function KitMarketingPage() {
       </p>
 
       <KitMarketingList
-        products={products.map((p) => ({ id: p.id, slug: p.slug, name: p.name, shortDescription: p.shortDescription, photo: p.photo, price: p.regularPrice, choganCode: p.choganCode, inspiredBy: p.inspiredBy, inspiredBrand: p.inspiredBrand }))}
+        products={products}
         origin={links.origin}
         refSlug={me?.slug ?? null}
       />

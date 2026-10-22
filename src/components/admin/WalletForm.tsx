@@ -7,7 +7,7 @@ const initial: WalletState = { ok: false };
 const field = "mt-1.5 w-full rounded-xl border border-line bg-white px-4 py-2.5 text-[15px] outline-none focus:border-navy focus:ring-4 focus:ring-navy/10";
 
 /** Wallet de réception des commissions (Wave ou Orange Money). */
-export function WalletForm({ provider, number, holder }: { provider: string | null; number: string | null; holder?: string | null }) {
+export function WalletForm({ provider, number, holder, channels = ["WAVE", "ORANGE_MONEY"] }: { provider: string | null; number: string | null; holder?: string | null; channels?: ("WAVE" | "ORANGE_MONEY")[] }) {
   const [state, action, pending] = useActionState(updateOwnWallet, initial);
   return (
     <form action={action} className="grid gap-4 sm:grid-cols-2">
@@ -17,9 +17,9 @@ export function WalletForm({ provider, number, holder }: { provider: string | nu
           {[
             { id: "WAVE", label: "Wave" },
             { id: "ORANGE_MONEY", label: "Orange Money" },
-          ].map((o) => (
+          ].filter((o) => channels.includes(o.id as "WAVE") || provider === o.id).map((o) => (
             <label key={o.id} className="flex cursor-pointer items-center gap-2 rounded-xl border border-line bg-white px-4 py-2.5 text-[15px] font-medium text-ink has-[:checked]:border-navy has-[:checked]:bg-navy/5">
-              <input type="radio" name="walletProvider" value={o.id} defaultChecked={provider === o.id} className="h-4 w-4 accent-[#182845]" />
+              <input type="radio" name="walletProvider" value={o.id} defaultChecked={provider === o.id || (!provider && channels.length === 1)} className="h-4 w-4 accent-[#182845]" />
               {o.label}
             </label>
           ))}

@@ -586,6 +586,21 @@ export function BusinessModelEditor({
                 </select>
                 <span className="mt-1.5 block text-xs font-normal text-navy/75">À la livraison, une commande retournée avant livraison ne coûte aucune commission.</span>
               </label>
+              <fieldset className="rounded-xl border border-line p-3.5">
+                <legend className="px-1 text-sm font-medium text-ink">Retraits des membres vers</legend>
+                <p className="text-xs text-navy/75">Les commissions de chaque vente sont réparties automatiquement sur les wallets JAMAAL du vendeur, de son Parrain et de son Leader (taux ci-dessus) ; chacun retire ensuite son solde sur ces comptes.</p>
+                <div className="mt-2.5 flex flex-wrap gap-2">
+                  {([
+                    ["payoutWave", "Wave"],
+                    ["payoutOrangeMoney", "Orange Money"],
+                  ] as const).map(([key, label]) => (
+                    <label key={key} className="flex items-center gap-2.5 rounded-xl border border-line px-3.5 py-2 text-[15px] text-ink">
+                      <input type="checkbox" name={key} checked={model[key]} onChange={(e) => setModel((m) => ({ ...m, [key]: e.target.checked }))} className="h-5 w-5 accent-[#182845]" />
+                      {label}
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
               <NumberField label="Versement minimal" name="minPayout" value={model.minPayout} onChange={set} suffix="F" step="100" hint="En dessous, la commission attend la suivante. 0 = tout est versé." />
             </div>
           </div>

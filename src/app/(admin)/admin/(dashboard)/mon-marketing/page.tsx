@@ -4,9 +4,9 @@ import { prisma } from "@/lib/prisma";
 import { getReseller, resellerLinks } from "@/lib/reseller";
 import { CopyButton } from "@/components/admin/CopyButton";
 import { QrCard } from "@/components/admin/QrCard";
-import { ProductLinkGenerator } from "@/components/admin/ProductLinkGenerator";
 import { NotReseller } from "@/components/admin/NotReseller";
-import { VisualGenerator } from "@/components/admin/GrowthWidgets";
+import { MarketingComposer } from "@/components/admin/MarketingComposer";
+import { resellerCatalog } from "@/lib/reseller-catalog";
 
 export const dynamic = "force-dynamic";
 
@@ -16,13 +16,14 @@ const tools = [
   { href: "/admin/formation", title: "Formation", text: "Guides pour bien démarrer et progresser.", icon: BookOpen },
 ];
 
-export default async function MonMarketingPage() {
+export default async function MonMarketingPage({ searchParams }: { searchParams: Promise<{ produits?: string }> }) {
   const me = await getReseller();
   if (!me) return <NotReseller />;
   const links = await resellerLinks(me.slug);
 
+  const { produits = "" } = await searchParams;
   const [products, promos] = await Promise.all([
-    prisma.product.findMany({ select: { slug: true, name: true, regularPrice: true, choganCode: true, inspiredBy: true, inspiredBrand: true }, orderBy: { name: "asc" } }),
+    resellerCatalog(),
     prisma.promoCode.findMany({ where: { consultantId: me.id }, orderBy: { createdAt: "desc" } }),
   ]);
   const shareMsg = `Bonjour ! Découvre toute la gamme Chogan (parfums, soins, maison, nutrition) au Sénégal, avec mes conseils : ${links.shop ?? ""}`;
@@ -57,22 +58,14 @@ export default async function MonMarketingPage() {
         {links.shop && <QrCard url={links.shop} name={me.slug ?? me.name} />}
       </div>
 
-      <div className="mt-6 rounded-2xl border border-line bg-white p-5">
-        <h2 className="font-serif-display text-lg font-semibold text-navy">Envoyer un produit à un client</h2>
-        <p className="mt-1 mb-4 text-sm text-navy/75">Cherchez un produit par son nom, son code ou le parfum dont il s&apos;inspire, puis envoyez-le sur WhatsApp : le lien porte votre code, la vente vous revient.</p>
-        <ProductLinkGenerator
-          products={products.map((p) => ({ slug: p.slug, name: p.name, price: p.regularPrice, choganCode: p.choganCode, inspiredBy: p.inspiredBy, inspiredBrand: p.inspiredBrand }))}
-          origin={links.origin}
-          refSlug={me.slug}
-        />
+      <div id="partager" className="mt-6 scroll-mt-24 rounded-2xl border border-line bg-white p-5">
+        <h2 className="font-serif-display text-lg font-semibold text-navy">Partager des produits</h2>
+        <p className="mb-4 mt-1 text-sm text-navy/75">
+          Choisissez un ou plusieurs produits, puis envoyez-les à un client, publiez-les en statut WhatsApp ou sur TikTok, ou enregistrez les images dans
+          votre galerie. Chaque lien et chaque QR code portent votre code : la vente vous revient.
+        </p>
+        <MarketingComposer products={products} origin={links.origin} refSlug={me.slug} initialSlugs={produits.split(",").filter(Boolean).slice(0, 10)} />
       </div>
-
-      <div className="mt-6 rounded-2xl border border-ia/30 bg-white p-5">
-        <h2 className="font-serif-display text-lg font-semibold text-navy">Visuels à partager</h2>
-        <p className="mb-4 mt-1 text-sm text-navy/75">Une image prête pour votre statut WhatsApp ou Instagram : photo, prix, votre prénom, votre WhatsApp et un QR code vers le produit avec votre lien.</p>
-        <VisualGenerator products={products.map((p) => ({ slug: p.slug, name: p.name, price: p.regularPrice, choganCode: p.choganCode, inspiredBy: p.inspiredBy, inspiredBrand: p.inspiredBrand }))} refSlug={me.slug} origin={links.origin} />
-      </div>
-
 
       <div className="mt-6 rounded-2xl border border-line bg-white p-5">
         <h2 className="flex items-center gap-2 font-serif-display text-lg font-semibold text-navy"><MessageSquareText size={18} /> Mes codes promo</h2>

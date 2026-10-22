@@ -78,7 +78,7 @@ export function StaffLoginForm({ from, next, notice }: { from: "/admin/login" | 
       </form>
 
       <div className="mt-6 flex flex-col items-center gap-2 text-xs">
-        <Link href="/admin/forgot-password" className="font-semibold text-rose-dark hover:underline">Choisir un nouveau mot de passe</Link>
+        <Link href="/admin/forgot-password" className="font-semibold text-rose-dark hover:underline">Mot de passe oublié ?</Link>
         <a href={help} target="_blank" rel="noopener noreferrer" className="text-navy/60 hover:underline">Toujours bloqué ? Écrire à l&apos;équipe JAMAAL</a>
       </div>
     </div>

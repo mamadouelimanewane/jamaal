@@ -91,7 +91,7 @@ export async function LiveEarnings({ consultantId }: { consultantId: string }) {
       {!member?.walletNumber && (
         <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2.5 text-sm text-amber-900">
           Indiquez votre numéro Wave ou Orange Money pour recevoir vos commissions automatiquement :{" "}
-          <Link href="/admin/mon-profil#wallet" className="font-semibold underline">Mon wallet</Link>.
+          <Link href="/admin/mes-gains#compte" className="font-semibold underline">Mes gains › Mon compte</Link>.
         </p>
       )}
       <h3 className="mt-6 text-base font-semibold text-ink">Dernières opérations</h3>

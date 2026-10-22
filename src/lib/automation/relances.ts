@@ -11,6 +11,7 @@ import { prisma } from "@/lib/prisma";
 import { ordersByPhoneSince, phoneOptedOut } from "@/lib/phone-match";
 import { sendWhatsApp, whatsappConfig } from "@/lib/whatsapp";
 import { automationEnabled, claimAutomation } from "@/lib/automation-settings";
+import { messageText, type MessageKey } from "@/lib/whatsapp/message-templates";
 
 const DAY = 86_400_000;
 const MAX_PER_RUN = 80;
@@ -30,6 +31,12 @@ export function cartText(o: { firstName: string; items: string[]; origin: string
 }
 
 const optedOut = phoneOptedOut;
+
+/** Texte modifié par l'admin (s'il existe) + mention STOP obligatoire ; sinon le texte d'origine. */
+async function withStop(key: MessageKey, vars: Record<string, string | number>, original: string): Promise<string> {
+  const custom = await messageText(key, vars, "");
+  return custom ? `${custom}${STOP}` : original;
+}
 
 async function reminder45(origin: string, now: Date, budget: { left: number }): Promise<number> {
   const orders = await prisma.order.findMany({
@@ -53,7 +60,9 @@ async function reminder45(origin: string, now: Date, budget: { left: number }): 
     if (!(await claimAutomation(`relance45:${o.id}`))) continue;
     const ref = o.consultant?.active && o.consultant.slug ? `?ref=${o.consultant.slug}` : "";
     const link = item.product?.slug ? `${origin}/produits/${item.product.slug}${ref}` : `${origin}/collections${ref}`;
-    await sendWhatsApp({ to: phone, kind: "relance", text: relance45Text({ firstName: firstName(o.customerName), product: item.productName, link, reseller: o.consultant?.active ? o.consultant.name : null }) });
+    const reseller = o.consultant?.active ? o.consultant.name : null;
+    const original = relance45Text({ firstName: firstName(o.customerName), product: item.productName, link, reseller });
+    await sendWhatsApp({ to: phone, kind: "relance", text: await withStop("relance45", { prenom: firstName(o.customerName), produit: item.productName, lien: link, signature: reseller ? `${reseller}, votre conseiller·e JAMAAL` : "L'équipe JAMAAL" }, original) });
     budget.left--;
     sent++;
   }
@@ -71,7 +80,7 @@ async function birthdays(origin: string, now: Date, budget: { left: number }): P
     if (!(await claimAutomation(`anniversaire:${c.id}:${now.getUTCFullYear()}`))) continue;
     const code = `ANNIV-${randomInt(1000, 9999)}${c.id.slice(-2).toUpperCase()}`;
     await prisma.coupon.create({ data: { code, type: "POURCENTAGE", value: 10, usageLimit: 1, expiresAt: new Date(now.getTime() + 15 * DAY) } });
-    await sendWhatsApp({ to: c.phone, kind: "relance", text: birthdayText({ firstName: firstName(c.name), code, days: 15, origin }) });
+    await sendWhatsApp({ to: c.phone, kind: "relance", text: await withStop("anniversaire", { prenom: firstName(c.name), code, jours: 15, lien: `${origin}/collections` }, birthdayText({ firstName: firstName(c.name), code, days: 15, origin })) });
     budget.left--;
     sent++;
   }
@@ -99,7 +108,8 @@ async function abandonedCarts(origin: string, now: Date, budget: { left: number 
     }
     if (!(await claimAutomation(`panier:${cart.id}`))) continue;
     const items = ((cart.items as { name?: string; volumeLabel?: string }[] | null) ?? []).map((i) => `${i.name ?? "article"}${i.volumeLabel ? ` (${i.volumeLabel})` : ""}`);
-    await sendWhatsApp({ to: cart.phone, kind: "relance", text: cartText({ firstName: firstName(cart.name), items, origin }) });
+    const articles = `${items.slice(0, 3).join(", ")}${items.length > 3 ? "…" : ""}`;
+    await sendWhatsApp({ to: cart.phone, kind: "relance", text: await withStop("panier", { prenom: firstName(cart.name), articles, lien: `${origin}/panier` }, cartText({ firstName: firstName(cart.name), items, origin })) });
     await prisma.abandonedCart.update({ where: { id: cart.id }, data: { remindedAt: now } });
     budget.left--;
     sent++;

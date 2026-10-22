@@ -5,7 +5,7 @@ import { createAccessLink } from "@/lib/actions/user-admin";
 import { CopyButton } from "@/components/admin/CopyButton";
 
 /** Génère un lien d'accès à usage unique (7 jours) : la personne choisit elle-même son mot de passe. */
-export function AccessLinkButton({ userId }: { userId: string }) {
+export function AccessLinkButton({ userId, phone, name }: { userId: string; phone?: string | null; name?: string }) {
   const [pending, start] = useTransition();
   const [result, setResult] = useState<{ ok: boolean; url?: string; error?: string } | null>(null);
   return (
@@ -24,6 +24,16 @@ export function AccessLinkButton({ userId }: { userId: string }) {
           <p className="break-all font-mono text-xs text-navy">{result.url}</p>
           <div className="mt-2 flex items-center gap-3">
             <CopyButton text={result.url} label="Copier le lien" />
+            {phone && phone.replace(/\D/g, "").length >= 9 && (
+              <a
+                href={`https://wa.me/${(() => { const d = phone.replace(/\D/g, "").replace(/^00/, ""); return d.length === 9 ? `221${d}` : d; })()}?text=${encodeURIComponent(`Bonjour${name ? ` ${name.split(/\s+/)[0]}` : ""}, voici votre lien JAMAAL pour choisir votre mot de passe (valable 7 jours, à usage unique) : ${result.url}`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-full bg-[#25D366] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1ebe5b]"
+              >
+                Envoyer par WhatsApp
+              </a>
+            )}
             <span className="text-xs text-navy/65">À usage unique. Transmettez-le à la personne : elle choisira son mot de passe.</span>
           </div>
         </div>

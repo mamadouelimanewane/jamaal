@@ -23,7 +23,6 @@ import { Calculator,
   Mail,
   Banknote,
   Megaphone,
-  UserCircle,
   Share2,
   UsersRound,
   GalleryHorizontal,
@@ -36,17 +35,19 @@ import { Calculator,
   Zap,
   ShoppingBasket,
   GraduationCap,
+  LogOut,
 } from "lucide-react";
 import { auth, signOut } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ResponsiveSidebar } from "@/components/admin/ResponsiveSidebar";
+import { SIDEBAR_COOKIE } from "@/lib/sidebar-pref";
+import { TopBar } from "@/components/admin/TopBar";
+import { topBarRank } from "@/lib/topbar-rank";
 import { SidebarNavLink } from "@/components/admin/SidebarNavLink";
 
 import { GlobalSearch } from "@/components/admin/GlobalSearch";
-import { InstallApp } from "@/components/admin/InstallApp";
 import { FormErrorBanner } from "@/components/admin/FormErrorBanner";
 import { AutoTableLabels } from "@/components/admin/AutoTableLabels";
-import { WalletPill } from "@/components/admin/WalletWidgets";
 import { viewerWallet } from "@/lib/wallet-owner";
 import { walletBalance } from "@/lib/wallet";
 import { Suspense } from "react";
@@ -118,30 +119,47 @@ const adminGroups = [
   },
 ];
 
-const consultantLinks = [
-  { href: "/admin", label: "Tableau de bord", icon: LayoutDashboard },
-  { href: "/admin/assistant", label: "Assistant IA", icon: Sparkles },
-  { href: "/admin/mon-wallet", label: "Mon wallet", icon: Wallet },
-  { href: "/admin/mes-ventes", label: "Mes ventes", icon: BarChart3 },
-  { href: "/admin/mes-commandes", label: "Mes commandes", icon: ShoppingCart },
-  { href: "/admin/mes-clients", label: "Mes clients", icon: Contact },
-  { href: "/admin/mes-filleuls", label: "Mon équipe", icon: UsersRound },
-  { href: "/admin/mes-gains", label: "Mes gains", icon: Banknote },
-  { href: "/admin/mes-defis", label: "Mes défis", icon: Trophy },
-  { href: "/admin/mon-classement", label: "Mon classement", icon: Trophy },
-  { href: "/admin/formation", label: "Formation & quiz", icon: GraduationCap },
-  { href: "/admin/mon-marketing", label: "Mon marketing", icon: Share2 },
-  { href: "/admin/ma-communication", label: "Ma communication", icon: Megaphone },
-  { href: "/admin/mon-profil", label: "Mon profil", icon: UserCircle },
-  { href: "/admin/mon-protocole", label: "Mon protocole", icon: FileSignature },
+/** Espace revendeur : rangé par sujet. Profil, contrat, classement et notifications sont dans la barre du haut ;
+ * le wallet (retraits, dépôts) est dans « Mes gains » ; l'assistant IA a son bouton en bas de chaque page. */
+const consultantGroups: { title: string | null; links: { href: string; label: string; icon: typeof LayoutDashboard; match?: string[] }[] }[] = [
+  { title: null, links: [{ href: "/admin", label: "Tableau de bord", icon: LayoutDashboard }] },
+  {
+    title: "Ventes",
+    links: [
+      { href: "/admin/mes-commandes", label: "Mes commandes", icon: ShoppingCart },
+      { href: "/admin/mes-ventes", label: "Mes ventes", icon: BarChart3 },
+      { href: "/admin/mes-clients", label: "Mes clients", icon: Contact },
+    ],
+  },
+  {
+    title: "Gains & équipe",
+    links: [
+      { href: "/admin/mes-gains", label: "Mes gains", icon: Banknote, match: ["/admin/mon-wallet"] },
+      { href: "/admin/mes-filleuls", label: "Mon équipe", icon: UsersRound },
+      { href: "/admin/mes-defis", label: "Mes défis", icon: Trophy },
+    ],
+  },
+  {
+    title: "Promotion",
+    links: [
+      { href: "/admin/catalogue", label: "Produits", icon: Package },
+      { href: "/admin/mon-marketing", label: "Mon marketing", icon: Share2, match: ["/admin/mon-kit-marketing", "/admin/outils"] },
+      { href: "/admin/ma-communication", label: "Ma communication", icon: Megaphone },
+    ],
+  },
+  { title: "Progresser", links: [{ href: "/admin/formation", label: "Quiz et formation", icon: GraduationCap }] },
 ];
 
 const livreurLinks = [
   { href: "/admin", label: "Tableau de bord", icon: LayoutDashboard },
-  { href: "/admin/mon-wallet", label: "Mon wallet", icon: Wallet },
   { href: "/admin/mes-livraisons", label: "Mes livraisons", icon: Truck },
-  { href: "/admin/assistant", label: "Assistant IA", icon: Sparkles },
+  { href: "/admin/mon-wallet", label: "Mon wallet", icon: Wallet },
 ];
+
+/** Titre de section du menu (masqué quand le menu est replié). */
+function SectionTitle({ children }: { children: React.ReactNode }) {
+  return <p className="side-full mb-1.5 px-3 text-xs font-semibold uppercase tracking-wider text-white/60">{children}</p>;
+}
 
 async function logoutAction() {
   "use server";
@@ -167,41 +185,41 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const viewAsId = role === "ADMIN" ? (await cookies()).get("jamaal_viewas")?.value : undefined;
   const viewingAs = viewAsId ? await prisma.consultant.findUnique({ where: { id: viewAsId }, select: { name: true } }) : null;
 
-  // Wallet du revendeur ou du livreur : solde affiché en permanence (menu et barre du haut).
+  // Wallet du revendeur ou du livreur : solde affiché en permanence dans la barre du haut.
   const myWallet = role === "ADMIN" && !viewingAs ? null : await viewerWallet();
   const walletBal = myWallet ? (await walletBalance(myWallet.owner)).balance : null;
+  const walletHref = myWallet?.owner.type === "LIVREUR" ? "/admin/mon-wallet" : "/admin/mes-gains#wallet";
+  const rank = myWallet?.owner.type === "CONSULTANT" ? await topBarRank(myWallet.owner.id).catch(() => null) : null;
 
   const unreadCount = session.user?.id
     ? await prisma.notification.count({ where: { userId: session.user.id, read: false } })
     : 0;
+  const collapsed = (await cookies()).get(SIDEBAR_COOKIE)?.value === "replie";
+  const isReseller = role === "CONSULTANT" || !!viewingAs;
+  const roleLabel = viewingAs ? `Vue de ${viewingAs.name}` : role === "ADMIN" ? "Administrateur" : role === "LIVREUR" ? "Livreur" : rank?.title ?? "Consultant";
 
   const sidebarContent = (
     <>
-      <Link href="/admin" className="px-2">
-        <p className="font-serif-display text-lg font-semibold tracking-wide text-white">JAMAAL</p>
-        <p className="text-xs text-white/65">Back-office</p>
+      <Link href="/admin" className="flex items-center gap-2 px-2" title="Tableau de bord">
+        <span className="side-mini h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/10 font-serif-display text-lg font-semibold text-white">J</span>
+        <span className="side-full">
+          <span className="block font-serif-display text-lg font-semibold tracking-wide text-white">JAMAAL</span>
+          <span className="block text-xs text-white/65">{isReseller ? "Espace consultant" : role === "LIVREUR" ? "Espace livreur" : "Back-office"}</span>
+        </span>
       </Link>
 
-      {walletBal !== null && (
-        <div className="mt-4 px-1">
-          <WalletPill balance={walletBal} />
-        </div>
-      )}
-
-      <div className="mt-4 px-1">
+      <div className="side-full mt-4 px-1 md:hidden">
         <GlobalSearch />
       </div>
 
-      <nav className="mt-6 flex flex-1 flex-col gap-5 overflow-y-auto">
+      <nav aria-label="Menu principal" className="mt-6 flex flex-1 flex-col gap-5 overflow-y-auto overflow-x-hidden">
         {role === "ADMIN" && !viewingAs &&
           visibleGroups.map((group) => (
             <div key={group.title}>
-              <p className="mb-1.5 px-3 text-xs font-semibold uppercase tracking-wider text-white/60">
-                {group.title}
-              </p>
+              <SectionTitle>{group.title}</SectionTitle>
               <div className="flex flex-col gap-0.5">
                 {group.links.map((l) => (
-                  <SidebarNavLink key={l.href} href={l.href} label={l.label} icon={<l.icon size={16} />} />
+                  <SidebarNavLink key={l.href} href={l.href} label={l.label} icon={<l.icon size={18} />} />
                 ))}
               </div>
             </div>
@@ -209,67 +227,63 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
         {role === "ADMIN" && !viewingAs && (
           <div>
-            <p className="mb-1.5 px-3 text-xs font-semibold uppercase tracking-wider text-white/60">
-              Système
-            </p>
+            <SectionTitle>Système</SectionTitle>
             <div className="flex flex-col gap-0.5">
-              <SidebarNavLink href="/admin/notifications" label="Notifications" icon={<Bell size={16} />} badge={unreadCount} />
-              {canSee("/admin/utilisateurs") && <SidebarNavLink href="/admin/utilisateurs" label="Utilisateurs" icon={<UserCog size={16} />} />}
-              {canSee("/admin/wallets") && <SidebarNavLink href="/admin/wallets" label="Wallets des membres" icon={<Wallet size={16} />} />}
-              {canSee("/admin/versements") && <SidebarNavLink href="/admin/versements" label="Versements" icon={<Wallet size={16} />} />}
-              {canSee("/admin/modele-economique") && <SidebarNavLink href="/admin/modele-economique" label="Modèle économique" icon={<Calculator size={16} />} />}
-              {canSee("/admin/reglages") && <SidebarNavLink href="/admin/reglages" label="Réglages & Fidélité" icon={<Settings size={16} />} />}
-              {canSee("/admin/historique") && <SidebarNavLink href="/admin/historique" label="Journal des actions" icon={<ClipboardList size={16} />} />}
-              {canSee("/admin/protection") && <SidebarNavLink href="/admin/protection" label="Protection anti-aspiration" icon={<ShieldCheck size={16} />} />}
+              <SidebarNavLink href="/admin/notifications" label="Notifications" icon={<Bell size={18} />} badge={unreadCount} />
+              {canSee("/admin/utilisateurs") && <SidebarNavLink href="/admin/utilisateurs" label="Utilisateurs" icon={<UserCog size={18} />} />}
+              {canSee("/admin/wallets") && <SidebarNavLink href="/admin/wallets" label="Wallets des membres" icon={<Wallet size={18} />} />}
+              {canSee("/admin/versements") && <SidebarNavLink href="/admin/versements" label="Versements" icon={<Wallet size={18} />} />}
+              {canSee("/admin/modele-economique") && <SidebarNavLink href="/admin/modele-economique" label="Modèle économique" icon={<Calculator size={18} />} />}
+              {canSee("/admin/reglages") && <SidebarNavLink href="/admin/reglages" label="Réglages & Fidélité" icon={<Settings size={18} />} />}
+              {canSee("/admin/historique") && <SidebarNavLink href="/admin/historique" label="Journal des actions" icon={<ClipboardList size={18} />} />}
+              {canSee("/admin/protection") && <SidebarNavLink href="/admin/protection" label="Protection anti-aspiration" icon={<ShieldCheck size={18} />} />}
             </div>
           </div>
         )}
 
-        {(role === "CONSULTANT" || !!viewingAs) && (
-          <div className="flex flex-col gap-0.5">
-            {consultantLinks.map((l) => (
-              <SidebarNavLink key={l.href} href={l.href} label={l.label} icon={<l.icon size={16} />} />
-            ))}
-            <SidebarNavLink href="/admin/notifications" label="Notifications" icon={<Bell size={16} />} badge={unreadCount} />
-          </div>
-        )}
+        {isReseller &&
+          consultantGroups.map((group) => (
+            <div key={group.title ?? "accueil"}>
+              {group.title && <SectionTitle>{group.title}</SectionTitle>}
+              <div className="flex flex-col gap-0.5">
+                {group.links.map((l) => (
+                  <SidebarNavLink key={l.href} href={l.href} label={l.label} icon={<l.icon size={18} />} match={l.match} />
+                ))}
+              </div>
+            </div>
+          ))}
 
         {role === "LIVREUR" && (
           <div className="flex flex-col gap-0.5">
             {livreurLinks.map((l) => (
-              <SidebarNavLink key={l.href} href={l.href} label={l.label} icon={<l.icon size={16} />} />
+              <SidebarNavLink key={l.href} href={l.href} label={l.label} icon={<l.icon size={18} />} />
             ))}
           </div>
         )}
       </nav>
 
-      {role !== "ADMIN" && (
-        <div className="mt-3">
-          <InstallApp />
-        </div>
-      )}
-
-      <div className="mt-auto border-t border-white/10 pt-4">
-        <p className="px-2 text-xs font-medium text-white/80">{session.user?.name}</p>
-        <p className="px-2 text-xs text-white/65">{session.user?.email ?? session.user?.phone}</p>
-        <p className="px-2 text-xs uppercase tracking-wide text-rose">{role}</p>
-        <form action={logoutAction}>
-          <button className="mt-3 w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-rose-light transition hover:bg-white/5">
-            Se déconnecter
-          </button>
-        </form>
-        <Link
-          href="/"
-          className="mt-1 block rounded-lg px-3 py-2 text-sm font-medium text-white/65 transition hover:bg-white/5 hover:text-white/70"
-        >
-          ← Retour au site
-        </Link>
-      </div>
+      <form action={logoutAction} className="mt-3 border-t border-white/10 pt-3">
+        <button title="Se déconnecter" className="side-link flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm font-medium text-rose-light transition hover:bg-white/5">
+          <LogOut size={18} className="shrink-0" /> <span className="side-label">Se déconnecter</span>
+        </button>
+      </form>
     </>
   );
 
+  const topbar = (
+    <TopBar
+      role={role === "ADMIN" ? (viewingAs ? "CONSULTANT" : "ADMIN") : role === "LIVREUR" ? "LIVREUR" : "CONSULTANT"}
+      user={{ name: viewingAs?.name ?? session.user?.name ?? "", detail: roleLabel }}
+      balance={walletBal}
+      walletHref={walletHref}
+      rank={rank}
+      unread={unreadCount}
+      logout={logoutAction}
+    />
+  );
+
   return (
-    <ResponsiveSidebar sidebar={sidebarContent} headerExtra={walletBal !== null ? <WalletPill balance={walletBal} /> : null}>
+    <ResponsiveSidebar sidebar={sidebarContent} topbar={topbar} initialCollapsed={collapsed}>
       {viewingAs && (
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-rose bg-rose/10 px-4 py-3 text-sm text-navy">
           <span>Vous consultez l&apos;espace de <strong>{viewingAs.name}</strong> (mode administrateur).</span>
