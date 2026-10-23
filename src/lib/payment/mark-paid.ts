@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { awardLoyaltyForOrder } from "@/lib/loyalty-award";
 import { amountDue } from "@/lib/reservation";
 import { DEPOSIT_PREFIX, markDepositPaid as markWalletDepositPaid } from "@/lib/wallet";
+import { GIFT_PREFIX } from "@/lib/gift/gift";
 
 type Method = "WAVE" | "ORANGE_MONEY" | "STRIPE";
 
@@ -25,6 +26,11 @@ export async function markOrderPaid(
 ): Promise<boolean> {
   // Dépôt sur un wallet de membre (référence wdep_<mouvement>).
   if (orderId.startsWith(DEPOSIT_PREFIX)) return markWalletDepositPaid(orderId.slice(DEPOSIT_PREFIX.length), { externalRef: opts.externalRef, amount: opts.amount });
+  // Carte cadeau (référence gift_<carte>).
+  if (orderId.startsWith(GIFT_PREFIX)) {
+    const { markGiftCardPaid } = await import("@/lib/gift/cards");
+    return markGiftCardPaid(orderId.slice(GIFT_PREFIX.length), { externalRef: opts.externalRef, amount: opts.amount });
+  }
   const order = await prisma.order.findUnique({ where: { id: orderId } });
   if (!order) return false;
   if (order.paymentStatus === "PAYE") return true;

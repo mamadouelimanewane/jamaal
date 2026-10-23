@@ -18,6 +18,8 @@ import { depositFor } from "@/lib/reservation";
 import { getReservationSettings } from "@/lib/reservation-store";
 import { codeDiscount, offerDiscount, resolveDiscountCode } from "@/lib/offers";
 import { phoneLookupVariants } from "@/lib/phone";
+import { subscriptionDiscount } from "@/lib/subscriptions/plan";
+import { giftRedemption } from "@/lib/gift/gift";
 
 export interface CheckoutItem {
   productId: string;
@@ -55,8 +57,13 @@ export interface PlaceOrderOptions {
   channel?: string;
   /** Canal enregistré sur la commande (statistiques, badge) : SITE par défaut. */
   source?: "SITE" | "WHATSAPP" | "REVENDEUR" | "CATALOGUE";
-  /** Code promo saisi par le client (code JAMAAL, code d'un revendeur ou code anniversaire). */
+  /** Code promo saisi par le client (code JAMAAL, code d'un revendeur, code anniversaire ou carte cadeau). */
   couponCode?: string;
+  /** Commande d'un abonnement de réassort : remise abonné sur les produits. */
+  subscriptionId?: string;
+  subscriptionDiscountPct?: number;
+  /** « Offrir à distance » : occasion, expéditeur, message vocal (le message écrit est giftMessage). */
+  gift?: { occasion?: string | null; from?: string | null; voiceUrl?: string | null };
 }
 
 export async function placeOrder(
@@ -179,11 +186,22 @@ export async function placeOrder(
       offerData = { discountAmount: best.discount, offerTitle: best.packs > 1 ? `${best.offer.title} × ${best.packs}` : best.offer.title };
     }
   }
+  // Abonnement de réassort : remise abonné sur les produits (après l'offre).
+  if (!reservation && opts.subscriptionId && opts.subscriptionDiscountPct) {
+    const off = subscriptionDiscount(total, opts.subscriptionDiscountPct);
+    if (off > 0) {
+      total -= off;
+      offerData = { discountAmount: (offerData.discountAmount ?? 0) + off, offerTitle: [offerData.offerTitle, `abonné −${Math.round(opts.subscriptionDiscountPct)} %`].filter(Boolean).join(" · ") };
+    }
+  }
   // Code promo : sur le montant des produits (après l'offre). Le code d'un revendeur lui attribue la vente.
+  // Une carte cadeau est déduite plus loin, livraison comprise.
   let codeRef: Awaited<ReturnType<typeof resolveDiscountCode>> = null;
   if (!reservation && opts.couponCode?.trim()) {
     codeRef = await resolveDiscountCode(opts.couponCode);
     if (!codeRef || "error" in codeRef) throw new Error(codeRef && "error" in codeRef ? codeRef.error : "Code promo inconnu.");
+  }
+  if (codeRef && !("error" in codeRef) && codeRef.source !== "giftcard") {
     const off = codeDiscount(codeRef.kind, codeRef.value, total);
     if (off > 0) {
       total -= off;
@@ -268,6 +286,18 @@ export async function placeOrder(
     };
   }
 
+  // 3 quinquies. Carte cadeau : déduite du total (produits + livraison), dans la limite de son solde.
+  let giftCardUse = 0;
+  if (codeRef && !("error" in codeRef) && codeRef.source === "giftcard") {
+    giftCardUse = giftRedemption(codeRef.value, total);
+    if (giftCardUse > 0) {
+      total -= giftCardUse;
+      offerData = { discountAmount: (offerData.discountAmount ?? 0) + giftCardUse, offerTitle: [offerData.offerTitle, `carte cadeau ${codeRef.code}`].filter(Boolean).join(" · ") };
+      if (codeRef.consultantId && !data.consultantId) data.consultantId = codeRef.consultantId;
+    }
+  }
+  const giftCardId = giftCardUse > 0 && codeRef && !("error" in codeRef) ? codeRef.id : null;
+
   // 4. Vérifier le consultant s'il est fourni
   let validConsultantId: string | null = null;
   if (data.consultantId) {
@@ -306,6 +336,13 @@ export async function placeOrder(
       customerId,
       consultantId: validConsultantId,
       channel: opts.source ?? "SITE",
+      giftOccasion: opts.gift?.occasion?.slice(0, 40) || null,
+      giftFrom: opts.gift?.from?.slice(0, 80) || null,
+      giftVoiceUrl: opts.gift?.voiceUrl?.slice(0, 500) || null,
+      giftCardId,
+      subscriptionId: opts.subscriptionId ?? null,
+      // Entièrement réglée par la carte cadeau : rien à encaisser.
+      ...(total === 0 && giftCardId ? { paymentStatus: "PAYE" as const, paidAt: new Date(), paymentRef: `carte cadeau ${codeRef && !("error" in codeRef) ? codeRef.code : ""}`, status: "CONFIRMEE" as const } : {}),
       ...deliveryData,
       ...reservationData,
       ...offerData,
@@ -323,7 +360,13 @@ export async function placeOrder(
   });
   if (codeRef && !("error" in codeRef) && offerData.discountAmount) {
     if (codeRef.source === "coupon") await tx.coupon.update({ where: { id: codeRef.id }, data: { usedCount: { increment: 1 } } });
-    else await tx.promoCode.update({ where: { id: codeRef.id }, data: { usedCount: { increment: 1 } } });
+    else if (codeRef.source === "promo") await tx.promoCode.update({ where: { id: codeRef.id }, data: { usedCount: { increment: 1 } } });
+  }
+  if (giftCardId) {
+    // Débit atomique : refusé si le solde a changé entre-temps (deux commandes en même temps).
+    const debit = await tx.giftCard.updateMany({ where: { id: giftCardId, status: "ACTIVE", balance: { gte: giftCardUse } }, data: { balance: { decrement: giftCardUse } } });
+    if (!debit.count) throw new Error("Le solde de la carte cadeau vient de changer : réessayez.");
+    await tx.giftCard.updateMany({ where: { id: giftCardId, balance: { lte: 0 } }, data: { status: "EPUISEE" } });
   }
   const stockAlerts = reservation ? [] : await reserveStock(tx, serverItems, true, { orderId: order.id });
   return { order, stockAlerts };

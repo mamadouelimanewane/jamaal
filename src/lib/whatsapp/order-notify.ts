@@ -96,10 +96,20 @@ export async function sendOrderUpdate(orderId: string, event: OrderEvent): Promi
     if (!(await automationEnabled("orderTracking"))) return;
     const o = await prisma.order.findUnique({
       where: { id: orderId },
-      select: { id: true, customerName: true, customerPhone: true, total: true, paymentStatus: true, channel: true, deliveryMode: true, deliveryTarget: true, isReservation: true, depositAmount: true, reservationDelay: true },
+      select: { id: true, customerName: true, customerPhone: true, total: true, paymentStatus: true, channel: true, deliveryMode: true, deliveryTarget: true, isReservation: true, depositAmount: true, reservationDelay: true, subscriptionId: true },
     });
     if (!o?.customerPhone || (await phoneOptedOut(o.customerPhone))) return;
     const site = await getSiteUrl().catch(() => process.env.NEXT_PUBLIC_SITE_URL ?? "");
+    // Commande d'un abonnement de réassort : message dédié (remise abonné, gestion de l'abonnement).
+    if (event === "CREEE" && o.subscriptionId) {
+      const sub = await prisma.subscription.findUnique({ where: { id: o.subscriptionId }, select: { token: true, discountPct: true } });
+      if (sub) {
+        const vars = { prenom: o.customerName.split(/\s+/)[0] || o.customerName, numero: ref(o.id), montant: fcfa(o.total), remise: `${sub.discountPct} %`, lien: `${site}/abonnement/${sub.token}` };
+        const original = `Bonjour ${vars.prenom}, votre réassort JAMAAL n° ${vars.numero} est prêt : ${vars.montant} (remise abonné ${vars.remise} incluse). Payez en un clic avec le bouton ci-dessous. Gérer mon abonnement : ${vars.lien}`;
+        await sendWhatsApp({ to: o.customerPhone, kind: "suivi", text: await messageText("abonnement_commande", vars, original), cta: { label: o.paymentStatus === "PAYE" ? "Suivre ma commande" : "Payer en un clic", url: `${site}/${o.paymentStatus === "PAYE" ? "suivi" : "commande"}/${o.id}` } });
+        return;
+      }
+    }
     const msg = orderMessage(event, o, site);
     if (!msg) return;
     const { key, vars } = orderMessageVars(event, o);

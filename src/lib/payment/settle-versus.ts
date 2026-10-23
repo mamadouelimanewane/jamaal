@@ -6,6 +6,7 @@
  */
 import { prisma } from "@/lib/prisma";
 import { DEPOSIT_PREFIX } from "@/lib/wallet";
+import { GIFT_PREFIX } from "@/lib/gift/gift";
 import { markOrderPaid } from "./mark-paid";
 import { getVersusPayment, isVersusRef, orderIdFromReference, rawVersusRef, versusCredentials } from "./versus";
 
@@ -17,7 +18,10 @@ export async function settleVersusPayment(id: string): Promise<SettleResult> {
   const isDeposit = id.startsWith(DEPOSIT_PREFIX);
 
   // Référence de paiement enregistrée à la création (jamais celle d'un message reçu).
-  const stored = isDeposit
+  const isGift = id.startsWith(GIFT_PREFIX);
+  const stored = isGift
+    ? (await prisma.giftCard.findUnique({ where: { id: id.slice(GIFT_PREFIX.length) }, select: { paymentRef: true, paymentMethod: true } }).then((g) => (g?.paymentMethod === "STRIPE" ? null : g?.paymentRef)))
+    : isDeposit
     ? (await prisma.walletTransaction.findUnique({ where: { id: id.slice(DEPOSIT_PREFIX.length) }, select: { providerRef: true } }))?.providerRef
     : (await prisma.order.findUnique({ where: { id }, select: { paymentRef: true } }))?.paymentRef;
   if (!stored) return "unknown";
@@ -29,7 +33,7 @@ export async function settleVersusPayment(id: string): Promise<SettleResult> {
 
   if (payment.status === "COMPLETED") {
     if (payment.currency && payment.currency !== "XOF") return "unknown";
-    const method = isDeposit ? "WAVE" : (await prisma.order.findUnique({ where: { id }, select: { paymentMethod: true } }))?.paymentMethod;
+    const method = isGift ? (await prisma.giftCard.findUnique({ where: { id: id.slice(GIFT_PREFIX.length) }, select: { paymentMethod: true } }))?.paymentMethod : isDeposit ? "WAVE" : (await prisma.order.findUnique({ where: { id }, select: { paymentMethod: true } }))?.paymentMethod;
     if (method !== "WAVE" && method !== "ORANGE_MONEY" && method !== "STRIPE") return "unknown";
     const ok = await markOrderPaid(id, { method, externalRef: stored, amount: payment.amount });
     return ok ? "paid" : "unknown";

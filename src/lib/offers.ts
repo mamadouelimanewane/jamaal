@@ -57,6 +57,8 @@ export function codeDiscount(kind: "PERCENT" | "FIXED", value: number, base: num
 export type DiscountCodeRef =
   | { source: "coupon"; id: string; code: string; kind: "PERCENT" | "FIXED"; value: number; consultantId: null }
   | { source: "promo"; id: string; code: string; kind: "PERCENT"; value: number; consultantId: string }
+  /** Carte cadeau : value = solde restant, déduit des produits ET de la livraison. */
+  | { source: "giftcard"; id: string; code: string; kind: "FIXED"; value: number; consultantId: string | null }
   | { error: string };
 
 /**
@@ -81,6 +83,13 @@ export async function resolveDiscountCode(raw: string): Promise<DiscountCodeRef 
     if (promo.expiresAt && promo.expiresAt.getTime() < now) return { error: "Ce code a expiré." };
     if (promo.usageLimit && promo.usedCount >= promo.usageLimit) return { error: "Ce code a atteint son nombre d'utilisations." };
     return { source: "promo", id: promo.id, code: promo.code, kind: "PERCENT", value: promo.discountPct, consultantId: promo.consultantId };
+  }
+  const card = await prisma.giftCard.findFirst({ where: { code: { equals: code, mode: "insensitive" } } });
+  if (card) {
+    if (card.status === "EN_ATTENTE") return { error: "Cette carte cadeau n'est pas encore payée." };
+    if (card.status !== "ACTIVE" || card.balance <= 0) return { error: "Cette carte cadeau a déjà été entièrement utilisée." };
+    if (card.expiresAt && card.expiresAt.getTime() < now) return { error: "Cette carte cadeau a expiré." };
+    return { source: "giftcard", id: card.id, code: card.code, kind: "FIXED", value: card.balance, consultantId: card.consultantId };
   }
   return null;
 }

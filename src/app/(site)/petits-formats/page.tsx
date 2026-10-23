@@ -21,7 +21,7 @@ export default async function SmallFormatsPage() {
         Le même parfum, en 30 ml ou en 15 ml recharge{cheapest ? `, dès ${formatPrice(cheapest)}` : ""}. Idéal pour essayer un sillage, l&apos;offrir ou garder un flacon dans son sac, avant de choisir le grand format.
       </p>
       <p className="mt-2 text-sm text-navy/70">
-        Pas sûr de votre choix ? <Link href="/quiz" className="font-semibold text-rose-dark underline">Trouvez votre sillage</Link> ou parcourez les <Link href="/coffrets-decouverte" className="font-semibold text-rose-dark underline">coffrets découverte</Link>.
+        Pas sûr de votre choix ? <Link href="/parfum-adn" className="font-semibold text-rose-dark underline">Trouvez votre sillage</Link> ou parcourez les <Link href="/coffrets-decouverte" className="font-semibold text-rose-dark underline">coffrets découverte</Link>.
       </p>
       {items.length ? (
         <div className="mt-9 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">

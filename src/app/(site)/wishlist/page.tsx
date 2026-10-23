@@ -31,7 +31,7 @@ export default function WishlistPage() {
           <Link href="/" className="mt-4 inline-block text-sm font-semibold text-rose-dark">
             Découvrir les parfums →
           </Link>
-          <Link href="/quiz" className="mt-2 block text-sm text-navy/50 hover:underline">
+          <Link href="/parfum-adn" className="mt-2 block text-sm text-navy/50 hover:underline">
             Ou faire le quiz signature
           </Link>
         </div>

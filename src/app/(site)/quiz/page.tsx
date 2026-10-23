@@ -1,33 +1,7 @@
-import { prisma } from "@/lib/prisma";
-import { PerfumeQuiz } from "@/components/PerfumeQuiz";
+import { redirect } from "next/navigation";
 
-export const metadata = { title: "Trouver mon sillage", description: "Répondez à quelques questions : le conseil JAMAAL vous propose les parfums qui vous ressemblent." };
-
-export const dynamic = "force-dynamic";
-
-/**
- * Destination : src/app/(site)/quiz/page.tsx
- * Route publique : /quiz
- */
-export default async function QuizPage() {
-  const products = await prisma.product.findMany({
-    where: {
-      category: { in: ["parfum-femme", "parfum-homme", "parfum-unisexe"] },
-    },
-    select: {
-      id: true,
-      slug: true,
-      name: true,
-      category: true,
-      shortDescription: true,
-      family: true,
-      topNotes: true,
-      heartNotes: true,
-      baseNotes: true,
-      testerPrice: true,
-    },
-    take: 200,
-  });
-
-  return <PerfumeQuiz products={products} />;
+/** L'ancien quiz est remplacé par le « Parfum ADN ». */
+export default async function QuizPage({ searchParams }: { searchParams: Promise<{ ref?: string }> }) {
+  const { ref } = await searchParams;
+  redirect(ref ? `/parfum-adn?ref=${encodeURIComponent(ref)}` : "/parfum-adn");
 }

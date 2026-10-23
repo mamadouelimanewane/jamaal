@@ -20,7 +20,11 @@ export type MessageKey =
   | "anniversaire"
   | "panier"
   | "avis"
-  | "retrait_verse";
+  | "retrait_verse"
+  | "carte_cadeau"
+  | "carte_cadeau_acheteur"
+  | "abonnement_rappel"
+  | "abonnement_commande";
 
 export type MessageDef = { group: string; label: string; when: string; vars: Record<string, string>; text: string };
 
@@ -123,6 +127,34 @@ export const WA_MESSAGES: Record<MessageKey, MessageDef> = {
     when: "Un retrait du wallet est envoyé sur Wave ou Orange Money.",
     vars: { montant: "Montant versé", compte: "Wave ou Orange Money (et numéro)" },
     text: "✅ Retrait versé : {montant} envoyés sur {compte}. Merci pour votre travail !",
+  },
+  carte_cadeau: {
+    group: "Cadeaux et abonnements",
+    label: "Carte cadeau reçue",
+    when: "Une carte cadeau payée est envoyée à la personne qui la reçoit.",
+    vars: { prenom: "Prénom du destinataire", expediteur: "Qui l'offre", montant: "Montant de la carte", occasion: "Occasion (Tabaski, mariage…)", message: "Message de l'expéditeur", code: "Code à utiliser", lien: "Lien pour choisir" },
+    text: "🎁 Bonjour {prenom}, {expediteur} vous offre une carte cadeau JAMAAL de {montant}{occasion} !\n{message}\nVotre code : *{code}*. Choisissez vos parfums et soins, livrés chez vous : {lien}",
+  },
+  carte_cadeau_acheteur: {
+    group: "Cadeaux et abonnements",
+    label: "Carte cadeau envoyée (acheteur)",
+    when: "Confirmation à la personne qui a acheté la carte cadeau.",
+    vars: { prenom: "Prénom de l'acheteur", destinataire: "Prénom du destinataire", montant: "Montant", code: "Code de la carte" },
+    text: "Merci {prenom} ! Votre carte cadeau de {montant} (code {code}) vient d'être envoyée à {destinataire} sur WhatsApp. 🎁",
+  },
+  abonnement_rappel: {
+    group: "Cadeaux et abonnements",
+    label: "Réassort : rappel 3 jours avant",
+    when: "3 jours avant la prochaine commande d'un abonnement.",
+    vars: { prenom: "Prénom du client", articles: "Produits de l'abonnement", jours: "Jours avant la commande", lien: "Lien pour gérer l'abonnement" },
+    text: "Bonjour {prenom} 🌸 Votre réassort JAMAAL ({articles}) sera préparé dans {jours} jours. Rien à faire ! Pour décaler, changer ou mettre en pause : {lien}",
+  },
+  abonnement_commande: {
+    group: "Cadeaux et abonnements",
+    label: "Réassort : commande prête",
+    when: "La commande d'un abonnement est créée (bouton de paiement).",
+    vars: { prenom: "Prénom du client", numero: "N° de commande", montant: "Montant", remise: "Remise abonné", lien: "Lien pour gérer l'abonnement" },
+    text: "Bonjour {prenom}, votre réassort JAMAAL n° {numero} est prêt : {montant} (remise abonné {remise} incluse). Payez en un clic avec le bouton ci-dessous. Gérer mon abonnement : {lien}",
   },
 };
 

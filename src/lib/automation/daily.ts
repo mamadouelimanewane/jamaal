@@ -4,6 +4,7 @@
  * La veille des prix Chogan passe en dernier et utilise le temps restant.
  */
 import { sendDailySummary } from "./summary";
+import { runSubscriptions } from "@/lib/subscriptions/run";
 import { runRelances } from "./relances";
 import { requestReviews } from "./reviews";
 import { awardChallenges } from "./challenges";
@@ -31,6 +32,7 @@ export async function runDailyJobs(origin: string, opts: { budgetMs?: number; no
   await step("defis", () => awardChallenges(now));
   if (whatsappConfig().active) await step("defis80", () => alertChallengesAlmostDone(now));
   await step("relances", () => runRelances(origin, now));
+  await step("abonnements", () => runSubscriptions(origin, now));
   await step("avis", () => requestReviews(origin, now));
   await step("veilleChogan", () => watchChoganPrices(Math.max(5_000, budgetMs - (Date.now() - started) - 8_000)));
   // Le résumé en dernier : il compte aussi les changements de prix détectés juste avant.

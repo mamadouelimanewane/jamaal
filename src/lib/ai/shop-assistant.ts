@@ -138,7 +138,7 @@ async function shopInfo() {
     collections: categories.map((c) => ({ nom: c.navLabel.replace("JAMAAL ", ""), lien: `/collections/${c.slug}` })),
     pagesUtiles: {
       toutLeCatalogue: "/collections",
-      quizParfum: "/quiz",
+      quizParfum: "/parfum-adn",
       coffretsDecouverte: "/coffrets-decouverte",
       panier: "/panier",
       devenirRevendeur: "/devenir-consultant",

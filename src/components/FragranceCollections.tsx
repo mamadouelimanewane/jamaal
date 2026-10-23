@@ -13,7 +13,7 @@ export function FragranceCollections({ products }: { products: (Product | undefi
   return <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-12 lg:py-24">
     <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
       <div><p className="luxury-eyebrow">Choisissez votre univers</p><h2 className="mt-3 font-serif-display text-3xl font-medium text-navy sm:text-4xl">Une fragrance, une présence.</h2></div>
-      <Link href="/quiz" className="editorial-link">Le conseil parfum <ArrowRight size={15}/></Link>
+      <Link href="/parfum-adn" className="editorial-link">Le conseil parfum <ArrowRight size={15}/></Link>
     </div>
     <div className="grid gap-4 md:grid-cols-3 md:gap-5">
       {collections.map((collection, index) => {

@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
 
   const id = orderIdFromReference(String(body.external_reference));
   const result = await settleVersusPayment(id);
-  if (result === "failed" && !id.startsWith(DEPOSIT_PREFIX)) alertPaymentFailed(id, "Versus");
+  if (result === "failed" && !id.startsWith(DEPOSIT_PREFIX) && !id.startsWith("gift_")) alertPaymentFailed(id, "Versus");
 
   return NextResponse.json({ received: true });
 }

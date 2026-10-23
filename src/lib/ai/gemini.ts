@@ -273,11 +273,13 @@ export function textOf(content: GeminiContent): string {
 export async function readMedia(media: { data: Uint8Array; mimeType: string }, kind: "audio" | "image"): Promise<string> {
   const prompt =
     kind === "audio"
-      ? "Transcris fidèlement ce message vocal d'un client (français, wolof ou anglais). Si c'est du wolof, donne la traduction française entre parenthèses. Réponds uniquement par la transcription."
+      ? "Transcris fidèlement ce message vocal d'un client sénégalais d'une boutique de parfums et cosmétiques (Chogan). Il peut parler français, wolof, anglais, ou mélanger wolof et français. Écris le wolof tel qu'on l'écrit à Dakar (ex. « Dama bëgg », « ñaata la ? », « indil ma ko »), puis ajoute la traduction française entre parenthèses. Garde tels quels les noms de produits et de parfums (Aqua Soul, Sauvage…), les formats (30 ml, 70 ml), les quantités, prix et quartiers (Parcelles, Sacré-Cœur, Almadies…). Réponds uniquement par la transcription."
       : "Un client d'une boutique de parfums et cosmétiques envoie cette photo. Décris en une ou deux phrases ce qu'on voit (produit, marque et nom lisibles sur l'étiquette, couleur, type de produit) pour retrouver un produit équivalent. Réponds uniquement par la description.";
   const reply = await generateContent({
+    // Vocal et photo : modèle qui lit l'audio et les images (Gemini en priorité, DeepSeek ne lit ni l'un ni l'autre).
+    vision: true,
     contents: [{ role: "user", parts: [{ inlineData: { mimeType: media.mimeType, data: Buffer.from(media.data).toString("base64") } }, { text: prompt }] }],
-    maxOutputTokens: 600,
+    maxOutputTokens: 800,
     thinking: "minimal",
     timeoutMs: 20_000,
   });

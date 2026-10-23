@@ -8,6 +8,7 @@
  */
 import { prisma } from "@/lib/prisma";
 import { DEPOSIT_PREFIX } from "@/lib/wallet";
+import { GIFT_PREFIX } from "@/lib/gift/gift";
 import { markOrderPaid } from "./mark-paid";
 import type { SettleResult } from "./settle-versus";
 
@@ -52,7 +53,10 @@ export function waveVerdict(s: WaveSession | null, id: string): "paid" | "failed
 export async function settleWavePayment(id: string): Promise<SettleResult> {
   if (!waveConfigured()) return "unknown";
   const isDeposit = id.startsWith(DEPOSIT_PREFIX);
-  const stored = isDeposit
+  const isGift = id.startsWith(GIFT_PREFIX);
+  const stored = isGift
+    ? (await prisma.giftCard.findUnique({ where: { id: id.slice(GIFT_PREFIX.length) }, select: { paymentRef: true, paymentMethod: true } }).then((g) => (g?.paymentMethod === "STRIPE" ? null : g?.paymentRef)))
+    : isDeposit
     ? (await prisma.walletTransaction.findUnique({ where: { id: id.slice(DEPOSIT_PREFIX.length) }, select: { providerRef: true } }))?.providerRef
     : (await prisma.order.findUnique({ where: { id }, select: { paymentRef: true, paymentMethod: true } }).then((o) => (o?.paymentMethod === "WAVE" ? o.paymentRef : null)));
   // Les sessions Wave ont des identifiants « cos-… » ; les références Versus commencent par « versus: ».

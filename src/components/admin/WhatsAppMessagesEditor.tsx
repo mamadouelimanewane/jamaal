@@ -22,6 +22,11 @@ const SAMPLE: Record<string, string> = {
   jours: "15",
   articles: "Aqua Soul (30 ml), Gel douche",
   compte: "Wave (+221 77 123 45 67)",
+  expediteur: "Moussa (depuis Paris)",
+  occasion: " pour la Tabaski",
+  message: "« Bonne fête maman, je pense fort à toi. »",
+  destinataire: "Awa",
+  remise: "5 %",
 };
 
 function MessageRow({ id, def, custom }: { id: MessageKey; def: MessageDef; custom: string | null }) {

@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { useCartStore } from "@/lib/cart-store";
 import { formatPrice } from "@/lib/currency";
+import { VoiceRecorder } from "@/components/gift/VoiceRecorder";
+import { OCCASIONS } from "@/lib/gift/gift";
 import { createOrder } from "@/lib/actions/orders";
 import { locateFromText } from "@/lib/actions/delivery-quote";
 import { getCartPrices, previewCartDiscounts, saveCartDraft, type CartDiscounts } from "@/lib/actions/cart";
@@ -47,6 +49,10 @@ export default function CartPage() {
   const [acceptCgv, setAcceptCgv] = useState(false);
   const [giftWrap, setGiftWrap] = useState(false);
   const [giftMessage, setGiftMessage] = useState("");
+  // « Offrir à distance » : occasion, expéditeur et message vocal.
+  const [giftOccasion, setGiftOccasion] = useState("");
+  const [giftFrom, setGiftFrom] = useState("");
+  const [giftVoice, setGiftVoice] = useState<string | null>(null);
   const [consultants, setConsultants] = useState<
     { id: string; name: string; city: string; slug?: string | null }[]
   >([]);
@@ -228,7 +234,8 @@ export default function CartPage() {
             }
           : { mode: "RETRAIT" },
         false,
-        codeOk ? couponCode : ""
+        codeOk ? couponCode : "",
+        giftWrap ? { occasion: giftOccasion, from: giftFrom, voiceUrl: giftVoice } : null
       );
       if (!res.ok) {
         setError(res.error);
@@ -456,7 +463,24 @@ export default function CartPage() {
 
               <div className="rounded-xl border border-line bg-cream/50 p-3">
                 <label className="flex items-center gap-2 text-sm font-medium text-navy"><input type="checkbox" checked={giftWrap} onChange={(e) => setGiftWrap(e.target.checked)} />Préparer cette commande comme un cadeau</label>
-                {giftWrap && <textarea maxLength={300} placeholder="Message cadeau (facultatif, 300 caractères maximum)" value={giftMessage} onChange={(e) => setGiftMessage(e.target.value)} rows={3} className="mt-3 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm" />}
+                {giftWrap && (
+                  <div className="mt-3 space-y-3">
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <label className="text-xs font-medium text-navy">Occasion
+                        <select value={giftOccasion} onChange={(e) => setGiftOccasion(e.target.value)} className="mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm">
+                          <option value="">Choisir (facultatif)</option>
+                          {OCCASIONS.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
+                        </select>
+                      </label>
+                      <label className="text-xs font-medium text-navy">De la part de
+                        <input value={giftFrom} onChange={(e) => setGiftFrom(e.target.value)} maxLength={80} placeholder="Ex. Moussa, depuis Paris" className="mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm" />
+                      </label>
+                    </div>
+                    <textarea maxLength={300} placeholder="Message cadeau (facultatif, 300 caractères maximum)" value={giftMessage} onChange={(e) => setGiftMessage(e.target.value)} rows={3} className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm" />
+                    <VoiceRecorder value={giftVoice} onChange={setGiftVoice} />
+                    {!forOther && <p className="text-xs text-navy/70">Vous offrez depuis l&apos;étranger ou à un proche ? Choisissez la livraison et choisissez « Une autre personne » comme destinataire : nous le livrons chez lui, avec votre message.</p>}
+                  </div>
+                )}
               </div>
 
               {paymentOptions === null ? (

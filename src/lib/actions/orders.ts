@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { cleanGiftInfo } from "@/lib/gift/gift";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin, requireLivreurProfile } from "./auth-guard";
 import { OrderStatus } from "@prisma/client";
@@ -46,12 +47,13 @@ export async function createOrder(
   giftMessage: string = "",
   delivery: CheckoutDelivery = { mode: "RETRAIT" },
   reservation: boolean = false,
-  couponCode: string = ""
+  couponCode: string = "",
+  gift: unknown = null
 ): Promise<CreateOrderResult> {
   try {
     // Les options internes (clé de limitation…) ne viennent jamais du navigateur.
     const code = typeof couponCode === "string" ? couponCode.slice(0, 40) : "";
-    return { ok: true, id: await placeOrder(customer, items, consultantId, acceptCgv, giftWrap, giftMessage, delivery, reservation, { couponCode: code }) };
+    return { ok: true, id: await placeOrder(customer, items, consultantId, acceptCgv, giftWrap, giftMessage, delivery, reservation, { couponCode: code, gift: giftWrap ? cleanGiftInfo(gift) : undefined }) };
   } catch (e) {
     const internal = !(e instanceof Error) || /^PrismaClient/.test(e.constructor.name);
     if (internal) console.error("[commande]", e);
@@ -114,6 +116,10 @@ export async function getOrderConfirmation(id: string) {
       paymentStatus: true,
       giftWrap: true,
       giftMessage: true,
+      giftFrom: true,
+      giftOccasion: true,
+      giftVoiceUrl: true,
+      subscriptionId: true,
       paidAt: true,
       deliveryMode: true,
       deliveryFee: true,

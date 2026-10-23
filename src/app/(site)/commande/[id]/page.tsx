@@ -1,4 +1,8 @@
 import Link from "next/link";
+import { prisma } from "@/lib/prisma";
+import { SubscribeOffer } from "@/components/subscription/SubscribeOffer";
+import { subscriptionDiscountPct } from "@/lib/subscriptions/run";
+import { occasionOf } from "@/lib/gift/gift";
 import { notFound } from "next/navigation";
 import { getOrderConfirmation } from "@/lib/actions/orders";
 import { formatPrice } from "@/lib/currency";
@@ -48,6 +52,10 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
   const due = amountDue(order);
   const resa = order.isReservation ? ((order.reservationStatus ?? "ACOMPTE_ATTENDU") as ReservationStatus) : null;
   const balance = Math.max(0, order.total - order.depositAmount);
+  const [subPct, existingSub] = await Promise.all([
+    subscriptionDiscountPct(),
+    prisma.subscription.findFirst({ where: { sourceOrderId: order.id, status: { not: "ANNULE" } }, select: { token: true } }).catch(() => null),
+  ]);
 
   return (
     <div className="mx-auto max-w-lg px-4 py-16">
@@ -144,7 +152,9 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
           )}
         </div>
 
-        {order.giftWrap && <div className="mt-4 rounded-xl border border-rose/30 bg-rose/5 p-4 text-left text-sm"><p className="font-semibold text-navy">Commande cadeau</p>{order.giftMessage && <p className="mt-1 text-navy/70">« {order.giftMessage} »</p>}</div>}
+        {order.giftWrap && <div className="mt-4 rounded-xl border border-rose/30 bg-rose/5 p-4 text-left text-sm"><p className="font-semibold text-navy">Commande cadeau</p>{order.giftFrom && <p className="mt-1 text-navy/70">De la part de {order.giftFrom}{order.giftOccasion ? ` · ${occasionOf(order.giftOccasion)?.label ?? ""}` : ""}</p>}{order.giftMessage && <p className="mt-1 text-navy/70">« {order.giftMessage} »</p>}{order.giftVoiceUrl && <audio src={order.giftVoiceUrl} controls className="mt-2 w-full" />}</div>}
+
+        {!order.isReservation && order.customerPhone && order.status !== "ANNULEE" && !order.subscriptionId && <SubscribeOffer orderId={order.id} discountPct={subPct} existingToken={existingSub?.token ?? null} />}
 
         <ul className="mt-6 space-y-2 text-left text-sm">
           {order.items.map((item, i) => (

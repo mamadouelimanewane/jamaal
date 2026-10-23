@@ -406,6 +406,13 @@ model Order {
   offerTitle String?
   /// Origine de la commande : SITE, WHATSAPP (assistant ou panier WhatsApp), REVENDEUR (saisie ou message du revendeur).
   channel String @default("SITE")
+  /// Cadeau à distance : occasion (Tabaski, mariage…), message vocal (adresse), nom de l'expéditeur.
+  giftOccasion   String?
+  giftVoiceUrl   String?
+  giftFrom       String?
+  /// Carte cadeau utilisée pour payer (tout ou partie) et abonnement de réassort à l'origine de la commande.
+  giftCardId     String?
+  subscriptionId String?
 }
 
 model OrderItem {
@@ -556,6 +563,8 @@ model Customer {
   whatsappOptOut Boolean  @default(false)
   /// Anniversaire « MM-JJ » (message et code cadeau automatiques).
   birthday       String?
+  /// Profil olfactif « Parfum ADN » : parfums portés, familles et notes préférées (relances et conseils).
+  scentProfile   Json?
 }
 
 model Notification {
@@ -1114,4 +1123,60 @@ model ConsultantPiece {
   back         Bytes?
   mime         String?
   updatedAt    DateTime   @default(now()) @updatedAt
+}
+
+/// Abonnement de réassort : la même commande recréée automatiquement tous les N jours, avec une remise.
+model Subscription {
+  id            String    @id @default(cuid())
+  token         String    @unique
+  customerName  String
+  customerPhone String
+  customerEmail String?
+  consultantId  String?
+  /// [{ productId, productName, volumeLabel, quantity }]
+  items         Json
+  intervalDays  Int       @default(45)
+  discountPct   Int       @default(5)
+  /// { mode: "LIVRAISON" | "RETRAIT", lat, lng, address, place }
+  delivery      Json?
+  /// ACTIVE, PAUSE, ANNULE
+  status        String    @default("ACTIVE")
+  nextRunAt     DateTime
+  remindedAt    DateTime?
+  lastOrderId   String?
+  sourceOrderId String?
+  ordersCount   Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([status, nextRunAt], map: "Subscription_status_next_idx")
+  @@index([customerPhone], map: "Subscription_phone_idx")
+}
+
+/// Carte cadeau : achetée (souvent depuis l'étranger), envoyée par WhatsApp, utilisable en un ou plusieurs achats.
+model GiftCard {
+  id             String    @id @default(cuid())
+  code           String    @unique
+  amount         Int
+  balance        Int       @default(0)
+  /// EN_ATTENTE (non payée), ACTIVE, EPUISEE, ANNULEE
+  status         String    @default("EN_ATTENTE")
+  buyerName      String
+  buyerPhone     String?
+  buyerEmail     String?
+  recipientName  String
+  recipientPhone String
+  occasion       String?
+  message        String?
+  voiceUrl       String?
+  consultantId   String?
+  paymentMethod  String?
+  paymentRef     String?
+  paidAt         DateTime?
+  sentAt         DateTime?
+  expiresAt      DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([status], map: "GiftCard_status_idx")
 }

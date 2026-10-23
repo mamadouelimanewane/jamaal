@@ -14,6 +14,7 @@ import { placeOrder, type CheckoutItem } from "@/lib/orders/place-order";
 import { runShopTool, SHOP_TOOLS, ORDER_STATUS_LABELS, phoneKey } from "./shop-assistant";
 import { runChat, type ChatMessage } from "./assistant";
 import type { GeminiFunctionDeclaration } from "./gemini";
+import { profileSummary, type Family } from "@/lib/scent/adn";
 
 type Args = Record<string, unknown>;
 const str = (v: unknown, max = 120) => (typeof v === "string" ? v.trim().slice(0, max) : "");
@@ -27,6 +28,8 @@ export interface WhatsAppContext {
   location?: { lat: number; lng: number } | null;
   /** Adresse publique du site, pour les liens. */
   origin: string;
+  /** Résumé du « Parfum ADN » du client, s'il l'a fait (goûts olfactifs). */
+  scentProfile?: string | null;
 }
 
 const ORDER_TOOLS: GeminiFunctionDeclaration[] = [
@@ -73,7 +76,7 @@ export const WHATSAPP_TOOLS: GeminiFunctionDeclaration[] = [...SHOP_TOOLS.filter
 
 export function whatsappSystemPrompt(ctx: WhatsAppContext, today = new Date()): string {
   return `Tu es la conseillère de JAMAAL Luxury Cosmetics sur WhatsApp, au Sénégal (revendeur officiel des parfums et cosmétiques CHOGAN, prix en FCFA). Nous sommes le ${today.toISOString().slice(0, 10)}.
-Tu parles au client du numéro +${ctx.phone}${ctx.profileName ? ` (profil WhatsApp : ${ctx.profileName})` : ""}.${ctx.location ? " Il a envoyé sa position : la livraison à domicile est possible." : " Il n'a pas encore envoyé sa position."}
+Tu parles au client du numéro +${ctx.phone}${ctx.profileName ? ` (profil WhatsApp : ${ctx.profileName})` : ""}.${ctx.location ? " Il a envoyé sa position : la livraison à domicile est possible." : " Il n'a pas encore envoyé sa position."}${ctx.scentProfile ? `\nSon Parfum ADN (goûts déclarés) : ${ctx.scentProfile}. Sers-t'en pour conseiller sans le lui réciter.` : ""}
 
 Ton but : conseiller, puis PRENDRE LA COMMANDE ici même, sans renvoyer le client vers le site.
 
@@ -85,7 +88,9 @@ Déroulé d'une commande :
 5. Seulement après un « oui » clair, appelle passer_commande avec confirme=true. Envoie alors le numéro de commande, le total et le lien de paiement (Wave, Orange Money… sur la page de commande) ; précise que le paiement à la livraison reste possible s'il est proposé sur la page.
 
 Règles :
-- Messages courts, chaleureux, adaptés à WhatsApp (pas de tableaux). Réponds dans la langue du client (français par défaut, wolof simple ou anglais s'il écrit ainsi).
+- Messages courts, chaleureux, adaptés à WhatsApp (pas de tableaux). Réponds dans la langue du client : français par défaut ; s'il parle ou écrit en wolof (ou mélange wolof et français), réponds en wolof simple et naturel, comme à Dakar (« Naka nga def ? », « Waaw », « Jërëjëf »), en gardant en français les noms de produits, les prix et les formats ; anglais s'il écrit en anglais.
+- Commande vocale : un client peut tout dire dans un vocal (« Dama bëgg Aqua Soul 70 ml, ñu indil ma ko ci Parcelles »). Repère produit, format, quantité, quartier, puis enchaîne le déroulé sans lui faire répéter ce qu'il a déjà dit. Si un mot de la transcription est incertain, propose le produit le plus proche et demande confirmation.
+- Pour un client qui ne sait pas quoi choisir, propose le Parfum ADN : [Trouver mon parfum en 1 minute](/parfum-adn).
 - Les parfums sont « inspirés de » grands parfums : créations Olfazeta by Chogan, jamais « le même » ni une copie.
 - Un format à zéro est « en cours de commande » : propose la réservation depuis la fiche produit (lien).
 - Liens au format [texte](/chemin) avec des chemins du site (/produits, /commande, /suivi, /collections, /offres).
@@ -259,8 +264,20 @@ export async function whatsappHistory(phone: string): Promise<ChatMessage[]> {
 }
 
 /** Réponse de l'assistant, et la commande créée pendant ce tour (pour le bouton « Payer »). */
+/** Résumé du Parfum ADN enregistré pour ce numéro. */
+export async function scentProfileFor(phone: string): Promise<string | null> {
+  const key = phoneKey(phone);
+  if (!key) return null;
+  const rows = await prisma.customer.findMany({ where: { phone: { contains: key.slice(-7) } }, select: { phone: true, scentProfile: true }, take: 5 }).catch(() => []);
+  const row = rows.find((r) => phoneKey(r.phone) === key && r.scentProfile);
+  if (!row) return null;
+  const p = row.scentProfile as { families?: Family[]; notes?: string[]; worn?: string[] };
+  return profileSummary({ families: p.families ?? [], notes: p.notes ?? [], worn: p.worn ?? [] }) || null;
+}
+
 export async function runWhatsAppSales(ctx: WhatsAppContext, history: ChatMessage[]): Promise<{ text: string; orderPath: string | null }> {
   let orderPath: string | null = null;
+  if (ctx.scentProfile === undefined) ctx = { ...ctx, scentProfile: await scentProfileFor(ctx.phone) };
   const answer = await runChat({
     system: whatsappSystemPrompt(ctx),
     tools: WHATSAPP_TOOLS,

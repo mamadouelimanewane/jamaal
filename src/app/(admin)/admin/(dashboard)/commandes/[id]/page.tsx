@@ -1,4 +1,6 @@
 import { notFound } from "next/navigation";
+import { occasionOf } from "@/lib/gift/gift";
+import Link from "next/link";
 import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/currency";
@@ -109,7 +111,8 @@ export default async function AdminOrderDetailPage({
         </div>
       </div>
 
-      {order.giftWrap && <div className="mt-4 rounded-xl border border-rose/30 bg-rose/5 p-4"><p className="text-sm font-semibold text-navy">Préparation cadeau</p>{order.giftMessage && <p className="mt-1 text-sm text-navy/85">Message : {order.giftMessage}</p>}</div>}
+      {order.giftWrap && <div className="mt-4 rounded-xl border border-rose/30 bg-rose/5 p-4"><p className="text-sm font-semibold text-navy">Préparation cadeau</p>{order.giftOccasion && <p className="mt-1 text-sm text-navy/85">Occasion : {occasionOf(order.giftOccasion)?.label ?? order.giftOccasion}</p>}{order.giftFrom && <p className="mt-1 text-sm text-navy/85">De la part de : {order.giftFrom}</p>}{order.giftMessage && <p className="mt-1 text-sm text-navy/85">Message : {order.giftMessage}</p>}{order.giftVoiceUrl && <div className="mt-2"><p className="text-xs text-navy/70">Message vocal (à faire écouter ou transmettre au destinataire) :</p><audio src={order.giftVoiceUrl} controls className="mt-1 w-full max-w-sm" /></div>}</div>}
+      {order.subscriptionId && <p className="mt-4 rounded-xl bg-ia-light px-4 py-2 text-sm text-ia-dark">Commande d&apos;un abonnement de réassort. <Link href="/admin/abonnements" className="font-semibold underline">Voir les abonnements</Link></p>}
 
       <form action={changeStatus} className="mt-6 flex flex-wrap items-center gap-3 rounded-2xl border border-line bg-white p-5">
         <label className="text-sm font-medium text-navy/85">Statut</label>

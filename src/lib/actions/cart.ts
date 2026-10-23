@@ -61,7 +61,7 @@ export async function previewCartDiscounts(lines: CartDiscountLine[], couponCode
     const ref = await resolveDiscountCode(typed);
     if (!ref) code = { error: "Code promo inconnu." };
     else if ("error" in ref) code = ref;
-    else code = { code: ref.code, discount: codeDiscount(ref.kind, ref.value, base), label: ref.kind === "PERCENT" ? `−${ref.value} %` : `−${ref.value.toLocaleString("fr-FR")} FCFA` };
+    else code = { code: ref.code, discount: codeDiscount(ref.kind, ref.value, base), label: ref.source === "giftcard" ? `carte cadeau (solde ${ref.value.toLocaleString("fr-FR")} FCFA, livraison comprise)` : ref.kind === "PERCENT" ? `−${ref.value} %` : `−${ref.value.toLocaleString("fr-FR")} FCFA` };
   }
   return { offer: best ? { title: best.packs > 1 ? `${best.offer.title} × ${best.packs}` : best.offer.title, discount: best.discount } : null, code };
 }
