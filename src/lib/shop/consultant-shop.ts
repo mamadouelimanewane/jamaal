@@ -5,6 +5,8 @@
 import { prisma } from "@/lib/prisma";
 import { startingPrice } from "@/lib/reseller-catalog";
 import { effectiveTitle, depthFromLoaded } from "@/lib/network";
+import { earnedBadges } from "@/lib/academy-store";
+import { badgeLabel } from "@/data/academy";
 
 export const MAX_FAVORITES = 8;
 
@@ -35,7 +37,7 @@ async function topSoldIds(consultantId: string | null, take: number): Promise<st
 export async function getConsultantShop(slug: string) {
   const c = await prisma.consultant.findFirst({
     where: { slug: slug.trim().toLowerCase(), active: true },
-    select: { id: true, name: true, city: true, whatsapp: true, slug: true, rank: true, shopPhoto: true, shopBio: true, favorites: true, createdAt: true, sponsorId: true, sponsor: { select: { sponsorId: true } } },
+    select: { id: true, name: true, city: true, whatsapp: true, slug: true, rank: true, shopPhoto: true, shopBio: true, favorites: true, titleForm: true, createdAt: true, sponsorId: true, sponsor: { select: { sponsorId: true } } },
   });
   if (!c) return null;
 
@@ -69,7 +71,10 @@ export async function getConsultantShop(slug: string) {
     mine.length ? Promise.resolve(mine.reduce((s, r) => s + r.rating, 0) / mine.length) : Promise.resolve(null),
   ]);
 
+  const badges = (await earnedBadges(c.id).catch(() => [])).map((p) => ({ id: p.badge.id, emoji: p.badge.emoji, label: badgeLabel(p.badge, c.titleForm), promise: p.badge.promise, color: p.badge.color }));
+
   return {
+    badges,
     consultant: { id: c.id, name: c.name, city: c.city, whatsapp: c.whatsapp, slug: c.slug!, photo: c.shopPhoto, bio: c.shopBio, title: effectiveTitle(c.rank, depthFromLoaded(c)), since: c.createdAt },
     products,
     chosen,

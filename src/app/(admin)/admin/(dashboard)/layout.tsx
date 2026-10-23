@@ -30,6 +30,7 @@ import { Calculator,
   Repeat,
   ListChecks,
   Store,
+  Award,
   FileSignature,
   Sparkles,
   Gift,
@@ -98,6 +99,7 @@ const adminGroups = [
       { href: "/admin/consultants", label: "Consultants", icon: Users },
       { href: "/admin/primes-equipe", label: "Primes d'équipe", icon: Banknote },
       { href: "/admin/defis", label: "Défis du mois", icon: Trophy },
+      { href: "/admin/academie", label: "Académie", icon: Award },
       { href: "/admin/candidatures", label: "Candidatures", icon: Contact },
       { href: "/admin/protocole", label: "Protocole de partenariat", icon: FileSignature },
       { href: "/admin/messages", label: "Messages de contact", icon: Mail },
@@ -156,7 +158,7 @@ const consultantGroups: { title: string | null; links: { href: string; label: st
       { href: "/admin/ma-communication", label: "Ma communication", icon: Megaphone },
     ],
   },
-  { title: "Progresser", links: [{ href: "/admin/formation", label: "Quiz et formation", icon: GraduationCap }] },
+  { title: "Progresser", links: [{ href: "/admin/academie", label: "Académie et badges", icon: Award }, { href: "/admin/formation", label: "Quiz et formation", icon: GraduationCap }] },
 ];
 
 const livreurLinks = [

@@ -3,6 +3,8 @@ import { resellerCatalog } from "@/lib/reseller-catalog";
 import { NotReseller } from "@/components/admin/NotReseller";
 import { MyShopForm } from "@/components/admin/MyShopForm";
 import { CopyButton } from "@/components/admin/CopyButton";
+import { earnedBadges } from "@/lib/academy-store";
+import { badgeLabel } from "@/data/academy";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Ma boutique" };
@@ -11,7 +13,7 @@ export const metadata = { title: "Ma boutique" };
 export default async function MaBoutiquePage() {
   const me = await getReseller();
   if (!me) return <NotReseller />;
-  const [links, catalog] = await Promise.all([resellerLinks(me.slug ?? null), resellerCatalog()]);
+  const [links, catalog, badges] = await Promise.all([resellerLinks(me.slug ?? null), resellerCatalog(), earnedBadges(me.id)]);
   const products = catalog.map((p) => ({ id: p.id, name: p.name, code: p.choganCode, price: p.price, multiFormat: p.multiFormat, inspiredBy: p.inspiredBy }));
   return (
     <div className="max-w-2xl">
@@ -31,7 +33,7 @@ export default async function MaBoutiquePage() {
         <p className="mt-5 rounded-2xl bg-amber-50 p-4 text-sm text-amber-900">Votre identifiant de lien n&apos;est pas encore configuré : demandez-le à l&apos;équipe JAMAAL.</p>
       )}
       <div className="mt-6 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <MyShopForm photo={me.shopPhoto ?? null} bio={me.shopBio ?? null} favorites={me.favorites ?? []} products={products} name={me.name} />
+        <MyShopForm photo={me.shopPhoto ?? null} bio={me.shopBio ?? null} favorites={me.favorites ?? []} products={products} name={me.name} titleForm={me.titleForm ?? null} badges={badges.map((b) => `${b.badge.emoji} ${badgeLabel(b.badge, me.titleForm)}`)} />
       </div>
     </div>
   );

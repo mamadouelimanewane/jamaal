@@ -30,7 +30,9 @@ export async function updateMyShop(_prev: ShopState, fd: FormData): Promise<Shop
     shopPhoto = blob.url;
   }
 
-  await prisma.consultant.update({ where: { id: me.id }, data: { shopBio: bio, favorites: ordered, ...(shopPhoto !== undefined ? { shopPhoto } : {}) } });
+  const tf = fd.get("titleForm");
+  const titleForm = tf === "m" || tf === "f" ? tf : null;
+  await prisma.consultant.update({ where: { id: me.id }, data: { shopBio: bio, favorites: ordered, titleForm, ...(shopPhoto !== undefined ? { shopPhoto } : {}) } });
   if (me.slug) revalidatePath(`/c/${me.slug}`);
   revalidatePath("/admin/ma-boutique");
   return { ok: true, message: "Boutique enregistrée." };

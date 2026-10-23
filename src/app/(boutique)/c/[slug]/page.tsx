@@ -69,6 +69,20 @@ export default async function ConsultantShopPage({ params }: Props) {
           <p className="mx-auto mt-3 max-w-sm text-sm leading-relaxed text-navy/80">
             {c.bio || `Bienvenue dans ma boutique ! Je vous conseille parfums et soins Chogan et je m'occupe de votre commande jusqu'à la livraison. 🌸`}
           </p>
+          {shop.badges.length > 0 && (
+            <ul aria-label="Certifications de l'Académie JAMAAL" className="mt-3 flex flex-wrap justify-center gap-2">
+              {shop.badges.map((b) => (
+                <li key={b.id}>
+                  <details className="group text-center">
+                    <summary className="inline-flex cursor-pointer list-none items-center gap-1.5 rounded-full border bg-white px-3 py-1 text-xs font-semibold shadow-sm" style={{ borderColor: b.color, color: b.color }}>
+                      <span aria-hidden="true">{b.emoji}</span> {b.label} <span aria-hidden="true">✓</span>
+                    </summary>
+                    <p className="mx-auto mt-2 max-w-xs rounded-xl bg-white p-3 text-xs text-navy/75 shadow">{b.promise}</p>
+                  </details>
+                </li>
+              ))}
+            </ul>
+          )}
           <div className="mt-3 flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs text-navy/65">
             {stats.clients >= 3 && <span>⭐ {stats.clients} clients servis</span>}
             {stats.rating && <span>{stats.rating.toFixed(1).replace(".", ",")} / 5 sur mes avis</span>}

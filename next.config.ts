@@ -34,6 +34,9 @@ const nextConfig: NextConfig = {
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: blob: https:",
               "font-src 'self' data:",
+              // Messages vocaux des cadeaux et vidéos de l'Académie (stockage du site) ; vidéos YouTube / Vimeo intégrées.
+              "media-src 'self' blob: https://*.public.blob.vercel-storage.com",
+              "frame-src https://www.youtube-nocookie.com https://player.vimeo.com",
               "connect-src 'self' https:",
               "frame-ancestors 'none'",
               "base-uri 'self'",

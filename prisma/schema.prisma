@@ -503,6 +503,8 @@ model Consultant {
   shopPhoto String?
   shopBio   String?
   favorites String[] @default([])
+  /// Libellés des badges de l'Académie : « f » (Experte parfums) ou « m » (Expert parfums).
+  titleForm String?
 }
 
 model CommissionPayment {

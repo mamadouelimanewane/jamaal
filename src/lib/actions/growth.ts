@@ -18,6 +18,7 @@ import { siteBaseUrl } from "@/lib/site-url";
 import { slugify } from "@/lib/ref";
 import { getBusinessModel } from "@/lib/business-model-store";
 import { salePriceFromPublic } from "@/lib/business-model";
+import { academyProgress, badgeLabel, moduleById, passed } from "@/data/academy";
 import { QUIZZES, scoreQuiz } from "@/data/quiz-formation";
 import { checkReviewToken } from "@/lib/review-token";
 import { clientIpFromHeaders, rateLimit } from "@/lib/rate-limit";
@@ -163,16 +164,28 @@ export async function setMyAutoRelances(on: boolean) {
   revalidatePath("/admin/mon-profil");
 }
 
-export async function submitQuiz(quizId: string, answers: number[]): Promise<{ score: number; total: number; corrections: { question: string; good: string; explanation: string; ok: boolean }[] }> {
+export async function submitQuiz(quizId: string, answers: number[]): Promise<{ score: number; total: number; corrections: { question: string; good: string; explanation: string; ok: boolean }[]; passed?: boolean; newBadge?: string | null }> {
   const { consultant } = await requireConsultantProfile();
-  const quiz = QUIZZES.find((q) => q.id === quizId);
+  const academyModule = moduleById(quizId);
+  const quiz = QUIZZES.find((q) => q.id === quizId) ?? (academyModule ? { id: academyModule.id, title: academyModule.title, intro: "", questions: academyModule.questions } : undefined);
   if (!quiz) throw new Error("Quiz introuvable.");
+  const before = academyModule ? academyProgress(await prisma.quizResult.findMany({ where: { consultantId: consultant.id }, select: { quizId: true, score: true, total: true } })) : [];
   const result = scoreQuiz(quiz, Array.isArray(answers) ? answers.map((a) => Number(a)) : []);
   const prev = await prisma.quizResult.findUnique({ where: { consultantId_quizId: { consultantId: consultant.id, quizId } } });
   if (!prev) await prisma.quizResult.create({ data: { consultantId: consultant.id, quizId, score: result.score, total: result.total } });
   else if (result.score > prev.score) await prisma.quizResult.update({ where: { id: prev.id }, data: { score: result.score, total: result.total } });
   revalidatePath("/admin/formation");
-  return result;
+  if (!academyModule) return result;
+  // Académie : badge obtenu avec ce module ? Notification au consultant, boutique mise à jour.
+  const after = academyProgress(await prisma.quizResult.findMany({ where: { consultantId: consultant.id }, select: { quizId: true, score: true, total: true } }));
+  const won = after.find((p) => p.earned && !before.find((b) => b.badge.id === p.badge.id)?.earned);
+  if (won) {
+    const userId = (await prisma.user.findFirst({ where: { consultantId: consultant.id }, select: { id: true } }))?.id;
+    if (userId) await prisma.notification.create({ data: { userId, title: `Badge obtenu : ${won.badge.emoji} ${badgeLabel(won.badge, consultant.titleForm)}`, message: "Bravo ! Le badge s'affiche maintenant sur votre boutique personnelle." } }).catch(() => {});
+    if (consultant.slug) revalidatePath(`/c/${consultant.slug}`);
+  }
+  revalidatePath("/admin/academie");
+  return { ...result, passed: passed(result), newBadge: won ? `${won.badge.emoji} ${badgeLabel(won.badge, consultant.titleForm)}` : null };
 }
 
 /* ---------- Avis clients avec photo ---------- */

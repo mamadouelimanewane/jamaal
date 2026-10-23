@@ -46,6 +46,12 @@ export default async function FormationPage() {
         </div>
       )}
 
+      <Link href="/admin/academie" className="mt-8 block max-w-2xl rounded-2xl bg-navy p-5 text-white hover:bg-navy-light">
+        <p className="text-xs font-semibold uppercase tracking-wider text-white/70">Nouveau</p>
+        <p className="mt-1 font-serif-display text-xl">🏅 Académie JAMAAL : obtenez vos badges</p>
+        <p className="mt-1 text-sm text-white/80">Experte parfums, Conseillère soins, Pro de la vente WhatsApp : des modules de 3 minutes, affichés sur votre boutique pour rassurer vos clients.</p>
+      </Link>
+
       <section className="mt-10 max-w-2xl space-y-3">
         <h2 className="font-serif-display text-lg font-semibold text-navy">Quiz : testez-vous 🎯</h2>
         <p className="text-sm text-navy/70">Quelques questions courtes pour vendre avec assurance. Votre meilleur score est gardé.</p>
