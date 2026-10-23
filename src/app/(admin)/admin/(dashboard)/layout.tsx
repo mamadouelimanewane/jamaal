@@ -28,6 +28,7 @@ import { Calculator,
   GalleryHorizontal,
   CalendarClock,
   Repeat,
+  ListChecks,
   FileSignature,
   Sparkles,
   Gift,
@@ -128,7 +129,7 @@ const adminGroups = [
 /** Espace revendeur : rangé par sujet. Profil, contrat, classement et notifications sont dans la barre du haut ;
  * le wallet (retraits, dépôts) est dans « Mes gains » ; l'assistant IA a son bouton en bas de chaque page. */
 const consultantGroups: { title: string | null; links: { href: string; label: string; icon: typeof LayoutDashboard; match?: string[] }[] }[] = [
-  { title: null, links: [{ href: "/admin", label: "Tableau de bord", icon: LayoutDashboard }] },
+  { title: null, links: [{ href: "/admin", label: "Tableau de bord", icon: LayoutDashboard }, { href: "/admin/copilote", label: "Mes actions du jour", icon: ListChecks }] },
   {
     title: "Ventes",
     links: [

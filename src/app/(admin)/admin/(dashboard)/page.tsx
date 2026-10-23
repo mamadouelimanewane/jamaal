@@ -1,4 +1,6 @@
 import { WalletHero } from "@/components/admin/WalletWidgets";
+import { copilotPlanFor } from "@/lib/copilot/run";
+import { getSiteUrl } from "@/lib/site-url";
 import { walletBalance } from "@/lib/wallet";
 import Link from "next/link";
 import { LiveEarnings } from "@/components/admin/LiveEarnings";
@@ -199,6 +201,8 @@ async function ConsultantOverview({ userId }: { userId: string }) {
         {myPosition >= 0 && ` · #${myPosition + 1} au classement du mois`}.
       </p>
 
+      <CopilotTeaser consultantId={consultantId} />
+
       <div className="mt-6">
         <WalletHero {...(await walletBalance({ type: "CONSULTANT", id: consultantId }))} />
       </div>
@@ -357,4 +361,21 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
     if (access?.perms) return <RestrictedHome name={session.user.name ?? ""} profileName={access.profileName} perms={access.perms} refus={(await searchParams).refus} />;
   }
   return <AdminOverview />;
+}
+
+/** Aperçu « Mes actions du jour » (copilote de vente) en tête du tableau de bord. */
+async function CopilotTeaser({ consultantId }: { consultantId: string }) {
+  const origin = (await getSiteUrl().catch(() => "")).replace(/\/$/, "");
+  const actions = await copilotPlanFor(consultantId, origin).catch(() => []);
+  if (!actions.length) return null;
+  return (
+    <Link href="/admin/copilote" className="mt-6 block rounded-2xl bg-navy p-5 text-white transition hover:bg-navy-light">
+      <p className="text-xs font-semibold uppercase tracking-wider text-white/70">Votre copilote de vente</p>
+      <p className="mt-1 font-serif-display text-xl">{actions.length} action{actions.length > 1 ? "s" : ""} du jour, messages prêts</p>
+      <ul className="mt-2 space-y-0.5 text-sm text-white/85">
+        {actions.slice(0, 3).map((a) => <li key={a.key}>{a.title}</li>)}
+      </ul>
+      <span className="mt-3 inline-block rounded-full bg-white px-4 py-2 text-sm font-semibold text-navy">Commencer →</span>
+    </Link>
+  );
 }
