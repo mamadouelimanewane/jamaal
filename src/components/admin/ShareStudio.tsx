@@ -69,6 +69,9 @@ export function ShareStudio({ items, origin, refSlug, defaultFormat = "story" }:
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const [guide, setGuide] = useState<App | null>(null);
+  // Parcours en 2 étapes (enregistrer les images, puis ouvrir l'appli) : ne dépend pas de la liste de partage du téléphone.
+  const [channel, setChannel] = useState<App | null>(null);
+  const [saved, setSaved] = useState(false);
   const defaultText = useMemo(() => shareMessage(items, origin, refSlug), [items, origin, refSlug]);
   const [edited, setEdited] = useState<{ base: string; text: string } | null>(null);
   const text = edited?.base === defaultText ? edited.text : defaultText;
@@ -120,31 +123,23 @@ export function ShareStudio({ items, origin, refSlug, defaultFormat = "story" }:
     }
   }
 
-  /**
-   * Partage vers une appli : images seules (le texte est copié, à coller), car sur iPhone un texte joint fait
-   * disparaître WhatsApp, Instagram ou TikTok de la liste. Ensuite, un guide en 2 temps reste affiché
-   * (enregistrer dans Photos, puis ouvrir l'appli) pour le cas où l'appli n'apparaît toujours pas.
-   */
-  async function shareTo(app: App, caption: string, fallbackUrl: string) {
-    setMsg(null);
-    setGuide(null);
+  /** Partage direct par la liste du téléphone (si l'appli y figure). */
+  async function shareDirect(app: App, caption: string) {
     const files = ready?.files ?? [];
     copy(caption);
-    if (canShareFiles(files)) {
-      setBusy(true);
-      // Android : le texte part avec les images ; iPhone : images seules.
-      const r = await shareFiles(files, !isIos() && app === "whatsapp" ? caption : undefined);
-      setBusy(false);
-      if (r !== "fail") {
-        setGuide(app);
-        if (r === "ok") setMsg(`Texte copié : collez-le dans ${APP_LABEL[app]}${app === "whatsapp" ? " (discussion ou statut)" : " (légende)"}.`);
-        return;
-      }
-    }
-    files.forEach(download);
-    window.open(fallbackUrl, "_blank", "noopener");
-    setGuide(app);
-    setMsg(`${files.length > 1 ? "Images enregistrées" : "Image enregistrée"} et ${APP_LABEL[app]} ouvert : ajoutez ${files.length > 1 ? "les images" : "l'image"} depuis votre galerie. Le texte est copié : collez-le.`);
+    if (!canShareFiles(files)) return onGallery();
+    setBusy(true);
+    const r = await shareFiles(files, !isIos() && app === "whatsapp" ? caption : undefined);
+    setBusy(false);
+    if (r === "ok") setMsg(`Texte copié : collez-le dans ${APP_LABEL[app]}.`);
+    if (r === "fail") await onGallery();
+  }
+
+  function openChannel(app: App) {
+    setMsg(null);
+    setGuide(null);
+    setSaved(false);
+    setChannel(app);
   }
 
   async function onWhatsApp() {
@@ -157,23 +152,30 @@ export function ShareStudio({ items, origin, refSlug, defaultFormat = "story" }:
       setMsg(files.length ? "Image enregistrée et discussion WhatsApp ouverte avec le texte : joignez l'image (trombone 📎)." : "WhatsApp ouvert avec le texte et vos liens.");
       return;
     }
-    await shareTo("whatsapp", text, waUrl);
+    openChannel("whatsapp");
   }
-  const onInstagram = () => shareTo("instagram", instaText, "https://www.instagram.com/");
-  const onTikTok = () => shareTo("tiktok", tiktokText, "https://www.tiktok.com/upload");
+  const onInstagram = () => openChannel("instagram");
+  const onTikTok = () => openChannel("tiktok");
 
   async function onGallery() {
     setMsg(null);
     const files = ready?.files ?? [];
-    if (touch && canShareFiles(files)) {
+    if (!files.length) return;
+    // iPhone : « Enregistrer l'image » est toujours dans la liste de partage (les téléchargements vont dans Fichiers, pas Photos).
+    if (touch && isIos() && canShareFiles(files)) {
       setBusy(true);
       const r = await shareFiles(files, undefined);
       setBusy(false);
-      if (r === "ok") setMsg("Choisissez « Enregistrer l'image » (iPhone) ou « Galerie / Photos » (Android).");
+      if (r === "ok") {
+        setSaved(true);
+        setMsg(`${files.length > 1 ? "Images enregistrées" : "Image enregistrée"} dans Photos (si vous avez choisi « Enregistrer »).`);
+      }
       if (r !== "fail") return;
     }
+    // Android et ordinateur : téléchargement direct, visible dans la galerie et dans WhatsApp, Instagram, TikTok.
     files.forEach(download);
-    setMsg(touch ? "Images enregistrées dans les téléchargements de votre téléphone (visibles dans la galerie)." : "Images téléchargées sur votre ordinateur.");
+    setSaved(true);
+    setMsg(touch ? `${files.length > 1 ? "Images enregistrées" : "Image enregistrée"} dans votre téléphone (Galerie › Téléchargements).` : "Images téléchargées sur votre ordinateur.");
   }
 
   const btn = "inline-flex items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition disabled:opacity-60";
@@ -233,6 +235,20 @@ export function ShareStudio({ items, origin, refSlug, defaultFormat = "story" }:
       </div>
       {loading && <p className="text-xs text-navy/65">Préparation {items.length > 1 ? "des images" : "de l'image"}…</p>}
       {ready && ready.failed > 0 && <p className="text-xs text-amber-800">{ready.failed} image(s) n&apos;ont pas pu être préparées : réessayez dans un instant.</p>}
+      {channel && (
+        <ChannelSteps
+          app={channel}
+          count={ready?.files.length ?? 0}
+          saved={saved}
+          busy={busy}
+          ios={isIos()}
+          touch={touch}
+          caption={channel === "whatsapp" ? text : channel === "instagram" ? instaText : tiktokText}
+          onSave={onGallery}
+          onDirect={() => shareDirect(channel, channel === "whatsapp" ? text : channel === "instagram" ? instaText : tiktokText)}
+          onClose={() => setChannel(null)}
+        />
+      )}
       {msg && <p role="status" className="rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-900">{msg}</p>}
       {guide && touch && (
         <div className="rounded-2xl border border-line bg-cream/60 p-4 text-sm text-navy">
@@ -252,6 +268,65 @@ export function ShareStudio({ items, origin, refSlug, defaultFormat = "story" }:
         </div>
       )}
       <p className="text-xs text-navy/60">Les liens et le QR code portent votre code : les commandes vous sont attribuées.</p>
+    </div>
+  );
+}
+
+const APP_STYLE: Record<App, string> = {
+  whatsapp: "bg-[#25D366] text-white",
+  instagram: "bg-gradient-to-r from-[#f58529] via-[#dd2a7b] to-[#8134af] text-white",
+  tiktok: "bg-black text-white",
+};
+/** Lien qui ouvre l'application (lien universel : l'appli si elle est installée, sinon le site). */
+export function appLink(app: App, caption: string): string {
+  if (app === "whatsapp") return `https://wa.me/?text=${encodeURIComponent(caption)}`;
+  if (app === "instagram") return "https://www.instagram.com/";
+  return "https://www.tiktok.com/upload";
+}
+const WHERE: Record<App, string> = {
+  whatsapp: "Choisissez la discussion, puis 📎 › Galerie pour joindre l'image. Pour un statut : onglet Actus › ➕ › choisissez l'image.",
+  instagram: "Touchez ➕ › Publication ou Story, choisissez l'image dans vos photos, puis collez le texte en légende.",
+  tiktok: "Touchez ➕ › Importer, choisissez l'image, puis collez le texte en description.",
+};
+/** Sur ordinateur (Mac, PC) : versions web, l'image vient du dossier Téléchargements. */
+const WHERE_DESKTOP: Record<App, string> = {
+  whatsapp: "WhatsApp Web (ou l'application WhatsApp de l'ordinateur) s'ouvre : choisissez la discussion, collez le texte, puis 📎 › Photos et vidéos › l'image dans Téléchargements.",
+  instagram: "Sur instagram.com : Créer ➕ › Sélectionner depuis l'ordinateur › l'image dans Téléchargements, puis collez le texte en légende.",
+  tiktok: "Sur la page d'envoi TikTok : Sélectionner un fichier › l'image dans Téléchargements, puis collez le texte en description.",
+};
+
+/** Publier sur une appli en 2 étapes : 1. enregistrer les images dans le téléphone, 2. ouvrir l'appli (texte copié). */
+function ChannelSteps({ app, count, saved, busy, ios, touch, caption, onSave, onDirect, onClose }: { app: App; count: number; saved: boolean; busy: boolean; ios: boolean; touch: boolean; caption: string; onSave: () => void; onDirect: () => void; onClose: () => void }) {
+  const [opened, setOpened] = useState(false);
+  const label = APP_LABEL[app];
+  return (
+    <div className="rounded-2xl border-2 border-navy/15 bg-white p-4 text-sm text-navy shadow-sm">
+      <div className="flex items-center justify-between gap-2">
+        <p className="font-semibold">Publier sur {label} en 2 étapes</p>
+        <button type="button" onClick={onClose} className="text-xs font-semibold text-navy/60 hover:text-navy">Fermer</button>
+      </div>
+      <ol className="mt-3 space-y-3">
+        <li className="rounded-xl bg-cream/60 p-3">
+          <p className="font-medium">1. Enregistrez {count > 1 ? `les ${count} images` : "l'image"} {touch ? "dans votre téléphone" : "sur l'ordinateur (Téléchargements)"}</p>
+          <button type="button" onClick={onSave} disabled={busy || !count} className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-full bg-navy px-4 py-2.5 font-semibold text-white disabled:opacity-60 sm:w-auto">
+            {saved ? "✓ Enregistrée" + (count > 1 ? "s" : "") + " — enregistrer à nouveau" : `Enregistrer ${count > 1 ? "les images" : "l'image"}`}
+          </button>
+          {ios && <p className="mt-1.5 text-xs text-navy/65">Dans la liste qui s&apos;ouvre, choisissez <strong>« Enregistrer l&apos;image »</strong> (ou « Enregistrer {count > 1 ? `${count} images` : "l'image"} »).</p>}
+        </li>
+        <li className="rounded-xl bg-cream/60 p-3">
+          <p className="font-medium">2. Ouvrez {label} : le texte est copié, collez-le</p>
+          <a href={appLink(app, caption)} target="_blank" rel="noopener noreferrer" onClick={() => { copy(caption); setOpened(true); }} className={`mt-2 inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 font-semibold sm:w-auto ${APP_STYLE[app]}`}>
+            Ouvrir {label}
+          </a>
+          <p className="mt-1.5 text-xs text-navy/65">{touch ? WHERE[app] : WHERE_DESKTOP[app]}</p>
+          {opened && <p className="mt-1.5 text-xs font-semibold text-emerald-800">Texte copié ✓</p>}
+        </li>
+      </ol>
+      {touch && (
+        <button type="button" onClick={onDirect} disabled={busy || !count} className="mt-3 text-xs font-semibold text-navy/60 underline hover:text-navy">
+          Ou partager directement (si {label} apparaît dans la liste de votre téléphone)
+        </button>
+      )}
     </div>
   );
 }
