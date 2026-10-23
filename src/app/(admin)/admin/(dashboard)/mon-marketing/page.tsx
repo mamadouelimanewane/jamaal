@@ -50,6 +50,9 @@ export default async function MonMarketingPage({ searchParams }: { searchParams:
                 <a href={links.shop} target="_blank" rel="noopener noreferrer" className="inline-flex items-center rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-navy hover:bg-cream">
                   Voir ma page ↗
                 </a>
+                <a href="/admin/ma-boutique" className="inline-flex items-center rounded-full bg-navy px-3 py-1.5 text-xs font-semibold text-white hover:bg-navy-light">
+                  Personnaliser ma boutique
+                </a>
               </div>
             </>
           ) : (

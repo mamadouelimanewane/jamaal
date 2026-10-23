@@ -76,12 +76,12 @@ export interface PickerProduct {
 }
 
 /** Choix des produits d'un coffret : recherche + cases à cocher, champs « productIds ». */
-export function ProductPicker({ products, initial }: { products: PickerProduct[]; initial: string[] }) {
+export function ProductPicker({ products, initial, max, showValue = true, removeLabel = "Retirer du coffret" }: { products: PickerProduct[]; initial: string[]; max?: number; showValue?: boolean; removeLabel?: string }) {
   const [selected, setSelected] = useState<string[]>(initial);
   const [q, setQ] = useState("");
   const byId = useMemo(() => new Map(products.map((p) => [p.id, p])), [products]);
   const norm = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
-  const results = q.trim().length >= 2 ? products.filter((p) => norm(`${p.name} ${p.code ?? ""}`).includes(norm(q.trim()))).slice(0, 12) : [];
+  const results = q.trim().length >= 2 ? products.filter((p) => norm(`${p.name} ${p.code ?? ""} ${(p as { inspiredBy?: string | null }).inspiredBy ?? ""}`).includes(norm(q.trim()))).slice(0, 12) : [];
   const value = selected.reduce((s, id) => s + (byId.get(id)?.price ?? 0), 0);
   return (
     <div className="space-y-2">
@@ -92,14 +92,14 @@ export function ProductPicker({ products, initial }: { products: PickerProduct[]
         {selected.map((id) => (
           <span key={id} className="inline-flex items-center gap-1 rounded-full bg-ia-light px-3 py-1 text-xs font-medium text-ia-dark">
             {byId.get(id)?.name ?? id}
-            <button type="button" aria-label="Retirer du coffret" onClick={() => setSelected((s) => s.filter((x) => x !== id))}>
+            <button type="button" aria-label={removeLabel} onClick={() => setSelected((s) => s.filter((x) => x !== id))}>
               <X size={13} />
             </button>
           </span>
         ))}
         {!selected.length && <span className="text-xs text-navy/60">Aucun produit choisi.</span>}
       </div>
-      {selected.length > 0 && <p className="text-xs text-navy/70">Valeur à l&apos;unité (prix normal le plus bas de chaque produit) : {value.toLocaleString("fr-FR")} FCFA</p>}
+      {showValue && selected.length > 0 && <p className="text-xs text-navy/70">Valeur à l&apos;unité (prix normal le plus bas de chaque produit) : {value.toLocaleString("fr-FR")} FCFA</p>}
       <label className="flex items-center gap-2 rounded-lg border border-line px-3 py-2">
         <Search size={15} className="text-navy/50" />
         <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Chercher un produit (nom ou code) à ajouter" className="min-w-0 flex-1 text-sm outline-none" />
@@ -112,7 +112,7 @@ export function ProductPicker({ products, initial }: { products: PickerProduct[]
               <li key={p.id}>
                 <button
                   type="button"
-                  onClick={() => setSelected((s) => (on ? s.filter((x) => x !== p.id) : [...s, p.id]))}
+                  onClick={() => setSelected((s) => (on ? s.filter((x) => x !== p.id) : max && s.length >= max ? s : [...s, p.id]))}
                   className={`flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-sm hover:bg-cream ${on ? "bg-ia-light/60" : ""}`}
                 >
                   <span>

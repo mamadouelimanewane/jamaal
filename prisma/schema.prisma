@@ -499,6 +499,10 @@ model Consultant {
   autoRelances Boolean @default(true)
   /// Kit du matin sur WhatsApp (visuel + texte + lien du jour).
   kitMatin Boolean @default(true)
+  /// Boutique personnelle (/c/<slug>) : photo, présentation, coups de cœur (identifiants produits, dans l'ordre).
+  shopPhoto String?
+  shopBio   String?
+  favorites String[] @default([])
 }
 
 model CommissionPayment {
