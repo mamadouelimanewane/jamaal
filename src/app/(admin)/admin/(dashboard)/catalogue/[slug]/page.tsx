@@ -54,7 +54,7 @@ export default async function CatalogueProductPage({ params }: { params: Promise
             {product.inspiredBy && <p className="mt-1 text-sm text-rose-dark">Inspiré de {product.inspiredBy}{product.inspiredBrand ? ` (${product.inspiredBrand})` : ""}</p>}
             {price != null && (
               <p className="mt-3 text-lg font-semibold text-navy">
-                {volumes.length > 1 ? "Dès " : ""}{price.toLocaleString("fr-FR")} FCFA
+                {volumes.length > 1 ? "À partir de " : ""}{price.toLocaleString("fr-FR")} FCFA
                 {rate !== null && <span className="ml-2 text-sm font-semibold text-emerald-700">{estimatedGainLabel(price, rate)}</span>}
               </p>
             )}

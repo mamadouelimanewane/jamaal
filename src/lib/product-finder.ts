@@ -15,19 +15,36 @@ export interface FindableProduct {
   family?: string | null;
 }
 
+import { editDistance } from "./search-engine";
+
 export const normText = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/\s+/g, " ").trim();
+
+const compact = (s: string) => s.replace(/[^a-z0-9]/g, "");
+/** Code Chogan comparable : sans séparateur ni zéros de tête (« 021M » = « 21m » = « 21 M »). */
+const codeKey = (s: string) => compact(s).replace(/^([a-z]*)0+(?=\d)/, "$1");
+
+/** Mot trouvé : tel quel, au singulier, ou avec une faute de frappe (1 lettre dès 4 lettres, 2 dès 8). */
+function wordHit(w: string, hay: string, tokens: string[]): boolean {
+  if (hay.includes(w)) return true;
+  if (w.length > 3 && w.endsWith("s") && hay.includes(w.slice(0, -1))) return true;
+  const max = w.length >= 8 ? 2 : w.length >= 4 ? 1 : 0;
+  return max > 0 && tokens.some((t) => Math.abs(t.length - w.length) <= max && editDistance(t, w, max) <= max);
+}
 
 function score(p: FindableProduct, q: string): number {
   const code = normText(p.choganCode ?? "");
   const name = normText(p.name);
   const words = q.split(" ");
   const hay = normText([p.name, p.choganCode, p.inspiredBy, p.inspiredBrand, p.categoryLabel, p.family, p.shortDescription].filter(Boolean).join(" "));
-  if (code && code === q) return 100;
-  if (!words.every((w) => hay.includes(w) || (w.length > 3 && w.endsWith("s") && hay.includes(w.slice(0, -1))))) return 0;
+  if (code && (code === q || codeKey(code) === codeKey(q))) return 100;
+  const tokens = hay.split(/[^a-z0-9]+/).filter(Boolean);
+  // « aquasoul » = « Aqua Soul » : on compare aussi sans les espaces.
+  const glued = compact(q).length >= 5 && (compact(name).includes(compact(q)) || compact(normText(p.inspiredBy ?? "")).includes(compact(q)));
+  if (!glued && !words.every((w) => wordHit(w, hay, tokens))) return 0;
   if (name.startsWith(q)) return 80;
-  if (name.includes(q)) return 60;
+  if (name.includes(q) || glued) return 60;
   if (normText(p.inspiredBy ?? "").includes(q)) return 50;
-  return 20;
+  return words.every((w) => hay.includes(w)) ? 20 : 10;
 }
 
 /** Produits correspondant à la recherche (2 caractères au moins), triés par pertinence. */

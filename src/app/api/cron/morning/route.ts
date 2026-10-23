@@ -1,4 +1,5 @@
 import { sendMorningKit } from "@/lib/automation/morning-kit";
+import { watchChoganPrices } from "@/lib/automation/chogan-watch";
 import { claimAutomation } from "@/lib/automation-settings";
 import { siteBaseUrl } from "@/lib/site-url";
 
@@ -15,7 +16,11 @@ export async function GET(req: Request) {
     if (!(await claimAutomation(`cron-matin:${new Date().toISOString().slice(0, 10)}`))) return Response.json({ ok: true, deja: true });
   }
   try {
-    return Response.json({ ok: true, report: await sendMorningKit(siteBaseUrl()) });
+    const started = Date.now();
+    const kit = await sendMorningKit(siteBaseUrl());
+    // Le temps restant sert à la mise à jour du catalogue Chogan (prix et nouveautés).
+    const chogan = await watchChoganPrices(Math.max(5_000, 52_000 - (Date.now() - started))).catch((e) => ({ erreur: String(e) }));
+    return Response.json({ ok: true, report: kit, chogan });
   } catch (e) {
     console.error("[kit du matin]", e);
     return Response.json({ ok: false }, { status: 500 });

@@ -9,10 +9,11 @@ import { getBusinessModel } from "@/lib/business-model-store";
 import { invalidateSearchIndex } from "@/lib/search-index";
 import { getCategories } from "@/lib/db-categories";
 import { classifyQuery, rankCards, type ChoganCard, type ChoganDetail } from "@/lib/chogan/parse";
-import { buildPreview, productSlugRoot, type ChoganPreview } from "@/lib/chogan/preview";
+import { type ChoganPreview } from "@/lib/chogan/preview";
+import { createProductFromPreview, findExisting, previewFor, storePhotos, type ExistingProduct } from "@/lib/chogan/catalog-sync";
 import { ChoganError, fetchChoganDetail, fetchChoganImage, searchChogan } from "@/lib/chogan/client";
 
-export type ExistingProduct = { id: string; slug: string; name: string; photo: string | null; galleryCount: number };
+export type { ExistingProduct };
 
 export type ResolveResult =
   | { status: "found"; preview: ChoganPreview }
@@ -22,37 +23,6 @@ export type ResolveResult =
   | { status: "error"; message: string };
 
 const errorMessage = (e: unknown) => (e instanceof ChoganError ? e.message : e instanceof Error ? e.message : "Erreur inattendue.");
-
-/** Fiche JAMAAL déjà liée à ce produit Chogan (n° de fiche, code, ou code d'un de ses formats). */
-async function findExisting(number: number | null, codes: string[]): Promise<ExistingProduct | null> {
-  const cleanCodes = codes.filter(Boolean);
-  const or = [
-    ...(number ? [{ number }, { id: `chogan-${number}` }] : []),
-    ...cleanCodes.map((c) => ({ choganCode: { equals: c, mode: "insensitive" as const } })),
-    ...(cleanCodes.length ? [{ variants: { some: { OR: cleanCodes.map((c) => ({ code: { equals: c, mode: "insensitive" as const } })) } } }] : []),
-  ];
-  if (!or.length) return null;
-  const p = await prisma.product.findFirst({ where: { OR: or }, select: { id: true, slug: true, name: true, photo: true, gallery: true } });
-  return p ? { id: p.id, slug: p.slug, name: p.name, photo: p.photo, galleryCount: p.gallery.length } : null;
-}
-
-/** Codes Chogan des autres formats d'un parfum (chaque format est une fiche à part). */
-async function formatCodesOf(detail: ChoganDetail): Promise<Record<number, string>> {
-  const codes: Record<number, string> = {};
-  for (const f of detail.formats.slice(0, 5)) {
-    if (f.number === detail.number) continue;
-    const other = await fetchChoganDetail(f.number).catch(() => null);
-    if (other) codes[f.number] = other.code;
-  }
-  return codes;
-}
-
-async function previewFor(number: number): Promise<{ detail: ChoganDetail; preview: ChoganPreview } | null> {
-  const detail = await fetchChoganDetail(number);
-  if (!detail) return null;
-  const [model, formatCodes] = await Promise.all([getBusinessModel(), formatCodesOf(detail)]);
-  return { detail, preview: buildPreview(detail, model, formatCodes) };
-}
 
 /**
  * N° de fiche d'un code : recherche Chogan (code identique), sinon nuancier d'une teinte sœur en
@@ -123,36 +93,6 @@ export async function resolveChoganQuery(raw: string): Promise<ResolveResult> {
   }
 }
 
-const hasBlob = () => !!process.env.BLOB_READ_WRITE_TOKEN;
-
-/** Copie les photos Chogan sur le stockage du site ; en cas d'échec, garde l'adresse Chogan. */
-async function storePhotos(number: number, urls: string[]): Promise<string[]> {
-  const out: string[] = [];
-  for (const [i, url] of urls.entries()) {
-    if (!hasBlob()) {
-      out.push(url);
-      continue;
-    }
-    try {
-      const { data, contentType } = await fetchChoganImage(url);
-      const ext = contentType.includes("png") ? "png" : contentType.includes("webp") ? "webp" : "jpg";
-      const blob = await put(`produits/chogan/${number}-${i + 1}.${ext}`, Buffer.from(data), { access: "public", addRandomSuffix: true, contentType });
-      out.push(blob.url);
-    } catch {
-      out.push(url);
-    }
-  }
-  return out;
-}
-
-async function uniqueProductSlug(name: string, number: number): Promise<string> {
-  const root = productSlugRoot(name, number);
-  for (let i = 1; ; i++) {
-    const candidate = i === 1 ? root : `${root}-${i}`;
-    if (!(await prisma.product.findUnique({ where: { slug: candidate }, select: { id: true } }))) return candidate;
-  }
-}
-
 export type ImportInput = {
   number: number;
   name: string;
@@ -174,54 +114,8 @@ export async function importChoganProduct(input: ImportInput): Promise<ImportRes
     const existing = await findExisting(number, preview.allCodes);
     if (existing) return { ok: false, error: `Déjà au catalogue : ${existing.name}.`, existingId: existing.id };
 
-    const categories = await getCategories();
-    const category = categories.some((c) => c.slug === input.category) ? input.category : categories.some((c) => c.slug === preview.category) ? preview.category : "autres-produits";
-    const name = String(input.name ?? "").trim().slice(0, 160) || preview.name;
-    const shortDescription = String(input.shortDescription ?? "").trim().slice(0, 600) || preview.shortDescription;
-    const longDescription = (Array.isArray(input.longDescription) ? input.longDescription : preview.longDescription)
-      .map((l) => String(l).trim().slice(0, 2000))
-      .filter(Boolean)
-      .slice(0, 12);
-
-    const photos = await storePhotos(number, preview.images);
-    const id = `chogan-${number}`;
-    const slug = await uniqueProductSlug(name, number);
-
-    await prisma.$transaction(async (tx) => {
-      await tx.product.create({
-        data: {
-          id,
-          number,
-          choganCode: preview.code,
-          slug,
-          name,
-          category,
-          family: preview.family,
-          topNotes: preview.topNotes,
-          heartNotes: preview.heartNotes,
-          baseNotes: preview.baseNotes,
-          shortDescription,
-          longDescription: longDescription.length ? longDescription : preview.longDescription,
-          volumes: preview.volumes ?? undefined,
-          publicPrice: preview.publicPrice,
-          regularPrice: preview.regularPrice,
-          photo: photos[0] ?? null,
-          gallery: photos.slice(1),
-          isOfficial: true,
-          stock: 0,
-          lowStockThreshold: 5,
-          colorFrom: "#1d2f4f",
-          colorTo: "#d9a99d",
-        },
-      });
-      if (preview.volumes) {
-        await tx.productVariant.createMany({
-          data: preview.volumes.map((v, i) => ({ id: `var-${id}-${i}`, productId: id, volumeLabel: v.label, code: v.code, stock: 0, lowStockThreshold: i === 0 ? 5 : 3 })),
-          skipDuplicates: true,
-        });
-      }
-    });
-
+    const created = await createProductFromPreview(preview, { name: input.name, category: input.category, shortDescription: input.shortDescription, longDescription: input.longDescription });
+    const { id, slug, name, category, photos } = created;
     await logActivity(session, `Import Chogan : ${name} (${preview.code}, fiche ${number})`, "Product", id);
     invalidateSearchIndex();
     revalidatePath("/admin/produits");

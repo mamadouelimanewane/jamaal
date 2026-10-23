@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { Camera, CheckCircle2, ImagePlus, Loader2, MessageCircle, RefreshCw, ShieldCheck, Sparkles, Sun, Moon, CalendarDays } from "lucide-react";
 import { analyzeSkin, type SkinResult } from "@/lib/actions/skin-advisor";
 import { compressPhoto } from "@/lib/compress-photo";
+import { LiveCamera } from "./LiveCamera";
 import { CONCERNS, SCORE_LABELS, SKIN_TYPES, routineText, type Concern, type RoutineStep, type SkinType } from "@/lib/skin/advisor";
 
 type Ok = Extract<SkinResult, { ok: true }>;
@@ -43,6 +44,7 @@ export function SkinAdvisor({ origin, refSlug, advisor }: { origin: string; refS
   const [result, setResult] = useState<SkinResult | null>(null);
   const [pending, start] = useTransition();
   const cam = useRef<HTMLInputElement>(null);
+  const [live, setLive] = useState(false);
   const gal = useRef<HTMLInputElement>(null);
   const top = useRef<HTMLDivElement>(null);
 
@@ -98,13 +100,14 @@ export function SkinAdvisor({ origin, refSlug, advisor }: { origin: string; refS
             <div className="flex h-40 w-32 items-center justify-center rounded-2xl border border-dashed border-line bg-cream/60 text-navy/40"><Camera size={30} /></div>
           )}
           <div className="flex flex-1 flex-col gap-2 sm:max-w-xs">
-            <button type="button" onClick={() => cam.current?.click()} className="inline-flex items-center justify-center gap-2 rounded-full bg-navy px-5 py-3 text-sm font-semibold text-white hover:bg-navy-light">
+            <button type="button" onClick={() => (typeof navigator !== "undefined" && typeof navigator.mediaDevices?.getUserMedia === "function" ? setLive(true) : cam.current?.click())} className="inline-flex items-center justify-center gap-2 rounded-full bg-navy px-5 py-3 text-sm font-semibold text-white hover:bg-navy-light">
               <Camera size={16} /> {photo ? "Reprendre un selfie" : "Prendre un selfie"}
             </button>
             <button type="button" onClick={() => gal.current?.click()} className="inline-flex items-center justify-center gap-2 rounded-full border border-line px-5 py-3 text-sm font-semibold text-navy hover:bg-cream">
               <ImagePlus size={16} /> Choisir une photo
             </button>
             <input ref={cam} type="file" accept="image/*" capture="user" onChange={pick} className="sr-only" tabIndex={-1} aria-hidden="true" />
+            {live && <LiveCamera onPhoto={(f) => { setPhoto(f); setLive(false); }} onClose={() => setLive(false)} onFallback={() => { setLive(false); cam.current?.click(); }} />}
             <input ref={gal} type="file" accept="image/*" onChange={pick} className="sr-only" tabIndex={-1} aria-hidden="true" />
           </div>
         </div>

@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { RowAction } from "@/components/admin/RowAction";
+import { syncChoganNow } from "@/lib/actions/chogan-sync";
 import { requireAdminPage } from "@/lib/admin-page-guard";
 import { prisma } from "@/lib/prisma";
 import { getStockRows } from "@/lib/inventory-report";
@@ -17,7 +19,7 @@ export default async function ChoganOrderPage({ searchParams }: { searchParams: 
   await requireAdminPage("stocks");
   const all = (await searchParams).tout === "1";
   const orderedUntil = await getOrderedUntil();
-  const [rows, reservations, changes, watched, total] = await Promise.all([
+  const [rows, reservations, changes, watched, total, applied] = await Promise.all([
     getStockRows(),
     prisma.orderItem.findMany({
       // Seules les réservations pas encore commandées chez Chogan (voir « À commander (réservations) »).
@@ -30,6 +32,7 @@ export default async function ChoganOrderPage({ searchParams }: { searchParams: 
     }),
     prisma.product.count({ where: { number: { not: null }, choganCheckedAt: { gte: daysAgo(30) } } }),
     prisma.product.count({ where: { number: { not: null } } }),
+    prisma.choganPriceChange.findMany({ where: { seen: true, detectedAt: { gte: daysAgo(14) } }, orderBy: { detectedAt: "desc" }, take: 30 }),
   ]);
   // Réservations payées (acompte reçu) : à commander en plus du réassort.
   const reserved = new Map<string, number>();
@@ -96,8 +99,19 @@ export default async function ChoganOrderPage({ searchParams }: { searchParams: 
       </div>
 
       <section className="rounded-2xl border border-line bg-white p-5 print:hidden">
-        <h2 className="font-semibold text-navy">Veille des prix Chogan</h2>
-        <p className="mt-1 text-sm text-navy/70">Chaque soir, une partie du catalogue est comparée au site Chogan ({watched} / {total} fiches vérifiées sur 30 jours). Un changement de prix public apparaît ici : appliquez-le (prix public et prix de vente JAMAAL recalculés selon le modèle économique) ou ignorez-le.</p>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <h2 className="font-semibold text-navy">Mise à jour automatique depuis Chogan</h2>
+          <RowAction label="Mettre à jour maintenant" run={syncChoganNow} />
+        </div>
+        <p className="mt-1 text-sm text-navy/70">Chaque matin et chaque soir, le catalogue est comparé au site Chogan ({watched} / {total} fiches vérifiées sur 30 jours) : les nouveaux prix sont appliqués tout seuls (prix de vente JAMAAL recalculé selon le modèle économique) et les nouveaux produits Chogan sont importés. Seuls les écarts inhabituels attendent votre décision ci-dessous.</p>
+        {applied.length > 0 && (
+          <details className="mt-3 rounded-xl bg-cream/60 p-3 text-sm">
+            <summary className="cursor-pointer font-semibold text-navy">Prix mis à jour ces 14 derniers jours ({applied.length})</summary>
+            <ul className="mt-2 space-y-1 text-navy/80">
+              {applied.map((c) => <li key={c.id}>{c.name} : {c.oldPublic != null ? formatPrice(c.oldPublic) : "?"} → {formatPrice(c.newPublic)} <span className="text-xs text-navy/55">({c.detectedAt.toLocaleDateString("fr-FR")})</span></li>)}
+            </ul>
+          </details>
+        )}
         <ul className="mt-3 divide-y divide-line text-sm">
           {changes.map((c) => (
             <li key={c.id} className="flex flex-wrap items-center justify-between gap-3 py-2">
@@ -113,7 +127,7 @@ export default async function ChoganOrderPage({ searchParams }: { searchParams: 
               </span>
             </li>
           ))}
-          {!changes.length && <li className="py-3 text-navy/60">Aucun changement de prix détecté.</li>}
+          {!changes.length && <li className="py-3 text-navy/60">Aucun écart de prix à vérifier.</li>}
         </ul>
       </section>
     </div>

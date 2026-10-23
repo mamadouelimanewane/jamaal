@@ -332,7 +332,7 @@ function SearchPanel({ initial, close, categories }: { initial: string; close: (
                               {p.code ? <>Code <Highlight text={p.code} terms={terms} /> · </> : null}{p.category}
                             </span>
                           </span>
-                          {p.price ? <span className="hidden shrink-0 text-right text-sm font-semibold text-navy sm:block"><span className="block text-[10px] font-normal uppercase tracking-wide text-navy/50">dès</span>{formatPrice(p.price)}</span> : null}
+                          {p.price ? <span className="hidden shrink-0 text-right text-sm font-semibold text-navy sm:block"><span className="block text-[10px] font-normal uppercase tracking-wide text-navy/50">à partir de</span>{formatPrice(p.price)}</span> : null}
                           {active === i && <CornerDownLeft size={15} className="hidden shrink-0 text-navy/40 sm:block" />}
                         </Link>
                       </li>

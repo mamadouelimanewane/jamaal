@@ -8,7 +8,8 @@ test("message de bienvenue : prénom, parrain, lien personnel et bouton", () => 
   assert.match(m.text, /^Bienvenue chez JAMAAL, Awa !/);
   assert.match(m.text, /équipe de Fatou Ndiaye/);
   assert.match(m.text, /https:\/\/jamaal-nine\.vercel\.app\/c\/awa-diop/);
-  assert.deepEqual(m.cta, { label: "Ouvrir mon espace", url: "https://jamaal-nine.vercel.app/admin/login" });
+  assert.deepEqual(m.cta, { label: "Installer l'application", url: "https://jamaal-nine.vercel.app/admin/installer" });
+  assert.match(m.text, /Installez l'application JAMAAL .*\/admin\/installer/);
 });
 
 test("sans parrain ni lien : message cohérent et aucun lien d'activation", () => {

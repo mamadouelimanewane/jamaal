@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
+import { priceLabel } from "@/lib/share-text";
 import { findProducts, inspirationLabel } from "@/lib/product-finder";
 import { Check, Loader2, Play, Search, X } from "lucide-react";
 import { runDailyNow, setMyAutoRelances, submitQuiz, toggleAutomation } from "@/lib/actions/growth";
@@ -118,7 +119,7 @@ export function ProductPicker({ products, initial }: { products: PickerProduct[]
                     {p.name} {p.code && <span className="text-xs text-navy/55">· {p.code}</span>}
                   </span>
                   <span className="flex shrink-0 items-center gap-2 text-xs text-navy/70">
-                    {p.price ? `${p.price.toLocaleString("fr-FR")} FCFA` : ""} {on && <Check size={15} className="text-ia" />}
+                    {p.price ? priceLabel(p.price, (p as { multiFormat?: boolean }).multiFormat) : ""} {on && <Check size={15} className="text-ia" />}
                   </span>
                 </button>
               </li>

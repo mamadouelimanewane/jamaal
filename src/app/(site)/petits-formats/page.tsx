@@ -18,7 +18,7 @@ export default async function SmallFormatsPage() {
       <p className="text-xs font-semibold uppercase tracking-[0.2em] text-rose-dark">Pour commencer sans se ruiner</p>
       <h1 className="mt-3 font-serif-display text-3xl font-semibold text-navy sm:text-4xl">Parfums en petit format</h1>
       <p className="mt-4 max-w-2xl text-sm leading-7 text-navy/70">
-        Le même parfum, en 30 ml ou en 15 ml recharge{cheapest ? `, dès ${formatPrice(cheapest)}` : ""}. Idéal pour essayer un sillage, l&apos;offrir ou garder un flacon dans son sac, avant de choisir le grand format.
+        Le même parfum, en 30 ml ou en 15 ml recharge{cheapest ? `, à partir de ${formatPrice(cheapest)}` : ""}. Idéal pour essayer un sillage, l&apos;offrir ou garder un flacon dans son sac, avant de choisir le grand format.
       </p>
       <p className="mt-2 text-sm text-navy/70">
         Pas sûr de votre choix ? <Link href="/parfum-adn" className="font-semibold text-rose-dark underline">Trouvez votre sillage</Link> ou parcourez les <Link href="/coffrets-decouverte" className="font-semibold text-rose-dark underline">coffrets découverte</Link>.

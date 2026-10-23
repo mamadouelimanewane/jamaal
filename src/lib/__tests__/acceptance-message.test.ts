@@ -21,3 +21,9 @@ test("acceptation : le message contient le prénom, le parrain, le lien d'activa
 test("acceptation : sans numéro exploitable, pas de lien", () => {
   assert.equal(acceptanceWhatsAppUrl({ ...base, phone: "12" }), undefined);
 });
+
+import { installUrl } from "../acceptance-message";
+test("acceptation : lien d'installation de l'application, qui mène à l'activation", () => {
+  assert.equal(installUrl("https://www.jamaal.sn/admin/reset-password?token=a%2Bb"), "https://www.jamaal.sn/admin/installer?suite=%2Fadmin%2Freset-password%3Ftoken%3Da%252Bb");
+  assert.match(acceptanceMessage({ name: "Awa", sponsorName: null, activationUrl: "https://www.jamaal.sn/admin/reset-password?token=x", shopUrl: null }), /Installez l'application JAMAAL .*\/admin\/installer\?suite=/);
+});

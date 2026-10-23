@@ -4,6 +4,16 @@
  */
 import { canonicalizePhone } from "@/lib/phone";
 
+/** Page d'installation de l'application, qui mène ensuite à l'activation (même site que le lien d'activation). */
+export function installUrl(activationUrl: string): string | null {
+  try {
+    const u = new URL(activationUrl);
+    return `${u.origin}/admin/installer?suite=${encodeURIComponent(u.pathname + u.search)}`;
+  } catch {
+    return null;
+  }
+}
+
 export function acceptanceMessage(r: { name: string; sponsorName: string | null; activationUrl: string; shopUrl: string | null }): string {
   const first = r.name.trim().split(/\s+/)[0] || r.name;
   return [
@@ -11,7 +21,8 @@ export function acceptanceMessage(r: { name: string; sponsorName: string | null;
     r.sponsorName ? `Vous rejoignez l'équipe de ${r.sponsorName}.` : "",
     "",
     `1️⃣ Activez votre espace et choisissez votre mot de passe (lien valable 7 jours) : ${r.activationUrl}`,
-    r.shopUrl ? `2️⃣ Votre lien de vente personnel : ${r.shopUrl}` : "",
+    installUrl(r.activationUrl) ? `2️⃣ Installez l'application JAMAAL sur votre téléphone (icône sur l'écran d'accueil) : ${installUrl(r.activationUrl)}` : "",
+    r.shopUrl ? `3️⃣ Votre lien de vente personnel : ${r.shopUrl}` : "",
     "",
     "Une question ? Répondez simplement à ce message.",
   ]

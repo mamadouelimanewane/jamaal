@@ -2,7 +2,10 @@
  * Textes de partage d'un ou plusieurs produits (WhatsApp, statut, TikTok). Pur, testé.
  * Chaque lien porte le code du revendeur (?ref=) : la vente lui est attribuée.
  */
-export type ShareItem = { slug: string; name: string; price?: number | null; choganCode?: string | null; inspiredBy?: string | null };
+export type ShareItem = { slug: string; name: string; price?: number | null; choganCode?: string | null; inspiredBy?: string | null; multiFormat?: boolean };
+
+/** Prix affiché : « à partir de 14 800 FCFA » quand le produit existe en plusieurs formats. Pur, testé. */
+export const priceLabel = (price: number, multiFormat?: boolean) => `${multiFormat ? "à partir de " : ""}${price.toLocaleString("fr-FR")} FCFA`;
 
 export const productLink = (origin: string, slug: string, refSlug: string | null) => `${origin}/produits/${slug}${refSlug ? `?ref=${refSlug}` : ""}`;
 
@@ -12,7 +15,7 @@ export function shareMessage(items: ShareItem[], origin: string, refSlug: string
   if (!items.length) return "";
   if (channel === "instagram") {
     // Instagram : liens non cliquables dans la légende → on renvoie au lien de la bio, avec la boutique en clair.
-    const names = items.map((p) => `${p.name}${p.price ? ` — ${fcfa(p.price)}` : ""}`).join("\n");
+    const names = items.map((p) => `${p.name}${p.price ? ` — ${priceLabel(p.price, p.multiFormat)}` : ""}`).join("\n");
     const shop = refSlug ? `${origin}/c/${refSlug}` : origin;
     return `${names}\n✨ Parfums et soins Chogan au Sénégal.\n📩 Commande en message privé ou via le lien dans ma bio : ${shop.replace(/^https?:\/\//, "")}\n#JAMAAL #Chogan #parfum #skincare #Dakar #Senegal`;
   }
@@ -23,9 +26,9 @@ export function shareMessage(items: ShareItem[], origin: string, refSlug: string
   }
   if (items.length === 1) {
     const p = items[0];
-    return `${p.name}${p.inspiredBy ? ` (inspiré de ${p.inspiredBy})` : ""}${p.price ? ` — ${fcfa(p.price)}` : ""}. Commande ici : ${productLink(origin, p.slug, refSlug)}`;
+    return `${p.name}${p.inspiredBy ? ` (inspiré de ${p.inspiredBy})` : ""}${p.price ? ` — ${priceLabel(p.price, p.multiFormat)}` : ""}. Commande ici : ${productLink(origin, p.slug, refSlug)}`;
   }
-  const lines = items.map((p) => `• ${p.name}${p.price ? ` — ${fcfa(p.price)}` : ""} : ${productLink(origin, p.slug, refSlug)}`);
+  const lines = items.map((p) => `• ${p.name}${p.price ? ` — ${priceLabel(p.price, p.multiFormat)}` : ""} : ${productLink(origin, p.slug, refSlug)}`);
   return `Ma sélection JAMAAL ✨\n${lines.join("\n")}\nRépondez-moi pour commander !`;
 }
 

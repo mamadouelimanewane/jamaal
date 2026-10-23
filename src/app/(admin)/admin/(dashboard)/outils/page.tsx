@@ -62,7 +62,7 @@ export default async function OutilsVentePage() {
       name: p.name,
       shortDescription: p.shortDescription,
       category: p.category,
-      priceLabel: minPrice > 0 ? `dès ${formatPrice(minPrice)}` : "Sur demande",
+      priceLabel: minPrice > 0 ? `à partir de ${formatPrice(minPrice)}` : "Sur demande",
     };
   });
 

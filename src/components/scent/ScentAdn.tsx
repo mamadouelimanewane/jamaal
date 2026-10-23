@@ -76,7 +76,7 @@ export function ScentAdn({ suggestions, refSlug, advisor }: Props) {
                 <Link href={`/produits/${m.slug}${ref}`} className="mt-3 font-serif-display text-lg font-semibold text-navy hover:underline">{m.name}</Link>
                 {m.inspiredBy && <p className="text-xs text-navy/60">Inspiré de {m.inspiredBy}</p>}
                 <p className="mt-2 flex-1 text-sm text-navy/75">{m.reason.charAt(0).toUpperCase() + m.reason.slice(1)}.</p>
-                {m.price ? <p className="mt-2 font-semibold text-navy">dès {formatPrice(m.price)}</p> : null}
+                {m.price ? <p className="mt-2 font-semibold text-navy">à partir de {formatPrice(m.price)}</p> : null}
                 <Link href={`/produits/${m.slug}${ref}`} className="mt-3 rounded-full bg-navy px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-navy-light">Voir et commander</Link>
               </li>
             ))}

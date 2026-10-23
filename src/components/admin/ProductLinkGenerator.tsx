@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { priceLabel } from "@/lib/share-text";
 import { MessageCircle } from "lucide-react";
 import { CopyButton } from "@/components/admin/CopyButton";
 import { findProducts, inspirationLabel } from "@/lib/product-finder";
@@ -13,7 +14,7 @@ export function ProductLinkGenerator({ products, origin, refSlug }: { products: 
   const [picked, setPicked] = useState<P | null>(null);
   const results = useMemo(() => findProducts(products, q, 8), [q, products]);
   const link = picked ? `${origin}/produits/${picked.slug}${refSlug ? `?ref=${refSlug}` : ""}` : "";
-  const message = picked ? `${picked.name}${picked.price ? ` — ${picked.price.toLocaleString("fr-FR")} FCFA` : ""}. Commande ici : ${link}` : "";
+  const message = picked ? `${picked.name}${picked.price ? ` — ${priceLabel(picked.price, (picked as { multiFormat?: boolean }).multiFormat)}` : ""}. Commande ici : ${link}` : "";
 
   return (
     <div>
@@ -40,7 +41,7 @@ export function ProductLinkGenerator({ products, origin, refSlug }: { products: 
                     <span className="block truncate text-xs text-navy/60">{[p.choganCode, inspirationLabel(p)].filter(Boolean).join(" · ")}</span>
                   )}
                 </span>
-                {p.price != null && <span className="shrink-0 text-xs text-navy/70">{p.price.toLocaleString("fr-FR")} FCFA</span>}
+                {p.price != null && <span className="shrink-0 text-xs text-navy/70">{priceLabel(p.price, (p as { multiFormat?: boolean }).multiFormat)}</span>}
               </button>
             </li>
           ))}

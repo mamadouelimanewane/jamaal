@@ -21,6 +21,8 @@ export type ResellerProduct = {
   categoryLabel: string;
   family: string | null;
   shortDescription: string | null;
+  /** Plusieurs formats (30 ml, 70 ml…) : le prix affiché est « à partir de ». */
+  multiFormat: boolean;
 };
 
 /** Prix de départ : le plus petit prix de format, sinon le prix du produit. Pur, testé. */
@@ -52,6 +54,7 @@ export async function resellerCatalog(): Promise<ResellerProduct[]> {
     categoryLabel: labels.get(r.category) ?? r.category,
     family: r.family,
     shortDescription: r.shortDescription,
+    multiFormat: Array.isArray(r.volumes) && r.volumes.length > 1,
   }));
 }
 

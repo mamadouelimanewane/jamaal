@@ -1,41 +1,24 @@
 /**
- * Veille des prix Chogan : chaque jour, vérifie les fiches les plus anciennement contrôlées
- * (autant que le temps le permet) et note tout changement du prix public. Les prix JAMAAL ne
- * changent pas tout seuls : l'administrateur décide (Admin > Stocks > Commande Chogan).
+ * Synchronisation automatique avec Chogan : chaque jour (tâche du soir et tâche du matin), relit les fiches
+ * les plus anciennement contrôlées, applique les nouveaux prix (prix public et prix de vente JAMAAL selon le
+ * modèle économique), puis importe les nouveaux produits Chogan. L'équipe reçoit le récapitulatif sur WhatsApp.
+ * Interrupteur : Admin › Automatisations › « Mise à jour automatique du catalogue Chogan ».
  */
-import { prisma } from "@/lib/prisma";
-import { fetchChoganDetail } from "@/lib/chogan/client";
-import { eurToFcfa } from "@/lib/chogan/parse";
+import { revalidatePath } from "next/cache";
 import { automationEnabled } from "@/lib/automation-settings";
+import { syncChoganCatalog } from "@/lib/chogan/catalog-sync";
+import { notifyTeamWhatsApp } from "@/lib/whatsapp";
 
 export async function watchChoganPrices(budgetMs: number) {
   if (!(await automationEnabled("choganWatch"))) return "désactivé";
-  const deadline = Date.now() + budgetMs;
-  const products = await prisma.product.findMany({
-    where: { number: { not: null }, isOfficial: true },
-    orderBy: [{ choganCheckedAt: { sort: "asc", nulls: "first" } }],
-    select: { id: true, name: true, number: true, publicPrice: true },
-    take: 60,
-  });
-  let checked = 0;
-  let changed = 0;
-  let errors = 0;
-  for (const p of products) {
-    if (Date.now() > deadline - 2_500) break;
+  const r = await syncChoganCatalog(budgetMs);
+  if (r.prixMisAJour || r.nouveautes) {
     try {
-      const detail = await fetchChoganDetail(p.number!);
-      if (detail?.publicPriceEur) {
-        const fresh = eurToFcfa(detail.publicPriceEur);
-        if (p.publicPrice != null && Math.abs(fresh - p.publicPrice) >= 50) {
-          await prisma.choganPriceChange.create({ data: { productId: p.id, name: p.name, oldPublic: p.publicPrice, newPublic: fresh } });
-          changed++;
-        }
-      }
-      checked++;
+      revalidatePath("/", "layout");
     } catch {
-      errors++;
+      // hors requête : les pages se mettent à jour à la prochaine visite
     }
-    await prisma.product.update({ where: { id: p.id }, data: { choganCheckedAt: new Date() } });
+    notifyTeamWhatsApp(`🔄 Catalogue Chogan mis à jour : ${r.prixMisAJour} prix, ${r.nouveautes} nouveau(x) produit(s).\n${r.details.slice(0, 8).join("\n")}${r.details.length > 8 ? "\n…" : ""}\nDétail : Admin › Stocks › Commande Chogan.`);
   }
-  return { verifies: checked, changements: changed, erreurs: errors };
+  return { verifies: r.verifies, prix: r.prixMisAJour, nouveautes: r.nouveautes, sondes: r.sondes, erreurs: r.erreurs };
 }

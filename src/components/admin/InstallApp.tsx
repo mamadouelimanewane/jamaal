@@ -6,7 +6,7 @@ import { Download, Share, X } from "lucide-react";
 type InstallEvent = Event & { prompt: () => Promise<void>; userChoice: Promise<{ outcome: string }> };
 
 /** État d'installation de l'application (Android / ordinateur : invite du navigateur ; iPhone : mode d'emploi). */
-function useInstall() {
+export function useInstall() {
   const [evt, setEvt] = useState<InstallEvent | null>(null);
   const [ios, setIos] = useState(false);
   const [installed, setInstalled] = useState(true);

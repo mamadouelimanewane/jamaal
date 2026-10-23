@@ -26,10 +26,11 @@ export function welcomeMessage(
     "1️⃣ Activez votre espace revendeur avec le lien d'activation qui vous est transmis par l'équipe (répondez ici s'il ne vous est pas parvenu).",
     r.slug && site ? `2️⃣ Partagez votre lien de vente personnel : ${site}/c/${r.slug}` : "2️⃣ Partagez votre lien de vente personnel dès l'activation.",
     "3️⃣ Suivez la formation et les défis dans votre espace.",
+    site ? `📲 Installez l'application JAMAAL sur votre téléphone (icône sur l'écran d'accueil) : ${site}/admin/installer` : "",
     "",
     "Vous gagnez une commission sur chaque vente, et sur celles de votre équipe. Une question ? Répondez simplement à ce message.",
   ];
-  return { text: lines.join("\n"), cta: { label: "Ouvrir mon espace", url: `${site}/admin/login` } };
+  return { text: lines.filter((l, i, a) => l !== "" || a[i - 1] !== "").join("\n"), cta: { label: "Installer l'application", url: `${site}/admin/installer` } };
 }
 
 /** Variables du modèle dédié « bienvenue_revendeur » : {{1}} prénom, {{2}} parrain, {{3}} lien de vente. */

@@ -88,7 +88,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
         )}
         {price ? (
           <div style={{ display: "flex", marginTop: square ? 18 : 36, background: "#0f7a52", borderRadius: 999, padding: square ? "12px 36px" : "18px 54px", fontSize: square ? 40 : 58, fontWeight: 700 }}>
-            {volumes.length > 1 ? `dès ${fcfa(price)}` : fcfa(price)}
+            {volumes.length > 1 ? `À partir de ${fcfa(price)}` : fcfa(price)}
           </div>
         ) : null}
         <div style={{ display: "flex", flex: 1 }} />

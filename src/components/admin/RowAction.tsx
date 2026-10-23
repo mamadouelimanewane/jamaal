@@ -16,7 +16,7 @@ export function RowAction({ label, run, confirm, danger }: { label: string; run:
           if (confirm && !window.confirm(confirm)) return;
           start(async () => {
             const r = await run();
-            setMsg(r.ok ? r.message ?? "Fait" : r.error ?? "Erreur");
+            setMsg(r.ok ? r.message ?? "Fait" : r.error ?? r.message ?? "Erreur");
           });
         }}
         className={`inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs font-semibold disabled:opacity-50 ${danger ? "border-rose-dark/30 text-rose-dark hover:bg-rose/10" : "border-line text-navy hover:bg-cream"}`}

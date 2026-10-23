@@ -250,7 +250,7 @@ export async function approveApplication(id: string, opts: { allowIncomplete?: b
           from,
           to: [email],
           subject: "Bienvenue chez JAMAAL — activez votre espace consultant",
-          html: `<p>Bonjour ${esc(app.name)},</p><p>Votre candidature a été acceptée. Choisissez votre mot de passe (lien valable 7 jours) :</p><p><a href="${activationUrl}">Activer mon espace consultant</a></p><p>Votre lien de vente personnel : ${siteUrl}/c/${slug}</p>`,
+          html: `<p>Bonjour ${esc(app.name)},</p><p>Votre candidature a été acceptée. Choisissez votre mot de passe (lien valable 7 jours) :</p><p><a href="${activationUrl}">Activer mon espace consultant</a></p><p>Installez aussi l'application JAMAAL sur votre téléphone (icône sur l'écran d'accueil) : <a href="${siteUrl}/admin/installer">installer l'application</a></p><p>Votre lien de vente personnel : ${siteUrl}/c/${slug}</p>`,
         }),
       });
       emailed = res.ok;

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { StaffLoginForm, type LoginNotice } from "@/components/StaffLoginForm";
+import { InstallGuide } from "@/components/admin/InstallGuide";
 
 const ALLOWED_REDIRECTS = new Set(["/admin", "/livreur"]);
 
@@ -65,9 +66,19 @@ export default async function AdminLoginPage({
             </p>
 
             <StaffLoginForm from="/admin/login" next={redirectTo} notice={notice} />
+            {(notice as { reset?: string }).reset === "1" ? (
+              <div className="mt-6 rounded-2xl border border-line bg-[#fdfbfa] p-4">
+                <p className="text-sm font-semibold text-navy">📲 Gardez JAMAAL sur votre téléphone</p>
+                <p className="mb-3 mt-1 text-xs text-navy/70">Installez l&apos;application : votre espace s&apos;ouvrira d&apos;un geste, avec l&apos;icône JAMAAL.</p>
+                <InstallGuide compact />
+              </div>
+            ) : (
+              <Link href="/admin/installer" className="mt-4 block text-center text-sm font-semibold text-rose-dark">📲 Installer l&apos;application JAMAAL sur mon téléphone</Link>
+            )}
             <p className="mt-6 text-center text-xs text-navy/70">
               Besoin d’aide pour vous connecter ? Contactez votre administrateur.
             </p>
+            <p className="mt-2 text-center text-[11px] text-navy/40">Version {(process.env.VERCEL_GIT_COMMIT_SHA ?? "locale").slice(0, 7)}</p>
           </div>
         </section>
       </div>
