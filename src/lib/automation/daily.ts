@@ -5,6 +5,9 @@
  */
 import { sendDailySummary } from "./summary";
 import { runSubscriptions } from "@/lib/subscriptions/run";
+import { weeklyForecastAlert } from "@/lib/forecast/run";
+import { alertManagers } from "@/lib/health/run";
+import { scanMembers } from "@/lib/fraud/run";
 import { runRelances } from "./relances";
 import { requestReviews } from "./reviews";
 import { awardChallenges } from "./challenges";
@@ -28,11 +31,16 @@ export async function runDailyJobs(origin: string, opts: { budgetMs?: number; no
     }
   };
   // Commissions et parts de livraison : rattrape tout ce qui n'aurait pas été réparti sur les wallets.
+  // Contrôle anti-fraude des membres d'abord : un membre signalé voit ses nouvelles commissions mises en vérification.
+  await step("fraude", () => scanMembers(now));
   await step("commissions", async () => ({ ...(await sweepMissedCommissions(now)), livraisonsCreditees: await creditLivreurEarnings() }));
   await step("defis", () => awardChallenges(now));
   if (whatsappConfig().active) await step("defis80", () => alertChallengesAlmostDone(now));
   await step("relances", () => runRelances(origin, now));
   await step("abonnements", () => runSubscriptions(origin, now));
+  await step("prevision", () => weeklyForecastAlert(origin, now));
+  // Lundi : chaque Leader et parrain reçoit la liste de ses membres qui décrochent.
+  if (now.getUTCDay() === 1) await step("santeReseau", () => alertManagers(origin, now));
   await step("avis", () => requestReviews(origin, now));
   await step("veilleChogan", () => watchChoganPrices(Math.max(5_000, budgetMs - (Date.now() - started) - 8_000)));
   // Le résumé en dernier : il compte aussi les changements de prix détectés juste avant.

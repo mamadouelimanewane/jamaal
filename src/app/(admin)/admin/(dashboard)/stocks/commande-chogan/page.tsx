@@ -55,6 +55,7 @@ export default async function ChoganOrderPage({ searchParams }: { searchParams: 
         <div>
           <Link href="/admin/stocks" className="text-xs text-navy/70 hover:underline">← Stocks</Link>
           <h1 className="mt-1 font-serif-display text-2xl font-semibold text-navy">Commande Chogan</h1>
+          <Link href="/admin/stocks/prevision" className="mt-2 inline-block rounded-full bg-ia-light px-3 py-1 text-xs font-semibold text-ia-dark">Nouveau : prévision avec les fêtes (Tabaski, Korité…) →</Link>
           <p className="mt-1 text-sm text-navy/75">Bon de commande préparé à partir des ventes des 30 derniers jours (de quoi tenir un mois, au moins 2 × le seuil) et des réservations payées. Copiez la liste dans votre commande Chogan.</p>
           <p className="mt-1 text-xs text-navy/65">
             {all ? (

@@ -18,6 +18,7 @@ import { commissionRatesFor, type BusinessModel } from "@/lib/business-model";
 import { effectiveTitle } from "@/lib/network";
 import { commissionBase } from "@/lib/commission";
 import { creditCommissionEntries, reverseWalletCreditsForOrder } from "@/lib/wallet";
+import { screenOrder } from "@/lib/fraud/run";
 import { isWalletProvider, payoutProvidersConfig, refreshWave, sendPayout, WALLET_LABELS, type PayoutResult } from "./providers";
 
 export type Level = "VENTE" | "NIVEAU_1" | "NIVEAU_2";
@@ -169,6 +170,9 @@ export async function runPayoutsForOrder(orderId: string) {
   try {
     const model = await getBusinessModel();
     const members = await recordCommissionsForOrder(orderId, model);
+    // Contrôle anti-fraude AVANT le crédit : une vente suspecte (auto-achat, achat du parrain) ou un membre signalé
+    // voit ses commissions passer « EN_REVUE » ; l'admin décide (Admin › Contrôle des commissions).
+    if (members.length) await screenOrder(orderId);
     // Les commissions sont créditées sur le wallet JAMAAL des membres, qui les retirent quand ils veulent.
     if (members.length) await creditCommissionEntries({ orderId });
     refreshPages();

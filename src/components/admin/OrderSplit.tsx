@@ -9,6 +9,8 @@ const ENTRY_STATUS: Record<string, { label: string; cls: string }> = {
   A_VERSER: { label: "À verser", cls: "bg-amber-50 text-amber-900" },
   VERSE: { label: "Versé", cls: "bg-emerald-50 text-emerald-800" },
   ANNULE: { label: "Annulé", cls: "bg-navy/10 text-navy/80" },
+  EN_REVUE: { label: "En vérification", cls: "bg-rose/10 text-rose-dark" },
+  WALLET: { label: "Sur le wallet", cls: "bg-emerald-50 text-emerald-800" },
 };
 
 /**

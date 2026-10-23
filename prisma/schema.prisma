@@ -1186,3 +1186,25 @@ model GiftCard {
 
   @@index([status], map: "GiftCard_status_idx")
 }
+
+/// Signalement de fraude possible sur les commissions (auto-achat, faux filleul, retours abusifs). Tant qu'il est
+/// OUVERT, les commissions concernées restent « EN_REVUE » : rien n'est versé avant la décision de l'admin.
+model FraudFlag {
+  id           String    @id @default(cuid())
+  /// Clé unique (évite les doublons) : « order:<id> » ou « member:<type>:<consultant> »
+  key          String    @unique
+  /// AUTO_ACHAT, ACHAT_PARRAIN, FAUX_FILLEUL, CLIENT_UNIQUE, RETOURS
+  kind         String
+  consultantId String
+  orderId      String?
+  details      String
+  score        Int       @default(1)
+  /// OUVERT, VALIDE (pas de fraude : commissions libérées), FRAUDE (commissions annulées)
+  status       String    @default("OUVERT")
+  resolvedAt   DateTime?
+  resolvedBy   String?
+  createdAt    DateTime  @default(now())
+
+  @@index([status], map: "FraudFlag_status_idx")
+  @@index([consultantId], map: "FraudFlag_consultant_idx")
+}

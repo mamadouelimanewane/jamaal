@@ -50,7 +50,7 @@ export async function LiveEarnings({ consultantId }: { consultantId: string }) {
         detail: e.level.startsWith("PRIME_") ? `CA de l'équipe : ${formatPrice(e.base)} (${e.orderId.replace("PRIME-EQUIPE-", "")})` : `${e.rate} % de ${formatPrice(e.base)}`,
         amount: `+ ${formatPrice(e.amount)}`,
         tone: e.status === "ANNULE" ? "text-navy/60 line-through" : "text-emerald-700",
-        status: e.status === "VERSE" ? "versé" : e.status === "WALLET" ? "sur le wallet" : e.status === "ANNULE" ? "annulé" : "à verser",
+        status: e.status === "VERSE" ? "versé" : e.status === "WALLET" ? "sur le wallet" : e.status === "ANNULE" ? "annulé" : e.status === "EN_REVUE" ? "en vérification" : "à verser",
       };
     }),
     ...payouts.map((p) => ({
