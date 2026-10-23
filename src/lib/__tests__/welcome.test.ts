@@ -32,3 +32,12 @@ test("modèle dédié : une variable par champ, sans retour à la ligne", () => 
   const old = buildMetaPayload("221770000000", "Bonjour A", {}, "jamaal_alerte", "fr") as { template: { components: { parameters: unknown[] }[] } };
   assert.equal(old.template.components[0].parameters.length, 1);
 });
+
+import { installInviteMessage } from "../whatsapp/install-invite";
+test("revendeur déjà inscrit : lien d'installation de l'application", () => {
+  const m = installInviteMessage("Fatou Ndiaye", "https://www.jamaal.sn");
+  assert.match(m.text, /^Bonjour Fatou/);
+  assert.match(m.text, /https:\/\/www\.jamaal\.sn\/admin\/installer/);
+  assert.deepEqual(m.cta, { label: "Installer l'application", url: "https://www.jamaal.sn/admin/installer" });
+  assert.match(installInviteMessage("Ali", "https://x", "livreur").text, /espace livreur/);
+});

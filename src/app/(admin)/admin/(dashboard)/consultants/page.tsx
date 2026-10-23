@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { RowAction } from "@/components/admin/RowAction";
+import { sendInstallInvites } from "@/lib/actions/install-invite";
+import { pendingInstallInvites } from "@/lib/whatsapp/install-invite";
 import { titleFromLoaded } from "@/lib/network";
 import { NetworkTitleBadge } from "@/components/admin/NetworkTitleBadge";
 import { prisma } from "@/lib/prisma";
@@ -14,6 +17,7 @@ export const dynamic = "force-dynamic";
 const rankOrder = { GOLD: 0, SILVER: 1, BRONZE: 2 } as const;
 
 export default async function AdminConsultantsPage() {
+  const pendingInvites = await pendingInstallInvites(true);
   const [consultants, rankings] = await Promise.all([
     prisma.consultant.findMany({
       include: {
@@ -42,7 +46,12 @@ export default async function AdminConsultantsPage() {
         <h1 className="font-serif-display text-2xl font-semibold text-navy">
           Consultants ({consultants.length})
         </h1>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-start gap-2">
+          {pendingInvites > 0 ? (
+            <RowAction label={`📲 Envoyer le lien de l'application (${pendingInvites})`} run={sendInstallInvites} confirm={`Envoyer sur WhatsApp le lien d'installation de l'application à ${pendingInvites} revendeur(s) et livreur(s) qui ne l'ont pas encore reçu ?`} />
+          ) : (
+            <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-800">📲 Lien de l&apos;application envoyé à tous</span>
+          )}
           <a
             href="/api/export/revendeurs"
             className="rounded-full border border-line px-4 py-2 text-sm font-semibold text-navy hover:bg-cream"
