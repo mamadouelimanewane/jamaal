@@ -5,6 +5,20 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { ApplicationForm } from "@/components/ApplicationForm";
 import { getProtocol } from "@/lib/protocol-store";
+import { prisma } from "@/lib/prisma";
+import { getBusinessModel } from "@/lib/business-model-store";
+import { simRates } from "@/lib/earnings-sim";
+import { EarningsSimulator } from "@/components/EarningsSimulator";
+
+/** Panier moyen réel des 90 derniers jours (produits, hors livraison), arrondi ; 20 000 F à défaut. */
+async function averageBasket(): Promise<number> {
+  const since = new Date(Date.now() - 90 * 86_400_000);
+  const agg = await prisma.order
+    .aggregate({ where: { createdAt: { gte: since }, status: { not: "ANNULEE" }, isReservation: false }, _avg: { total: true, deliveryFee: true }, _count: { _all: true } })
+    .catch(() => null);
+  const avg = agg && agg._count._all >= 10 ? (agg._avg.total ?? 0) - (agg._avg.deliveryFee ?? 0) : 0;
+  return avg > 0 ? Math.min(40_000, Math.max(8_000, Math.round(avg / 1_000) * 1_000)) : 20_000;
+}
 
 export const metadata: Metadata = {
   title: "Devenir consultant·e JAMAAL",
@@ -19,6 +33,8 @@ const perks = [
   ["Formation & outils", "Scripts WhatsApp, kit marketing et accompagnement de l'équipe JAMAAL."],
 ];
 
+export const dynamic = "force-dynamic";
+
 export default async function DevenirConsultantPage({
   searchParams,
 }: {
@@ -30,7 +46,8 @@ export default async function DevenirConsultantPage({
   // Verrouillé seulement si le parrain est encore actif : sinon la personne peut saisir un autre code.
   const sponsor = candidate ? await resolveSponsorCode(candidate) : null;
   const sponsorCode = sponsor ? candidate : "";
-  const protocol = await getProtocol();
+  const [protocol, model, basket] = await Promise.all([getProtocol(), getBusinessModel(), averageBasket()]);
+  const rates = simRates(model);
 
   // Lien d'invitation : formulaire seul, sans présentation ni champs facultatifs.
   if (sponsor) {
@@ -39,7 +56,11 @@ export default async function DevenirConsultantPage({
         <p className="luxury-eyebrow">Invitation</p>
         <h1 className="mt-2 font-serif-display text-3xl font-semibold text-navy">Rejoignez l&apos;équipe de {sponsor.name.split(/\s+/)[0]}</h1>
         <p className="mt-2 text-sm text-navy/70">Remplissez le formulaire en 3 étapes : environ 3 minutes.</p>
-        <div className="mt-6 rounded-2xl border border-line bg-white p-5 sm:p-8">
+        <details className="mt-5 rounded-2xl border border-line bg-cream/60 p-4">
+          <summary className="cursor-pointer font-semibold text-navy">💰 Combien je peux gagner ?</summary>
+          <div className="mt-4"><EarningsSimulator rates={rates} defaultBasket={basket} /></div>
+        </details>
+        <div id="candidature" className="mt-6 scroll-mt-24 rounded-2xl border border-line bg-white p-5 sm:p-8">
           <ApplicationForm sponsorCode={sponsorCode} sponsorName={sponsor.name} protocol={protocol} />
         </div>
       </div>
@@ -67,7 +88,15 @@ export default async function DevenirConsultantPage({
         ))}
       </ul>
 
-      <div className="mt-10 rounded-2xl border border-line bg-white p-5 sm:p-8">
+      <section className="mt-12">
+        <p className="luxury-eyebrow">Simulateur</p>
+        <h2 className="mt-1 font-serif-display text-2xl font-semibold text-navy sm:text-3xl">Combien je peux gagner ?</h2>
+        <p className="mb-5 mt-2 text-sm text-navy/70">Réglez votre rythme de ventes et la taille de votre équipe : vos gains sont calculés avec le vrai barème JAMAAL.</p>
+        <EarningsSimulator rates={rates} defaultBasket={basket} />
+      </section>
+
+      <div id="candidature" className="mt-12 scroll-mt-24 rounded-2xl border border-line bg-white p-5 sm:p-8">
+        <h2 className="mb-5 font-serif-display text-2xl font-semibold text-navy">Ma candidature</h2>
         <ApplicationForm sponsorCode="" protocol={protocol} />
       </div>
 
