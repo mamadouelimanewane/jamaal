@@ -46,7 +46,7 @@ export function PromoCodeManager({ consultantId, initialCodes }: PromoCodeManage
   };
 
   const shareUrl = (code: string) =>
-    `${process.env.NEXT_PUBLIC_SITE_URL ?? "https://jamaal-nine.vercel.app"}/?promo=${code}`;
+    `${process.env.NEXT_PUBLIC_SITE_URL?.includes("jamaal-nine") ? "https://www.jamaal.sn" : process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.jamaal.sn"}/?promo=${code}`;
 
   return (
     <div className="space-y-6">

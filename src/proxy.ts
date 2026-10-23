@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { INVITE_COOKIE, INVITE_MAX_AGE, inviteCode } from "@/lib/invite-lock";
 import { guardRequest, guardResponse } from "@/lib/bot-guard-store";
 import { clientIpFromHeaders } from "@/lib/rate-limit";
+import { legacyRedirect } from "@/lib/domain-redirect";
 
 const REF_COOKIE = "jamaal_ref";
 const REF_MAX_AGE = 60 * 60 * 24 * 30; // 30 jours
@@ -52,6 +53,10 @@ const ADMIN_ONLY_PREFIXES = [
  */
 const handler = auth(async (req) => {
   const { pathname, searchParams } = req.nextUrl;
+
+  // ——— Ancienne adresse → www.jamaal.sn (pages seulement ; API et webhooks inchangés) ———
+  const moved = legacyRedirect(req.headers.get("x-forwarded-host") ?? req.headers.get("host"), req.method, pathname, req.nextUrl.search);
+  if (moved) return NextResponse.redirect(moved, 308);
 
   // ——— Robot anti-aspiration (src/lib/bot-guard.ts) ———
   // Les membres connectés (équipe, revendeurs, livreurs) ne sont jamais freinés.

@@ -12,7 +12,7 @@ interface ReferralCardProps {
 
 export function ReferralCard({ code, usedAt, rewardPoints }: ReferralCardProps) {
   const [copied, setCopied] = useState(false);
-  const shareUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? "https://jamaal-nine.vercel.app"}/?ref=${code}`;
+  const shareUrl = `${process.env.NEXT_PUBLIC_SITE_URL?.includes("jamaal-nine") ? "https://www.jamaal.sn" : process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.jamaal.sn"}/?ref=${code}`;
 
   const copyToClipboard = async () => {
     await navigator.clipboard.writeText(shareUrl);

@@ -16,7 +16,7 @@ const SAMPLE: Record<string, string> = {
   livraison: "et arrive bientôt",
   produit: "Aqua Soul",
   produits: "*Aqua Soul*",
-  lien: "https://jamaal-nine.vercel.app/…",
+  lien: "https://www.jamaal.sn/…",
   signature: "Fatou, votre conseiller·e JAMAAL",
   code: "ANNIV-4821",
   jours: "15",

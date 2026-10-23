@@ -35,7 +35,7 @@ export function welcomeMessage(
 /** Variables du modèle dédié « bienvenue_revendeur » : {{1}} prénom, {{2}} parrain, {{3}} lien de vente. */
 export function welcomeTemplateVars(r: { name: string; slug: string | null; sponsorName: string | null }, site: string): string[] {
   const first = r.name.trim().split(/\s+/)[0] || r.name;
-  return [first, r.sponsorName || "JAMAAL", r.slug && site ? `${site}/c/${r.slug}` : site || "jamaal-nine.vercel.app"];
+  return [first, r.sponsorName || "JAMAAL", r.slug && site ? `${site}/c/${r.slug}` : site || "www.jamaal.sn"];
 }
 
 export async function sendResellerWelcome(consultantId: string): Promise<void> {

@@ -1,5 +1,9 @@
 import { headers } from "next/headers";
 
+/** Domaine officiel de la boutique (OVH → Vercel). L'ancienne adresse jamaal-nine.vercel.app y redirige. */
+export const OFFICIAL_SITE_URL = "https://www.jamaal.sn";
+const isProd = () => process.env.VERCEL_ENV === "production";
+
 /**
  * URL publique du site (sans slash final), pour les liens envoyés par e-mail ou WhatsApp.
  * Priorité : NEXT_PUBLIC_SITE_URL, puis l'hôte de la requête en cours (le domaine réellement
@@ -8,7 +12,9 @@ import { headers } from "next/headers";
  */
 export async function getSiteUrl(): Promise<string> {
   const configured = process.env.NEXT_PUBLIC_SITE_URL;
-  if (configured) return configured.replace(/\/$/, "");
+  if (configured && !/jamaal-nine\.vercel\.app/.test(configured)) return configured.replace(/\/$/, "");
+  // En production, les liens envoyés (WhatsApp, paiements, QR codes) portent toujours le domaine officiel.
+  if (isProd()) return OFFICIAL_SITE_URL;
 
   try {
     const h = await headers();
@@ -29,7 +35,8 @@ export async function getSiteUrl(): Promise<string> {
  */
 export function siteBaseUrl(): string {
   const configured = process.env.NEXT_PUBLIC_SITE_URL;
-  if (configured) return configured.replace(/\/$/, "");
+  if (configured && !/jamaal-nine\.vercel\.app/.test(configured)) return configured.replace(/\/$/, "");
+  if (isProd()) return OFFICIAL_SITE_URL;
   if (process.env.VERCEL_PROJECT_PRODUCTION_URL) return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
   return "http://localhost:3030";
 }

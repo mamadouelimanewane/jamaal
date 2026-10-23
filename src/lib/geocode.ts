@@ -14,7 +14,7 @@ export interface GeocodeResult {
   source: "photon" | "nominatim" | "cache";
 }
 
-const UA = "JAMAAL/1.0 (livraisons ; https://jamaal-nine.vercel.app)";
+const UA = "JAMAAL/1.0 (livraisons ; https://www.jamaal.sn)";
 // Sénégal (avec une petite marge)
 const BOX = { minLng: -17.7, minLat: 12.2, maxLng: -11.2, maxLat: 16.8 };
 const inSenegal = (lat: number, lng: number) => lat >= BOX.minLat && lat <= BOX.maxLat && lng >= BOX.minLng && lng <= BOX.maxLng;

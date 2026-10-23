@@ -33,7 +33,7 @@ function throttled<T>(fn: () => Promise<T>): Promise<T> {
 
 /** Ancien jeu d'en-têtes (robot déclaré) : refusé (403) par le site Chogan depuis les serveurs. */
 export const LEGACY_HEADERS: Record<string, string> = {
-  "User-Agent": "Mozilla/5.0 (compatible; JAMAAL-import/1.0; +https://jamaal-nine.vercel.app)",
+  "User-Agent": "Mozilla/5.0 (compatible; JAMAAL-import/1.0; +https://www.jamaal.sn)",
   "Accept-Language": "fr-FR,fr;q=0.9",
   Accept: "text/html,application/xhtml+xml",
   Cookie: "language_id=13",
