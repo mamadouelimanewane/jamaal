@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { Camera, Copy, Download, ImageDown, Link2, Loader2, MessageCircle, Music2 } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Camera, CircleDashed, Copy, Download, ImageDown, Link2, Loader2, MessageCircle, Music2 } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import { shareMessage, productLink, type ShareItem } from "@/lib/share-text";
 
 type Format = "story" | "carre" | "photo";
@@ -71,6 +72,8 @@ export function ShareStudio({ items, origin, refSlug, defaultFormat = "story" }:
   const [guide, setGuide] = useState<App | null>(null);
   // Parcours en 2 étapes (enregistrer les images, puis ouvrir l'appli) : ne dépend pas de la liste de partage du téléphone.
   const [channel, setChannel] = useState<App | null>(null);
+  // Statut WhatsApp : aide affichée après le partage (ou à la place, sur ordinateur).
+  const [statusHelp, setStatusHelp] = useState<null | "after" | "manual" | "desktop">(null);
   const [saved, setSaved] = useState(false);
   const defaultText = useMemo(() => shareMessage(items, origin, refSlug), [items, origin, refSlug]);
   const [edited, setEdited] = useState<{ base: string; text: string } | null>(null);
@@ -136,6 +139,7 @@ export function ShareStudio({ items, origin, refSlug, defaultFormat = "story" }:
   }
 
   function openChannel(app: App) {
+    setStatusHelp(null);
     setMsg(null);
     setGuide(null);
     setSaved(false);
@@ -153,6 +157,27 @@ export function ShareStudio({ items, origin, refSlug, defaultFormat = "story" }:
       return;
     }
     openChannel("whatsapp");
+  }
+  /**
+   * Statut WhatsApp. Aucun lien ne publie directement un statut : sur téléphone, on partage l'IMAGE SEULE vers
+   * WhatsApp, qui propose alors « Mon statut » en tête de liste ; le texte est copié pour la légende. Sans partage
+   * possible : enregistrer l'image puis WhatsApp › Actus. Sur ordinateur : le statut se publie depuis le téléphone.
+   */
+  async function onStatus() {
+    setMsg(null);
+    setGuide(null);
+    setChannel(null);
+    copy(text);
+    const files = ready?.files ?? [];
+    if (!touch) return setStatusHelp("desktop");
+    if (canShareFiles(files)) {
+      setBusy(true);
+      const r = await shareFiles(files, undefined);
+      setBusy(false);
+      if (r === "ok") return setStatusHelp("after");
+      if (r === "cancel") return setStatusHelp(null);
+    }
+    setStatusHelp("manual");
   }
   const onInstagram = () => openChannel("instagram");
   const onTikTok = () => openChannel("tiktok");
@@ -206,12 +231,15 @@ export function ShareStudio({ items, origin, refSlug, defaultFormat = "story" }:
       <label className="block text-sm font-medium text-navy">
         Envoyer à un client précis (facultatif)
         <input type="tel" inputMode="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Numéro WhatsApp, ex. 77 123 45 67" className="mt-1.5 w-full rounded-xl border border-line px-3 py-2 text-sm sm:max-w-xs" />
-        <span className="mt-1 block text-xs font-normal text-navy/60">Vide : vous choisissez la discussion ou votre statut dans WhatsApp.</span>
+        <span className="mt-1 block text-xs font-normal text-navy/60">Vide : vous choisissez le contact dans WhatsApp. Pour un statut, touchez « Mettre en statut WhatsApp ».</span>
       </label>
 
       <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-        <button type="button" onClick={onWhatsApp} disabled={busy || loading} className={`${btn} bg-[#25D366] text-white hover:bg-[#1ebe5b]`}>
-          {loading ? <Loader2 size={16} className="animate-spin" /> : <MessageCircle size={16} />} WhatsApp / statut
+        <button type="button" onClick={onStatus} disabled={busy || loading} className={`${btn} bg-[#25D366] text-white hover:bg-[#1ebe5b]`}>
+          {loading ? <Loader2 size={16} className="animate-spin" /> : <CircleDashed size={16} />} Mettre en statut WhatsApp
+        </button>
+        <button type="button" onClick={onWhatsApp} disabled={busy || loading} className={`${btn} border-2 border-[#25D366] text-[#128C4B] hover:bg-emerald-50`}>
+          {loading ? <Loader2 size={16} className="animate-spin" /> : <MessageCircle size={16} />} Envoyer à un contact WhatsApp
         </button>
         <button type="button" onClick={onInstagram} disabled={busy || loading} className={`${btn} bg-gradient-to-r from-[#f58529] via-[#dd2a7b] to-[#8134af] text-white hover:opacity-90`}>
           {loading ? <Loader2 size={16} className="animate-spin" /> : <Camera size={16} />} Instagram
@@ -235,6 +263,18 @@ export function ShareStudio({ items, origin, refSlug, defaultFormat = "story" }:
       </div>
       {loading && <p className="text-xs text-navy/65">Préparation {items.length > 1 ? "des images" : "de l'image"}…</p>}
       {ready && ready.failed > 0 && <p className="text-xs text-amber-800">{ready.failed} image(s) n&apos;ont pas pu être préparées : réessayez dans un instant.</p>}
+      {statusHelp && (
+        <StatusSteps
+          mode={statusHelp}
+          count={ready?.files.length ?? 0}
+          busy={busy}
+          saved={saved}
+          onShare={onStatus}
+          onSave={onGallery}
+          continueUrl={typeof window !== "undefined" ? `${window.location.origin}/admin/mon-marketing?produits=${items.map((p) => p.slug).join(",")}#partager` : ""}
+          onClose={() => setStatusHelp(null)}
+        />
+      )}
       {channel && (
         <ChannelSteps
           app={channel}
@@ -326,6 +366,52 @@ function ChannelSteps({ app, count, saved, busy, ios, touch, caption, onSave, on
         <button type="button" onClick={onDirect} disabled={busy || !count} className="mt-3 text-xs font-semibold text-navy/60 underline hover:text-navy">
           Ou partager directement (si {label} apparaît dans la liste de votre téléphone)
         </button>
+      )}
+    </div>
+  );
+}
+
+/** Aide au statut WhatsApp : après le partage, sans partage possible, ou sur ordinateur (continuer sur le téléphone). */
+function StatusSteps({ mode, count, busy, saved, onShare, onSave, continueUrl, onClose }: { mode: "after" | "manual" | "desktop"; count: number; busy: boolean; saved: boolean; onShare: () => void; onSave: () => void; continueUrl: string; onClose: () => void }) {
+  const img = count > 1 ? "les images" : "l'image";
+  const box = useRef<HTMLDivElement>(null);
+  // Sur téléphone, l'aide est sous les boutons : on l'amène à l'écran.
+  useEffect(() => box.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), [mode]);
+  return (
+    <div ref={box} className="scroll-mb-6 rounded-2xl border-2 border-[#25D366]/40 bg-white p-4 text-sm text-navy shadow-sm">
+      <div className="flex items-center justify-between gap-2">
+        <p className="font-semibold">Publier le produit en statut WhatsApp</p>
+        <button type="button" onClick={onClose} className="text-xs font-semibold text-navy/60 hover:text-navy">Fermer</button>
+      </div>
+      {mode === "after" && (
+        <ol className="mt-3 list-decimal space-y-1.5 pl-5">
+          <li>Dans WhatsApp, touchez <strong>« Mon statut »</strong> (tout en haut de la liste), puis la flèche d&apos;envoi.</li>
+          <li>Avant d&apos;envoyer, touchez la légende et <strong>collez le texte</strong> (il est déjà copié, avec votre lien).</li>
+          <li className="text-navy/70">WhatsApp n&apos;était pas dans la liste ? <button type="button" onClick={onSave} className="font-semibold text-rose-dark underline">Enregistrez {img}</button>, puis WhatsApp › <strong>Actus</strong> › 📷 › choisissez {img} dans la galerie.</li>
+        </ol>
+      )}
+      {mode === "manual" && (
+        <ol className="mt-3 space-y-3">
+          <li className="rounded-xl bg-cream/60 p-3">
+            <p className="font-medium">1. Enregistrez {img} dans votre téléphone</p>
+            <button type="button" onClick={onSave} disabled={busy || !count} className="mt-2 rounded-full bg-navy px-4 py-2.5 font-semibold text-white disabled:opacity-60">{saved ? "✓ Enregistrée — enregistrer à nouveau" : `Enregistrer ${img}`}</button>
+          </li>
+          <li className="rounded-xl bg-cream/60 p-3">
+            <p className="font-medium">2. Ouvrez WhatsApp › onglet <strong>Actus</strong> › 📷, choisissez {img}, collez le texte en légende</p>
+            <a href="whatsapp://" className="mt-2 inline-flex rounded-full bg-[#25D366] px-4 py-2.5 font-semibold text-white">Ouvrir WhatsApp</a>
+            <button type="button" onClick={onShare} className="ml-3 text-xs font-semibold text-navy/60 underline">Réessayer le partage direct</button>
+          </li>
+        </ol>
+      )}
+      {mode === "desktop" && (
+        <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-center">
+          <div className="shrink-0 rounded-xl border border-line bg-white p-2"><QRCodeSVG value={continueUrl || "https://www.jamaal.sn"} size={132} /></div>
+          <div>
+            <p>Le statut WhatsApp se publie <strong>depuis votre téléphone</strong>.</p>
+            <p className="mt-1 text-navy/70">Scannez ce code avec l&apos;appareil photo du téléphone : le même produit s&apos;ouvre dans votre espace, touchez alors « Mettre en statut WhatsApp ».</p>
+            <p className="mt-1 text-xs text-navy/60">Texte déjà copié. Autre solution : <button type="button" onClick={onSave} className="font-semibold text-rose-dark underline">téléchargez {img}</button> et envoyez-{count > 1 ? "les" : "la"} sur votre téléphone.</p>
+          </div>
+        </div>
       )}
     </div>
   );
