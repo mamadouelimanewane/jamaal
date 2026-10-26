@@ -125,8 +125,8 @@ export const WA_MESSAGES: Record<MessageKey, MessageDef> = {
     group: "Revendeurs et livreurs",
     label: "Retrait versé",
     when: "Un retrait du wallet est envoyé sur Wave ou Orange Money.",
-    vars: { montant: "Montant versé", compte: "Wave ou Orange Money (et numéro)" },
-    text: "✅ Retrait versé : {montant} envoyés sur {compte}. Merci pour votre travail !",
+    vars: { montant: "Montant versé", compte: "Wave ou Orange Money (et numéro)", detail: "Les ventes qui composent le montant (produit, acheteur)" },
+    text: "✅ Retrait versé : {montant} envoyés sur {compte}.\n{detail}\nMerci pour votre travail !",
   },
   carte_cadeau: {
     group: "Cadeaux et abonnements",

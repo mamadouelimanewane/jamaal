@@ -76,13 +76,13 @@ export async function ownerWallet(owner: Owner) {
 /** Crédite les commissions et primes enregistrées mais pas encore créditées (idempotent). */
 export async function creditCommissionEntries(where: Prisma.CommissionEntryWhereInput = {}) {
   const entries = await prisma.commissionEntry.findMany({ where: { ...where, status: "A_VERSER", payoutId: null, amount: { gt: 0 } } });
-  const credited: { consultantId: string; amount: number; prime: boolean }[] = [];
+  const credited: { consultantId: string; amount: number; prime: boolean; level: string; orderId: string | null }[] = [];
   const notices: WalletCreditNotice[] = [];
   for (const e of entries) {
     await prisma.$transaction(async (tx) => {
       const claim = await tx.commissionEntry.updateMany({ where: { id: e.id, status: "A_VERSER", payoutId: null }, data: { status: "WALLET" } });
       if (!claim.count) return;
-      credited.push({ consultantId: e.consultantId, amount: e.amount, prime: e.level.startsWith("PRIME_") });
+      credited.push({ consultantId: e.consultantId, amount: e.amount, prime: e.level.startsWith("PRIME_"), level: e.level, orderId: e.orderId.startsWith("PRIME-") ? null : e.orderId });
       notices.push({ ownerType: "CONSULTANT", ownerId: e.consultantId, amount: e.amount, level: e.level, orderId: e.orderId, rate: e.rate, base: e.base });
       await tx.walletTransaction.upsert({
         where: { sourceId: `ce:${e.id}` },

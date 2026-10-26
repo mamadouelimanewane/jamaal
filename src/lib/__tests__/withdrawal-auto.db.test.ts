@@ -27,11 +27,16 @@ before(async () => {
   m = { prisma: (await import("../prisma")).prisma, w: await import("../wallet") };
   await m.prisma.consultant.create({ data: { id: T, name: "Retrait Auto", city: "Dakar", whatsapp: "770000001", walletProvider: "WAVE", walletNumber: "+221771112233", walletHolderName: "Retrait Auto" } });
   await m.w.adjustWallet(owner(), 30000, "Dépôt test", null);
+  await m.prisma.user.create({ data: { id: `${T}-u`, email: `${T}@example.test`, name: "Retrait Auto", passwordHash: "x", role: "CONSULTANT", consultantId: T } });
 });
 
 after(async () => {
   if (!enabled) return;
   globalThis.fetch = realFetch;
+  await m.prisma.notification.deleteMany({ where: { userId: `${T}-u` } });
+  await m.prisma.user.delete({ where: { id: `${T}-u` } });
+  await m.prisma.commissionEntry.deleteMany({ where: { consultantId: T } });
+  await m.prisma.order.deleteMany({ where: { consultantId: T } });
   await m.prisma.walletTransaction.deleteMany({ where: { ownerId: T } });
   await m.prisma.consultant.delete({ where: { id: T } });
 });
@@ -68,4 +73,24 @@ test("numéro refusé par Wave : échec, le montant revient sur le wallet", { sk
   const t = await m.w.requestWithdrawal(owner(), 3000, null);
   assert.equal(t.status, "ECHEC");
   assert.equal(await bal(), 21000);
+});
+
+test("retrait versé : notification avec montant, produit vendu et acheteur", { skip: !enabled }, async () => {
+  const o = await m.prisma.order.create({ data: { customerName: "Awa Diop", total: 26000, consultantId: T, items: { create: [{ productName: "Aqua Soul for Him", volumeLabel: "50 ml", price: 13000, quantity: 2 }] } } });
+  await m.prisma.commissionEntry.create({ data: { consultantId: T, orderId: o.id, level: "VENTE", rate: 25, base: 26000, amount: 6500 } });
+  await m.w.creditCommissionEntries({ consultantId: T });
+  const credit = await m.prisma.notification.findFirst({ where: { userId: `${T}-u`, title: "Commission créditée" } });
+  assert.match(credit?.message ?? "", /Aqua Soul for Him 50 ml ×2, acheteur Awa Diop/);
+  wave = () => ({ status: 200, body: { id: "pt-n", status: "succeeded" } });
+  const t = await m.w.requestWithdrawal(owner(), 6500, null);
+  assert.equal(t.status, "VALIDE");
+  let n = null;
+  for (let i = 0; i < 30 && !n; i++) {
+    await new Promise((r) => setTimeout(r, 100));
+    n = await m.prisma.notification.findFirst({ where: { userId: `${T}-u`, title: { startsWith: "Retrait versé : 6" } } });
+  }
+  assert.ok(n, "notification de retrait");
+  assert.match(n!.title, /6\s500 FCFA/);
+  assert.match(n!.message, /Wave \(\+221771112233\)/);
+  assert.match(n!.message, /6\s500 F · Aqua Soul for Him 50 ml ×2, acheteur Awa Diop \(commande/);
 });

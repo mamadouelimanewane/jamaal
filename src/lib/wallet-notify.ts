@@ -4,6 +4,7 @@
  * Le message WhatsApp, lui, est géré par alertWalletCredits (interrupteur « Alertes WhatsApp »).
  */
 import { prisma } from "./prisma";
+import { saleDetails, shortName, type SaleDetail } from "./sale-details";
 
 export interface WalletCreditNotice {
   ownerType: "CONSULTANT" | "LIVREUR";
@@ -14,6 +15,8 @@ export interface WalletCreditNotice {
   orderId?: string | null;
   rate?: number;
   base?: number;
+  /** Produits vendus et acheteur (ajoutés à l'envoi). */
+  sale?: SaleDetail;
 }
 
 const fcfa = (n: number) => `${n.toLocaleString("fr-FR")} FCFA`;
@@ -30,14 +33,19 @@ const ROLE: Record<string, string> = {
 export function creditNotice(n: WalletCreditNotice): { title: string; message: string } {
   if (n.level.startsWith("PRIME_")) return { title: "Prime d'équipe créditée", message: `${fcfa(n.amount)} ont été crédités sur votre wallet : prime d'équipe. Retrait possible depuis « Mon wallet ».` };
   const order = n.orderId && !n.orderId.startsWith("PRIME-") ? ` (commande ${ref(n.orderId)})` : "";
-  if (n.level === "LIVRAISON") return { title: "Part de livraison créditée", message: `${fcfa(n.amount)} ont été crédités sur votre wallet pour ${ROLE.LIVRAISON}${order}. Retrait possible depuis « Mon wallet ».` };
+  const d = n.sale;
+  if (n.level === "LIVRAISON") return { title: "Part de livraison créditée", message: `${fcfa(n.amount)} ont été crédités sur votre wallet pour ${ROLE.LIVRAISON}${d ? ` chez ${shortName(d.buyer)} (${d.products})` : ""}${order}. Retrait possible depuis « Mon wallet ».` };
   const pct = n.rate ? `${n.rate} %${n.base ? ` de ${fcfa(n.base)}` : ""}, ` : "";
-  return { title: "Commission créditée", message: `${fcfa(n.amount)} ont été crédités sur votre wallet : ${pct}pour ${ROLE[n.level] ?? "une vente"}${order}. Retrait possible depuis « Mon wallet ».` };
+  const own = !d?.sellerId || d.sellerId === n.ownerId;
+  const what = d ? ` : ${d.products}, acheteur ${own ? d.buyer : shortName(d.buyer)}${own ? "" : `, vendu par ${d.sellerName ?? "votre équipe"}`}` : "";
+  return { title: "Commission créditée", message: `${fcfa(n.amount)} ont été crédités sur votre wallet : ${pct}pour ${ROLE[n.level] ?? "une vente"}${what}${order}. Retrait possible depuis « Mon wallet ».` };
 }
 
 export async function notifyWalletCredits(notices: WalletCreditNotice[]): Promise<void> {
   if (!notices.length) return;
   try {
+    const details = await saleDetails(notices.map((n) => n.orderId));
+    notices = notices.map((n) => (n.orderId && details.has(n.orderId) ? { ...n, sale: details.get(n.orderId) } : n));
     const consultantIds = [...new Set(notices.filter((n) => n.ownerType === "CONSULTANT").map((n) => n.ownerId))];
     const livreurIds = [...new Set(notices.filter((n) => n.ownerType === "LIVREUR").map((n) => n.ownerId))];
     const users = await prisma.user.findMany({

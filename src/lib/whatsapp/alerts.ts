@@ -11,6 +11,7 @@ import { automationEnabled, claimAutomation } from "@/lib/automation-settings";
 import { activeChallenges, challengeStandings, METRIC_LABELS, type ChallengeMetric } from "@/lib/challenges";
 import { getSiteUrl } from "@/lib/site-url";
 import { notifyResellerWhatsApp, notifyTeamWhatsApp, sendWhatsApp } from "./index";
+import { gainLine, gainsBehindWithdrawal, saleDetails } from "@/lib/sale-details";
 
 const fcfa = (n: number) => `${n.toLocaleString("fr-FR")} FCFA`;
 
@@ -28,34 +29,45 @@ async function on() {
 }
 
 /** Commissions / primes créditées sur les wallets : un message par revendeur. */
-export function alertWalletCredits(credits: { consultantId: string; amount: number; prime: boolean }[]) {
+export function alertWalletCredits(credits: { consultantId: string; amount: number; prime: boolean; level?: string; orderId?: string | null }[]) {
   if (!credits.length) return;
   later(async () => {
     if (!(await on())) return;
-    const byOwner = new Map<string, { total: number; prime: boolean }>();
-    for (const c of credits) {
-      const cur = byOwner.get(c.consultantId) ?? { total: 0, prime: false };
-      byOwner.set(c.consultantId, { total: cur.total + c.amount, prime: cur.prime || c.prime });
+    const details = await saleDetails(credits.map((c) => c.orderId));
+    const byOwner = new Map<string, typeof credits>();
+    for (const c of credits) byOwner.set(c.consultantId, [...(byOwner.get(c.consultantId) ?? []), c]);
+    for (const [id, list] of byOwner) {
+      const total = list.reduce((s, c) => s + c.amount, 0);
+      const lines = list.slice(0, 6).map((c) => `• ${gainLine({ amount: c.amount, level: c.level ?? (c.prime ? "PRIME_EQUIPE" : "VENTE") }, c.orderId ? details.get(c.orderId) : undefined, id)}`);
+      notifyResellerWhatsApp(id, [`💰 +${fcfa(total)} crédités sur votre wallet JAMAAL :`, ...lines, ...(list.length > 6 ? [`… et ${list.length - 6} autre(s)`] : []), "Retrait possible vers Wave ou Orange Money depuis « Mon wallet »."].join("\n"));
     }
-    for (const [id, v] of byOwner) notifyResellerWhatsApp(id, `💰 +${fcfa(v.total)} crédités sur votre wallet JAMAAL (${v.prime ? "commissions et primes" : "commissions"}). Retrait possible vers Wave ou Orange Money depuis « Mon wallet ».`);
   });
 }
 
-/** Retrait versé (automatiquement ou à la main) : revendeur ou livreur. */
+/** Retrait versé (automatiquement ou à la main) : revendeur ou livreur, avec les ventes qui composent le montant. */
 export function alertWithdrawalPaid(txId: string) {
   later(async () => {
-    if (!(await on())) return;
-    const t = await prisma.walletTransaction.findUnique({ where: { id: txId }, select: { amount: true, ownerType: true, ownerId: true, phone: true, provider: true } });
+    const t = await prisma.walletTransaction.findUnique({ where: { id: txId }, select: { id: true, amount: true, ownerType: true, ownerId: true, phone: true, provider: true, createdAt: true } });
     if (!t) return;
+    const via = t.provider === "WAVE" ? "Wave" : t.provider === "ORANGE_MONEY" ? "Orange Money" : "votre compte";
+    const compte = `${via}${t.phone ? ` (${t.phone})` : ""}`;
+    const montant = fcfa(Math.abs(t.amount));
+    const { lines, more } = await gainsBehindWithdrawal(t);
+    const detail = lines.length ? ["Ce montant correspond à :", ...lines.map((l) => `• ${l}`), ...(more ? ["• … et vos gains précédents"] : [])].join("\n") : "";
+    // Notification dans l'application (cloche), même si les alertes WhatsApp sont coupées.
+    const user = await prisma.user.findFirst({ where: t.ownerType === "CONSULTANT" ? { consultantId: t.ownerId } : { livreurId: t.ownerId }, select: { id: true } });
+    if (user) await prisma.notification.create({ data: { userId: user.id, title: `Retrait versé : ${montant}`, message: `${montant} envoyés sur ${compte}.${detail ? `\n${detail}` : ""}`.slice(0, 1500) } }).catch(() => {});
+    if (!(await on())) return;
     const to =
       t.ownerType === "CONSULTANT"
         ? (await prisma.consultant.findUnique({ where: { id: t.ownerId }, select: { whatsapp: true } }))?.whatsapp
         : (await prisma.livreur.findUnique({ where: { id: t.ownerId }, select: { phone: true } }))?.phone;
     if (!to) return;
-    const via = t.provider === "WAVE" ? "Wave" : t.provider === "ORANGE_MONEY" ? "Orange Money" : "votre compte";
-    const compte = `${via}${t.phone ? ` (${t.phone})` : ""}`;
-    const original = `✅ Retrait versé : ${fcfa(Math.abs(t.amount))} envoyés sur ${compte}. Merci pour votre travail !`;
-    await sendWhatsApp({ to, kind: "reseller", text: await messageText("retrait_verse", { montant: fcfa(Math.abs(t.amount)), compte }, original) });
+    const original = `✅ Retrait versé : ${montant} envoyés sur ${compte}.${detail ? `\n${detail}` : ""}\nMerci pour votre travail !`;
+    let text = await messageText("retrait_verse", { montant, compte, detail }, original);
+    // Message personnalisé sans {detail} : le détail des ventes est ajouté à la fin.
+    if (detail && !text.includes(lines[0])) text = `${text}\n${detail}`;
+    await sendWhatsApp({ to, kind: "reseller", text });
   });
 }
 

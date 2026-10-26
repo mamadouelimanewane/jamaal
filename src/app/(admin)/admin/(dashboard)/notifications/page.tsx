@@ -41,7 +41,7 @@ export default async function NotificationsPage() {
             </div>
             <div className="flex-1">
               <p className="text-sm font-semibold text-navy">{n.title}</p>
-              <p className="mt-0.5 text-sm text-navy/85">{n.message}</p>
+              <p className="mt-0.5 whitespace-pre-line text-sm text-navy/85">{n.message}</p>
               <p className="mt-1 text-xs text-navy/65">{n.createdAt.toLocaleString("fr-FR")}</p>
             </div>
             {!n.read && (
