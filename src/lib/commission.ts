@@ -2,6 +2,7 @@ import { prisma } from "./prisma";
 import type { Prisma } from "@prisma/client";
 import { getBusinessModel } from "./business-model-store";
 import { commissionRatesFor } from "./business-model";
+import { withSpecialRates } from "./special-terms";
 import { effectiveTitle, getNetworkDepth } from "./network";
 import { getRefundedTotal } from "./revenue";
 
@@ -63,7 +64,7 @@ export async function getConsultantCommission(consultantId: string): Promise<Com
   const since = startOfMonth();
 
   const [me, level1, model] = await Promise.all([
-    prisma.consultant.findUnique({ where: { id: consultantId }, select: { sponsorId: true, rank: true, sponsor: { select: { sponsorId: true } } } }),
+    prisma.consultant.findUnique({ where: { id: consultantId }, select: { sponsorId: true, rank: true, specialTerms: true, sponsor: { select: { sponsorId: true } } } }),
     prisma.consultant.findMany({ where: { sponsorId: consultantId }, select: { id: true, rank: true } }),
     getBusinessModel(),
   ]);
@@ -75,7 +76,7 @@ export async function getConsultantCommission(consultantId: string): Promise<Com
 
   const depth = await getNetworkDepth(consultantId);
   const myTitle = effectiveTitle(me?.rank, depth);
-  const rate = commissionRatesFor(myTitle, !!me?.sponsor?.sponsorId, model).seller;
+  const rate = withSpecialRates(commissionRatesFor(myTitle, !!me?.sponsor?.sponsorId, model), me?.specialTerms).seller;
   // Ma part de parrain dépend du rang de chaque filleul (un Parrain sous moi, ou un Consultant directement sous moi) : calculée par groupe.
   const partOf = (title: "Leader" | "Parrain" | "Consultant") => commissionRatesFor(title, !!me?.sponsorId, model).level1;
   const l1Parrains = level1.filter((t) => effectiveTitle(t.rank, depth + 1) === "Parrain").map((t) => t.id);

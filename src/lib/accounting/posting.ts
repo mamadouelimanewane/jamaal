@@ -246,7 +246,10 @@ export function postWalletTx(t: WalletTxInput): Entry | null {
     case "RETRAIT":
       return make({ ...base, journal: "BQ", label: `Retrait wallet ${aux}`, lines: [D(m, a, { aux }), C(walletProviderAccount(t.provider), a)] });
     case "PAIEMENT":
-      return make({ ...base, journal: "BQ", label: `Commande payée avec le wallet de ${aux}`, lines: [D(m, a, { aux }), C("411", a, { aux: t.customerName ?? aux })] });
+      // Montant positif : paiement repris (commande encaissée par le revendeur puis annulée).
+      return t.amount > 0
+        ? make({ ...base, journal: "BQ", label: `Paiement par wallet repris (${aux})`, lines: [D("411", a, { aux: t.customerName ?? aux }), C(m, a, { aux })] })
+        : make({ ...base, journal: "BQ", label: `Commande payée avec le wallet de ${aux}`, lines: [D(m, a, { aux }), C("411", a, { aux: t.customerName ?? aux })] });
     default:
       return make({ ...base, journal: "OD", label: `Ajustement wallet ${aux}${t.note ? ` : ${t.note}` : ""}`.slice(0, 120), lines: t.amount > 0 ? [D("658", a), C(m, a, { aux })] : [D(m, a, { aux }), C("758", a)] });
   }

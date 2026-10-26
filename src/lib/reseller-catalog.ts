@@ -6,6 +6,7 @@ import { prisma } from "./prisma";
 import { getCategories } from "./db-categories";
 import { getBusinessModel } from "./business-model-store";
 import { commissionRatesFor, type Scenario } from "./business-model";
+import { withSpecialRates } from "./special-terms";
 import { depthFromLoaded, effectiveTitle } from "./network";
 
 export type ResellerProduct = {
@@ -61,10 +62,10 @@ export async function resellerCatalog(): Promise<ResellerProduct[]> {
 /** Cas de vente du revendeur (selon son rang et sa chaîne) et sa commission sur ses propres ventes (%). */
 export async function myCommissionCase(consultantId: string): Promise<{ rate: number; scenario: Scenario }> {
   const [c, model] = await Promise.all([
-    prisma.consultant.findUnique({ where: { id: consultantId }, select: { rank: true, sponsorId: true, sponsor: { select: { sponsorId: true } } } }),
+    prisma.consultant.findUnique({ where: { id: consultantId }, select: { rank: true, sponsorId: true, specialTerms: true, sponsor: { select: { sponsorId: true } } } }),
     getBusinessModel(),
   ]);
-  const r = commissionRatesFor(c ? effectiveTitle(c.rank, depthFromLoaded(c)) : "Consultant", !!c?.sponsor?.sponsorId, model);
+  const r = withSpecialRates(commissionRatesFor(c ? effectiveTitle(c.rank, depthFromLoaded(c)) : "Consultant", !!c?.sponsor?.sponsorId, model), c?.specialTerms);
   return { rate: r.seller, scenario: r.scenario };
 }
 

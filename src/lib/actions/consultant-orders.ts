@@ -11,8 +11,9 @@ import { decrementStockAndAlert } from "@/lib/stock";
 import { LOYALTY_REDEEM_VALUE_FCFA } from "@/lib/loyalty";
 import { priceItemsFromCatalog } from "@/lib/order-pricing";
 import { getBusinessModel } from "@/lib/business-model-store";
-import { isValidPoint, newDeliveryCode, quoteDelivery } from "@/lib/delivery";
-import { debitForOrder, walletBalance, WalletError } from "@/lib/wallet";
+import { isValidPoint, newDeliveryCode, quoteDelivery, roadKm } from "@/lib/delivery";
+import { debitCollectedForOrder, debitForOrder, walletBalance, WalletError } from "@/lib/wallet";
+import { activeTerms, allowedCollect, collectRef, isCollectMethod, parseZones } from "@/lib/special-terms";
 import { runPayoutsForOrder } from "@/lib/payouts/engine";
 import { after } from "next/server";
 import { notifyOrderUpdate } from "@/lib/whatsapp/order-notify";
@@ -63,6 +64,8 @@ async function placeConsultantOrder(formData: FormData): Promise<string> {
   if (customerName.length < 2) throw new Error("Indiquez le nom du client.");
   const clientAddress = String(formData.get("address") ?? "").trim().slice(0, 500) || null;
   const useLoyaltyPoints = formData.get("useLoyaltyPoints") === "on";
+  // Conditions spéciales du revendeur (encaissement direct, zones de livraison propres).
+  const terms = activeTerms(consultant.specialTermsId ? await prisma.specialTerms.findUnique({ where: { id: consultant.specialTermsId } }) : null);
 
   // Où livrer : retrait (le consultant remet lui-même), chez le client, ou chez le consultant
   // quand il achète pour le compte de son client.
@@ -89,8 +92,16 @@ async function placeConsultantOrder(formData: FormData): Promise<string> {
         await prisma.consultant.update({ where: { id: consultant.id }, data: { deliveryAddress: myAddress, deliveryLat: point.lat, deliveryLng: point.lng } });
       }
     }
-    const quote = quoteDelivery(point, productsTotal, await getBusinessModel());
+    const model = await getBusinessModel();
+    // Zone spéciale du revendeur : tarif fixe de la zone, sans limite de distance.
+    const zoneName = String(formData.get("specialZone") ?? "").trim();
+    const zone = zoneName ? parseZones(terms?.zones).find((z) => z.name === zoneName) : undefined;
+    if (zoneName && !zone) throw new Error("Cette zone de livraison n'est plus proposée : choisissez-en une autre.");
+    const quote = zone
+      ? { ok: true as const, distanceKm: roadKm({ lat: model.depotLat, lng: model.depotLng }, point), fee: zone.fee, livreurShare: Math.round((zone.fee * model.livreurSharePct) / 100) }
+      : quoteDelivery(point, productsTotal, model);
     if (!quote.ok) throw new Error(quote.error);
+    if (zone) deliveryNote = `${deliveryNote} · zone ${zone.name}`;
     deliveryData = {
       deliveryMode: "LIVRAISON_JAMAAL",
       deliveryTarget: target,
@@ -104,12 +115,17 @@ async function placeConsultantOrder(formData: FormData): Promise<string> {
       deliveryStatus: "A_PREPARER",
       livreurShare: quote.livreurShare,
       deliveryApprox: formData.get("deliveryApprox") === "1",
-      deliveryPlace: String(formData.get("deliveryPlace") ?? "").trim().slice(0, 120) || null,
+      deliveryPlace: String(formData.get("deliveryPlace") ?? "").trim().slice(0, 120) || zone?.name || null,
     };
   }
 
   // Paiement avec le wallet du vendeur : solde vérifié avant tout (montant maximal, avant remise fidélité).
   const payWithWallet = formData.get("payWithWallet") === "on";
+  // Encaissement direct (conditions spéciales) : le client a payé le revendeur en espèces, Wave ou Orange Money.
+  const collectRaw = String(formData.get("collect") ?? "");
+  const collect = collectRaw && collectRaw !== "NON" ? collectRaw : null;
+  if (collect && (!isCollectMethod(collect) || !allowedCollect(terms).includes(collect))) throw new Error("Ce moyen d'encaissement n'est pas autorisé pour votre compte.");
+  if (collect && payWithWallet) throw new Error("Choisissez soit « payer avec mon wallet », soit « mon client m'a payé ».");
   if (payWithWallet) {
     const { balance } = await walletBalance({ type: "CONSULTANT", id: consultant.id });
     const max = productsTotal + Number(deliveryData.deliveryFee ?? 0);
@@ -147,16 +163,18 @@ async function placeConsultantOrder(formData: FormData): Promise<string> {
       items: { create: items },
       ...(deliveryData.deliveryStatus ? { deliveryEvents: { create: { status: "A_PREPARER", note: `${deliveryNote} · ${deliveryData.deliveryDistanceKm} km du dépôt` } } } : {}),
       ...(payWithWallet ? { paymentMethod: "WALLET" as const, paymentStatus: "PAYE" as const, paidAt: new Date(), paymentRef: "wallet" } : {}),
+      ...(collect && isCollectMethod(collect) ? { paymentMethod: "WALLET" as const, paymentStatus: "PAYE" as const, paidAt: new Date(), paymentRef: collectRef(collect) } : {}),
   } satisfies Prisma.OrderUncheckedCreateInput;
-  const order = payWithWallet
+  const order = payWithWallet || collect
     ? await prisma.$transaction(async (tx) => {
         const o = await tx.order.create({ data: orderData });
-        await debitForOrder(tx, { type: "CONSULTANT", id: consultant.id }, o.id, total, null);
+        if (collect && isCollectMethod(collect)) await debitCollectedForOrder(tx, { type: "CONSULTANT", id: consultant.id }, o.id, total, collect, terms?.creditLimit ?? 0, null);
+        else await debitForOrder(tx, { type: "CONSULTANT", id: consultant.id }, o.id, total, null);
         return o;
       })
     : await prisma.order.create({ data: orderData });
-  // Payée par le wallet : les commissions de la chaîne sont enregistrées tout de suite.
-  if (payWithWallet) after(() => runPayoutsForOrder(order.id));
+  // Payée (wallet ou encaissée par le revendeur) : les commissions de la chaîne sont enregistrées tout de suite.
+  if (payWithWallet || collect) after(() => runPayoutsForOrder(order.id));
 
   await notifySponsorOnFirstSale(consultant.id);
   notifyOrderUpdate(order.id, "CREEE");

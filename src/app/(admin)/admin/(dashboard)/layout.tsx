@@ -2,7 +2,7 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import { stopViewAsReseller } from "@/lib/actions/view-as";
 import { redirect } from "next/navigation";
-import { Calculator,
+import { BadgePercent, Calculator,
   ShieldCheck,
   LayoutDashboard,
   Package,
@@ -101,6 +101,7 @@ const adminGroups = [
     title: "Réseau",
     links: [
       { href: "/admin/consultants", label: "Consultants", icon: Users },
+      { href: "/admin/conditions-speciales", label: "Conditions spéciales", icon: BadgePercent },
       { href: "/admin/primes-equipe", label: "Primes d'équipe", icon: Banknote },
       { href: "/admin/reseau", label: "Santé du réseau", icon: HeartPulse },
       { href: "/admin/fraude", label: "Contrôle des commissions", icon: ShieldAlert },

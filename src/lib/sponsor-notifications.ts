@@ -1,6 +1,7 @@
 import { prisma } from "./prisma";
 import { getBusinessModel } from "./business-model-store";
 import { commissionRatesFor } from "./business-model";
+import { withSpecialRates } from "./special-terms";
 import { effectiveTitle } from "./network";
 import { formatPrice } from "./currency";
 
@@ -19,6 +20,7 @@ export async function notifySponsorOnSale(
     where: { id: consultantId },
     include: {
       sponsor: { include: { user: true } },
+      specialTerms: true,
       _count: { select: { orders: true } },
     },
   });
@@ -29,7 +31,7 @@ export async function notifySponsorOnSale(
   const isFirstSale = consultant._count.orders === 1;
   // Part du parrain : elle dépend du rang du filleul et de la chaîne au-dessus de lui (tableau des scénarios du modèle économique).
   const title = effectiveTitle(consultant.rank, consultant.sponsor.sponsorId ? 2 : 1);
-  const sponsorRate = commissionRatesFor(title, !!consultant.sponsor.sponsorId, await getBusinessModel()).level1;
+  const sponsorRate = withSpecialRates(commissionRatesFor(title, !!consultant.sponsor.sponsorId, await getBusinessModel()), consultant.specialTerms).level1;
   const estimated = Math.round((orderTotal * sponsorRate) / 100);
 
   if (isFirstSale) {

@@ -6,6 +6,7 @@ import { searchProductsForOrder, type ProductSearchResult } from "@/lib/actions/
 import { createConsultantOrder, type ConsultantOrderState } from "@/lib/actions/consultant-orders";
 import { formatPrice } from "@/lib/currency";
 import { ConsultantDeliveryFields } from "./ConsultantDeliveryFields";
+import { COLLECT_LABELS, type CollectMethod, type SpecialZone } from "@/lib/special-terms";
 
 interface LineItem {
   productId: string;
@@ -23,11 +24,16 @@ export function ConsultantOrderForm({
   depot,
   vendor,
   walletBalance = 0,
+  special,
 }: {
   depot: { lat: number; lng: number; label: string };
   vendor: { address: string | null; lat: number | null; lng: number | null };
   walletBalance?: number;
+  /** Conditions spéciales du revendeur : encaissement direct et zones de livraison propres. */
+  special?: { collect: CollectMethod[]; creditLimit: number; zones: SpecialZone[] } | null;
 }) {
+  const [collect, setCollect] = useState<"NON" | CollectMethod>("NON");
+  const owed = Math.max(0, -walletBalance);
   const [query, setQuery] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [results, setResults] = useState<ProductSearchResult[]>([]);
@@ -149,10 +155,37 @@ export function ConsultantOrderForm({
             <textarea name="address" rows={2} placeholder="Quartier, rue, repère" className={inputClass} />
           </div>
 
-          <ConsultantDeliveryFields productsTotal={total} depot={depot} vendor={vendor} customerPhone={customerPhone} />
+          <ConsultantDeliveryFields productsTotal={total} depot={depot} vendor={vendor} customerPhone={customerPhone} zones={special?.zones ?? []} />
 
-          <label className={`flex items-start gap-3 rounded-xl border px-4 py-3 text-sm ${walletBalance > 0 ? "border-emerald-200 bg-emerald-50 text-emerald-950" : "border-line bg-cream/50 text-navy/70"}`}>
-            <input type="checkbox" name="payWithWallet" disabled={walletBalance <= 0} className="mt-0.5 h-4 w-4 accent-emerald-700" />
+          {special && special.collect.length > 0 && (
+            <fieldset className="rounded-xl border border-ia/30 bg-ia-light/60 px-4 py-3 text-sm text-navy">
+              <legend className="px-1 text-sm font-semibold">Mon client m&apos;a déjà payé ?</legend>
+              <input type="hidden" name="collect" value={collect} />
+              <div className="mt-1 flex flex-wrap gap-2" role="radiogroup" aria-label="Encaissement">
+                {(["NON", ...special.collect] as const).map((m) => (
+                  <button
+                    key={m}
+                    type="button"
+                    role="radio"
+                    aria-checked={collect === m}
+                    onClick={() => setCollect(m)}
+                    className={`rounded-full px-3.5 py-1.5 text-xs font-semibold ${collect === m ? "bg-navy text-white" : "border border-line bg-white text-navy hover:bg-cream"}`}
+                  >
+                    {m === "NON" ? "Non, pas encore" : `Oui, en ${COLLECT_LABELS[m]}`}
+                  </button>
+                ))}
+              </div>
+              <p className="mt-2 text-xs text-navy/75">
+                {collect === "NON"
+                  ? "La commande attend son paiement (à la livraison ou plus tard)."
+                  : `Commande payée tout de suite. Le montant (produits + livraison) est porté au débit de votre wallet : c'est l'argent à reverser à JAMAAL, vos commissions viennent en déduction.`}
+                {" "}Déjà à reverser : <strong>{owed.toLocaleString("fr-FR")} F</strong> · plafond {special.creditLimit.toLocaleString("fr-FR")} F.
+              </p>
+            </fieldset>
+          )}
+
+          <label className={`flex items-start gap-3 rounded-xl border px-4 py-3 text-sm ${walletBalance > 0 && collect === "NON" ? "border-emerald-200 bg-emerald-50 text-emerald-950" : "border-line bg-cream/50 text-navy/70"}`}>
+            <input type="checkbox" name="payWithWallet" disabled={walletBalance <= 0 || collect !== "NON"} className="mt-0.5 h-4 w-4 accent-emerald-700" />
             <span>
               <strong>Payer avec mon wallet</strong> · solde {walletBalance.toLocaleString("fr-FR")} F
               <span className="block text-xs">La commande est réglée tout de suite (produits{" "}+ livraison) : votre client n&apos;a rien à payer à la livraison.</span>

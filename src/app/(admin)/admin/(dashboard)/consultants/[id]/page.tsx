@@ -51,6 +51,7 @@ export default async function ConsultantProfilePage({
       where: { id },
       include: {
         user: { select: { email: true, phone: true, id: true } },
+        specialTerms: { select: { id: true, name: true, active: true } },
         sponsor: { select: { id: true, name: true, city: true, sponsorId: true } },
         sponsored: {
           select: {
@@ -120,6 +121,11 @@ export default async function ConsultantProfilePage({
                 {consultant.name}
               </h1>
               <RankBadge rank={rankInfo.rank} />
+              {consultant.specialTerms && (
+                <Link href={`/admin/conditions-speciales/${consultant.specialTerms.id}`} className="rounded-full bg-ia-light px-2 py-0.5 text-xs font-semibold text-ia-dark hover:underline">
+                  Conditions spéciales : {consultant.specialTerms.name}{consultant.specialTerms.active ? "" : " (désactivées)"}
+                </Link>
+              )}
               {consultant.active ? (
                 <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700">
                   Actif

@@ -19,6 +19,7 @@ import { effectiveTitle } from "@/lib/network";
 import { commissionBase } from "@/lib/commission";
 import { creditCommissionEntries, reverseWalletCreditsForOrder } from "@/lib/wallet";
 import { screenOrder } from "@/lib/fraud/run";
+import { withSpecialRates } from "@/lib/special-terms";
 import { isWalletProvider, payoutProvidersConfig, refreshWave, sendPayout, WALLET_LABELS, type PayoutResult } from "./providers";
 
 export type Level = "VENTE" | "NIVEAU_1" | "NIVEAU_2";
@@ -56,7 +57,7 @@ export async function plannedCommissions(orderId: string, model?: BusinessModel)
       paymentStatus: true,
       paymentMethod: true,
       consultant: {
-        select: { id: true, name: true, rank: true, sponsor: { select: { id: true, name: true, sponsorId: true, sponsor: { select: { id: true, name: true } } } } },
+        select: { id: true, name: true, rank: true, specialTerms: true, sponsor: { select: { id: true, name: true, sponsorId: true, sponsor: { select: { id: true, name: true } } } } },
       },
     },
   });
@@ -69,7 +70,8 @@ export async function plannedCommissions(orderId: string, model?: BusinessModel)
     const grand = sponsor?.sponsor;
     // Le scénario dépend du rang du vendeur (rang attribué, sinon sa place dans la chaîne) et de la chaîne au-dessus de lui.
     const depth = !sponsor ? 0 : !sponsor.sponsorId ? 1 : 2;
-    const rates = commissionRatesFor(effectiveTitle(seller.rank, depth), !!sponsor?.sponsorId, m);
+    // Conditions spéciales du vendeur : ses taux propres remplacent ceux du modèle économique.
+    const rates = withSpecialRates(commissionRatesFor(effectiveTitle(seller.rank, depth), !!sponsor?.sponsorId, m), seller.specialTerms);
     rows.push({ consultantId: seller.id, name: seller.name, level: "VENTE", rate: rates.seller, base, amount: 0 });
     if (sponsor) rows.push({ consultantId: sponsor.id, name: sponsor.name, level: "NIVEAU_1", rate: rates.level1, base, amount: 0 });
     if (sponsor && grand) rows.push({ consultantId: grand.id, name: grand.name, level: "NIVEAU_2", rate: rates.level2, base, amount: 0 });

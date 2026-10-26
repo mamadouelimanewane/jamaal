@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { paymentLine } from "@/lib/special-terms";
 import { occasionOf } from "@/lib/gift/gift";
 import Link from "next/link";
 import { headers } from "next/headers";
@@ -109,6 +110,7 @@ export default async function AdminOrderDetailPage({
           <span>Total</span>
           <span>{formatPrice(order.total)}</span>
         </div>
+        <p className="mt-2 text-right text-xs text-navy/75">Paiement : {paymentLine(order)}</p>
       </div>
 
       {order.giftWrap && <div className="mt-4 rounded-xl border border-rose/30 bg-rose/5 p-4"><p className="text-sm font-semibold text-navy">Préparation cadeau</p>{order.giftOccasion && <p className="mt-1 text-sm text-navy/85">Occasion : {occasionOf(order.giftOccasion)?.label ?? order.giftOccasion}</p>}{order.giftFrom && <p className="mt-1 text-sm text-navy/85">De la part de : {order.giftFrom}</p>}{order.giftMessage && <p className="mt-1 text-sm text-navy/85">Message : {order.giftMessage}</p>}{order.giftVoiceUrl && <div className="mt-2"><p className="text-xs text-navy/70">Message vocal (à faire écouter ou transmettre au destinataire) :</p><audio src={order.giftVoiceUrl} controls className="mt-1 w-full max-w-sm" /></div>}</div>}

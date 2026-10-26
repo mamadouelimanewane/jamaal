@@ -505,6 +505,9 @@ model Consultant {
   favorites String[] @default([])
   /// Libellés des badges de l'Académie : « f » (Experte parfums) ou « m » (Expert parfums).
   titleForm String?
+  /// Conditions spéciales (encaissement direct, commission propre, zones de livraison propres), sinon le régime normal.
+  specialTermsId String?
+  specialTerms   SpecialTerms? @relation(fields: [specialTermsId], references: [id], onDelete: SetNull)
 }
 
 model CommissionPayment {
@@ -1207,4 +1210,26 @@ model FraudFlag {
 
   @@index([status], map: "FraudFlag_status_idx")
   @@index([consultantId], map: "FraudFlag_consultant_idx")
+}
+
+/// Conditions spéciales accordées à un ou plusieurs revendeurs (Admin › Conditions spéciales).
+model SpecialTerms {
+  id        String   @id @default(cuid())
+  name      String
+  active    Boolean  @default(true)
+  note      String?
+  /// Le revendeur encaisse lui-même son client : ESPECES, WAVE, ORANGE_MONEY. La vente est payée aussitôt et
+  /// le montant est porté au débit de son wallet (argent à reverser à JAMAAL).
+  collectMethods String[] @default([])
+  /// Argent encaissé et pas encore reversé que le revendeur peut garder au maximum (F) : solde wallet jusqu'à -plafond.
+  creditLimit    Int      @default(0)
+  /// Taux propres (%) sur les ventes de ces revendeurs ; vide = taux du modèle économique.
+  sellerPct  Float?
+  level1Pct  Float?
+  level2Pct  Float?
+  /// Zones de livraison propres : [{ "name": "Thiès centre", "fee": 1500 }] — tarif fixe au lieu du tarif au km.
+  zones     Json     @default("[]")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  consultants Consultant[]
 }

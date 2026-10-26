@@ -36,7 +36,7 @@ export const MODULES: ModuleDef[] = [
   { id: "catalogue", label: "Catalogue", description: "Produits, catégories, listino Chogan, import de produits.", paths: ["/admin/produits", "/admin/categories"] },
   { id: "commandes", label: "Commandes et réservations", description: "Commandes, factures, réservations, retours et remboursements.", paths: ["/admin/commandes", "/admin/reservations", "/admin/retours", "/admin/abonnements"] },
   { id: "clients", label: "Clients", description: "Fiches clients, messages reçus, avis.", paths: ["/admin/clients", "/admin/messages", "/admin/avis"] },
-  { id: "revendeurs", label: "Revendeurs et réseau", description: "Consultants, candidatures, protocoles, primes d'équipe, défis.", paths: ["/admin/consultants", "/admin/reseau", "/admin/academie", "/admin/candidatures", "/admin/protocole", "/admin/primes-equipe", "/admin/defis"] },
+  { id: "revendeurs", label: "Revendeurs et réseau", description: "Consultants, candidatures, protocoles, primes d'équipe, défis.", paths: ["/admin/consultants", "/admin/conditions-speciales", "/admin/reseau", "/admin/academie", "/admin/candidatures", "/admin/protocole", "/admin/primes-equipe", "/admin/defis"] },
   { id: "livraison", label: "Livraison", description: "Livreurs, tournées, livraisons.", paths: ["/admin/livreurs", "/admin/livraisons"] },
   { id: "stocks", label: "Stocks", description: "Stocks par format, mouvements, réception, commande Chogan.", paths: ["/admin/stocks"] },
   { id: "comptabilite", label: "Comptabilité et finances", description: "Comptabilité, wallets, versements, dépenses.", paths: ["/admin/fraude", "/admin/comptabilite", "/admin/wallets", "/admin/versements"] },

@@ -22,11 +22,14 @@ export function ConsultantDeliveryFields({
   depot,
   vendor,
   customerPhone = "",
+  zones = [],
 }: {
   productsTotal: number;
   depot: { lat: number; lng: number; label: string };
   vendor: { address: string | null; lat: number | null; lng: number | null };
   customerPhone?: string;
+  /** Zones de livraison propres au revendeur (conditions spéciales) : tarif fixe. */
+  zones?: { name: string; fee: number }[];
 }) {
   const savedPoint: Point = vendor.lat != null && vendor.lng != null ? { lat: vendor.lat, lng: vendor.lng } : null;
   const [target, setTarget] = useState<Target>("CLIENT");
@@ -34,6 +37,8 @@ export function ConsultantDeliveryFields({
   const [vendorPoint, setVendorPoint] = useState<Point>(savedPoint);
   const [quote, setQuote] = useState<DeliveryQuote | null>(null);
   const [geoError, setGeoError] = useState<string | null>(null);
+  const [zoneName, setZoneName] = useState("");
+  const zone = zones.find((z) => z.name === zoneName);
   const seq = useRef(0);
 
   const point = target === "CLIENT" ? clientPoint : target === "VENDEUR" ? vendorPoint : null;
@@ -88,6 +93,18 @@ export function ConsultantDeliveryFields({
         </div>
       )}
 
+      {target !== "RETRAIT" && zones.length > 0 && (
+        <label className="block rounded-xl border border-ia/30 bg-ia-light/60 px-3 py-2.5 text-xs font-medium text-navy/85">
+          Ma zone de livraison (conditions spéciales)
+          <select name="specialZone" value={zoneName} onChange={(e) => setZoneName(e.target.value)} className={field}>
+            <option value="">Tarif normal (selon la distance)</option>
+            {zones.map((z) => (
+              <option key={z.name} value={z.name}>{z.name} — {formatPrice(z.fee)}</option>
+            ))}
+          </select>
+        </label>
+      )}
+
       {target !== "RETRAIT" && (
         <div className="space-y-2">
           <button type="button" onClick={locate} className="inline-flex items-center gap-2 rounded-full bg-navy px-4 py-2 text-sm font-semibold text-white hover:bg-navy-light">
@@ -107,7 +124,9 @@ export function ConsultantDeliveryFields({
           />
           {point?.approx && <ApproxNotice label={point.place || "adresse"} />}
           {!point && <p className="text-sm text-amber-900">Placez le point de livraison pour calculer les frais.</p>}
-          {point && quote && (quote.ok ? (
+          {point && zone ? (
+            <p className="rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-900">Zone {zone.name} · frais de livraison <strong>{formatPrice(zone.fee)}</strong>, ajoutés au total.</p>
+          ) : point && quote && (quote.ok ? (
             <p className="rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-900">{quote.distanceKm.toLocaleString("fr-FR")} km du dépôt · frais de livraison <strong>{quote.free ? "offerts" : formatPrice(quote.fee)}</strong>, ajoutés au total.</p>
           ) : (
             <p role="alert" className="rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-900">{quote.error}</p>

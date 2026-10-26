@@ -1,4 +1,5 @@
 import { notFound, redirect } from "next/navigation";
+import { paymentLine } from "@/lib/special-terms";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -71,6 +72,7 @@ export default async function MesCommandeDetailPage({
           <span>Total</span>
           <span>{formatPrice(order.total)}</span>
         </div>
+        <p className="mt-2 text-right text-xs text-navy/75">Paiement : {paymentLine(order)}</p>
       </div>
 
       {order.deliveryMode === "LIVRAISON_JAMAAL" && (

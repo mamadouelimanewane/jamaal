@@ -12,6 +12,7 @@ import { prisma } from "./prisma";
 import type { Prisma } from "@prisma/client";
 import { getBusinessModel } from "./business-model-store";
 import { payoutChannels } from "./business-model";
+import { COLLECT_LABELS, COLLECT_REF_PREFIX, collectRefusal, type CollectMethod } from "./special-terms";
 import { isWalletProvider, payoutProvidersConfig, sendPayout, WALLET_LABELS, type WalletProvider } from "./payouts/providers";
 import { alertWalletCredits, alertWithdrawalPaid } from "@/lib/whatsapp/alerts";
 import { notifyWalletCredits, type WalletCreditNotice } from "./wallet-notify";
@@ -133,6 +134,18 @@ export async function reverseWalletCreditsForOrder(orderId: string) {
       create: { ownerType: c.ownerType, ownerId: c.ownerId, amount: -c.amount, kind: "ANNULATION", sourceId: `annul:${c.id}`, orderId, note: `Commande ${orderId.slice(-8).toUpperCase()} annulée` },
     });
   }
+  // Vente encaissée par le revendeur puis annulée : il rend l'argent au client, son débit est annulé.
+  const order = await prisma.order.findUnique({ where: { id: orderId }, select: { paymentRef: true } });
+  if (order?.paymentRef?.startsWith(COLLECT_REF_PREFIX)) {
+    const debits = await prisma.walletTransaction.findMany({ where: { orderId, kind: "PAIEMENT", status: "VALIDE", amount: { lt: 0 } } });
+    for (const d of debits) {
+      await prisma.walletTransaction.upsert({
+        where: { sourceId: `annul:${d.id}` },
+        update: {},
+        create: { ownerType: d.ownerType, ownerId: d.ownerId, amount: -d.amount, kind: "PAIEMENT", sourceId: `annul:${d.id}`, orderId, note: `Commande ${orderId.slice(-8).toUpperCase()} annulée : encaissement repris` },
+      });
+    }
+  }
   await prisma.commissionEntry.updateMany({ where: { orderId, status: "WALLET" }, data: { status: "ANNULE" } });
   await prisma.livreurEarning.updateMany({ where: { orderId, status: "WALLET" }, data: { status: "ANNULE" } });
 }
@@ -230,6 +243,18 @@ export async function debitForOrder(db: Tx, owner: Owner, orderId: string, amoun
   const { balance } = await walletBalance(owner, db);
   if (amount > balance) throw new WalletError(`Solde du wallet insuffisant : ${balance.toLocaleString("fr-FR")} F disponibles pour ${amount.toLocaleString("fr-FR")} F.`);
   await db.walletTransaction.create({ data: { ownerType: owner.type, ownerId: owner.id, amount: -amount, kind: "PAIEMENT", orderId, sourceId: `pay:${orderId}`, createdBy: by, note: `Commande ${orderId.slice(-8).toUpperCase()}` } });
+}
+
+/**
+ * Vente encaissée directement par le revendeur (espèces, Wave, Orange Money — conditions spéciales) : le montant
+ * passe au débit de son wallet, qui peut devenir négatif jusqu'au plafond (argent à reverser à JAMAAL).
+ */
+export async function debitCollectedForOrder(db: Tx, owner: Owner, orderId: string, amount: number, method: CollectMethod, creditLimit: number, by: string | null) {
+  await lockOwner(db, owner);
+  const { balance } = await walletBalance(owner, db);
+  const refusal = collectRefusal(balance, amount, creditLimit);
+  if (refusal) throw new WalletError(refusal);
+  await db.walletTransaction.create({ data: { ownerType: owner.type, ownerId: owner.id, amount: -amount, kind: "PAIEMENT", orderId, sourceId: `pay:${orderId}`, createdBy: by, note: `Encaissé (${COLLECT_LABELS[method]}) · commande ${orderId.slice(-8).toUpperCase()}` } });
 }
 
 /** Historique d'un wallet (plus récent d'abord). */
