@@ -3,7 +3,9 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/currency";
 import { getBusinessModel } from "@/lib/business-model-store";
-import { payoutProvidersConfig, WALLET_LABELS } from "@/lib/payouts/providers";
+import { payoutProvidersConfig, wavePayoutKeySource, WALLET_LABELS } from "@/lib/payouts/providers";
+import { retryAllWithdrawalsAction } from "@/lib/actions/wallet";
+import { RowAction } from "@/components/admin/RowAction";
 import { getDepositNumbers } from "@/lib/wallet-settings";
 import { KIND_LABELS } from "@/lib/wallet";
 import { AdjustForm, DepositNumbersForm, DepositRowActions, WithdrawalRowActions } from "@/components/admin/WalletAdmin";
@@ -42,9 +44,24 @@ export default async function WalletsAdminPage() {
         </p>
       </div>
 
+      <section className={`rounded-2xl border px-4 py-3 text-sm sm:px-5 ${autoOn ? "border-emerald-200 bg-emerald-50 text-emerald-950" : "border-amber-200 bg-amber-50 text-amber-950"}`}>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p className="font-semibold">{autoOn ? "Retraits automatiques activés : aucun clic de votre part." : "Retraits automatiques désactivés : vous versez à la main."}</p>
+            <ul className="mt-1 space-y-0.5 text-xs">
+              <li>Wave : {!model.payoutWave ? "retraits non proposés (Modèle économique)" : cfg.WAVE ? `envoi automatique depuis le compte Wave Business${wavePayoutKeySource() === "paiement" ? " (clé des paiements : l'accès « Payout » doit y être coché dans Wave Business › Développeurs)" : ""}` : "pas de clé : versement à la main"}</li>
+              <li>Orange Money : {!model.payoutOrangeMoney ? "retraits non proposés (Modèle économique)" : cfg.ORANGE_MONEY ? "envoi automatique (agrégateur)" : "pas de connecteur de transfert : versement à la main"}</li>
+              {!model.payoutsEnabled && <li>Les versements automatiques sont coupés dans Admin › Modèle économique.</li>}
+            </ul>
+            <p className="mt-1 text-xs opacity-80">Dès qu&apos;un membre demande un retrait, l&apos;argent part du compte JAMAAL vers le numéro qu&apos;il a enregistré. Si le solde Wave Business est insuffisant, la demande attend et repart toute seule (matin et soir, ou bouton ci-contre) ; l&apos;équipe est prévenue sur WhatsApp.</p>
+          </div>
+          {autoOn && <RowAction label="Relancer les retraits en attente" run={retryAllWithdrawalsAction} />}
+        </div>
+      </section>
+
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <div className="rounded-xl border border-line bg-white px-4 py-3"><p className="text-sm text-navy/80">Total dû aux membres</p><p className="text-xl font-semibold text-ink">{formatPrice(owed)}</p></div>
-        <div className="rounded-xl border border-line bg-white px-4 py-3"><p className="text-sm text-navy/80">Retraits à verser</p><p className="text-xl font-semibold text-ink">{withdrawals.length} · {formatPrice(-withdrawals.reduce((t, w) => t + w.amount, 0))}</p></div>
+        <div className="rounded-xl border border-line bg-white px-4 py-3"><p className="text-sm text-navy/80">Retraits à verser</p><p className="text-xl font-semibold text-ink">{withdrawals.length} · {formatPrice(Math.abs(withdrawals.reduce((t, w) => t + w.amount, 0)))}</p></div>
         <div className="rounded-xl border border-line bg-white px-4 py-3"><p className="text-sm text-navy/80">Dépôts à vérifier</p><p className="text-xl font-semibold text-ink">{deposits.length} · {formatPrice(deposits.reduce((t, d) => t + d.amount, 0))}</p></div>
       </div>
 
@@ -57,6 +74,8 @@ export default async function WalletsAdminPage() {
                 <div>
                   <p className="font-semibold text-ink">{formatPrice(-t.amount)} · {label(t)}</p>
                   <p className="text-xs text-navy/70">{WALLET_LABELS[t.provider as "WAVE"] ?? t.provider} {t.phone} · demandé le {t.createdAt.toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short", timeZone: "Africa/Dakar" })}</p>
+                  {t.providerRef && t.providerRef !== "envoi" && <p className="text-xs font-semibold text-emerald-800">Envoyé à {WALLET_LABELS[t.provider as "WAVE"] ?? t.provider}, confirmation en cours</p>}
+                  {!t.providerRef && t.error && <p className="text-xs font-semibold text-amber-800">Envoi automatique retardé : {t.error}</p>}
                 </div>
                 <WithdrawalRowActions id={t.id} auto={!!autoOn} />
               </li>

@@ -13,7 +13,8 @@ import type { Prisma } from "@prisma/client";
 import { getBusinessModel } from "./business-model-store";
 import { payoutChannels } from "./business-model";
 import { COLLECT_LABELS, COLLECT_REF_PREFIX, collectRefusal, type CollectMethod } from "./special-terms";
-import { isWalletProvider, payoutProvidersConfig, sendPayout, WALLET_LABELS, type WalletProvider } from "./payouts/providers";
+import { isWalletProvider, payoutProvidersConfig, refreshWave, sendPayout, WALLET_LABELS, type PayoutResult, type WalletProvider } from "./payouts/providers";
+import { notifyTeamWhatsApp } from "@/lib/whatsapp";
 import { alertWalletCredits, alertWithdrawalPaid } from "@/lib/whatsapp/alerts";
 import { notifyWalletCredits, type WalletCreditNotice } from "./wallet-notify";
 
@@ -180,24 +181,67 @@ export async function requestWithdrawal(owner: Owner, amount: number, by: string
   return prisma.walletTransaction.findUniqueOrThrow({ where: { id: tx.id } });
 }
 
-/** Envoie un retrait en attente si le prestataire est configuré (sinon il reste à verser à la main). */
+/**
+ * Envoie un retrait en attente sur le compte Wave / Orange Money choisi par le membre, sans validation manuelle,
+ * dès que le versement automatique est configuré. BLOQUE (problème du compte JAMAAL : clé, solde) : rien n'est
+ * envoyé, le retrait reste en attente et repart à la prochaine relance ; l'équipe est prévenue.
+ */
 export async function sendWithdrawal(txId: string) {
   const model = await getBusinessModel();
   const t = await prisma.walletTransaction.findUnique({ where: { id: txId } });
   if (!t || t.kind !== "RETRAIT" || t.status !== "EN_ATTENTE" || t.providerRef || !isWalletProvider(t.provider) || !t.phone) return;
   if (!model.payoutsEnabled || !payoutProvidersConfig()[t.provider]) return;
+  // Réserve l'envoi (deux relances simultanées n'envoient pas deux fois ; Wave déduplique aussi par la référence).
+  const claim = await prisma.walletTransaction.updateMany({ where: { id: t.id, status: "EN_ATTENTE", providerRef: null }, data: { providerRef: "envoi" } });
+  if (!claim.count) return;
   const w = await ownerWallet({ type: t.ownerType as OwnerType, id: t.ownerId });
   const result = await sendPayout(t.provider, { reference: t.id, amount: -t.amount, mobile: t.phone, name: w?.holder ?? "" });
+  await applyWithdrawalResult(t.id, result);
+  if (result.status === "BLOQUE" && t.error !== result.error) {
+    notifyTeamWhatsApp(`⚠️ Retrait automatique bloqué : ${(-t.amount).toLocaleString("fr-FR")} F vers ${t.phone} (${w?.name ?? "membre"}). Cause : ${result.error}. Il repartira tout seul à la prochaine relance (ou Admin > Wallets).`);
+  }
+}
+
+async function applyWithdrawalResult(txId: string, result: PayoutResult) {
   await prisma.walletTransaction.update({
-    where: { id: t.id },
+    where: { id: txId },
     data:
       result.status === "VERSE"
         ? { status: "VALIDE", providerRef: result.providerRef ?? null, error: null }
         : result.status === "ECHEC"
           ? { status: "ECHEC", providerRef: result.providerRef ?? null, error: result.error?.slice(0, 300) ?? "Échec du versement" }
-          : { providerRef: result.providerRef ?? "en-cours" },
+          : result.status === "BLOQUE"
+            ? { providerRef: null, error: result.error?.slice(0, 300) ?? "Versement automatique indisponible" }
+            : { providerRef: result.providerRef ?? "en-cours", error: null },
   });
-  if (result.status === "VERSE") alertWithdrawalPaid(t.id);
+  if (result.status === "VERSE") alertWithdrawalPaid(txId);
+}
+
+/**
+ * Relance (tâches du matin et du soir, bouton admin) : renvoie les retraits en attente pas encore envoyés
+ * (ex. demandés avant l'activation des versements) et relit l'état des versements Wave en cours.
+ */
+export async function retryPendingWithdrawals(max = 40) {
+  const pending = await prisma.walletTransaction.findMany({ where: { kind: "RETRAIT", status: "EN_ATTENTE" }, orderBy: { createdAt: "asc" }, take: max });
+  let envoyes = 0, verses = 0, enCours = 0;
+  for (const t of pending) {
+    if (!t.providerRef) {
+      await sendWithdrawal(t.id);
+      envoyes++;
+    } else if (t.provider === "WAVE" && !["envoi", "en-cours"].includes(t.providerRef) && payoutProvidersConfig().WAVE) {
+      const r = await refreshWave(t.providerRef);
+      if (r.status === "VERSE" || r.status === "ECHEC") await applyWithdrawalResult(t.id, { ...r, providerRef: t.providerRef });
+      if (r.status === "VERSE") verses++;
+      else if (r.status === "EN_COURS") enCours++;
+    } else if (t.providerRef === "envoi" && Date.now() - t.updatedAt.getTime() > 15 * 60_000) {
+      // Envoi interrompu (coupure) : on le relance, Wave refuse un doublon de la même référence.
+      await prisma.walletTransaction.updateMany({ where: { id: t.id, providerRef: "envoi" }, data: { providerRef: null } });
+      await sendWithdrawal(t.id);
+      envoyes++;
+    }
+  }
+  const after = await prisma.walletTransaction.count({ where: { kind: "RETRAIT", status: "EN_ATTENTE" } });
+  return { relances: envoyes, versesConfirmes: verses, enCours, toujoursEnAttente: after };
 }
 
 /** Admin : retrait versé à la main, ou refusé (le montant revient sur le wallet). */

@@ -1,14 +1,13 @@
 /**
  * Envoi d'argent vers le wallet d'un membre (versement de commissions).
  *
- * - Wave : API « Payout » de Wave Business (clé dédiée WAVE_PAYOUT_API_KEY, distincte de la
- *   clé de paiement). Vérifier le format exact avec la documentation Wave Business lors de
- *   l'activation du compte.
+ * - Wave : API « Payout » de Wave Business. Clé WAVE_PAYOUT_API_KEY, ou à défaut la clé de paiement
+ *   WAVE_API_KEY si l'accès « Payout » y a été coché dans Wave Business > Développeurs.
  * - Orange Money : l'accès aux transferts dépend du contrat (Sonatel ou agrégateur : PayDunya,
  *   CinetPay, InTouch…). Connecteur générique : ORANGE_PAYOUT_URL + ORANGE_PAYOUT_TOKEN, à
  *   adapter au format de l'agrégateur retenu.
  *
- * Sans configuration, rien n'est envoyé : les commissions restent « à verser ».
+ * Sans configuration, rien n'est envoyé : les retraits restent en attente (versement à la main).
  * Fichier serveur uniquement (jamais importé côté navigateur).
  */
 
@@ -23,7 +22,21 @@ export type PayoutRequest = {
   name: string;
 };
 
-export type PayoutResult = { status: "VERSE" | "EN_COURS" | "ECHEC"; providerRef?: string; error?: string };
+/**
+ * VERSE : argent reçu. EN_COURS : accepté, à relire. ECHEC : refusé pour ce destinataire (le montant revient au membre).
+ * BLOQUE : rien n'a été envoyé à cause du compte JAMAAL (clé sans accès « Payout », solde Wave Business insuffisant…) :
+ * la demande reste en attente et sera renvoyée automatiquement.
+ */
+export type PayoutResult = { status: "VERSE" | "EN_COURS" | "ECHEC" | "BLOQUE"; providerRef?: string; error?: string };
+
+/** Clé Wave des versements : la clé dédiée WAVE_PAYOUT_API_KEY, sinon la clé de paiement si elle a aussi l'accès « Payout ». */
+const waveKey = () => process.env.WAVE_PAYOUT_API_KEY || process.env.WAVE_API_KEY || "";
+/** D'où vient la clé Wave des versements (affichage admin). */
+export function wavePayoutKeySource(): "dediee" | "paiement" | null {
+  return process.env.WAVE_PAYOUT_API_KEY ? "dediee" : process.env.WAVE_API_KEY ? "paiement" : null;
+}
+/** Erreur due au compte JAMAAL (pas au destinataire) : la demande reste en attente. */
+const accountProblem = (status: number, text: string) => status === 401 || status === 403 || /insufficient|balance|funds|solde|permission|scope|not.?allowed|unauthori[sz]ed/i.test(text);
 
 export function isWalletProvider(v: unknown): v is WalletProvider {
   return v === "WAVE" || v === "ORANGE_MONEY";
@@ -31,7 +44,7 @@ export function isWalletProvider(v: unknown): v is WalletProvider {
 
 export function payoutProvidersConfig() {
   return {
-    WAVE: !!process.env.WAVE_PAYOUT_API_KEY,
+    WAVE: !!waveKey(),
     ORANGE_MONEY: !!(process.env.ORANGE_PAYOUT_URL && process.env.ORANGE_PAYOUT_TOKEN),
   } satisfies Record<WalletProvider, boolean>;
 }
@@ -48,7 +61,7 @@ async function sendWave(req: PayoutRequest): Promise<PayoutResult> {
   const res = await fetch("https://api.wave.com/v1/payout", {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${process.env.WAVE_PAYOUT_API_KEY}`,
+      Authorization: `Bearer ${waveKey()}`,
       "Content-Type": "application/json",
       "idempotency-key": req.reference,
     },
@@ -61,17 +74,26 @@ async function sendWave(req: PayoutRequest): Promise<PayoutResult> {
       payment_reason: "Commissions JAMAAL",
     }),
   });
-  const data = (await res.json().catch(() => ({}))) as { id?: string; status?: string; message?: string; payout_error?: { error_code?: string; reason?: string } };
-  if (!res.ok) return { status: "ECHEC", error: data.message ?? `Wave a répondu ${res.status}` };
+  const data = (await res.json().catch(() => ({}))) as { id?: string; status?: string; message?: string; code?: string; payout_error?: { error_code?: string; reason?: string } };
+  if (!res.ok) {
+    const msg = data.message ?? `Wave a répondu ${res.status}`;
+    if (accountProblem(res.status, `${data.code ?? ""} ${msg}`)) return { status: "BLOQUE", error: res.status === 401 || res.status === 403 ? `Clé Wave sans accès « Payout » (${msg})` : msg };
+    return { status: "ECHEC", error: msg };
+  }
   if (data.status === "succeeded") return { status: "VERSE", providerRef: data.id };
-  if (data.status === "failed") return { status: "ECHEC", providerRef: data.id, error: data.payout_error?.reason ?? data.payout_error?.error_code ?? "Versement refusé par Wave" };
+  if (data.status === "failed") {
+    const why = data.payout_error?.reason ?? data.payout_error?.error_code ?? "Versement refusé par Wave";
+    // Solde Wave Business insuffisant : rien n'est perdu, la demande sera renvoyée.
+    if (/insufficient|balance|funds/i.test(`${data.payout_error?.error_code ?? ""} ${why}`)) return { status: "BLOQUE", error: `Solde Wave Business insuffisant (${why})` };
+    return { status: "ECHEC", providerRef: data.id, error: why };
+  }
   return { status: "EN_COURS", providerRef: data.id };
 }
 
 /** Relit l'état d'un versement Wave en cours. */
 export async function refreshWave(providerRef: string): Promise<PayoutResult> {
   const res = await fetch(`https://api.wave.com/v1/payout/${encodeURIComponent(providerRef)}`, {
-    headers: { Authorization: `Bearer ${process.env.WAVE_PAYOUT_API_KEY}` },
+    headers: { Authorization: `Bearer ${waveKey()}` },
   });
   const data = (await res.json().catch(() => ({}))) as { status?: string; payout_error?: { reason?: string } };
   if (!res.ok) return { status: "EN_COURS", providerRef, error: `Wave a répondu ${res.status}` };
@@ -98,7 +120,10 @@ async function sendOrange(req: PayoutRequest): Promise<PayoutResult> {
     }),
   });
   const data = (await res.json().catch(() => ({}))) as { id?: string; reference?: string; status?: string; message?: string };
-  if (!res.ok) return { status: "ECHEC", error: data.message ?? `Orange Money a répondu ${res.status}` };
+  if (!res.ok) {
+    const msg = data.message ?? `Orange Money a répondu ${res.status}`;
+    return accountProblem(res.status, msg) ? { status: "BLOQUE", error: msg } : { status: "ECHEC", error: msg };
+  }
   const status = String(data.status ?? "").toLowerCase();
   const ref = data.id ?? data.reference;
   if (["success", "succeeded", "successful", "completed"].includes(status)) return { status: "VERSE", providerRef: ref };

@@ -107,7 +107,7 @@ async function settle(payoutId: string, consultantId: string, amount: number, pr
         data: { consultantId, amount, periodLabel: `Versement ${WALLET_LABELS[provider as "WAVE"] ?? provider}`, note: result.providerRef ? `Réf. ${result.providerRef}` : "Versement automatique" },
       }),
     ]);
-  } else if (result.status === "ECHEC") {
+  } else if (result.status === "ECHEC" || result.status === "BLOQUE") {
     // Les commissions redeviennent disponibles pour un prochain versement.
     await prisma.$transaction([
       prisma.payout.update({ where: { id: payoutId }, data: { status: "ECHEC", providerRef: result.providerRef ?? null, error: result.error?.slice(0, 500) ?? null } }),
@@ -160,7 +160,7 @@ export async function processPayouts(consultantIds?: string[], model?: BusinessM
 
     const result = await sendPayout(member.walletProvider, { reference: payout.id, amount: total, mobile: member.walletNumber, name: member.walletHolderName || member.name });
     await settle(payout.id, member.id, total, member.walletProvider, result);
-    if (result.status !== "ECHEC") sent += 1;
+    if (result.status === "VERSE" || result.status === "EN_COURS") sent += 1;
   }
 
   refreshPages();

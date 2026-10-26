@@ -102,7 +102,7 @@ export default async function VersementsPage() {
       {!anyConfigured && (
         <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
           <p className="font-semibold">Aucun compte de versement n&apos;est encore connecté : rien n&apos;est envoyé, les commissions restent « à verser ».</p>
-          <p className="mt-1">Wave : variable <code>WAVE_PAYOUT_API_KEY</code> (clé « Payout » du compte Wave Business). Orange Money : <code>ORANGE_PAYOUT_URL</code> et <code>ORANGE_PAYOUT_TOKEN</code> (fournis par Sonatel ou l&apos;agrégateur). À ajouter dans Vercel, puis redéployer.</p>
+          <p className="mt-1">Wave : dans Wave Business › Développeurs, cochez l&apos;accès « Payout » sur votre clé API (celle des paiements, <code>WAVE_API_KEY</code>, suffit alors), ou créez une clé dédiée <code>WAVE_PAYOUT_API_KEY</code>. Orange Money : <code>ORANGE_PAYOUT_URL</code> et <code>ORANGE_PAYOUT_TOKEN</code> (fournis par Sonatel ou l&apos;agrégateur). À ajouter dans Vercel, puis redéployer.</p>
         </div>
       )}
 

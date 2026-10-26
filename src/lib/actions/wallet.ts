@@ -11,7 +11,7 @@ import { getAvailablePaymentProviders, getPaymentProvider } from "@/lib/payment"
 import { getSiteUrl } from "@/lib/site-url";
 import { notifyTeamWhatsApp } from "@/lib/whatsapp";
 import { isWalletProvider, WALLET_LABELS } from "@/lib/payouts/providers";
-import { adjustWallet, createDeposit, DEPOSIT_PREFIX, requestWithdrawal, resolveWithdrawal, sendWithdrawal, WalletError, type Owner } from "@/lib/wallet";
+import { adjustWallet, createDeposit, DEPOSIT_PREFIX, requestWithdrawal, resolveWithdrawal, retryPendingWithdrawals, sendWithdrawal, WalletError, type Owner } from "@/lib/wallet";
 import { saveDepositNumbers } from "@/lib/wallet-settings";
 
 export type WalletActionState = { ok: boolean; message?: string; error?: string; redirectUrl?: string };
@@ -44,7 +44,11 @@ export async function withdrawAction(_prev: WalletActionState, fd: FormData): Pr
     const t = await requestWithdrawal(me.owner, amountOf(fd), me.userId);
     refresh();
     if (t.status === "VALIDE") return { ok: true, message: `${(-t.amount).toLocaleString("fr-FR")} F envoyés sur votre compte ${WALLET_LABELS[t.provider as "WAVE"] ?? ""} ${t.phone}.` };
-    if (t.status === "ECHEC") return { ok: false, error: `Le versement a échoué (${t.error ?? "prestataire"}) : le montant reste sur votre wallet. Réessayez plus tard.` };
+    if (t.status === "ECHEC") return { ok: false, error: `Le versement a échoué (${t.error ?? "prestataire"}) : le montant reste sur votre wallet. Vérifiez votre numéro ${t.phone} puis réessayez.` };
+    // Accepté par Wave, en cours de traitement : confirmé à la prochaine relecture.
+    if (t.providerRef) return { ok: true, message: `Versement de ${(-t.amount).toLocaleString("fr-FR")} F en cours vers ${t.phone} : vous recevrez le SMS de ${WALLET_LABELS[t.provider as "WAVE"] ?? "votre opérateur"} dans quelques instants.` };
+    // Versement automatique bloqué côté JAMAAL (solde, clé) : il repart tout seul, l'équipe est déjà prévenue.
+    if (t.error) return { ok: true, message: `Demande de retrait de ${(-t.amount).toLocaleString("fr-FR")} F enregistrée : le versement automatique est momentanément retardé, il partira tout seul sur ${t.phone}. Le montant est bloqué sur votre wallet en attendant.` };
     notifyTeamWhatsApp(`Demande de retrait wallet : ${me.name}, ${(-t.amount).toLocaleString("fr-FR")} F vers ${t.phone}. À verser dans Admin > Wallets.`);
     return { ok: true, message: `Demande de retrait de ${(-t.amount).toLocaleString("fr-FR")} F enregistrée : JAMAAL vous verse le montant sur ${t.phone} au plus vite. Il est bloqué sur votre wallet en attendant.` };
   } catch (e) {
@@ -109,6 +113,15 @@ export async function resolveWithdrawalAction(txId: string, paid: boolean, note?
   } catch (e) {
     return fail(e);
   }
+}
+
+/** Admin : renvoie tous les retraits en attente et relit les versements en cours. */
+export async function retryAllWithdrawalsAction(): Promise<{ ok: boolean; message?: string; error?: string }> {
+  const session = await requireAdmin("comptabilite");
+  const r = await retryPendingWithdrawals();
+  await logActivity(session, "Relance des retraits en attente", "WalletTransaction", "relance");
+  refresh();
+  return { ok: true, message: `${r.relances} envoyé(s), ${r.versesConfirmes} confirmé(s), ${r.enCours} en cours, ${r.toujoursEnAttente} encore en attente.` };
 }
 
 export async function retryWithdrawalAction(txId: string): Promise<WalletActionState> {

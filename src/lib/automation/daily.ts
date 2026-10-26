@@ -4,6 +4,7 @@
  * La veille des prix Chogan passe en dernier et utilise le temps restant.
  */
 import { sendDailySummary } from "./summary";
+import { retryPendingWithdrawals } from "@/lib/wallet";
 import { runSubscriptions } from "@/lib/subscriptions/run";
 import { weeklyForecastAlert } from "@/lib/forecast/run";
 import { alertManagers } from "@/lib/health/run";
@@ -34,6 +35,8 @@ export async function runDailyJobs(origin: string, opts: { budgetMs?: number; no
   // Contrôle anti-fraude des membres d'abord : un membre signalé voit ses nouvelles commissions mises en vérification.
   await step("fraude", () => scanMembers(now));
   await step("commissions", async () => ({ ...(await sweepMissedCommissions(now)), livraisonsCreditees: await creditLivreurEarnings() }));
+  // Retraits des membres : renvoi des demandes en attente et relecture des versements Wave en cours.
+  await step("retraits", () => retryPendingWithdrawals());
   await step("defis", () => awardChallenges(now));
   if (whatsappConfig().active) await step("defis80", () => alertChallengesAlmostDone(now));
   await step("relances", () => runRelances(origin, now));

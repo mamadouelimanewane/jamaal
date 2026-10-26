@@ -3,6 +3,7 @@ import { watchChoganPrices } from "@/lib/automation/chogan-watch";
 import { sendCopilots } from "@/lib/copilot/run";
 import { claimAutomation } from "@/lib/automation-settings";
 import { siteBaseUrl } from "@/lib/site-url";
+import { retryPendingWithdrawals } from "@/lib/wallet";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -18,11 +19,12 @@ export async function GET(req: Request) {
   }
   try {
     const started = Date.now();
+    const retraits = await retryPendingWithdrawals(20).catch((e) => ({ erreur: String(e) }));
     const kit = await sendMorningKit(siteBaseUrl());
     const copilote = await sendCopilots(siteBaseUrl(), new Date(), { budgetMs: 20_000 }).catch((e) => ({ erreur: String(e) }));
     // Le temps restant sert à la mise à jour du catalogue Chogan (prix et nouveautés).
     const chogan = await watchChoganPrices(Math.max(5_000, 52_000 - (Date.now() - started))).catch((e) => ({ erreur: String(e) }));
-    return Response.json({ ok: true, report: kit, copilote, chogan });
+    return Response.json({ ok: true, report: kit, retraits, copilote, chogan });
   } catch (e) {
     console.error("[kit du matin]", e);
     return Response.json({ ok: false }, { status: 500 });
