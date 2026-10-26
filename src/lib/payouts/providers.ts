@@ -35,6 +35,23 @@ const waveKey = () => process.env.WAVE_PAYOUT_API_KEY || process.env.WAVE_API_KE
 export function wavePayoutKeySource(): "dediee" | "paiement" | null {
   return process.env.WAVE_PAYOUT_API_KEY ? "dediee" : process.env.WAVE_API_KEY ? "paiement" : null;
 }
+/** Les 4 derniers caractères de la clé Wave des versements (pour vérifier laquelle est en place). */
+export const wavePayoutKeyTail = () => waveKey().slice(-4) || null;
+
+/** Solde du compte Wave Business (API « Balance ») : null si la clé n'y a pas accès ou en cas d'erreur. */
+export async function waveBusinessBalance(): Promise<number | null> {
+  if (!waveKey()) return null;
+  try {
+    const res = await fetch("https://api.wave.com/v1/balance", { headers: { Authorization: `Bearer ${waveKey()}` }, signal: AbortSignal.timeout(6000), cache: "no-store" });
+    if (!res.ok) return null;
+    const data = (await res.json()) as { amount?: string | number };
+    const n = Number(data.amount);
+    return Number.isFinite(n) ? Math.round(n) : null;
+  } catch {
+    return null;
+  }
+}
+
 /** Erreur due au compte JAMAAL (pas au destinataire) : la demande reste en attente. */
 const accountProblem = (status: number, text: string) => status === 401 || status === 403 || /insufficient|balance|funds|solde|permission|scope|not.?allowed|unauthori[sz]ed/i.test(text);
 

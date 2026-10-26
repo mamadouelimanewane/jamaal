@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/currency";
 import { getBusinessModel } from "@/lib/business-model-store";
-import { payoutProvidersConfig, wavePayoutKeySource, WALLET_LABELS } from "@/lib/payouts/providers";
+import { payoutProvidersConfig, waveBusinessBalance, wavePayoutKeySource, wavePayoutKeyTail, WALLET_LABELS } from "@/lib/payouts/providers";
 import { retryAllWithdrawalsAction } from "@/lib/actions/wallet";
 import { RowAction } from "@/components/admin/RowAction";
 import { getDepositNumbers } from "@/lib/wallet-settings";
@@ -33,6 +33,8 @@ export default async function WalletsAdminPage() {
   const deposits = pending.filter((t) => t.kind === "DEPOT");
   const cfg = payoutProvidersConfig();
   const autoOn = model.payoutsEnabled && (cfg.WAVE || cfg.ORANGE_MONEY);
+  const waveBalance = cfg.WAVE ? await waveBusinessBalance() : null;
+  const pendingTotal = Math.abs(withdrawals.reduce((t, w) => t + w.amount, 0));
 
   return (
     <div className="max-w-5xl space-y-6">
@@ -49,7 +51,8 @@ export default async function WalletsAdminPage() {
           <div>
             <p className="font-semibold">{autoOn ? "Retraits automatiques activés : aucun clic de votre part." : "Retraits automatiques désactivés : vous versez à la main."}</p>
             <ul className="mt-1 space-y-0.5 text-xs">
-              <li>Wave : {!model.payoutWave ? "retraits non proposés (Modèle économique)" : cfg.WAVE ? `envoi automatique depuis le compte Wave Business${wavePayoutKeySource() === "paiement" ? " (clé des paiements : l'accès « Payout » doit y être coché dans Wave Business › Développeurs)" : ""}` : "pas de clé : versement à la main"}</li>
+              <li>Wave : {!model.payoutWave ? "retraits non proposés (Modèle économique)" : cfg.WAVE ? `envoi automatique depuis le compte Wave Business, clé …${wavePayoutKeyTail()}${wavePayoutKeySource() === "paiement" ? " (clé des paiements : elle doit avoir « Payout API » dans Wave Business › Développeurs)" : " (clé de versement dédiée)"}` : "pas de clé : versement à la main"}</li>
+              {cfg.WAVE && <li>Solde Wave Business : {waveBalance == null ? "illisible (la clé n'a pas « Balance API »)" : <strong>{formatPrice(waveBalance)}</strong>}{waveBalance != null && waveBalance < pendingTotal ? " : insuffisant pour les retraits en attente, rechargez le compte" : ""}</li>}
               <li>Orange Money : {!model.payoutOrangeMoney ? "retraits non proposés (Modèle économique)" : cfg.ORANGE_MONEY ? "envoi automatique (agrégateur)" : "pas de connecteur de transfert : versement à la main"}</li>
               {!model.payoutsEnabled && <li>Les versements automatiques sont coupés dans Admin › Modèle économique.</li>}
             </ul>

@@ -53,3 +53,14 @@ test("en cours : accepté par Wave, confirmé plus tard", async () => {
   reply(200, { id: "pt-4", status: "processing" });
   assert.deepEqual(await sendPayout("WAVE", req), { status: "EN_COURS", providerRef: "pt-4" });
 });
+
+test("solde Wave Business et fin de clé", async () => {
+  const { waveBusinessBalance, wavePayoutKeyTail } = await import("../payouts/providers");
+  process.env.WAVE_PAYOUT_API_KEY = "wave_sn_prod_abcdlTmA";
+  assert.equal(wavePayoutKeyTail(), "lTmA");
+  reply(200, { amount: "125000", currency: "XOF" });
+  assert.equal(await waveBusinessBalance(), 125000);
+  assert.equal(calls.at(-1)!.url, "https://api.wave.com/v1/balance");
+  reply(403, { message: "no balance scope" });
+  assert.equal(await waveBusinessBalance(), null);
+});
