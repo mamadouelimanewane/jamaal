@@ -41,7 +41,12 @@ export default async function AdminProductsPage({
     products.sort((a, b) => rank.get(a.id)! - rank.get(b.id)!);
   }
 
-  const filtered = stock === "bas" ? products.filter((p) => (stockOf.get(p.id)?.status ?? "ok") !== "ok") : products;
+  const totalOf = (p: { id: string; stock: number }) => stockOf.get(p.id)?.total ?? p.stock;
+  const isLow = (p: { id: string }) => (stockOf.get(p.id)?.status ?? "ok") !== "ok";
+  const availCount = products.filter((p) => totalOf(p) > 0).length;
+  const lowCount = products.filter(isLow).length;
+  const filtered =
+    stock === "dispo" ? products.filter((p) => totalOf(p) > 0) : stock === "bas" ? products.filter(isLow) : products;
   const pages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
   const current = Math.min(pages, Math.max(1, Number(page) || 1));
   const shown = filtered.slice((current - 1) * PER_PAGE, current * PER_PAGE);
@@ -115,10 +120,7 @@ export default async function AdminProductsPage({
             <option key={c.slug} value={c.slug}>{c.navLabel.replace("JAMAAL ", "")}</option>
           ))}
         </select>
-        <label className="flex items-center gap-2 text-xs text-navy/85">
-          <input type="checkbox" name="stock" value="bas" defaultChecked={stock === "bas"} />
-          Rupture ou stock bas uniquement
-        </label>
+        {(stock === "dispo" || stock === "bas") && <input type="hidden" name="stock" value={stock} />}
         <button type="submit" className="rounded-full border border-line px-4 py-1.5 text-xs font-semibold text-navy hover:bg-cream">
           Filtrer
         </button>
@@ -126,6 +128,25 @@ export default async function AdminProductsPage({
           <Link href="/admin/produits" className="text-xs text-navy/70 hover:text-navy">Réinitialiser</Link>
         )}
       </form>
+      <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="Filtrer par stock">
+        {[
+          { v: undefined, label: "Tous les produits", n: products.length },
+          { v: "dispo", label: "✓ Disponibles (en stock)", n: availCount },
+          { v: "bas", label: "Rupture ou stock bas", n: lowCount },
+        ].map((f) => {
+          const active = (stock === "dispo" || stock === "bas" ? stock : undefined) === f.v;
+          return (
+            <Link
+              key={f.label}
+              href={link({ stock: f.v, page: undefined })}
+              aria-current={active ? "true" : undefined}
+              className={`rounded-full px-4 py-1.5 text-xs font-semibold ${active ? "bg-navy text-white" : "border border-line text-navy hover:bg-cream"}`}
+            >
+              {f.label} ({f.n.toLocaleString("fr-FR")})
+            </Link>
+          );
+        })}
+      </div>
       {ranking?.corrected && (
         <p className="mt-2 text-sm text-navy/75">
           Résultats pour <strong>{ranking.corrected}</strong> (orthographe corrigée).
