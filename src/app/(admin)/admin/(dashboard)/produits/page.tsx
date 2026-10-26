@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ChoganSyncStatus } from "@/components/admin/ChoganSyncStatus";
 import { Suspense } from "react";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/currency";
@@ -104,6 +105,8 @@ export default async function AdminProductsPage({
           </Link>
         </div>
       </div>
+
+      <div className="mt-4"><ChoganSyncStatus /></div>
 
       <form className="mt-4 flex flex-wrap items-center gap-3" action="/admin/produits">
         <Suspense>

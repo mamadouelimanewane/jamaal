@@ -4,11 +4,13 @@ import { revalidatePath } from "next/cache";
 import { requireAdmin } from "./auth-guard";
 import { logActivity } from "@/lib/activity-log";
 import { syncChoganCatalog } from "@/lib/chogan/catalog-sync";
+import { recordChoganSync } from "@/lib/chogan/sync-status";
 
 /** « Mettre à jour maintenant » : prix et nouveautés Chogan, dans la limite de 30 secondes. */
 export async function syncChoganNow(): Promise<{ ok: boolean; message: string }> {
   const session = await requireAdmin("catalogue");
   const r = await syncChoganCatalog(30_000, { maxImports: 3 });
+  await recordChoganSync({ source: "manuel", verifies: r.verifies, prixMisAJour: r.prixMisAJour, nouveautes: r.nouveautes, erreurs: r.erreurs });
   await logActivity(session, `Mise à jour Chogan : ${r.prixMisAJour} prix, ${r.nouveautes} nouveautés`, "Product", "chogan");
   revalidatePath("/admin/stocks/commande-chogan");
   revalidatePath("/admin/produits");

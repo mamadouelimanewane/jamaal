@@ -7,11 +7,13 @@
 import { revalidatePath } from "next/cache";
 import { automationEnabled } from "@/lib/automation-settings";
 import { syncChoganCatalog } from "@/lib/chogan/catalog-sync";
+import { recordChoganSync } from "@/lib/chogan/sync-status";
 import { notifyTeamWhatsApp } from "@/lib/whatsapp";
 
 export async function watchChoganPrices(budgetMs: number) {
   if (!(await automationEnabled("choganWatch"))) return "désactivé";
   const r = await syncChoganCatalog(budgetMs);
+  await recordChoganSync({ source: "auto", verifies: r.verifies, prixMisAJour: r.prixMisAJour, nouveautes: r.nouveautes, erreurs: r.erreurs });
   if (r.prixMisAJour || r.nouveautes) {
     try {
       revalidatePath("/", "layout");

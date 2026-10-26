@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { RowAction } from "@/components/admin/RowAction";
-import { syncChoganNow } from "@/lib/actions/chogan-sync";
+import { ChoganSyncStatus } from "@/components/admin/ChoganSyncStatus";
 import { requireAdminPage } from "@/lib/admin-page-guard";
 import { prisma } from "@/lib/prisma";
 import { getStockRows } from "@/lib/inventory-report";
@@ -102,8 +101,8 @@ export default async function ChoganOrderPage({ searchParams }: { searchParams: 
       <section className="rounded-2xl border border-line bg-white p-5 print:hidden">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <h2 className="font-semibold text-navy">Mise à jour automatique depuis Chogan</h2>
-          <RowAction label="Mettre à jour maintenant" run={syncChoganNow} />
         </div>
+        <div className="mt-3"><ChoganSyncStatus detailsLink={false} /></div>
         <p className="mt-1 text-sm text-navy/70">Chaque matin et chaque soir, le catalogue est comparé au site Chogan ({watched} / {total} fiches vérifiées sur 30 jours) : les nouveaux prix sont appliqués tout seuls (prix de vente JAMAAL recalculé selon le modèle économique) et les nouveaux produits Chogan sont importés. Seuls les écarts inhabituels attendent votre décision ci-dessous.</p>
         {applied.length > 0 && (
           <details className="mt-3 rounded-xl bg-cream/60 p-3 text-sm">
