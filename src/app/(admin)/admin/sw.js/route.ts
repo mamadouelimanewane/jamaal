@@ -21,6 +21,15 @@ self.addEventListener("install", (event) => {
 self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim());
 });
+// Notification système (nouvelle notification JAMAAL) : un clic ouvre la page des notifications.
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const url = (event.notification.data && event.notification.data.url) || "/admin/notifications";
+  event.waitUntil(self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((list) => {
+    for (const c of list) if ("focus" in c) { c.navigate(url); return c.focus(); }
+    return self.clients.openWindow(url);
+  }));
+});
 self.addEventListener("fetch", (event) => {
   if (event.request.mode !== "navigate" || event.request.method !== "GET") return;
   event.respondWith(fetch(event.request).catch(() => caches.match(OFFLINE_URL)));

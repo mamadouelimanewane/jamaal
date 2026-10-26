@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Bell, ChevronDown, Eye, EyeOff, FileSignature, KeyRound, LogOut, Trophy, UserCircle, Wallet, Globe } from "lucide-react";
 import { GlobalSearch } from "./GlobalSearch";
 import { InstallAppButton } from "./InstallApp";
+import { NotificationAlerts } from "./NotificationAlerts";
 
 const HIDE_KEY = "jamaal_solde_masque";
 
@@ -33,6 +34,10 @@ export function TopBar({
   logout: () => Promise<void>;
 }) {
   const [hidden, setHidden] = useState(false);
+  // Nombre de notifications non lues tenu à jour par la sonnerie (le nombre du serveur reprend la main à chaque page).
+  const [live, setLive] = useState<{ v: number; base: number } | null>(null);
+  const count = live && live.base === unread ? live.v : unread;
+  const onCount = useCallback((v: number) => setLive({ v, base: unread }), [unread]);
   const [menu, setMenu] = useState<string | null>(null);
   const pathname = usePathname();
   const menuOpen = menu === pathname;
@@ -101,10 +106,11 @@ export function TopBar({
         </Link>
       )}
 
-      <Link href="/admin/notifications" aria-label={unread ? `Notifications (${unread} non lues)` : "Notifications"} title="Notifications" className="relative rounded-full p-2 text-navy hover:bg-cream">
+      <NotificationAlerts unread={unread} onCount={onCount} />
+      <Link href="/admin/notifications" aria-label={count ? `Notifications (${count} non lues)` : "Notifications"} title="Notifications" className="relative rounded-full p-2 text-navy hover:bg-cream">
         <Bell size={20} />
-        {unread > 0 && (
-          <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-dark px-1 text-[11px] font-semibold text-white">{unread > 99 ? "99+" : unread}</span>
+        {count > 0 && (
+          <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-dark px-1 text-[11px] font-semibold text-white">{count > 99 ? "99+" : count}</span>
         )}
       </Link>
 
