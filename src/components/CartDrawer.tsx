@@ -79,11 +79,11 @@ export function CartDrawer() {
             <span>{formatPrice(total())}</span>
           </div>
           <Link
-            href="/panier"
+            href={items.length ? "/panier#commander" : "/collections"}
             onClick={close}
             className="block w-full rounded-full bg-navy py-3 text-center text-sm font-semibold text-white transition hover:bg-navy-light"
           >
-            Voir le panier
+            {items.length ? "Commander" : "Découvrir les produits"}
           </Link>
         </div>
       </div>

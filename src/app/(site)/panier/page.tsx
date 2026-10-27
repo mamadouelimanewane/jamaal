@@ -334,7 +334,7 @@ export default function CartPage() {
             ))}
           </ul>
 
-          <form onSubmit={handleSubmit} className="h-fit rounded-2xl border border-line bg-white p-5">
+          <form id="commander" onSubmit={handleSubmit} className="h-fit scroll-mt-24 rounded-2xl border border-line bg-white p-5">
             <div className="flex items-center justify-between text-sm text-navy/70">
               <span>Sous-total</span>
               <span>{formatPrice(total())}</span>
