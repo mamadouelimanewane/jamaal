@@ -60,6 +60,29 @@ export function OfficialCatalogueView({
 
       {/* ── STYLE D'IMPRESSION A4 STRICT ────────────────────────────────── */}
       <style jsx global>{`
+        .catalogue-page {
+          position: relative !important;
+          isolation: isolate !important;
+        }
+        .catalogue-page::before {
+          content: "" !important;
+          position: absolute !important;
+          inset: 0 !important;
+          background-image: url('/images/bg-afro-woman.jpg') !important;
+          background-size: cover !important;
+          background-position: center top !important;
+          opacity: 0.15 !important;
+          filter: contrast(1.15) brightness(0.95) !important;
+          pointer-events: none !important;
+          z-index: 0 !important;
+          border-radius: inherit !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+        .catalogue-page > * {
+          position: relative !important;
+          z-index: 1 !important;
+        }
         @media print {
           body {
             background: white !important;
@@ -81,6 +104,11 @@ export function OfficialCatalogueView({
             box-sizing: border-box !important;
             box-shadow: none !important;
             border-radius: 0 !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          .catalogue-page::before {
+            opacity: 0.17 !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
           }
@@ -148,11 +176,17 @@ export function OfficialCatalogueView({
             ═════════════════════════════════════════════════════════════════ */}
         <article className="catalogue-page bg-slate-900 text-slate-100 rounded-3xl p-6 sm:p-8 shadow-2xl relative flex flex-col min-h-[750px] border border-slate-800">
           <div className="flex items-center justify-between border-b border-slate-700 pb-3">
-            <div>
-              <span className="text-[10px] uppercase tracking-widest text-amber-400 font-bold">Catalogue JAMAAL</span>
-              <h2 className="font-serif-display text-2xl sm:text-3xl font-bold text-white tracking-wide">
-                Tarif Homme
-              </h2>
+            <div className="flex items-center gap-3">
+              <div className="bg-white p-1 rounded-lg shadow-sm shrink-0">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/logo/jamaal-logo.jpg" alt="JAMAAL" className="h-8 w-auto rounded object-contain" />
+              </div>
+              <div>
+                <span className="text-[10px] uppercase tracking-widest text-amber-400 font-bold">Catalogue JAMAAL</span>
+                <h2 className="font-serif-display text-2xl sm:text-3xl font-bold text-white tracking-wide">
+                  Tarif Homme
+                </h2>
+              </div>
             </div>
             {/* Portrait homme européen élégant */}
             <div className="flex items-center gap-3">
@@ -243,11 +277,17 @@ export function OfficialCatalogueView({
             ═════════════════════════════════════════════════════════════════ */}
         <article className="catalogue-page bg-[#18131d] text-[#f7eefb] rounded-3xl p-6 sm:p-8 shadow-2xl relative flex flex-col min-h-[750px] border border-[#3b2746]">
           <div className="flex items-center justify-between border-b border-[#523363] pb-3">
-            <div>
-              <span className="text-[10px] uppercase tracking-widest text-rose-300 font-bold">Catalogue JAMAAL</span>
-              <h2 className="font-serif-display text-2xl sm:text-3xl font-bold text-white tracking-wide">
-                Tarif Femme <span className="text-base text-rose-300 font-normal">(Partie 1)</span>
-              </h2>
+            <div className="flex items-center gap-3">
+              <div className="bg-white p-1 rounded-lg shadow-sm shrink-0">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/logo/jamaal-logo.jpg" alt="JAMAAL" className="h-8 w-auto rounded object-contain" />
+              </div>
+              <div>
+                <span className="text-[10px] uppercase tracking-widest text-rose-300 font-bold">Catalogue JAMAAL</span>
+                <h2 className="font-serif-display text-2xl sm:text-3xl font-bold text-white tracking-wide">
+                  Tarif Femme <span className="text-base text-rose-300 font-normal">(Partie 1)</span>
+                </h2>
+              </div>
             </div>
             {/* Portrait sublime femme afro-descendante */}
             <div className="flex items-center gap-3">
@@ -336,11 +376,17 @@ export function OfficialCatalogueView({
             ═════════════════════════════════════════════════════════════════ */}
         <article className="catalogue-page bg-slate-950 text-slate-100 rounded-3xl p-6 sm:p-8 shadow-2xl relative flex flex-col min-h-[750px] border border-slate-800">
           <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-            <div>
-              <span className="text-[10px] uppercase tracking-widest text-amber-400 font-bold">Catalogue JAMAAL</span>
-              <h2 className="font-serif-display text-2xl sm:text-3xl font-bold text-white tracking-wide">
-                Tarif Femme <span className="text-base text-amber-300 font-normal">(Partie 2)</span>
-              </h2>
+            <div className="flex items-center gap-3">
+              <div className="bg-white p-1 rounded-lg shadow-sm shrink-0">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/logo/jamaal-logo.jpg" alt="JAMAAL" className="h-8 w-auto rounded object-contain" />
+              </div>
+              <div>
+                <span className="text-[10px] uppercase tracking-widest text-amber-400 font-bold">Catalogue JAMAAL</span>
+                <h2 className="font-serif-display text-2xl sm:text-3xl font-bold text-white tracking-wide">
+                  Tarif Femme <span className="text-base text-amber-300 font-normal">(Partie 2)</span>
+                </h2>
+              </div>
             </div>
             {/* Portrait femme européenne chic */}
             <div className="flex items-center gap-3">
@@ -419,11 +465,17 @@ export function OfficialCatalogueView({
             ═════════════════════════════════════════════════════════════════ */}
         <article className="catalogue-page bg-[#121820] text-slate-100 rounded-3xl p-6 sm:p-8 shadow-2xl relative flex flex-col min-h-[750px] border border-[#233040]">
           <div className="flex items-center justify-between border-b border-[#2d3e52] pb-3">
-            <div>
-              <span className="text-[10px] uppercase tracking-widest text-sky-400 font-bold">Catalogue JAMAAL</span>
-              <h2 className="font-serif-display text-2xl sm:text-3xl font-bold text-white tracking-wide">
-                Tarif Unisexe
-              </h2>
+            <div className="flex items-center gap-3">
+              <div className="bg-white p-1 rounded-lg shadow-sm shrink-0">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/logo/jamaal-logo.jpg" alt="JAMAAL" className="h-8 w-auto rounded object-contain" />
+              </div>
+              <div>
+                <span className="text-[10px] uppercase tracking-widest text-sky-400 font-bold">Catalogue JAMAAL</span>
+                <h2 className="font-serif-display text-2xl sm:text-3xl font-bold text-white tracking-wide">
+                  Tarif Unisexe
+                </h2>
+              </div>
             </div>
             {/* Portrait couple complice et sensuel */}
             <div className="flex items-center gap-3">
@@ -496,11 +548,17 @@ export function OfficialCatalogueView({
             ═════════════════════════════════════════════════════════════════ */}
         <article className="catalogue-page bg-[#0b0b0f] text-[#f7e6c4] rounded-3xl p-6 sm:p-8 shadow-2xl relative flex flex-col min-h-[750px] border border-[#d4af37]/30">
           <div className="flex items-center justify-between border-b border-[#d4af37]/30 pb-3">
-            <div>
-              <span className="text-[10px] uppercase tracking-widest text-[#d4af37] font-bold">Haute Parfumerie Niche</span>
-              <h2 className="font-serif-display text-2xl sm:text-3xl font-bold text-white tracking-wide">
-                Collection Luxury & Extraits Rares
-              </h2>
+            <div className="flex items-center gap-3">
+              <div className="bg-white p-1 rounded-lg shadow-sm shrink-0">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/logo/jamaal-logo.jpg" alt="JAMAAL" className="h-8 w-auto rounded object-contain" />
+              </div>
+              <div>
+                <span className="text-[10px] uppercase tracking-widest text-[#d4af37] font-bold">Haute Parfumerie Niche</span>
+                <h2 className="font-serif-display text-2xl sm:text-3xl font-bold text-white tracking-wide">
+                  Collection Luxury & Extraits Rares
+                </h2>
+              </div>
             </div>
             {/* Flacons de prestige */}
             <div className="text-right">
@@ -574,7 +632,11 @@ export function OfficialCatalogueView({
         <article className="catalogue-page bg-[#1c1815] text-[#f7eee6] rounded-3xl p-8 shadow-2xl relative flex flex-col justify-between min-h-[750px] border border-[#d4af37]/30">
           <div>
             <div className="text-center border-b border-[#d4af37]/30 pb-4">
-              <span className="text-xs uppercase tracking-widest text-[#d4af37] font-bold">Accessoire Nomade Chic</span>
+              <div className="inline-block bg-white p-2 rounded-xl shadow-md mx-auto mb-2">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/logo/jamaal-logo.jpg" alt="JAMAAL" className="h-8 w-auto rounded object-contain mx-auto" />
+              </div>
+              <span className="block text-xs uppercase tracking-widest text-[#d4af37] font-bold">Accessoire Nomade Chic</span>
               <h2 className="font-serif-display text-3xl sm:text-4xl font-bold text-white mt-1">
                 Écrins & Vaporisateurs de Sac
               </h2>
@@ -621,11 +683,17 @@ export function OfficialCatalogueView({
             ═════════════════════════════════════════════════════════════════ */}
         <article className="catalogue-page bg-slate-900 text-slate-100 rounded-3xl p-6 sm:p-8 shadow-2xl relative flex flex-col min-h-[750px] border border-slate-800">
           <div className="flex items-center justify-between border-b border-slate-700 pb-3">
-            <div>
-              <span className="text-[10px] uppercase tracking-widest text-amber-400 font-bold">Hygiène & Bien-Être</span>
-              <h2 className="font-serif-display text-2xl sm:text-3xl font-bold text-white tracking-wide">
-                Gels Douche Parfumés
-              </h2>
+            <div className="flex items-center gap-3">
+              <div className="bg-white p-1 rounded-lg shadow-sm shrink-0">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/logo/jamaal-logo.jpg" alt="JAMAAL" className="h-8 w-auto rounded object-contain" />
+              </div>
+              <div>
+                <span className="text-[10px] uppercase tracking-widest text-amber-400 font-bold">Hygiène & Bien-Être</span>
+                <h2 className="font-serif-display text-2xl sm:text-3xl font-bold text-white tracking-wide">
+                  Gels Douche Parfumés
+                </h2>
+              </div>
             </div>
             <span className="text-xs font-bold text-amber-300">Format 250 ML</span>
           </div>
@@ -729,11 +797,17 @@ export function OfficialCatalogueView({
         <article className="catalogue-page bg-[#1e1511] text-[#f7ede5] rounded-3xl p-6 sm:p-8 shadow-2xl relative flex flex-col justify-between min-h-[750px] border border-[#a87352]/30">
           <div>
             <div className="flex items-center justify-between border-b border-[#a87352]/40 pb-3">
-              <div>
-                <span className="text-[10px] uppercase tracking-widest text-[#d4af37] font-bold">Soins & Beauté Corps</span>
-                <h2 className="font-serif-display text-2xl sm:text-3xl font-bold text-white tracking-wide">
-                  Crèmes Corps Parfumées
-                </h2>
+              <div className="flex items-center gap-3">
+                <div className="bg-white p-1 rounded-lg shadow-sm shrink-0">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/logo/jamaal-logo.jpg" alt="JAMAAL" className="h-8 w-auto rounded object-contain" />
+                </div>
+                <div>
+                  <span className="text-[10px] uppercase tracking-widest text-[#d4af37] font-bold">Soins & Beauté Corps</span>
+                  <h2 className="font-serif-display text-2xl sm:text-3xl font-bold text-white tracking-wide">
+                    Crèmes Corps Parfumées
+                  </h2>
+                </div>
               </div>
               {/* Photo femme afro-descendante peau éclatante */}
               <div className="flex items-center gap-3">
@@ -793,7 +867,11 @@ export function OfficialCatalogueView({
         <article className="catalogue-page bg-[#18090b] text-[#fce8eb] rounded-3xl p-6 sm:p-8 shadow-2xl relative flex flex-col justify-between min-h-[750px] border border-rose-900/40">
           <div>
             <div className="text-center border-b border-rose-900/40 pb-3">
-              <span className="text-[10px] uppercase tracking-widest text-rose-400 font-bold">Édition Passion</span>
+              <div className="inline-block bg-white p-2 rounded-xl shadow-md mx-auto mb-2">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/logo/jamaal-logo.jpg" alt="JAMAAL" className="h-8 w-auto rounded object-contain mx-auto" />
+              </div>
+              <span className="block text-[10px] uppercase tracking-widest text-rose-400 font-bold">Édition Passion</span>
               <h2 className="font-serif-display text-3xl font-bold text-white mt-1">
                 Collection Scented Love
               </h2>
@@ -856,7 +934,11 @@ export function OfficialCatalogueView({
         <article className="catalogue-page bg-[#121a1f] text-slate-100 rounded-3xl p-6 sm:p-8 shadow-2xl relative flex flex-col justify-between min-h-[750px] border border-teal-900/40">
           <div>
             <div className="text-center border-b border-teal-900/40 pb-3">
-              <span className="text-[10px] uppercase tracking-widest text-teal-400 font-bold">Douceur & Tendresse</span>
+              <div className="inline-block bg-white p-2 rounded-xl shadow-md mx-auto mb-2">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/logo/jamaal-logo.jpg" alt="JAMAAL" className="h-8 w-auto rounded object-contain mx-auto" />
+              </div>
+              <span className="block text-[10px] uppercase tracking-widest text-teal-400 font-bold">Douceur & Tendresse</span>
               <h2 className="font-serif-display text-3xl font-bold text-white mt-1">
                 Collection Enfants & Bébé
               </h2>
