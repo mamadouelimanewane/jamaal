@@ -36,10 +36,9 @@ export const STATUS_LABELS: Record<string, string> = { EN_ATTENTE: "En attente",
 
 export class WalletError extends Error {}
 
-/** Montant minimal d'un retrait (FCFA). */
+/** Pas de seuil de retrait : tout solde positif est disponible pour un payout. */
 export async function minWithdrawal() {
-  const m = await getBusinessModel();
-  return Math.max(500, m.minPayout || 0);
+  return 1;
 }
 
 /** Solde disponible et détail. */

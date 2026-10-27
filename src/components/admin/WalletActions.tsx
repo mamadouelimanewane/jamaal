@@ -67,12 +67,12 @@ export function WalletActions({
             <p className="rounded-xl bg-amber-50 px-4 py-2.5 text-sm text-amber-950">Renseignez d&apos;abord votre compte Wave ou Orange Money <a href="#compte" className="font-semibold underline">plus bas</a>.</p>
           )}
           <label className="block text-sm font-medium text-ink">
-            Montant à retirer (FCFA)
-            <input name="amount" type="number" inputMode="numeric" min={min} max={Math.max(min, balance)} step={1} required placeholder={`${min} minimum`} className={field} />
+            Montant du payout (FCFA)
+            <input name="amount" type="number" inputMode="numeric" min={min} max={Math.max(min, balance)} step={1} required placeholder="Montant à recevoir" className={field} />
           </label>
           <div className="flex flex-wrap items-center gap-3">
             <button disabled={wPending || !account || balance < min} className="rounded-full bg-navy px-6 py-2.5 text-sm font-semibold text-white hover:bg-navy-light disabled:opacity-50">{wPending ? "Envoi…" : "Retirer"}</button>
-            <span className="text-xs text-navy/65">Disponible : {balance.toLocaleString("fr-FR")} F · minimum {min.toLocaleString("fr-FR")} F</span>
+            <span className="text-xs text-navy/65">Disponible : {balance.toLocaleString("fr-FR")} F · payout possible dès qu&apos;un solde est disponible</span>
           </div>
           <Message s={w} />
         </form>

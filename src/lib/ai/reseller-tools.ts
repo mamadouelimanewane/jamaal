@@ -387,7 +387,7 @@ export const RESELLER_TOOLS: Record<string, ResellerToolDef> = {
     declaration: {
       name: "regles_programme",
       description:
-        "Règles du programme revendeur JAMAAL : taux de commission (vente, parrain, grand-parrain), primes mensuelles et d'équipe par palier, bonus du 1er, retrait minimal du wallet, moment du versement, livraison offerte. À utiliser pour « comment je gagne de l'argent ? », « combien je touche sur une vente ? », « comment marche la prime ? ».",
+        "Règles du programme revendeur JAMAAL : taux de commission (vente, parrain, grand-parrain), primes mensuelles et d'équipe par palier, bonus du 1er, payout possible dès qu'un solde est disponible, moment du crédit dans le wallet, livraison offerte. À utiliser pour « comment je gagne de l'argent ? », « combien je touche sur une vente ? », « comment marche la prime ? ».",
       parameters: { type: "object", properties: {} },
     },
     run: async () => {

@@ -56,7 +56,6 @@ type NumKey =
   | "maxDirectRecruits"
   | "maxParrainsPerLeader"
   | "maxConsultantsPerParrain"
-  | "minPayout"
   | "deliveryBaseFee"
   | "deliveryIncludedKm"
   | "deliveryPerKm"
@@ -600,7 +599,6 @@ export function BusinessModelEditor({
                   ))}
                 </div>
               </fieldset>
-              <NumberField label="Retrait minimal du wallet" name="minPayout" value={model.minPayout} onChange={set} suffix="F" step="100" hint="Les commissions sont créditées dans le wallet sans seuil ; ce minimum s'applique seulement aux retraits." />
             </div>
           </div>
         </section>

@@ -69,8 +69,7 @@ export async function saveBusinessModelAction(_prev: BusinessModelState, formDat
       .map((t, i) => ({ threshold: Math.round(Number(String(t).replace(/\s/g, ""))), amount: Math.round(Number(String(am[i] ?? "").replace(/\s/g, ""))) }))
       .filter((t) => Number.isFinite(t.threshold) && t.threshold > 0 && Number.isFinite(t.amount) && t.amount >= 0);
   }
-  const minPayout = readNumber(formData, "minPayout");
-  input.minPayout = Number.isFinite(minPayout) && minPayout > 0 ? Math.round(minPayout) : 0;
+  input.minPayout = 0;
   input.acceptWave = formData.get("acceptWave") === "on";
   input.acceptOrangeMoney = formData.get("acceptOrangeMoney") === "on";
   input.acceptCard = formData.get("acceptCard") === "on";

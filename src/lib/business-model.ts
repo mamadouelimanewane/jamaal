@@ -71,11 +71,11 @@ export type BusinessModel = {
   acceptOrangeMoney: boolean;
   acceptCard: boolean;
   acceptCashOnDelivery: boolean;
-  /** Versement automatique des commissions sur le wallet Wave / Orange Money des membres. */
+  /** Les retraits demandés par les membres peuvent être payés automatiquement. */
   payoutsEnabled: boolean;
-  /** Moment du versement : dès le paiement confirmé, ou à la livraison. */
+  /** Moment du crédit de la commission dans le wallet : paiement confirmé ou livraison. */
   payoutTrigger: "PAID" | "DELIVERED";
-  /** Montant minimal d'un versement (FCFA) ; en dessous, la commission attend la suivante. */
+  /** Ancien seuil de retrait, conservé pour compatibilité avec les modèles enregistrés. */
   minPayout: number;
   /** Comptes sur lesquels les membres peuvent recevoir leurs retraits (au moins un). */
   payoutWave: boolean;
