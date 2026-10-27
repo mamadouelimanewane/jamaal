@@ -84,7 +84,7 @@ const adminGroups = [
       { href: "/admin/categories", label: "Catégories", icon: Tags },
       { href: "/admin/accueil", label: "Page d'accueil", icon: GalleryHorizontal },
       { href: "/admin/catalogue-officiel", label: "Catalogue officiel (12 pages A4)", icon: FileText },
-      { href: "/admin/handbook", label: "Handbook disponibilités", icon: BookMarked },
+      { href: "/admin/handbook", label: "Produits disponibles", icon: BookMarked },
     ],
   },
   {
@@ -168,7 +168,7 @@ const consultantGroups: { title: string | null; links: { href: string; label: st
       { href: "/admin/ma-boutique", label: "Ma boutique (lien de bio)", icon: Store },
       { href: "/admin/ma-communication", label: "Ma communication", icon: Megaphone },
       { href: "/admin/catalogue-officiel", label: "Catalogue officiel (12 pages)", icon: FileText },
-      { href: "/admin/handbook", label: "Handbook disponibilités", icon: BookMarked },
+      { href: "/admin/handbook", label: "Produits disponibles", icon: BookMarked },
     ],
   },
   { title: "Progresser", links: [{ href: "/admin/academie", label: "Académie et badges", icon: Award }, { href: "/admin/formation", label: "Quiz et formation", icon: GraduationCap }] },

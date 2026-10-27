@@ -10,10 +10,11 @@ import {
   Check,
   Sparkles,
   Download,
-  Share2,
   ExternalLink,
   RefreshCw,
   SlidersHorizontal,
+  Contact,
+  Send,
 } from "lucide-react";
 import { formatPrice } from "@/lib/currency";
 import type { StockRow } from "@/lib/inventory-report";
@@ -30,7 +31,9 @@ export function HandbookView({ rows, refSlug, consultantName }: HandbookViewProp
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
   const [sortBy, setSortBy] = useState<"stock" | "code" | "name" | "price">("stock");
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
-  const [copiedAll, setCopiedAll] = useState(false);
+  const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
+  const [contactPhone, setContactPhone] = useState("");
+  const [shareNotice, setShareNotice] = useState<string | null>(null);
 
   // Catégories uniques
   const categories = useMemo(() => {
@@ -126,44 +129,55 @@ export function HandbookView({ rows, refSlug, consultantName }: HandbookViewProp
     return `https://wa.me/?text=${encodeURIComponent(msg)}`;
   };
 
-  // Copier toute la Bible pour WhatsApp (très populaire chez les revendeurs Chogan)
-  const copyAllForWhatsApp = () => {
-    const inStockItems = rows.filter((r) => r.stock > 0);
-    const dateStr = new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long" });
+  function toggleSelected(row: StockRow) {
+    if (row.stock <= 0) return;
+    setSelectedKeys((current) => current.includes(row.key)
+      ? current.filter((key) => key !== row.key)
+      : [...current, row.key]);
+  }
 
-    let message = `✨ *HANDBOOK DES DISPONIBILITÉS CHOGAN DAKAR* ✨\n`;
-    message += `📍 *Stock physique disponible à l'instant T (${dateStr})*\n`;
-    if (consultantName) message += `👤 Conseiller : ${consultantName}\n`;
-    message += `🚚 Livraison express à Dakar & partout au Sénégal\n\n`;
-
-    // Grouper par catégorie
-    const byCategory = new Map<string, StockRow[]>();
-    for (const item of inStockItems) {
-      const cat = item.categoryLabel || "Autres";
-      if (!byCategory.has(cat)) byCategory.set(cat, []);
-      byCategory.get(cat)!.push(item);
+  async function choosePhoneContact() {
+    const contactsApi = (navigator as Navigator & {
+      contacts?: { select: (properties: string[], options: { multiple: boolean }) => Promise<{ name?: string[]; tel?: string[] }[]> };
+    }).contacts;
+    if (!contactsApi) {
+      setShareNotice("Le carnet de contacts est disponible sur certains téléphones Android avec Chrome. Saisissez le numéro WhatsApp du client ci-dessous.");
+      return;
     }
-
-    byCategory.forEach((items, cat) => {
-      message += `━━━━━━━━━━━━━━━━━━━━━\n`;
-      message += `💎 *${cat.toUpperCase()} EN STOCK* (${items.length})\n`;
-      message += `━━━━━━━━━━━━━━━━━━━━━\n`;
-      for (const item of items) {
-        const code = item.productCode ? `[${item.productCode}] ` : "";
-        const insp = item.inspiredBy ? ` _(Insp: ${item.inspiredBy})_` : "";
-        const fmt = item.format && item.format !== "Format unique" ? ` · ${item.format}` : "";
-        const prx = item.salePrice ? ` · *${formatPrice(item.salePrice)}*` : "";
-        message += `• ${code}*${item.name}*${fmt}${insp}${prx}\n`;
+    try {
+      const contacts = await contactsApi.select(["name", "tel"], { multiple: false });
+      const phone = contacts[0]?.tel?.[0];
+      if (phone) {
+        setContactPhone(phone);
+        setShareNotice(`Contact sélectionné : ${contacts[0]?.name?.[0] || phone}. Appuyez sur « Envoyer sur WhatsApp » pour continuer.`);
       }
-      message += `\n`;
+    } catch {
+      setShareNotice("Sélection annulée. Vous pouvez saisir le numéro WhatsApp du client.");
+    }
+  }
+
+  function shareSelected() {
+    const selectedRows = rows.filter((row) => selectedKeys.includes(row.key) && row.stock > 0);
+    if (!selectedRows.length) {
+      setShareNotice("Sélectionnez au moins un produit disponible en stock.");
+      return;
+    }
+    const digits = contactPhone.replace(/\D/g, "").replace(/^00/, "");
+    if (contactPhone.trim() && digits.length < 9) {
+      setShareNotice("Le numéro saisi semble incomplet. Vérifiez le numéro WhatsApp du client.");
+      return;
+    }
+    const lines = selectedRows.map((row) => {
+      const url = new URL(`/produits/${row.slug}${refSlug ? `?ref=${encodeURIComponent(refSlug)}` : ""}`, window.location.origin).toString();
+      const format = row.format && row.format !== "Format unique" ? ` (${row.format})` : "";
+      const price = row.salePrice ? ` — ${formatPrice(row.salePrice)}` : "";
+      return `• ${row.name}${format}${price}\n${url}`;
     });
-
-    message += `📞 *Pour commander ou réserver : envoyez-moi un message direct !* 🌸`;
-
-    navigator.clipboard?.writeText(message);
-    setCopiedAll(true);
-    setTimeout(() => setCopiedAll(false), 3000);
-  };
+    const message = `Bonjour ! Voici les produits disponibles que je vous propose :\n\n${lines.join("\n\n")}\n\nDites-moi si vous souhaitez passer commande. 🌸`;
+    const target = digits.length === 9 ? `221${digits}` : digits;
+    window.open(`https://wa.me/${target}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
+    setShareNotice("WhatsApp s’est ouvert avec les fiches d’achat. Vérifiez le message puis appuyez sur Envoyer.");
+  }
 
   // Exporter en CSV
   const exportCsv = () => {
@@ -211,23 +225,15 @@ export function HandbookView({ rows, refSlug, consultantName }: HandbookViewProp
               Dépôt officiel Dakar · Instant T
             </span>
             <h1 className="mt-2 font-serif-display text-2xl font-bold tracking-wide sm:text-3xl">
-              Le Handbook des disponibilités
+              Produits disponibles
             </h1>
             <p className="mt-1 text-sm text-white/80 max-w-xl">
-              Inventaire physique réel au dépôt de Dakar. Tout ce qui est affiché ici comme disponible peut être livré immédiatement à vos clients.
+              Choisissez un ou plusieurs produits en stock et envoyez à votre client un lien direct pour découvrir et commander chaque produit.
             </p>
           </div>
 
-          {/* Boutons d'action globale */}
+          {/* Actions d'export */}
           <div className="flex flex-wrap gap-2.5">
-            <button
-              type="button"
-              onClick={copyAllForWhatsApp}
-              className="inline-flex items-center gap-2 rounded-2xl bg-[#25D366] px-4 py-2.5 text-xs font-bold text-white shadow-lg shadow-[#25D366]/30 hover:bg-[#20ba59] transition"
-            >
-              {copiedAll ? <Check size={16} /> : <Share2 size={16} />}
-              {copiedAll ? "Handbook WhatsApp copié !" : "Copier le Handbook WhatsApp"}
-            </button>
             <button
               type="button"
               onClick={exportCsv}
@@ -274,6 +280,20 @@ export function HandbookView({ rows, refSlug, consultantName }: HandbookViewProp
           </div>
         </div>
       </div>
+
+      <section className="rounded-2xl border border-line bg-white p-4 shadow-sm">
+        <div className="flex flex-wrap items-center gap-2">
+          <button type="button" onClick={choosePhoneContact} className="inline-flex items-center gap-2 rounded-full border border-line px-4 py-2 text-sm font-semibold text-navy hover:bg-cream">
+            <Contact size={16} /> Choisir un contact du téléphone
+          </button>
+          <input type="tel" inputMode="tel" value={contactPhone} onChange={(event) => setContactPhone(event.target.value)} placeholder="Numéro WhatsApp du client" aria-label="Numéro WhatsApp du client" className="min-w-56 flex-1 rounded-full border border-line px-4 py-2 text-sm" />
+          <button type="button" onClick={shareSelected} disabled={!selectedKeys.length} className="inline-flex items-center gap-2 rounded-full bg-[#25D366] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">
+            <Send size={16} /> Envoyer {selectedKeys.length ? `${selectedKeys.length} produit${selectedKeys.length > 1 ? "s" : ""}` : "sur WhatsApp"}
+          </button>
+        </div>
+        <p className="mt-2 text-xs text-navy/60">Le sélecteur du téléphone dépend du navigateur. Si le bouton ne peut pas ouvrir vos contacts, saisissez le numéro. WhatsApp demandera de confirmer l’envoi.</p>
+        {shareNotice && <p role="status" className="mt-2 text-xs font-medium text-navy/80">{shareNotice}</p>}
+      </section>
 
       {/* ── BARRE DE RECHERCHE & FILTRES ──────────────────────────────── */}
       <div className="rounded-2xl border border-line bg-white p-4 shadow-sm space-y-3">
@@ -388,6 +408,7 @@ export function HandbookView({ rows, refSlug, consultantName }: HandbookViewProp
             const inStock = r.stock > 0;
             const isLow = inStock && r.stock <= 5;
             const productHref = `/produits/${r.slug}${refSlug ? `?ref=${refSlug}` : ""}`;
+            const isSelected = selectedKeys.includes(r.key);
 
             return (
               <div
@@ -396,6 +417,7 @@ export function HandbookView({ rows, refSlug, consultantName }: HandbookViewProp
               >
                 {/* Infos produit */}
                 <div className="flex items-start gap-3 min-w-0 flex-1">
+                  <input type="checkbox" aria-label={`Sélectionner ${r.name} ${r.format}`} checked={isSelected} disabled={!inStock} onChange={() => toggleSelected(r)} className="mt-2 h-4 w-4 shrink-0 accent-emerald-600 disabled:opacity-30" />
                   {/* Code Chogan badge */}
                   <div className="shrink-0 flex flex-col items-center justify-center rounded-xl bg-navy/5 border border-navy/10 px-2.5 py-1.5 min-w-[54px] text-center">
                     <span className="font-mono text-xs font-bold text-navy">

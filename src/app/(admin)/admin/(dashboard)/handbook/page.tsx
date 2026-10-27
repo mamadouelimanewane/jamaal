@@ -5,8 +5,8 @@ import { HandbookView } from "@/components/admin/HandbookView";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Le Handbook des stocks Dakar · Instant T",
-  description: "Liste officielle et en temps réel de tous les produits Chogan disponibles physiquement au dépôt de Dakar.",
+  title: "Produits disponibles à Dakar · Instant T",
+  description: "Choisissez les produits en stock et partagez leurs liens de commande avec vos clients.",
 };
 
 export default async function HandbookPage() {

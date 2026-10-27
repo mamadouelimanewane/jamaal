@@ -194,35 +194,34 @@ export function ShareStudio({
     setChannel(app);
   }
 
-  // Ouvre le sélecteur de contacts (API Contact Picker native mobile ou modal mes clients)
+  // Ouvre le carnet du téléphone lorsqu’il est pris en charge par le navigateur.
   async function handleContactPicker() {
-    // 1. Essayer le Contact Picker API natif si disponible (Android Chrome / Edge mobile)
-    if (
-      typeof navigator !== "undefined" &&
-      "contacts" in navigator &&
-      "ContactsManager" in window &&
-      "select" in (navigator as any).contacts
-    ) {
-      try {
-        const props = ["name", "tel"];
-        const selected = await (navigator as any).contacts.select(props, { multiple: false });
-        if (selected && selected.length > 0) {
-          const contact = selected[0];
-          const rawTel = contact.tel?.[0] || "";
-          const name = contact.name?.[0] || "";
-          if (rawTel) {
-            setPhone(rawTel);
-            if (name) setSelectedClientName(name);
-            setMsg(`Contact sélectionné : ${name || rawTel}`);
-            return;
-          }
-        }
-      } catch (e) {
-        // Annulé ou non supporté : ouvrir le modal interne
-      }
+    const contactsApi = (navigator as Navigator & {
+      contacts?: { select: (properties: string[], options: { multiple: boolean }) => Promise<{ name?: string[]; tel?: string[] }[]> };
+    }).contacts;
+    if (!contactsApi?.select) {
+      setMsg("Le carnet de contacts du téléphone n’est pas pris en charge par ce navigateur. Essayez sur Android avec Chrome ou saisissez le numéro WhatsApp.");
+      return;
     }
+    try {
+      const selected = await contactsApi.select(["name", "tel"], { multiple: false });
+      const contact = selected[0];
+      const rawTel = contact?.tel?.[0] || "";
+      const name = contact?.name?.[0] || "";
+      if (rawTel) {
+        setPhone(rawTel);
+        setSelectedClientName(name || null);
+        setMsg(`Contact du téléphone sélectionné : ${name || rawTel}. Appuyez sur « Envoyer à un contact WhatsApp » pour envoyer.`);
+      } else {
+        setMsg("Ce contact n’a pas de numéro de téléphone.");
+      }
+    } catch {
+      setMsg("Sélection annulée. Vous pouvez saisir le numéro WhatsApp du client.");
+    }
+  }
 
-    // 2. Ouvrir le modal interne avec les clients du revendeur
+  // Liste interne proposée séparément du carnet du téléphone.
+  async function openSavedClients() {
     setShowContactsModal(true);
     if (clientsList.length === 0) {
       setLoadingClients(true);
@@ -584,10 +583,17 @@ export function ShareStudio({
             type="button"
             onClick={handleContactPicker}
             className="inline-flex items-center gap-1.5 rounded-xl border border-navy/20 bg-cream/70 px-3.5 py-2 text-xs font-semibold text-navy hover:bg-cream hover:border-navy/40 transition shadow-xs cursor-pointer"
-            title="Choisir un contact depuis mon répertoire téléphonique ou mes clients"
+            title="Choisir un contact dans le répertoire de votre téléphone (Android Chrome compatible)"
           >
             <Contact size={15} className="text-rose-dark" />
             <span>Contacts</span>
+          </button>
+          <button
+            type="button"
+            onClick={openSavedClients}
+            className="rounded-xl border border-line px-3.5 py-2 text-xs font-semibold text-navy/75 hover:bg-cream transition"
+          >
+            Mes clients du site
           </button>
 
           {phone && (
