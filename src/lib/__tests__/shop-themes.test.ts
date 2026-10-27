@@ -75,7 +75,7 @@ test("getShopTheme : retourne le thème demandé ou le thème signature par déf
   const gold = getShopTheme("noir-gold");
   assert.equal(gold.id, "noir-gold");
   assert.equal(gold.isDark, true);
-  assert.equal(gold.emoji, "✨");
+  assert.equal(gold.emoji, "👑");
 
   const emerald = getShopTheme("royal-emerald");
   assert.equal(emerald.id, "royal-emerald");

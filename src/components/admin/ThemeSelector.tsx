@@ -1,7 +1,7 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
-import { Check, Sparkles, Palette, Eye, Moon, Sun } from "lucide-react";
+import { Check, Sparkles, Palette, Eye, Moon, Sun, ShoppingBag, Phone, Star, ShieldCheck, Truck } from "lucide-react";
 import { SHOP_THEMES, DEFAULT_THEME_ID, type ShopThemeId, getShopTheme } from "@/lib/shop/themes";
 
 interface ThemeSelectorProps {
@@ -28,29 +28,29 @@ export function ThemeSelector({ initialTheme, consultantName, avatarUrl }: Theme
     .join("");
 
   return (
-    <div className="space-y-5">
-      {/* Hidden input pour le form */}
+    <div className="space-y-6">
+      {/* Champ caché pour la soumission du formulaire */}
       <input type="hidden" name="theme" value={selectedId} />
 
       {/* En-tête */}
       <div className="flex items-start justify-between gap-3">
         <div>
           <label className="flex items-center gap-2 text-sm font-semibold text-navy">
-            <Palette size={15} className="text-rose-dark" />
-            Ambiance visuelle · Thème de ma boutique
+            <Palette size={16} className="text-rose-dark" />
+            Design E-commerce · Thème de ma boutique en ligne
           </label>
-          <p className="mt-0.5 text-xs text-navy/55">
-            Choisissez l&apos;identité esthétique qui reflète votre style et séduira vos clients.
+          <p className="mt-0.5 text-xs text-navy/60">
+            Choisissez l&apos;univers esthétique qui habillera votre site web personnel auprès de vos clients.
           </p>
         </div>
-        <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-amber-50 border border-amber-200 px-2.5 py-1 text-[11px] font-semibold text-amber-700">
-          <Sparkles size={11} />
-          {SHOP_THEMES.length} thèmes luxe
+        <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-amber-50 border border-amber-200 px-3 py-1 text-xs font-bold text-amber-800 shadow-xs">
+          <Sparkles size={12} />
+          {SHOP_THEMES.length} Thèmes Haute Parfumerie
         </span>
       </div>
 
-      {/* Grille des thèmes */}
-      <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
+      {/* Grille des thèmes disponibles */}
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {SHOP_THEMES.map((theme) => {
           const isSelected = theme.id === selectedId;
           return (
@@ -59,100 +59,137 @@ export function ThemeSelector({ initialTheme, consultantName, avatarUrl }: Theme
               type="button"
               onClick={() => setSelectedId(theme.id)}
               className={[
-                "group relative flex flex-col rounded-2xl text-left transition-all duration-200 overflow-hidden",
+                "group relative flex flex-col rounded-2xl text-left transition-all duration-300 overflow-hidden cursor-pointer",
                 isSelected
-                  ? "border-2 border-navy shadow-lg ring-2 ring-navy/10 scale-[1.02]"
-                  : "border border-line bg-white/80 hover:border-navy/40 hover:shadow-md hover:scale-[1.01]",
+                  ? "border-2 border-navy shadow-xl ring-2 ring-navy/15 scale-[1.02]"
+                  : "border border-line bg-white/90 hover:border-navy/40 hover:shadow-md hover:scale-[1.01]",
               ].join(" ")}
             >
-              {/* Bandeau de couleur (preview visuel) */}
+              {/* Bandeau d'ambiance avec swatches */}
               <div
-                className="h-14 w-full relative overflow-hidden"
-                style={{ background: `radial-gradient(ellipse at 30% 50%, ${theme.palette.glow}55 0%, ${theme.palette.background} 60%, ${theme.palette.surface} 100%)` }}
+                className="h-16 w-full relative overflow-hidden"
+                style={{
+                  background: `radial-gradient(ellipse at 30% 50%, ${theme.palette.glow}66 0%, ${theme.palette.background} 65%, ${theme.palette.surface} 100%)`,
+                }}
               >
-                {/* Swatches inline */}
                 <div className="absolute bottom-2 left-3 flex items-center gap-1.5">
                   <span
-                    className="h-5 w-5 rounded-full border-2 border-white/60 shadow-md"
+                    className="h-5 w-5 rounded-full border-2 border-white/70 shadow-sm"
                     style={{ background: theme.palette.background }}
                   />
                   <span
-                    className="h-5 w-5 rounded-full border-2 border-white/60 shadow-md"
+                    className="h-5 w-5 rounded-full border-2 border-white/70 shadow-sm"
                     style={{ background: theme.palette.accent }}
                   />
                   <span
-                    className="h-4 w-4 rounded-full border-2 border-white/60 shadow-md"
+                    className="h-4 w-4 rounded-full border-2 border-white/70 shadow-sm"
                     style={{ background: theme.palette.primary }}
                   />
                 </div>
-                {/* Emoji + mode */}
-                <div className="absolute top-2 right-2 flex items-center gap-1">
-                  <span className="text-base leading-none">{theme.emoji}</span>
+                <div className="absolute top-2 right-2.5 flex items-center gap-1.5 bg-black/30 backdrop-blur-xs px-2 py-0.5 rounded-full">
+                  <span className="text-sm">{theme.emoji}</span>
                   {theme.isDark ? (
-                    <Moon size={11} className="text-white/70" />
+                    <Moon size={11} className="text-amber-300" />
                   ) : (
-                    <Sun size={11} className="text-amber-600/70" />
+                    <Sun size={11} className="text-amber-400" />
                   )}
                 </div>
-                {/* Badge sélectionné */}
                 {isSelected && (
-                  <span className="absolute top-2 left-2 inline-flex items-center gap-0.5 rounded-full bg-navy px-1.5 py-0.5 text-[10px] font-bold text-white shadow">
-                    <Check size={9} /> Actif
+                  <span className="absolute top-2 left-2.5 inline-flex items-center gap-1 rounded-full bg-navy px-2 py-0.5 text-[10px] font-bold text-white shadow">
+                    <Check size={10} /> Actif
                   </span>
                 )}
               </div>
 
-              {/* Infos textuelles */}
-              <div className={`p-3 ${isSelected ? "bg-navy/3" : "bg-white"} flex-1`}>
-                <p className="font-serif-display text-[13px] font-semibold text-navy leading-tight">
-                  {theme.name}
-                </p>
-                <p className="mt-0.5 text-[10px] text-rose-dark font-medium line-clamp-1">
-                  {theme.tagline}
-                </p>
-                <p className="mt-1 text-[10px] text-navy/45 line-clamp-2 leading-snug">
-                  {theme.description}
-                </p>
+              {/* Description */}
+              <div className={`p-3.5 ${isSelected ? "bg-navy/4" : "bg-white"} flex-1 flex flex-col justify-between`}>
+                <div>
+                  <p className="font-serif-display text-sm font-bold text-navy leading-tight">
+                    {theme.name}
+                  </p>
+                  <p className="mt-0.5 text-[11px] font-medium text-rose-dark line-clamp-1">
+                    {theme.tagline}
+                  </p>
+                  <p className="mt-1 text-[11px] text-navy/55 line-clamp-2 leading-relaxed">
+                    {theme.description}
+                  </p>
+                </div>
               </div>
             </button>
           );
         })}
       </div>
 
-      {/* Preview live enrichi */}
-      <div className="rounded-2xl border border-line bg-cream/30 overflow-hidden shadow-sm">
-        {/* Header preview */}
-        <div className="flex items-center justify-between border-b border-line bg-white/60 px-4 py-2.5">
-          <span className="flex items-center gap-1.5 text-xs font-semibold text-navy">
-            <Eye size={13} className="text-rose-dark" />
-            Aperçu · {activeTheme.name}
-          </span>
-          <div className="flex items-center gap-1.5 text-[11px] text-navy/50">
-            {activeTheme.isDark ? (
-              <><Moon size={11} className="text-navy/40" /> Sombre raffiné</>
-            ) : (
-              <><Sun size={11} className="text-amber-500" /> Lumineux luxe</>
-            )}
+      {/* ── APERÇU GRAND FORMAT DU SITE WEB REVENDEUR ─────────────────────────── */}
+      <div className="rounded-3xl border border-line bg-white overflow-hidden shadow-xl">
+        {/* Barre supérieure du preview */}
+        <div className="flex items-center justify-between border-b border-line bg-slate-50/90 px-5 py-3">
+          <div className="flex items-center gap-2">
+            <span className="flex h-3 w-3 rounded-full bg-emerald-500" />
+            <span className="font-serif-display text-xs font-bold text-navy">
+              Aperçu en direct du Site Web · Thème : {activeTheme.name}
+            </span>
           </div>
+          <span className="text-[11px] font-semibold text-navy/60">
+            {activeTheme.isDark ? "🌙 Mode Nuit Prestigieux" : "☀️ Mode Lumineux Épuré"}
+          </span>
         </div>
 
-        {/* Simulation de la page boutique */}
+        {/* Simulation complète du site e-commerce */}
         <div
-          className="p-4 transition-all duration-300"
+          className="p-4 sm:p-6 transition-all duration-300 text-left"
           style={{
             background: activeTheme.isDark
-              ? `radial-gradient(ellipse at top, ${activeTheme.palette.glow}18 0%, ${activeTheme.palette.background} 60%)`
-              : `radial-gradient(ellipse at top, ${activeTheme.palette.glow}30 0%, ${activeTheme.palette.background} 50%, #ffffff 100%)`,
+              ? `radial-gradient(ellipse at top, ${activeTheme.palette.glow}25 0%, ${activeTheme.palette.background} 50%)`
+              : `radial-gradient(ellipse at top, ${activeTheme.palette.glow}35 0%, ${activeTheme.palette.background} 45%, #ffffff 90%)`,
           }}
         >
-          <div className="mx-auto max-w-xs space-y-3">
-            {/* Avatar + nom */}
-            <div className="text-center">
+          <div className="mx-auto max-w-xl space-y-4">
+
+            {/* 1. Simulation Top Bar */}
+            <div className="rounded-xl border border-white/20 bg-white/10 backdrop-blur-xs py-1.5 px-3 text-center text-[10px] uppercase tracking-wider font-bold" style={{ color: activeTheme.palette.primary }}>
+              ✦ Haute Parfumerie Chogan Italie · 30% d&apos;Essence Pure · Livraison Express Dakar
+            </div>
+
+            {/* 2. Simulation Header Web */}
+            <div
+              className="flex items-center justify-between p-3 rounded-2xl border shadow-sm backdrop-blur-md"
+              style={{
+                backgroundColor: activeTheme.isDark ? `${activeTheme.palette.surface}f0` : "rgba(255,255,255,0.92)",
+                borderColor: `${activeTheme.palette.accent}33`,
+              }}
+            >
+              <div className="flex items-center gap-2">
+                <span className="font-serif-display font-bold text-sm tracking-widest" style={{ color: activeTheme.palette.primary }}>
+                  JAMAAL
+                </span>
+                <span className="text-[10px] opacity-60" style={{ color: activeTheme.palette.primary }}>
+                  · Boutique de {consultantName || "Votre Nom"}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[9px] font-bold text-emerald-600">
+                  En Ligne
+                </span>
+                <span className="rounded-full p-1.5 text-xs text-white shadow-xs" style={{ background: "#25D366" }}>
+                  <Phone size={11} />
+                </span>
+              </div>
+            </div>
+
+            {/* 3. Simulation Hero Banner de Site Web */}
+            <div
+              className="p-5 rounded-3xl border shadow-md flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left"
+              style={{
+                backgroundColor: activeTheme.isDark ? `${activeTheme.palette.surface}d0` : "rgba(255,255,255,0.85)",
+                borderColor: `${activeTheme.palette.accent}40`,
+              }}
+            >
               <div
-                className="mx-auto h-14 w-14 overflow-hidden rounded-full shadow-xl"
+                className="h-20 w-20 shrink-0 overflow-hidden rounded-2xl shadow-xl relative"
                 style={{
                   border: `3px solid ${activeTheme.palette.accent}`,
-                  boxShadow: `0 0 0 4px ${activeTheme.palette.glow}22, 0 8px 24px rgba(0,0,0,0.25)`,
+                  boxShadow: `0 0 0 4px ${activeTheme.palette.glow}30`,
                 }}
               >
                 {avatarUrl ? (
@@ -160,108 +197,90 @@ export function ThemeSelector({ initialTheme, consultantName, avatarUrl }: Theme
                   <img src={avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
                 ) : (
                   <span
-                    className="flex h-full w-full items-center justify-center font-serif-display text-xl font-bold text-white"
+                    className="flex h-full w-full items-center justify-center font-serif-display text-2xl font-bold text-white"
                     style={{ backgroundColor: activeTheme.palette.primary }}
                   >
                     {initials || "JM"}
                   </span>
                 )}
               </div>
-              <p
-                className="mt-2 font-serif-display text-[13px] font-semibold tracking-wide"
-                style={{ color: activeTheme.palette.primary }}
-              >
-                {consultantName || "Votre Nom"}
-              </p>
-              <p className="text-[10px] mt-0.5" style={{ color: `${activeTheme.palette.primary}80` }}>
-                Conseiller·e JAMAAL · Dakar
-              </p>
-              {/* Tagline simulé */}
-              <p
-                className="mt-1 font-serif-display text-[10px] italic"
-                style={{ color: `${activeTheme.palette.accent}` }}
-              >
-                « {activeTheme.tagline} »
-              </p>
-            </div>
 
-            {/* Bouton WhatsApp simulé */}
-            <div
-              className="flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-xs font-semibold text-white shadow-md"
-              style={{ background: "linear-gradient(135deg, #25D366, #1aad54)" }}
-            >
-              <span>💬</span> Me contacter sur WhatsApp
-            </div>
-
-            {/* Raccourci simulé */}
-            <div
-              className="flex items-center justify-between rounded-xl px-3 py-2.5 text-xs font-semibold transition"
-              style={{
-                backgroundColor: activeTheme.isDark
-                  ? `${activeTheme.palette.surface}ee`
-                  : "rgba(255,255,255,0.85)",
-                border: `1px solid ${activeTheme.palette.accent}28`,
-                boxShadow: "0 2px 12px rgba(0,0,0,0.10)",
-              }}
-            >
-              <span style={{ color: activeTheme.palette.primary }}>✨ Trouver mon parfum en 1 min</span>
-              <span style={{ color: `${activeTheme.palette.accent}99` }}>→</span>
-            </div>
-
-            {/* Carte produit simulée */}
-            <div
-              className="flex items-center gap-2.5 rounded-xl overflow-hidden"
-              style={{
-                backgroundColor: activeTheme.isDark
-                  ? `${activeTheme.palette.surface}ee`
-                  : "rgba(255,255,255,0.88)",
-                border: `1px solid ${activeTheme.palette.accent}22`,
-                boxShadow: "0 2px 12px rgba(0,0,0,0.10)",
-              }}
-            >
-              <div
-                className="h-14 w-14 shrink-0 flex items-center justify-center text-xl"
-                style={{ backgroundColor: `${activeTheme.palette.accent}15` }}
-              >
-                🌹
-              </div>
-              <div className="flex-1 min-w-0 py-2 pr-2">
-                <p
-                  className="text-[11px] font-semibold line-clamp-1"
-                  style={{ color: activeTheme.palette.primary }}
-                >
-                  Extrait de Parfum N°024
+              <div className="flex-1 min-w-0">
+                <span className="inline-block rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider shadow-xs mb-1" style={{ backgroundColor: `${activeTheme.palette.accent}20`, color: activeTheme.palette.accent }}>
+                  Conseiller·e Agréé·e · Dakar
+                </span>
+                <h4 className="font-serif-display text-lg font-bold" style={{ color: activeTheme.palette.primary }}>
+                  {consultantName || "Votre Nom"}
+                </h4>
+                <p className="font-serif-display text-xs italic mt-0.5" style={{ color: activeTheme.palette.accent }}>
+                  « {activeTheme.tagline} »
                 </p>
-                <p
-                  className="text-[10px] italic line-clamp-1"
-                  style={{ color: `${activeTheme.palette.accent}` }}
-                >
-                  Inspiré de Black Opium · YSL
-                </p>
-                <div className="mt-1 flex items-center justify-between">
-                  <span
-                    className="text-[10px] font-bold"
-                    style={{ color: activeTheme.palette.accent }}
-                  >
-                    14 800 FCFA
+                <div className="mt-2.5 flex flex-wrap gap-2 justify-center sm:justify-start">
+                  <span className="rounded-xl px-2.5 py-1 text-[10px] font-bold text-white shadow-sm flex items-center gap-1" style={{ background: "#25D366" }}>
+                    <span>💬</span> WhatsApp Direct
                   </span>
-                  <span
-                    className="rounded-full px-2 py-0.5 text-[9px] font-bold text-white shadow"
-                    style={{ background: `linear-gradient(135deg, ${activeTheme.palette.accent}, ${activeTheme.palette.glow})` }}
-                  >
-                    Commander
+                  <span className="rounded-xl px-2.5 py-1 text-[10px] font-semibold border shadow-xs" style={{ borderColor: `${activeTheme.palette.accent}55`, color: activeTheme.palette.primary }}>
+                    🔍 Explorer les parfums
                   </span>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        {/* Footer du preview */}
-        <div className="border-t border-line bg-white/50 px-4 py-2 text-center">
-          <p className="text-[10px] text-navy/40 italic">
-            {activeTheme.mood}
-          </p>
+            {/* 4. Simulation Grille E-commerce 2 Cartes Produits */}
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { name: "Baccarat Rouge 540", brand: "Extrait Privé N°118", price: "42 600 FCFA" },
+                { name: "Black Opium", brand: "Extrait Femme N°055", price: "14 800 FCFA" },
+              ].map((item, idx) => (
+                <div
+                  key={idx}
+                  className="rounded-2xl p-3 border shadow-sm flex flex-col justify-between"
+                  style={{
+                    backgroundColor: activeTheme.isDark ? `${activeTheme.palette.surface}f0` : "rgba(255,255,255,0.95)",
+                    borderColor: `${activeTheme.palette.accent}25`,
+                  }}
+                >
+                  <div className="h-20 rounded-xl bg-neutral-200/30 flex items-center justify-center text-2xl mb-2 relative overflow-hidden">
+                    <span className="text-2xl">✨</span>
+                    <span className="absolute top-1 left-1 rounded-full bg-black/60 px-1.5 py-0.5 text-[8px] font-bold text-amber-300">
+                      30% Pur
+                    </span>
+                  </div>
+                  <div>
+                    <p className="font-serif-display text-xs font-bold line-clamp-1" style={{ color: activeTheme.palette.primary }}>
+                      {item.name}
+                    </p>
+                    <p className="text-[10px] italic line-clamp-1" style={{ color: activeTheme.palette.accent }}>
+                      {item.brand}
+                    </p>
+                    <div className="mt-2 flex items-center justify-between">
+                      <span className="font-mono text-xs font-bold" style={{ color: activeTheme.palette.accent }}>
+                        {item.price}
+                      </span>
+                      <span className="rounded-lg px-2 py-0.5 text-[9px] font-bold text-white shadow-xs" style={{ backgroundColor: activeTheme.palette.primary }}>
+                        Commander
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* 5. Simulation Réassurance */}
+            <div
+              className="p-3 rounded-2xl border text-center flex items-center justify-around text-[10px] font-medium"
+              style={{
+                backgroundColor: activeTheme.isDark ? `${activeTheme.palette.surface}a0` : "rgba(255,255,255,0.8)",
+                borderColor: `${activeTheme.palette.accent}20`,
+                color: activeTheme.palette.primary,
+              }}
+            >
+              <span className="flex items-center gap-1">🛡️ Produits Certifiés</span>
+              <span className="flex items-center gap-1">🚚 Livraison Dakar 24h</span>
+              <span className="flex items-center gap-1">💳 Wave &amp; OM</span>
+            </div>
+
+          </div>
         </div>
       </div>
     </div>
