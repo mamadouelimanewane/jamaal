@@ -1,5 +1,5 @@
 /**
- * Envoi d'argent vers le wallet d'un membre (versement de commissions).
+ * Envoi de retraits depuis le wallet JAMAAL d'un membre vers Wave / Orange Money.
  *
  * - Wave : API « Payout » de Wave Business. Clé WAVE_PAYOUT_API_KEY, ou à défaut la clé de paiement
  *   WAVE_API_KEY si l'accès « Payout » y a été coché dans Wave Business > Développeurs.
@@ -7,7 +7,7 @@
  *   CinetPay, InTouch…). Connecteur générique : ORANGE_PAYOUT_URL + ORANGE_PAYOUT_TOKEN, à
  *   adapter au format de l'agrégateur retenu.
  *
- * Sans configuration, rien n'est envoyé : les commissions restent en attente jusqu'à ce que l'accès soit configuré.
+ * Sans configuration, les commissions restent créditées dans le wallet JAMAAL ; seul le retrait externe attend.
  * Fichier serveur uniquement (jamais importé côté navigateur).
  */
 

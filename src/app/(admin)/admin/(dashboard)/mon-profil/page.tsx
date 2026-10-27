@@ -33,7 +33,7 @@ export default async function MonProfilPage() {
 
       <div id="wallet" className="mt-6 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <h2 className="font-serif-display text-lg font-semibold text-navy">Mon wallet de commissions</h2>
-        <p className="mt-1 text-sm text-navy/75">Vos commissions vous sont versées automatiquement sur ce compte Wave ou Orange Money. Il n&apos;est visible que par vous et l&apos;équipe JAMAAL.</p>
+        <p className="mt-1 text-sm text-navy/75">Ce compte reçoit vos retraits depuis le wallet JAMAAL. Il n&apos;est visible que par vous et l&apos;équipe JAMAAL.</p>
         <div className="mt-4"><WalletForm provider={me.walletProvider ?? null} number={me.walletNumber ?? null} holder={me.walletHolderName ?? null} /></div>
       </div>
 

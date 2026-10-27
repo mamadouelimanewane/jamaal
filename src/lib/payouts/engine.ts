@@ -1,25 +1,21 @@
 /**
- * Commissions par commande et versements automatiques sur wallet (Wave / Orange Money).
+ * Commissions par commande et crédits instantanés dans le wallet JAMAAL.
  *
  * 1. recordCommissionsForOrder : quand une commande ouvre droit à commission, on enregistre
  *    une ligne par bénéficiaire (vendeur, parrain direct, grand-parrain) avec les taux du
  *    modèle économique en vigueur. Idempotent (clé unique commande + membre + niveau).
- * 2. processPayouts : pour chaque membre ayant un wallet, on regroupe ses commissions
- *    « à verser » dans un versement et on l'envoie. Réussi → commissions « versées » et
- *    versement inscrit dans l'historique (CommissionPayment). Échec → les commissions
- *    restent à verser et pourront être renvoyées.
+ * 2. creditCommissionEntries : ajoute chaque commission au solde interne, de façon idempotente.
  *
  * Fichier serveur uniquement : jamais exposé comme action appelable depuis le navigateur.
  */
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getBusinessModel } from "@/lib/business-model-store";
-import { commissionRatesFor, payoutChannels, type BusinessModel } from "@/lib/business-model";
+import { commissionRatesFor, type BusinessModel } from "@/lib/business-model";
 import { effectiveTitle } from "@/lib/network";
 import { commissionBase } from "@/lib/commission";
-import { reverseWalletCreditsForOrder } from "@/lib/wallet";
+import { creditCommissionEntries, reverseWalletCreditsForOrder } from "@/lib/wallet";
 import { withSpecialRates } from "@/lib/special-terms";
-import { isWalletProvider, payoutProvidersConfig, refreshWave, sendPayout, WALLET_LABELS, type PayoutResult } from "./providers";
 
 export type Level = "VENTE" | "NIVEAU_1" | "NIVEAU_2";
 
@@ -97,82 +93,13 @@ export async function cancelCommissionsForOrder(orderId: string) {
   await reverseWalletCreditsForOrder(orderId);
 }
 
-async function settle(payoutId: string, consultantId: string, amount: number, provider: string, result: PayoutResult) {
-  if (result.status === "VERSE") {
-    await prisma.$transaction([
-      prisma.payout.update({ where: { id: payoutId }, data: { status: "VERSE", providerRef: result.providerRef ?? null, error: null } }),
-      prisma.commissionEntry.updateMany({ where: { payoutId }, data: { status: "VERSE" } }),
-      prisma.commissionPayment.create({
-        data: { consultantId, amount, periodLabel: `Versement ${WALLET_LABELS[provider as "WAVE"] ?? provider}`, note: result.providerRef ? `Réf. ${result.providerRef}` : "Versement automatique" },
-      }),
-    ]);
-  } else if (result.status === "ECHEC" || result.status === "BLOQUE") {
-    // Les commissions redeviennent disponibles pour un prochain versement.
-    await prisma.$transaction([
-      prisma.payout.update({ where: { id: payoutId }, data: { status: "ECHEC", providerRef: result.providerRef ?? null, error: result.error?.slice(0, 500) ?? null } }),
-      prisma.commissionEntry.updateMany({ where: { payoutId }, data: { payoutId: null } }),
-    ]);
-  } else {
-    await prisma.payout.update({ where: { id: payoutId }, data: { status: "EN_COURS", providerRef: result.providerRef ?? null } });
-  }
-}
-
-/**
- * Verse les commissions « à verser » des membres indiqués (ou de tous). Ne fait rien pour un
- * membre sans wallet, si le prestataire n'est pas configuré, ou sous le montant minimal.
- */
-export async function processPayouts(consultantIds?: string[], model?: BusinessModel) {
-  const m = model ?? (await getBusinessModel());
-  const config = payoutProvidersConfig();
-  const channels = payoutChannels(m);
-
-  const pending = await prisma.commissionEntry.groupBy({
-    by: ["consultantId"],
-    where: { status: "A_VERSER", payoutId: null, ...(consultantIds ? { consultantId: { in: consultantIds } } : {}) },
-    _sum: { amount: true },
-  });
-
-  let sent = 0;
-  let skipped = 0;
-  for (const p of pending) {
-    const amount = p._sum.amount ?? 0;
-    const member = await prisma.consultant.findUnique({ where: { id: p.consultantId }, select: { id: true, name: true, walletProvider: true, walletNumber: true, walletHolderName: true } });
-    if (!member || !isWalletProvider(member.walletProvider) || !channels.includes(member.walletProvider) || !member.walletNumber || !config[member.walletProvider] || amount <= 0) {
-      skipped += 1;
-      continue;
-    }
-
-    // Réserve les commissions pour ce versement (un appel concurrent ne pourra pas les reprendre).
-    const payout = await prisma.payout.create({
-      data: { consultantId: member.id, amount: 0, provider: member.walletProvider, walletNumber: member.walletNumber },
-    });
-    const claimed = await prisma.commissionEntry.updateMany({
-      where: { consultantId: member.id, status: "A_VERSER", payoutId: null },
-      data: { payoutId: payout.id },
-    });
-    const total = (await prisma.commissionEntry.aggregate({ where: { payoutId: payout.id }, _sum: { amount: true } }))._sum.amount ?? 0;
-    if (!claimed.count || total <= 0) {
-      await prisma.payout.delete({ where: { id: payout.id } });
-      continue;
-    }
-    await prisma.payout.update({ where: { id: payout.id }, data: { amount: total } });
-
-    const result = await sendPayout(member.walletProvider, { reference: payout.id, amount: total, mobile: member.walletNumber, name: member.walletHolderName || member.name });
-    await settle(payout.id, member.id, total, member.walletProvider, result);
-    if (result.status === "VERSE" || result.status === "EN_COURS") sent += 1;
-  }
-
-  refreshPages();
-  return { sent, skipped };
-}
-
-/** Enregistre puis verse les commissions d'une commande. Ne lève jamais d'erreur. */
+/** Enregistre puis crédite immédiatement les commissions dans les wallets JAMAAL. Ne lève jamais d'erreur. */
 export async function runPayoutsForOrder(orderId: string) {
   try {
     const model = await getBusinessModel();
     const members = await recordCommissionsForOrder(orderId, model);
-    // Virement direct Wave / Orange Money à chaque acteur, sans étape de validation ou de retrait du wallet JAMAAL.
-    if (members.length) await processPayouts(members, model);
+    // Le solde interne est crédité automatiquement ; le membre choisit ensuite le montant à retirer.
+    if (members.length) await creditCommissionEntries({ orderId });
     refreshPages();
   } catch (error) {
     console.error("[payouts] commande", orderId, error);
@@ -180,8 +107,7 @@ export async function runPayoutsForOrder(orderId: string) {
 }
 
 /**
- * Filet de sécurité (tâche quotidienne) : une commande payée ou livrée dont les commissions n'ont pas été
- * enregistrées (erreur passagère), et les gains restés « à verser », sont répartis sur les wallets.
+ * Filet de sécurité (tâche quotidienne) : rattrape les commissions pas encore enregistrées ou créditées.
  * Idempotent : ne crédite jamais deux fois. Retourne ce qui a été rattrapé.
  */
 export async function sweepMissedCommissions(now: Date = new Date(), max = 60) {
@@ -202,18 +128,6 @@ export async function sweepMissedCommissions(now: Date = new Date(), max = 60) {
   const done = new Set((await prisma.commissionEntry.findMany({ where: { orderId: { in: payable.map((o) => o.id) } }, select: { orderId: true } })).map((e) => e.orderId));
   const missed = payable.filter((o) => !done.has(o.id)).slice(0, max);
   for (const o of missed) await runPayoutsForOrder(o.id);
-  // Wave confirme parfois le virement après la réponse initiale : relire ces états sans action humaine.
-  const inProgress = await prisma.payout.findMany({ where: { status: "EN_COURS", provider: "WAVE" }, select: { id: true }, orderBy: { updatedAt: "asc" }, take: 30 });
-  for (const payout of inProgress) await refreshPayout(payout.id);
-  // Les échecs et les commissions restées en attente sont retentés automatiquement.
-  const virements = await processPayouts(undefined, model);
-  return { commandesRattrapees: missed.length, virementsAutomatiques: virements };
-}
-
-/** Relit l'état d'un versement en cours (Wave). */
-export async function refreshPayout(payoutId: string) {
-  const payout = await prisma.payout.findUnique({ where: { id: payoutId } });
-  if (!payout || payout.status !== "EN_COURS" || !payout.providerRef || payout.provider !== "WAVE" || !payoutProvidersConfig().WAVE) return;
-  const result = await refreshWave(payout.providerRef);
-  if (result.status !== "EN_COURS") await settle(payout.id, payout.consultantId, payout.amount, payout.provider, result);
+  const gainsCredites = await creditCommissionEntries();
+  return { commandesRattrapees: missed.length, gainsCredites };
 }

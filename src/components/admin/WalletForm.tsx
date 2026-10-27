@@ -6,7 +6,7 @@ import { updateOwnWallet, type WalletState } from "@/lib/actions/reseller-profil
 const initial: WalletState = { ok: false };
 const field = "mt-1.5 w-full rounded-xl border border-line bg-white px-4 py-2.5 text-[15px] outline-none focus:border-navy focus:ring-4 focus:ring-navy/10";
 
-/** Wallet de réception des commissions (Wave ou Orange Money). */
+/** Compte Wave ou Orange Money qui reçoit les retraits du wallet JAMAAL. */
 export function WalletForm({ provider, number, holder, channels = ["WAVE", "ORANGE_MONEY"] }: { provider: string | null; number: string | null; holder?: string | null; channels?: ("WAVE" | "ORANGE_MONEY")[] }) {
   const [state, action, pending] = useActionState(updateOwnWallet, initial);
   return (

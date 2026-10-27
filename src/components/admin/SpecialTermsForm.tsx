@@ -53,7 +53,7 @@ export function SpecialTermsForm({ initial, consultants, normalRates }: { initia
 
       <section className="rounded-2xl border border-line bg-white p-5">
         <h2 className="font-semibold text-navy">1. Encaissement direct du client</h2>
-        <p className="mt-1 text-sm text-navy/70">Le revendeur peut enregistrer une vente déjà payée par son client. Les commissions partent automatiquement vers les comptes Wave ou Orange Money des bénéficiaires, et le montant de la vente passe au débit de son wallet : c&apos;est l&apos;argent qu&apos;il doit reverser à JAMAAL.</p>
+        <p className="mt-1 text-sm text-navy/70">Le revendeur peut enregistrer une vente déjà payée par son client. Les commissions sont créditées dans les wallets JAMAAL des bénéficiaires, et le montant de la vente passe au débit du wallet du revendeur : c&apos;est l&apos;argent qu&apos;il doit reverser à JAMAAL.</p>
         <div className="mt-3 flex flex-wrap gap-4">
           {COLLECT_METHODS.map((m) => (
             <label key={m} className="flex items-center gap-2 text-sm text-navy"><input type="checkbox" name="collect" value={m} defaultChecked={initial.collectMethods.includes(m)} className="h-4 w-4" /> {COLLECT_LABELS[m]}</label>

@@ -75,7 +75,7 @@ export async function saveBusinessModelAction(_prev: BusinessModelState, formDat
   input.acceptOrangeMoney = formData.get("acceptOrangeMoney") === "on";
   input.acceptCard = formData.get("acceptCard") === "on";
   input.acceptCashOnDelivery = formData.get("acceptCashOnDelivery") === "on";
-  // Conservé pour compatibilité historique ; les commissions sont toujours envoyées automatiquement.
+  // Conservé pour compatibilité historique ; les retraits du wallet peuvent être envoyés automatiquement.
   input.payoutsEnabled = true;
   input.payoutTrigger = formData.get("payoutTrigger") === "DELIVERED" ? "DELIVERED" : "PAID";
   input.payoutWave = formData.get("payoutWave") === "on";

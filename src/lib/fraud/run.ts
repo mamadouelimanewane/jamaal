@@ -122,13 +122,10 @@ export async function resolveFlag(flagId: string, decision: "VALIDE" | "FRAUDE",
     const openOrders = (await prisma.fraudFlag.findMany({ where: { status: "OUVERT", orderId: { not: null } }, select: { orderId: true } })).map((f) => f.orderId!);
     where = { status: "EN_REVUE", consultantId: flag.consultantId, orderId: { notIn: openOrders } };
   }
-  const released = decision === "VALIDE"
-    ? await prisma.commissionEntry.findMany({ where, select: { consultantId: true } })
-    : [];
   const r = await prisma.commissionEntry.updateMany({ where, data: { status: decision === "VALIDE" ? "A_VERSER" : "ANNULE" } });
   if (decision === "VALIDE" && r.count) {
-    const { processPayouts } = await import("@/lib/payouts/engine");
-    await processPayouts([...new Set(released.map((entry) => entry.consultantId))]);
+    const { creditCommissionEntries } = await import("@/lib/wallet");
+    await creditCommissionEntries({ ...where, status: "A_VERSER" });
   }
   return { ok: true, count: r.count };
 }

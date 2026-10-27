@@ -40,7 +40,7 @@ export async function updateOwnProfile(_prev: ProfileState, formData: FormData):
 
 export type WalletState = { ok: boolean; error?: string };
 
-/** Le membre choisit le wallet (Wave ou Orange Money) sur lequel recevoir ses commissions. */
+/** Le membre choisit le compte (Wave ou Orange Money) qui recevra ses retraits du wallet JAMAAL. */
 export async function updateOwnWallet(_prev: WalletState, formData: FormData): Promise<WalletState> {
   const me = await getReseller();
   if (!me) return { ok: false, error: "Session invalide." };

@@ -33,7 +33,7 @@ export async function WalletPanel({ owner, viewAs, depot, historyLimit = 100 }: 
         <p className="rounded-xl bg-cream px-4 py-3 text-sm text-navy/80">Mode consultation : seul le membre peut retirer ou recharger son wallet.</p>
       ) : (
         <>
-          <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">Les commissions sont envoyées directement sur votre compte Wave ou Orange Money ci-dessous. Le solde affiché ici est un wallet interne séparé.</p>
+          <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">Vos commissions et primes sont créditées automatiquement dans ce wallet JAMAAL. Vous pouvez retirer tout ou partie du solde vers votre compte Wave ou Orange Money.</p>
           <WalletActions balance={bal.balance} min={min} account={account} depositNumbers={numbers} onlineDeposit={{ WAVE: online.includes("wave"), ORANGE_MONEY: online.includes("orange_money") }} />
         </>
       )}
@@ -41,7 +41,7 @@ export async function WalletPanel({ owner, viewAs, depot, historyLimit = 100 }: 
       <section aria-labelledby="historique" className="rounded-2xl border border-line bg-white">
         <h2 id="historique" className="border-b border-line px-4 py-3 font-semibold text-navy sm:px-6">Mouvements du wallet</h2>
         {history.length === 0 ? (
-          <p className="px-4 py-8 text-center text-sm text-navy/70 sm:px-6">Aucun mouvement du wallet interne. Les commissions de vente sont versées directement sur le compte Wave ou Orange Money enregistré.</p>
+          <p className="px-4 py-8 text-center text-sm text-navy/70 sm:px-6">Aucun mouvement pour l&apos;instant. Les commissions et primes apparaîtront ici dès qu&apos;elles seront créditées dans votre wallet JAMAAL.</p>
         ) : (
           <ul className="divide-y divide-line">
             {history.map((t) => (
@@ -62,7 +62,7 @@ export async function WalletPanel({ owner, viewAs, depot, historyLimit = 100 }: 
 
       <section id="compte" aria-labelledby="compte-titre" className="scroll-mt-24 rounded-2xl border border-line bg-white p-4 sm:p-6">
         <h2 id="compte-titre" className="font-semibold text-navy">Mon compte {channels.map((c) => WALLET_LABELS[c]).join(" / ")}</h2>
-        <p className="mt-1 text-sm text-navy/75">Vos commissions y sont envoyées automatiquement après le déclenchement prévu. Vérifiez que ce compte est exact et à votre nom.</p>
+        <p className="mt-1 text-sm text-navy/75">Les retraits de votre wallet seront envoyés sur ce compte. Vérifiez qu&apos;il est exact et à votre nom.</p>
         <div className="mt-4">
           {owner.type === "CONSULTANT" ? (
             <WalletForm provider={acct?.walletProvider ?? null} number={acct?.walletNumber ?? null} holder={(acct as { walletHolderName?: string | null } | null)?.walletHolderName ?? null} channels={channels} />

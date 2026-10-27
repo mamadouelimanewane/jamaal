@@ -575,10 +575,10 @@ export function BusinessModelEditor({
             </fieldset>
             <div className="flex flex-col gap-4">
               <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-3 text-sm text-emerald-900">
-                Chaque commission est envoyée automatiquement au wallet Wave ou Orange Money du vendeur et de ses parrains, sans seuil ni demande de retrait. Configurez les accès de versement dans Vercel.
+                Chaque commission est créditée automatiquement dans le wallet JAMAAL du vendeur et de ses parrains. Le membre peut ensuite demander un retrait vers Wave ou Orange Money.
               </p>
               <label className="block text-sm font-medium text-ink">
-                Déclenchement du versement automatique
+                Moment du crédit de la commission dans le wallet
                 <select name="payoutTrigger" value={model.payoutTrigger} onChange={(e) => setModel((m) => ({ ...m, payoutTrigger: e.target.value === "DELIVERED" ? "DELIVERED" : "PAID" }))} className={input}>
                   <option value="PAID">Dès que le client a payé</option>
                   <option value="DELIVERED">À la livraison de la commande</option>
@@ -586,8 +586,8 @@ export function BusinessModelEditor({
                 <span className="mt-1.5 block text-xs font-normal text-navy/75">À la livraison, une commande retournée avant livraison ne coûte aucune commission.</span>
               </label>
               <fieldset className="rounded-xl border border-line p-3.5">
-                <legend className="px-1 text-sm font-medium text-ink">Wallets de versement des commissions</legend>
-                <p className="text-xs text-navy/75">Chaque acteur reçoit directement sa part sur le compte indiqué dans son profil. Les virements utilisent les clés Wave / Orange Money configurées par JAMAAL.</p>
+                <legend className="px-1 text-sm font-medium text-ink">Moyens de retrait du wallet</legend>
+                <p className="text-xs text-navy/75">Les membres peuvent retirer leur solde vers le compte Wave ou Orange Money indiqué dans leur profil. Les retraits automatiques nécessitent les accès de versement JAMAAL configurés dans Vercel.</p>
                 <div className="mt-2.5 flex flex-wrap gap-2">
                   {([
                     ["payoutWave", "Wave"],
@@ -600,7 +600,7 @@ export function BusinessModelEditor({
                   ))}
                 </div>
               </fieldset>
-              <NumberField label="Retrait minimal du wallet interne" name="minPayout" value={model.minPayout} onChange={set} suffix="F" step="100" hint="Ne concerne pas les commissions : elles sont versées directement, sans seuil." />
+              <NumberField label="Retrait minimal du wallet" name="minPayout" value={model.minPayout} onChange={set} suffix="F" step="100" hint="Les commissions sont créditées dans le wallet sans seuil ; ce minimum s'applique seulement aux retraits." />
             </div>
           </div>
         </section>

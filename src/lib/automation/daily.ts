@@ -31,7 +31,7 @@ export async function runDailyJobs(origin: string, opts: { budgetMs?: number; no
       report[name] = { erreur: e instanceof Error ? e.message : String(e) };
     }
   };
-  // Commissions et parts de livraison : rattrape tout ce qui n'aurait pas été réparti sur les wallets.
+  // Commissions et parts de livraison : rattrape tout ce qui n'aurait pas été crédité dans les wallets JAMAAL.
   // Contrôle anti-fraude des membres d'abord : un membre signalé voit ses nouvelles commissions mises en vérification.
   await step("fraude", () => scanMembers(now));
   await step("commissions", async () => ({ ...(await sweepMissedCommissions(now)), livraisonsCreditees: await creditLivreurEarnings() }));

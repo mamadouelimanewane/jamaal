@@ -41,21 +41,21 @@ export default async function WalletsAdminPage() {
       <div>
         <h1 className="font-serif-display text-2xl font-semibold text-navy">Wallets des membres</h1>
         <p className="mt-1 text-sm text-navy/75">
-          Les commissions des ventes sont envoyées directement sur les comptes Wave / Orange Money des bénéficiaires. Ce module gère séparément les soldes des wallets internes, les dépôts et les retraits.
+          Les commissions et primes sont créditées dans le wallet JAMAAL de chaque bénéficiaire. Les membres peuvent ensuite retirer leur solde vers Wave ou Orange Money.
         </p>
       </div>
 
       <section className={`rounded-2xl border px-4 py-3 text-sm sm:px-5 ${autoOn ? "border-emerald-200 bg-emerald-50 text-emerald-950" : "border-amber-200 bg-amber-50 text-amber-950"}`}>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p className="font-semibold">{autoOn ? "Versements automatiques configurés pour les wallets internes." : "Les retraits du wallet interne peuvent nécessiter un versement manuel."}</p>
+            <p className="font-semibold">{autoOn ? "Les payouts des retraits sont configurés automatiquement." : "Les retraits peuvent nécessiter un versement manuel si le prestataire n'est pas configuré."}</p>
             <ul className="mt-1 space-y-0.5 text-xs">
               <li>Wave : {!model.payoutWave ? "retraits non proposés (Modèle économique)" : cfg.WAVE ? `envoi automatique depuis le compte Wave Business, clé …${wavePayoutKeyTail()}${wavePayoutKeySource() === "paiement" ? " (clé des paiements : elle doit avoir « Payout API » dans Wave Business › Développeurs)" : " (clé de versement dédiée)"}` : "pas de clé : versement à la main"}</li>
               {cfg.WAVE && <li>Solde Wave Business : {waveBalance == null ? "illisible (la clé n'a pas « Balance API »)" : <strong>{formatPrice(waveBalance)}</strong>}{waveBalance != null && waveBalance < pendingTotal ? " : insuffisant pour les retraits en attente, rechargez le compte" : ""}</li>}
               <li>Orange Money : {!model.payoutOrangeMoney ? "retraits non proposés (Modèle économique)" : cfg.ORANGE_MONEY ? "envoi automatique (agrégateur)" : "pas de connecteur de transfert : versement à la main"}</li>
               {!model.payoutsEnabled && <li>Les versements automatiques sont coupés dans Admin › Modèle économique.</li>}
             </ul>
-            <p className="mt-1 text-xs opacity-80">Ces mouvements concernent uniquement le solde du wallet interne. Les commissions de vente sont transférées automatiquement par le module « Versements automatiques des commissions ».</p>
+            <p className="mt-1 text-xs opacity-80">Les commissions et primes sont créditées automatiquement dans le wallet JAMAAL. Un retrait vers Wave ou Orange Money est ensuite envoyé automatiquement si le prestataire est configuré.</p>
           </div>
           {autoOn && <RowAction label="Relancer les retraits en attente" run={retryAllWithdrawalsAction} />}
         </div>
