@@ -22,8 +22,23 @@ export default async function TrackingPage({
     <div className="mx-auto max-w-xl px-4 py-12 sm:px-6">
       <h1 className="font-serif-display text-2xl font-semibold text-navy">Suivi de votre commande</h1>
       <p className="mt-1 text-sm text-navy/60">
-        Commande passée le {order.createdAt.toLocaleDateString("fr-FR")}
+        Commande {order.id.slice(-8).toUpperCase()} · passée le {order.createdAt.toLocaleDateString("fr-FR")}
       </p>
+
+      <section className="mt-6 grid gap-3 sm:grid-cols-2">
+        <div className="rounded-2xl border border-line bg-white p-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-navy/55">Paiement</p>
+          <p className={`mt-2 text-sm font-semibold ${order.paymentStatus === "PAYE" ? "text-emerald-700" : order.paymentStatus === "ECHOUE" ? "text-red-700" : "text-amber-800"}`}>
+            {order.paymentStatus === "PAYE" ? "Paiement confirmé" : order.paymentStatus === "ECHOUE" ? "Paiement non confirmé" : order.paymentMethod === "A_LA_LIVRAISON" ? "À régler à la livraison" : "En attente de confirmation"}
+          </p>
+          <p className="mt-1 text-xs text-navy/60">{order.paymentMethod === "A_LA_LIVRAISON" ? "Vous paierez au moment de recevoir la commande." : `Mode : ${order.paymentMethod === "ORANGE_MONEY" ? "Orange Money" : order.paymentMethod === "WAVE" ? "Wave" : order.paymentMethod === "WALLET" ? "Wallet" : "Paiement en ligne"}`}</p>
+        </div>
+        <div className="rounded-2xl border border-line bg-white p-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-navy/55">Remise</p>
+          <p className="mt-2 text-sm font-semibold text-navy">{order.deliveryMode === "LIVRAISON_JAMAAL" ? "Livraison JAMAAL" : "Retrait auprès du revendeur"}</p>
+          <p className="mt-1 text-xs text-navy/60">{order.deliveryMode === "LIVRAISON_JAMAAL" ? "Les étapes de livraison apparaîtront ci-dessous." : order.consultant ? `Votre revendeur : ${order.consultant.name}.` : "Votre revendeur vous informera du retrait."}</p>
+        </div>
+      </section>
 
       {order.deliveryMode === "LIVRAISON_JAMAAL" && order.deliveryStatus ? (
         <>

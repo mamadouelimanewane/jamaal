@@ -10,7 +10,7 @@ import { VoiceRecorder } from "@/components/gift/VoiceRecorder";
 import { OCCASIONS } from "@/lib/gift/gift";
 import { createOrder } from "@/lib/actions/orders";
 import { locateFromText } from "@/lib/actions/delivery-quote";
-import { getCartPrices, previewCartDiscounts, saveCartDraft, type CartDiscounts } from "@/lib/actions/cart";
+import { getCartPrices, previewCartDiscounts, recoverCartDraft, saveCartDraft, type CartDiscounts } from "@/lib/actions/cart";
 import { DeliveryChooser, type DeliveryChoice } from "@/components/DeliveryChooser";
 import { getActiveConsultantsForCheckout, getCheckoutPrefill } from "@/lib/actions/public-data";
 import { forgetCheckoutMemory, loadCheckoutMemory, saveCheckoutMemory } from "@/lib/checkout-memory";
@@ -35,7 +35,7 @@ function readRefCookie(): string | null {
 
 export default function CartPage() {
   const router = useRouter();
-  const { items, removeItem, updateQuantity, total, clear, syncPrices } = useCartStore();
+  const { items, removeItem, updateQuantity, total, clear, syncPrices, replaceItems } = useCartStore();
   const [pricesUpdated, setPricesUpdated] = useState(false);
   const [delivery, setDelivery] = useState<DeliveryChoice>({ mode: "LIVRAISON", lat: null, lng: null, quote: null });
   const deliveryFee = delivery.mode === "LIVRAISON" && delivery.quote?.ok ? delivery.quote.fee : 0;
@@ -70,6 +70,26 @@ export default function CartPage() {
   const discountTotal = (discounts.offer?.discount ?? 0) + (codeOk?.discount ?? 0);
   const cartKey = items.map((i) => `${i.productId}|${i.volumeLabel}|${i.quantity}|${i.price}`).join(",");
   const hasItems = items.length > 0;
+
+  useEffect(() => {
+    const recoveryId = new URLSearchParams(window.location.search).get("reprise");
+    if (!recoveryId) return;
+    let cancelled = false;
+    recoverCartDraft(recoveryId).then((recovered) => {
+      if (cancelled) return;
+      if (recovered?.length) {
+        replaceItems(recovered);
+        setError(null);
+        window.history.replaceState(null, "", "/panier");
+      } else {
+        setError("Ce lien de reprise a expiré ou la commande a déjà été passée.");
+        window.history.replaceState(null, "", "/panier");
+      }
+    }).catch(() => {
+      if (!cancelled) setError("Impossible de recharger ce panier. Réessayez ou contactez JAMAAL sur WhatsApp.");
+    });
+    return () => { cancelled = true; };
+  }, [replaceItems]);
 
   useEffect(() => {
     if (hasItems) void trackEvent({ name: "cart_view", path: "/panier", sessionId: getAnalyticsSessionId() });

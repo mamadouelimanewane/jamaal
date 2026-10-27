@@ -23,6 +23,12 @@ const STATUS: Record<string, { label: string; cls: string }> = {
   ANNULEE: { label: "Annulée", cls: "bg-navy/10 text-navy/75" },
 };
 
+const PAYMENT: Record<string, { label: string; cls: string }> = {
+  PAYE: { label: "Payé", cls: "bg-emerald-100 text-emerald-800" },
+  EN_ATTENTE: { label: "À encaisser", cls: "bg-amber-100 text-amber-800" },
+  ECHOUE: { label: "Échec paiement", cls: "bg-red-100 text-red-800" },
+};
+
 export default async function MesVentesPage({ searchParams }: { searchParams: Promise<{ periode?: string }> }) {
   const me = await getReseller();
   if (!me) return <NotReseller />;
@@ -101,6 +107,7 @@ export default async function MesVentesPage({ searchParams }: { searchParams: Pr
               <th className="px-4 py-3">Articles</th>
               <th className="px-4 py-3 text-right">Total</th>
               <th className="px-4 py-3">Statut</th>
+              <th className="px-4 py-3">Paiement</th>
               <th className="px-4 py-3" />
             </tr>
           </thead>
@@ -119,13 +126,16 @@ export default async function MesVentesPage({ searchParams }: { searchParams: Pr
                 <td className="px-4 py-3">
                   <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${STATUS[o.status]?.cls}`}>{STATUS[o.status]?.label}</span>
                 </td>
+                <td className="px-4 py-3">
+                  <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${PAYMENT[o.paymentStatus]?.cls}`}>{PAYMENT[o.paymentStatus]?.label ?? "À vérifier"}</span>
+                </td>
                 <td className="px-4 py-3 text-right">
                   <Link href={`/admin/mes-commandes/${o.id}`} className="text-xs font-semibold text-rose-dark hover:underline">Détail</Link>
                 </td>
               </tr>
             ))}
             {orders.length === 0 && (
-              <tr><td colSpan={6} className="px-4 py-10 text-center text-navy/70">Aucune vente sur cette période. Partagez votre lien personnel (voir « Mon marketing ») pour démarrer.</td></tr>
+              <tr><td colSpan={7} className="px-4 py-10 text-center text-navy/70">Aucune vente sur cette période. Partagez votre lien personnel (voir « Mon marketing ») pour démarrer.</td></tr>
             )}
           </tbody>
         </table>

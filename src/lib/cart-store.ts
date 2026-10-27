@@ -23,6 +23,7 @@ interface CartState {
   removeItem: (productId: string, volumeLabel: string) => void;
   updateQuantity: (productId: string, volumeLabel: string, quantity: number) => void;
   clear: () => void;
+  replaceItems: (items: CartItem[]) => void;
   /** Remplace les prix par ceux du serveur (null = article retiré). Renvoie le nombre d'articles modifiés. */
   syncPrices: (prices: { productId: string; volumeLabel: string; price: number | null }[]) => number;
   total: () => number;
@@ -68,6 +69,7 @@ export const useCartStore = create<CartState>()(
             .filter((i) => i.quantity > 0),
         })),
       clear: () => set({ items: [] }),
+      replaceItems: (items) => set({ items, isOpen: false }),
       syncPrices: (prices) => {
         const key = (i: { productId: string; volumeLabel: string }) => `${i.productId}::${i.volumeLabel}`;
         const map = new Map(prices.map((p) => [key(p), p.price]));

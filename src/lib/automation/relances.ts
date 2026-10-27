@@ -26,8 +26,8 @@ export function birthdayText(o: { firstName: string; code: string; days: number;
   return `Joyeux anniversaire${o.firstName ? ` ${o.firstName}` : ""} ! 🎂✨\nToute l'équipe JAMAAL vous souhaite une très belle journée.\nPour l'occasion : *-10 %* sur votre prochaine commande avec le code *${o.code}* (valable ${o.days} jours) : ${o.origin}/collections${STOP}`;
 }
 
-export function cartText(o: { firstName: string; items: string[]; origin: string }): string {
-  return `Bonjour${o.firstName ? ` ${o.firstName}` : ""} 👋\nVotre panier JAMAAL vous attend : ${o.items.slice(0, 3).join(", ")}${o.items.length > 3 ? "…" : ""}.\nFinalisez ici : ${o.origin}/panier\nOu répondez à ce message : on prend votre commande directement sur WhatsApp.${STOP}`;
+export function cartText(o: { firstName: string; items: string[]; origin: string; recoveryUrl?: string }): string {
+  return `Bonjour${o.firstName ? ` ${o.firstName}` : ""} 👋\nVotre panier JAMAAL vous attend : ${o.items.slice(0, 3).join(", ")}${o.items.length > 3 ? "…" : ""}.\nFinalisez ici : ${o.recoveryUrl ?? `${o.origin}/panier`}\nOu répondez à ce message : on prend votre commande directement sur WhatsApp.${STOP}`;
 }
 
 const optedOut = phoneOptedOut;
@@ -109,7 +109,8 @@ async function abandonedCarts(origin: string, now: Date, budget: { left: number 
     if (!(await claimAutomation(`panier:${cart.id}`))) continue;
     const items = ((cart.items as { name?: string; volumeLabel?: string }[] | null) ?? []).map((i) => `${i.name ?? "article"}${i.volumeLabel ? ` (${i.volumeLabel})` : ""}`);
     const articles = `${items.slice(0, 3).join(", ")}${items.length > 3 ? "…" : ""}`;
-    await sendWhatsApp({ to: cart.phone, kind: "relance", text: await withStop("panier", { prenom: firstName(cart.name), articles, lien: `${origin}/panier` }, cartText({ firstName: firstName(cart.name), items, origin })) });
+    const recoveryUrl = `${origin}/panier?reprise=${encodeURIComponent(cart.id)}`;
+    await sendWhatsApp({ to: cart.phone, kind: "relance", text: await withStop("panier", { prenom: firstName(cart.name), articles, lien: recoveryUrl }, cartText({ firstName: firstName(cart.name), items, origin, recoveryUrl })) });
     await prisma.abandonedCart.update({ where: { id: cart.id }, data: { remindedAt: now } });
     budget.left--;
     sent++;
