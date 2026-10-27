@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import type { StockRow } from "../inventory-report";
 
-test("Bible Dakar – structure des lignes de stock à l'instant T", () => {
+test("Handbook Dakar – structure des lignes de stock à l'instant T", () => {
   const row: StockRow = {
     key: "var-024-100",
     productId: "prod-024",
@@ -36,7 +36,7 @@ test("Bible Dakar – structure des lignes de stock à l'instant T", () => {
   assert.ok(row.stock > 0, "Doit être disponible en stock");
 });
 
-test("Bible Dakar – détection des ruptures de stock", () => {
+test("Handbook Dakar – détection des ruptures de stock", () => {
   const ruptureRow: StockRow = {
     key: "var-094-100",
     productId: "prod-094",

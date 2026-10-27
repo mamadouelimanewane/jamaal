@@ -18,13 +18,13 @@ import {
 import { formatPrice } from "@/lib/currency";
 import type { StockRow } from "@/lib/inventory-report";
 
-interface BibleViewProps {
+interface HandbookViewProps {
   rows: StockRow[];
   refSlug: string | null;
   consultantName: string | null;
 }
 
-export function BibleView({ rows, refSlug, consultantName }: BibleViewProps) {
+export function HandbookView({ rows, refSlug, consultantName }: HandbookViewProps) {
   const [q, setQ] = useState("");
   const [onlyAvailable, setOnlyAvailable] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
@@ -131,7 +131,7 @@ export function BibleView({ rows, refSlug, consultantName }: BibleViewProps) {
     const inStockItems = rows.filter((r) => r.stock > 0);
     const dateStr = new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long" });
 
-    let message = `✨ *BIBLE DES DISPONIBILITÉS CHOGAN DAKAR* ✨\n`;
+    let message = `✨ *HANDBOOK DES DISPONIBILITÉS CHOGAN DAKAR* ✨\n`;
     message += `📍 *Stock physique disponible à l'instant T (${dateStr})*\n`;
     if (consultantName) message += `👤 Conseiller : ${consultantName}\n`;
     message += `🚚 Livraison express à Dakar & partout au Sénégal\n\n`;
@@ -195,7 +195,7 @@ export function BibleView({ rows, refSlug, consultantName }: BibleViewProps) {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `bible-stocks-dakar-${new Date().toISOString().slice(0, 10)}.csv`;
+    link.download = `handbook-stocks-dakar-${new Date().toISOString().slice(0, 10)}.csv`;
     link.click();
     URL.revokeObjectURL(url);
   };
@@ -211,7 +211,7 @@ export function BibleView({ rows, refSlug, consultantName }: BibleViewProps) {
               Dépôt officiel Dakar · Instant T
             </span>
             <h1 className="mt-2 font-serif-display text-2xl font-bold tracking-wide sm:text-3xl">
-              La Bible des disponibilités
+              Le Handbook des disponibilités
             </h1>
             <p className="mt-1 text-sm text-white/80 max-w-xl">
               Inventaire physique réel au dépôt de Dakar. Tout ce qui est affiché ici comme disponible peut être livré immédiatement à vos clients.
@@ -226,7 +226,7 @@ export function BibleView({ rows, refSlug, consultantName }: BibleViewProps) {
               className="inline-flex items-center gap-2 rounded-2xl bg-[#25D366] px-4 py-2.5 text-xs font-bold text-white shadow-lg shadow-[#25D366]/30 hover:bg-[#20ba59] transition"
             >
               {copiedAll ? <Check size={16} /> : <Share2 size={16} />}
-              {copiedAll ? "Bible WhatsApp copiée !" : "Copier la Bible WhatsApp"}
+              {copiedAll ? "Handbook WhatsApp copié !" : "Copier le Handbook WhatsApp"}
             </button>
             <button
               type="button"
@@ -511,3 +511,5 @@ export function BibleView({ rows, refSlug, consultantName }: BibleViewProps) {
     </div>
   );
 }
+
+export const BibleView = HandbookView;
