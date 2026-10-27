@@ -7,7 +7,7 @@
  *   CinetPay, InTouch…). Connecteur générique : ORANGE_PAYOUT_URL + ORANGE_PAYOUT_TOKEN, à
  *   adapter au format de l'agrégateur retenu.
  *
- * Sans configuration, rien n'est envoyé : les retraits restent en attente (versement à la main).
+ * Sans configuration, rien n'est envoyé : les commissions restent en attente jusqu'à ce que l'accès soit configuré.
  * Fichier serveur uniquement (jamais importé côté navigateur).
  */
 

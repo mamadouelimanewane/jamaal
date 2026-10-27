@@ -6,9 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdminPage } from "@/lib/admin-page-guard";
 import { getBusinessModel } from "@/lib/business-model-store";
 import { payoutProvidersConfig, WALLET_LABELS } from "@/lib/payouts/providers";
-import { refreshPayoutAction, retryPayoutAction } from "@/lib/actions/payouts";
 import { formatPrice } from "@/lib/currency";
-import { RunPayoutsButton } from "@/components/admin/RunPayoutsButton";
 
 export const dynamic = "force-dynamic";
 
@@ -44,10 +42,9 @@ export default async function VersementsPage() {
       <div className="flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-navy text-white"><Wallet size={20} /></div>
         <div>
-          <h1 className="font-serif-display text-2xl font-semibold text-navy">Versements des commissions</h1>
+          <h1 className="font-serif-display text-2xl font-semibold text-navy">Versements automatiques des commissions</h1>
           <p className="text-sm text-navy/75">
-            Les commissions sont versées sur le wallet Wave ou Orange Money de chaque membre,{" "}
-            {model.payoutTrigger === "PAID" ? "dès que le paiement du client est confirmé" : "à la livraison de la commande"}.{" "}
+            Chaque part est envoyée sans demande de retrait {model.payoutTrigger === "PAID" ? "dès que le paiement du client est confirmé" : "dès la livraison de la commande"} sur le compte Wave ou Orange Money de son bénéficiaire. Les tentatives en attente sont relancées automatiquement.{" "}
             <Link href="/admin/modele-economique" className="font-semibold text-rose-dark hover:underline">Réglages</Link>
           </p>
         </div>
@@ -90,24 +87,21 @@ export default async function VersementsPage() {
           const offered = payoutChannels(model).includes(p);
           return (
             <p key={p} className={`rounded-xl border px-4 py-3 text-sm ${offered ? "border-line bg-white text-navy" : "border-line bg-cream text-navy/60"}`}>
-              Retraits des membres vers <strong>{WALLET_LABELS[p]}</strong> : {offered ? (config[p] ? "proposés et envoyés automatiquement" : "proposés, versés à la main depuis « Wallets des membres » tant que la clé n'est pas configurée") : "non proposés"}.
+              Versement direct vers <strong>{WALLET_LABELS[p]}</strong> : {offered ? (config[p] ? "actif à la confirmation de vente" : "en attente de la clé de versement") : "désactivé dans le modèle économique"}.
             </p>
           );
         })}
       </div>
 
-      {!model.payoutsEnabled && (
-        <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">Les versements automatiques sont désactivés dans le Modèle économique : les commissions s&apos;accumulent « à verser ».</p>
-      )}
       {!anyConfigured && (
         <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          <p className="font-semibold">Aucun compte de versement n&apos;est encore connecté : rien n&apos;est envoyé, les commissions restent « à verser ».</p>
+          <p className="font-semibold">Aucun accès de versement n&apos;est configuré : les commissions restent en attente et seront envoyées automatiquement dès que l&apos;accès sera ajouté.</p>
           <p className="mt-1">Wave : dans Wave Business › Développeurs, cochez l&apos;accès « Payout » sur votre clé API (celle des paiements, <code>WAVE_API_KEY</code>, suffit alors), ou créez une clé dédiée <code>WAVE_PAYOUT_API_KEY</code>. Orange Money : <code>ORANGE_PAYOUT_URL</code> et <code>ORANGE_PAYOUT_TOKEN</code> (fournis par Sonatel ou l&apos;agrégateur). À ajouter dans Vercel, puis redéployer.</p>
         </div>
       )}
 
       <section className="mt-6 rounded-2xl border border-line bg-white p-6">
-        <h2 className="text-lg font-semibold text-ink">Commissions en attente</h2>
+        <h2 className="text-lg font-semibold text-ink">En attente d&apos;envoi automatique</h2>
         {pendingByMember.length === 0 ? (
           <p className="mt-2 text-sm text-navy/75">Aucune commission en attente.</p>
         ) : (
@@ -128,7 +122,6 @@ export default async function VersementsPage() {
                 );
               })}
             </ul>
-            <div className="mt-4"><RunPayoutsButton disabled={!anyConfigured || !model.payoutsEnabled} /></div>
           </>
         )}
       </section>
@@ -158,12 +151,8 @@ export default async function VersementsPage() {
                   {p.error && <p className="mt-1 max-w-xs text-sm text-red-800">{p.error}</p>}
                 </td>
                 <td className="px-6 py-3 text-right">
-                  {p.status === "ECHEC" && (
-                    <form action={retryPayoutAction.bind(null, p.id)}><button className="text-sm font-semibold text-rose-dark hover:underline">Réessayer</button></form>
-                  )}
-                  {p.status === "EN_COURS" && p.provider === "WAVE" && (
-                    <form action={refreshPayoutAction.bind(null, p.id)}><button className="text-sm font-semibold text-rose-dark hover:underline">Vérifier</button></form>
-                  )}
+                  {p.status === "ECHEC" && <span className="text-xs text-navy/65">Nouvelle tentative automatique après correction du compte ou du service.</span>}
+                  {p.status === "EN_COURS" && <span className="text-xs text-navy/65">{p.provider === "WAVE" ? "État actualisé automatiquement." : "En attente de confirmation du prestataire."}</span>}
                 </td>
               </tr>
             ))}

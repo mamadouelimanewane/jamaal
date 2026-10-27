@@ -7,7 +7,7 @@ const f = (n: number) => `${Math.round(n).toLocaleString("fr-FR")} F`;
 
 /**
  * Répartition automatique des commissions : pour chaque cas de vente, la part de chaque acteur (vendeur,
- * Parrain, Leader), créditée directement sur son wallet JAMAAL, puis retirable vers Wave ou Orange Money.
+ * Parrain, Leader), versée directement sur son compte Wave ou Orange Money.
  */
 export function CommissionDispatch({ model, highlight, admin = false }: { model: BusinessModel; highlight?: Scenario | null; admin?: boolean }) {
   const rows = dispatchScenarios(model);
@@ -18,8 +18,7 @@ export function CommissionDispatch({ model, highlight, admin = false }: { model:
         <div>
           <h2 className="flex items-center gap-2 font-serif-display text-lg font-semibold text-navy"><Split size={18} /> Répartition de chaque vente</h2>
           <p className="mt-1 text-sm text-navy/75">
-            Dès qu&apos;une vente est {model.payoutTrigger === "DELIVERED" ? "livrée" : "payée"}, chaque part est créditée automatiquement sur le wallet JAMAAL
-            de son bénéficiaire, qui la retire quand il veut vers {channels}. Exemple pour {f(EXAMPLE)} de produits (hors livraison).
+            Dès qu&apos;une vente est {model.payoutTrigger === "DELIVERED" ? "livrée" : "payée"}, chaque part est envoyée automatiquement et sans seuil sur le compte {channels} du vendeur, de son Parrain et de son Leader. Aucune demande de retrait n&apos;est nécessaire. Exemple pour {f(EXAMPLE)} de produits (hors livraison).
           </p>
         </div>
         {admin && <Link href="/admin/modele-economique" className="rounded-full border border-line px-3.5 py-1.5 text-sm font-semibold text-navy hover:bg-cream">Modifier les taux →</Link>}

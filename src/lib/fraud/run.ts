@@ -4,7 +4,6 @@
  */
 import { prisma } from "@/lib/prisma";
 import { notifyTeamWhatsApp } from "@/lib/whatsapp";
-import { creditCommissionEntries } from "@/lib/wallet";
 import { duplicateMembers, HOLD_SCORE, orderSignals, RETURN_RATE_LIMIT, returnRate, score, singleCustomer, tail } from "./rules";
 
 const fcfa = (n: number) => `${n.toLocaleString("fr-FR")} F`;
@@ -123,7 +122,13 @@ export async function resolveFlag(flagId: string, decision: "VALIDE" | "FRAUDE",
     const openOrders = (await prisma.fraudFlag.findMany({ where: { status: "OUVERT", orderId: { not: null } }, select: { orderId: true } })).map((f) => f.orderId!);
     where = { status: "EN_REVUE", consultantId: flag.consultantId, orderId: { notIn: openOrders } };
   }
+  const released = decision === "VALIDE"
+    ? await prisma.commissionEntry.findMany({ where, select: { consultantId: true } })
+    : [];
   const r = await prisma.commissionEntry.updateMany({ where, data: { status: decision === "VALIDE" ? "A_VERSER" : "ANNULE" } });
-  if (decision === "VALIDE") await creditCommissionEntries(flag.orderId ? { orderId: flag.orderId } : { consultantId: flag.consultantId });
+  if (decision === "VALIDE" && r.count) {
+    const { processPayouts } = await import("@/lib/payouts/engine");
+    await processPayouts([...new Set(released.map((entry) => entry.consultantId))]);
+  }
   return { ok: true, count: r.count };
 }

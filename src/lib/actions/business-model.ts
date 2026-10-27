@@ -75,7 +75,8 @@ export async function saveBusinessModelAction(_prev: BusinessModelState, formDat
   input.acceptOrangeMoney = formData.get("acceptOrangeMoney") === "on";
   input.acceptCard = formData.get("acceptCard") === "on";
   input.acceptCashOnDelivery = formData.get("acceptCashOnDelivery") === "on";
-  input.payoutsEnabled = formData.get("payoutsEnabled") === "on";
+  // Conservé pour compatibilité historique ; les commissions sont toujours envoyées automatiquement.
+  input.payoutsEnabled = true;
   input.payoutTrigger = formData.get("payoutTrigger") === "DELIVERED" ? "DELIVERED" : "PAID";
   input.payoutWave = formData.get("payoutWave") === "on";
   input.payoutOrangeMoney = formData.get("payoutOrangeMoney") === "on";

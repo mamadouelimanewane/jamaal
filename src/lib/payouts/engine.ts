@@ -14,11 +14,10 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getBusinessModel } from "@/lib/business-model-store";
-import { commissionRatesFor, type BusinessModel } from "@/lib/business-model";
+import { commissionRatesFor, payoutChannels, type BusinessModel } from "@/lib/business-model";
 import { effectiveTitle } from "@/lib/network";
 import { commissionBase } from "@/lib/commission";
-import { creditCommissionEntries, reverseWalletCreditsForOrder } from "@/lib/wallet";
-import { screenOrder } from "@/lib/fraud/run";
+import { reverseWalletCreditsForOrder } from "@/lib/wallet";
 import { withSpecialRates } from "@/lib/special-terms";
 import { isWalletProvider, payoutProvidersConfig, refreshWave, sendPayout, WALLET_LABELS, type PayoutResult } from "./providers";
 
@@ -124,8 +123,8 @@ async function settle(payoutId: string, consultantId: string, amount: number, pr
  */
 export async function processPayouts(consultantIds?: string[], model?: BusinessModel) {
   const m = model ?? (await getBusinessModel());
-  if (!m.payoutsEnabled) return { sent: 0, skipped: 0 };
   const config = payoutProvidersConfig();
+  const channels = payoutChannels(m);
 
   const pending = await prisma.commissionEntry.groupBy({
     by: ["consultantId"],
@@ -138,7 +137,7 @@ export async function processPayouts(consultantIds?: string[], model?: BusinessM
   for (const p of pending) {
     const amount = p._sum.amount ?? 0;
     const member = await prisma.consultant.findUnique({ where: { id: p.consultantId }, select: { id: true, name: true, walletProvider: true, walletNumber: true, walletHolderName: true } });
-    if (!member || !isWalletProvider(member.walletProvider) || !member.walletNumber || !config[member.walletProvider] || amount <= 0 || amount < m.minPayout) {
+    if (!member || !isWalletProvider(member.walletProvider) || !channels.includes(member.walletProvider) || !member.walletNumber || !config[member.walletProvider] || amount <= 0) {
       skipped += 1;
       continue;
     }
@@ -172,11 +171,8 @@ export async function runPayoutsForOrder(orderId: string) {
   try {
     const model = await getBusinessModel();
     const members = await recordCommissionsForOrder(orderId, model);
-    // Contrôle anti-fraude AVANT le crédit : une vente suspecte (auto-achat, achat du parrain) ou un membre signalé
-    // voit ses commissions passer « EN_REVUE » ; l'admin décide (Admin › Contrôle des commissions).
-    if (members.length) await screenOrder(orderId);
-    // Les commissions sont créditées sur le wallet JAMAAL des membres, qui les retirent quand ils veulent.
-    if (members.length) await creditCommissionEntries({ orderId });
+    // Virement direct Wave / Orange Money à chaque acteur, sans étape de validation ou de retrait du wallet JAMAAL.
+    if (members.length) await processPayouts(members, model);
     refreshPages();
   } catch (error) {
     console.error("[payouts] commande", orderId, error);
@@ -206,8 +202,12 @@ export async function sweepMissedCommissions(now: Date = new Date(), max = 60) {
   const done = new Set((await prisma.commissionEntry.findMany({ where: { orderId: { in: payable.map((o) => o.id) } }, select: { orderId: true } })).map((e) => e.orderId));
   const missed = payable.filter((o) => !done.has(o.id)).slice(0, max);
   for (const o of missed) await runPayoutsForOrder(o.id);
-  const stuck = await creditCommissionEntries();
-  return { commandesRattrapees: missed.length, gainsCredites: stuck };
+  // Wave confirme parfois le virement après la réponse initiale : relire ces états sans action humaine.
+  const inProgress = await prisma.payout.findMany({ where: { status: "EN_COURS", provider: "WAVE" }, select: { id: true }, orderBy: { updatedAt: "asc" }, take: 30 });
+  for (const payout of inProgress) await refreshPayout(payout.id);
+  // Les échecs et les commissions restées en attente sont retentés automatiquement.
+  const virements = await processPayouts(undefined, model);
+  return { commandesRattrapees: missed.length, virementsAutomatiques: virements };
 }
 
 /** Relit l'état d'un versement en cours (Wave). */
