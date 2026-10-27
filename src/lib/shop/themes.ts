@@ -81,7 +81,7 @@ export interface ShopTheme {
   };
 }
 
-export const DEFAULT_THEME_ID: ShopThemeId = "luxury-rose";
+export const DEFAULT_THEME_ID: ShopThemeId = "pearl-minimal";
 
 export const SHOP_THEMES: ShopTheme[] = [
   // ─────────────────────────────────────────────────────────────────────────────
@@ -89,10 +89,10 @@ export const SHOP_THEMES: ShopTheme[] = [
   // ─────────────────────────────────────────────────────────────────────────────
   {
     id: "luxury-rose",
-    name: "Rose Élysée & Or Rose",
-    tagline: "L'élégance signature de la Maison JAMAAL",
-    mood: "Haute parfumerie féminine, floral poudré, marbre crème et or rose 18k",
-    description: "Inspiré des plus prestigieuses maisons de la place Vendôme. Harmonie soyeuse de rose poudrée, d'or rose brossé et d'un blanc ivoire lumineux.",
+    name: "Rose poudré",
+    tagline: "Une boutique douce et lumineuse",
+    mood: "Doux, lumineux et raffiné",
+    description: "Fond ivoire, rose poudré et détails cuivrés pour une vitrine délicate.",
     emoji: "🌸",
     isDark: false,
     palette: {
@@ -135,10 +135,10 @@ export const SHOP_THEMES: ShopTheme[] = [
   // ─────────────────────────────────────────────────────────────────────────────
   {
     id: "noir-gold",
-    name: "Noir Impérial & Or",
-    tagline: "Le prestige absolu de la haute parfumerie",
-    mood: "Haute couture nocturne, flaconnage d'exception, or 24 carats et velours noir",
-    description: "L'atmosphère intimiste des suites de luxe et des salons privés de parfumeurs. Noir obsidienne profond rehaussé de touches d'or chaud étincelant.",
+    name: "Noir & or",
+    tagline: "Un contraste élégant et affirmé",
+    mood: "Sobre, profond et affirmé",
+    description: "Un fond sombre et des accents dorés pour une vitrine plus contrastée.",
     emoji: "👑",
     isDark: true,
     palette: {
@@ -181,10 +181,10 @@ export const SHOP_THEMES: ShopTheme[] = [
   // ─────────────────────────────────────────────────────────────────────────────
   {
     id: "pearl-minimal",
-    name: "Maison Blanche & Or Solaire",
-    tagline: "L'allure officielle du grand site web JAMAAL",
-    mood: "Clair, épuré, architectural, marbre de Carrare et accents marine & or",
-    description: "La signature visuelle directe du site web jamaal.sn : fond blanc ivoire marbré, typographies marines profondes, terre de sienne et touches d'or solaire.",
+    name: "JAMAAL Signature",
+    tagline: "L'esprit du site jamaal.sn",
+    mood: "Épuré, chaleureux et intemporel",
+    description: "Ivoire, bleu profond et terracotta dans une mise en page claire inspirée de jamaal.sn.",
     emoji: "🏛️",
     isDark: false,
     palette: {
@@ -195,26 +195,26 @@ export const SHOP_THEMES: ShopTheme[] = [
       glow: "#d4af37",
     },
     styles: {
-      pageBg: "bg-[radial-gradient(ellipse_at_top,_#f5ede8_0%,_#fdfbfa_40%,_#ffffff_75%,_#fbf8f6_100%)]",
-      heroOverlay: "bg-gradient-to-b from-[#eadfda]/60 via-[#fdfbfa]/30 to-transparent",
+      pageBg: "bg-[#fdfbfa]",
+      heroOverlay: "bg-[#fdfbfa]/70",
       textPrimary: "text-[#1e2a3a]",
       textSecondary: "text-[#1e2a3a]/80",
       textMuted: "text-[#1e2a3a]/50",
       textAccent: "text-[#9c6254]",
-      cardBg: "bg-white/95 backdrop-blur-md border border-[#eadfda] shadow-[0_4px_18px_rgba(30,42,58,0.06)]",
+      cardBg: "bg-white border border-[#eadfda] shadow-sm",
       cardBorder: "border-[#eadfda]",
-      cardHover: "hover:shadow-[0_8px_28px_rgba(156,98,84,0.16)] hover:border-[#9c6254]/50 hover:-translate-y-1",
+      cardHover: "hover:shadow-md hover:border-[#9c6254]/50",
       avatarBorder: "border-[#1e2a3a] bg-[#1e2a3a]",
       avatarRing: "ring-4 ring-[#9c6254]/20 ring-offset-2 ring-offset-[#fdfbfa]",
       badgeStyle: "bg-white border border-[#eadfda] text-[#1e2a3a] shadow-sm backdrop-blur-md",
-      buttonPrimary: "bg-gradient-to-br from-[#1e2a3a] to-[#2b3a4e] hover:from-[#2b3a4e] hover:to-[#3b4c64] text-white font-semibold shadow-[0_4px_16px_rgba(30,42,58,0.30)] hover:shadow-[0_6px_22px_rgba(30,42,58,0.45)] transition-all",
+      buttonPrimary: "bg-[#1e2a3a] hover:bg-[#2b3a4e] text-white font-semibold transition-colors",
       buttonSecondary: "bg-white border border-[#eadfda] text-[#1e2a3a] hover:bg-[#f5ede8] hover:border-[#9c6254]/60 transition-all font-semibold",
       waButton: "bg-gradient-to-br from-[#25D366] to-[#1aad54] hover:from-[#2de374] hover:to-[#20ba59] text-white shadow-[0_4px_16px_rgba(37,211,102,0.32)] hover:shadow-[0_6px_22px_rgba(37,211,102,0.45)] font-semibold transition-all",
       shortcutHover: "hover:border-[#9c6254]/40 hover:bg-[#faf6f3] hover:shadow-[0_4px_16px_rgba(30,42,58,0.08)]",
-      productCardBg: "bg-white/95 backdrop-blur-md border border-[#eadfda] shadow-[0_3px_12px_rgba(30,42,58,0.05)]",
-      productCardHover: "hover:shadow-[0_10px_28px_rgba(156,98,84,0.18)] hover:-translate-y-1 hover:border-[#9c6254]/60",
-      guaranteeBannerBg: "bg-gradient-to-br from-[#1e2a3a] via-[#243346] to-[#1e2a3a] border border-[#d9cbbd]/40 shadow-xl",
-      guaranteeBannerText: "text-[#fdfbfa]",
+      productCardBg: "bg-white border border-[#eadfda] shadow-sm",
+      productCardHover: "hover:shadow-md hover:border-[#9c6254]/60",
+      guaranteeBannerBg: "bg-[#f5ede8] border border-[#eadfda]",
+      guaranteeBannerText: "text-[#1e2a3a]",
       starColor: "text-[#d4af37]",
       dividerStyle: "border-[#eadfda]",
       priceStyle: "text-[#9c6254] font-bold font-mono",
@@ -227,10 +227,10 @@ export const SHOP_THEMES: ShopTheme[] = [
   // ─────────────────────────────────────────────────────────────────────────────
   {
     id: "royal-emerald",
-    name: "Émeraude Privée & Or",
-    tagline: "Les collections d'exception et flacons rares",
-    mood: "Mystérieux, opulent, salon privé d'initiés, velours vert impérial",
-    description: "Évoquant les flacons de collection rares et les bibliothèques olfactives privées. Vert émeraude sombre impérial souligné d'or antique raffiné.",
+    name: "Vert profond",
+    tagline: "Une identité naturelle et distinctive",
+    mood: "Naturel, feutré et distinctif",
+    description: "Vert forêt et laiton doux pour une boutique au caractère singulier.",
     emoji: "💎",
     isDark: true,
     palette: {
@@ -273,10 +273,10 @@ export const SHOP_THEMES: ShopTheme[] = [
   // ─────────────────────────────────────────────────────────────────────────────
   {
     id: "midnight-navy",
-    name: "Saphir Royal & Platine",
-    tagline: "La nuit royale méditerranéenne",
-    mood: "Souverain, magnétique, ciel d'Orient étoilé, saphir et platine",
-    description: "Inspiré des nuits étoilées de la Riviera et des sillages marins intenses. Bleu royal profond, reflets saphir et platine étincelant.",
+    name: "Bleu nuit",
+    tagline: "Une allure contemporaine et feutrée",
+    mood: "Calme, contemporain et profond",
+    description: "Bleu nuit et détails clairs pour mettre les produits au premier plan.",
     emoji: "🌌",
     isDark: true,
     palette: {
@@ -319,10 +319,10 @@ export const SHOP_THEMES: ShopTheme[] = [
   // ─────────────────────────────────────────────────────────────────────────────
   {
     id: "sahara-nude",
-    name: "Ambre Saharien & Or Chaud",
-    tagline: "La chaleur envoûtante des épices rares",
-    mood: "Solaire, ambré, sensuel, dunes d'or et coucher de soleil dakarois",
-    description: "Inspiré des sables chauds, de la vanille bourbon et des bois fumés. Teintes sable doré, ambre miellé et terracotta chic.",
+    name: "Sable & terracotta",
+    tagline: "Une palette chaude et accueillante",
+    mood: "Solaire, chaleureux et naturel",
+    description: "Tons sable et terracotta pour une boutique chaleureuse et accueillante.",
     emoji: "✨",
     isDark: false,
     palette: {
@@ -363,9 +363,9 @@ export const SHOP_THEMES: ShopTheme[] = [
 
 /**
  * Récupère un thème par son identifiant.
- * Si l'identifiant est absent ou inconnu, retourne le thème signature par défaut (Rose Élysée).
+ * Si l'identifiant est absent ou inconnu, retourne le thème signature par défaut (JAMAAL Signature).
  */
 export function getShopTheme(themeId: string | null | undefined): ShopTheme {
   const found = SHOP_THEMES.find((t) => t.id === themeId);
-  return found ?? SHOP_THEMES[0]!;
+  return found ?? SHOP_THEMES.find((theme) => theme.id === DEFAULT_THEME_ID)!;
 }

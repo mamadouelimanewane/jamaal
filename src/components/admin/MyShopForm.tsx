@@ -100,7 +100,15 @@ export function MyShopForm({
       </div>
 
       {/* 2. Bibliothèque de Thèmes */}
-      <ThemeSelector initialTheme={theme} consultantName={name} avatarUrl={preview && !removed ? preview : null} />
+      <ThemeSelector
+        initialTheme={theme}
+        consultantName={name}
+        avatarUrl={preview && !removed ? preview : null}
+        tagline={taglineText}
+        bio={text}
+        products={products}
+        favorites={favorites}
+      />
 
       {/* 3. Slogan / Phrase d'accroche */}
       <label className="block text-sm font-medium text-navy">
