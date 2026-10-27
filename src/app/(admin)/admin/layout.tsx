@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = { themeColor: "#1d2f4f" };
 
-export default function AdminRootLayout({ children }: LayoutProps<"/admin">) {
+export default function AdminRootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr" className="h-full antialiased">
       <body className="min-h-full bg-cream font-sans text-foreground">

@@ -5,17 +5,23 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getReseller } from "@/lib/reseller";
 import { MAX_FAVORITES } from "@/lib/shop/consultant-shop";
+import { SHOP_THEMES, DEFAULT_THEME_ID, type ShopThemeId } from "@/lib/shop/themes";
 
 export type ShopState = { ok: boolean; message?: string; error?: string };
 const TYPES = ["image/jpeg", "image/png", "image/webp"];
 
-/** Le consultant personnalise sa boutique (/c/<slug>) : photo, présentation, coups de cœur. */
+/** Le consultant personnalise sa boutique (/c/<slug>) : photo, présentation, slogan, thème visuel, coups de cœur. */
 export async function updateMyShop(_prev: ShopState, fd: FormData): Promise<ShopState> {
   const me = await getReseller();
   if (!me) return { ok: false, error: "Session invalide." };
   if (me.viewAs) return { ok: false, error: "Mode consultation : modification impossible." };
 
   const bio = String(fd.get("bio") ?? "").trim().replace(/\s+/g, " ").slice(0, 220) || null;
+  const tagline = String(fd.get("tagline") ?? "").trim().replace(/\s+/g, " ").slice(0, 100) || null;
+
+  const themeRaw = String(fd.get("theme") ?? "").trim();
+  const shopTheme: ShopThemeId = (SHOP_THEMES.some((t) => t.id === themeRaw) ? themeRaw : DEFAULT_THEME_ID) as ShopThemeId;
+
   const ids = fd.getAll("productIds").map(String).filter(Boolean).slice(0, MAX_FAVORITES);
   const favorites = ids.length ? (await prisma.product.findMany({ where: { id: { in: ids } }, select: { id: true } })).map((p) => p.id) : [];
   const ordered = ids.filter((id) => favorites.includes(id));
@@ -32,8 +38,20 @@ export async function updateMyShop(_prev: ShopState, fd: FormData): Promise<Shop
 
   const tf = fd.get("titleForm");
   const titleForm = tf === "m" || tf === "f" ? tf : null;
-  await prisma.consultant.update({ where: { id: me.id }, data: { shopBio: bio, favorites: ordered, titleForm, ...(shopPhoto !== undefined ? { shopPhoto } : {}) } });
+
+  await prisma.consultant.update({
+    where: { id: me.id },
+    data: {
+      shopBio: bio,
+      shopTagline: tagline,
+      shopTheme,
+      favorites: ordered,
+      titleForm,
+      ...(shopPhoto !== undefined ? { shopPhoto } : {}),
+    },
+  });
+
   if (me.slug) revalidatePath(`/c/${me.slug}`);
   revalidatePath("/admin/ma-boutique");
-  return { ok: true, message: "Boutique enregistrée." };
+  return { ok: true, message: "Boutique et thème enregistrés avec succès." };
 }

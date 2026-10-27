@@ -48,7 +48,7 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image" },
 };
 
-export default async function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const categories = await getCategoriesWithProducts();
   return (
     <html lang="fr" className={`${playfair.variable} ${poppins.variable} h-full antialiased`}>

@@ -503,6 +503,10 @@ model Consultant {
   shopPhoto String?
   shopBio   String?
   favorites String[] @default([])
+  /// Thème visuel choisi pour la boutique (/c/<slug>) parmi la bibliothèque de thèmes JAMAAL.
+  shopTheme String?   @default("luxury-rose")
+  /// Phrase d'accroche ou slogan personnalisé de la boutique.
+  shopTagline String?
   /// Libellés des badges de l'Académie : « f » (Experte parfums) ou « m » (Expert parfums).
   titleForm String?
   /// Conditions spéciales (encaissement direct, commission propre, zones de livraison propres), sinon le régime normal.

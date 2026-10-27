@@ -16,9 +16,9 @@ export default async function MaBoutiquePage() {
   const [links, catalog, badges] = await Promise.all([resellerLinks(me.slug ?? null), resellerCatalog(), earnedBadges(me.id)]);
   const products = catalog.map((p) => ({ id: p.id, name: p.name, code: p.choganCode, price: p.price, multiFormat: p.multiFormat, inspiredBy: p.inspiredBy }));
   return (
-    <div className="max-w-2xl">
+    <div className="max-w-3xl">
       <h1 className="font-serif-display text-2xl font-semibold text-navy">Ma boutique</h1>
-      <p className="mt-1 text-sm text-navy/75">Votre mini-boutique mobile : photo, présentation, coups de cœur, avis de vos clients et bouton WhatsApp. C&apos;est le lien à mettre dans votre bio Instagram et TikTok.</p>
+      <p className="mt-1 text-sm text-navy/75">Votre mini-boutique mobile : photo, thème personnalisé, présentation, coups de cœur, avis de vos clients et bouton WhatsApp. C&apos;est le lien à mettre dans votre bio Instagram et TikTok.</p>
       {links.shop ? (
         <div className="mt-5 rounded-2xl border border-line bg-white p-4">
           <p className="text-xs font-semibold uppercase tracking-wider text-navy/60">Mon lien de bio</p>
@@ -33,7 +33,17 @@ export default async function MaBoutiquePage() {
         <p className="mt-5 rounded-2xl bg-amber-50 p-4 text-sm text-amber-900">Votre identifiant de lien n&apos;est pas encore configuré : demandez-le à l&apos;équipe JAMAAL.</p>
       )}
       <div className="mt-6 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <MyShopForm photo={me.shopPhoto ?? null} bio={me.shopBio ?? null} favorites={me.favorites ?? []} products={products} name={me.name} titleForm={me.titleForm ?? null} badges={badges.map((b) => `${b.badge.emoji} ${badgeLabel(b.badge, me.titleForm)}`)} />
+        <MyShopForm
+          photo={me.shopPhoto ?? null}
+          bio={me.shopBio ?? null}
+          tagline={me.shopTagline ?? null}
+          theme={me.shopTheme ?? null}
+          favorites={me.favorites ?? []}
+          products={products}
+          name={me.name}
+          titleForm={me.titleForm ?? null}
+          badges={badges.map((b) => `${b.badge.emoji} ${badgeLabel(b.badge, me.titleForm)}`)}
+        />
       </div>
     </div>
   );
