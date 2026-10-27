@@ -8,7 +8,17 @@ export async function GET() {
 
   const orders = await prisma.order.findMany({
     orderBy: { createdAt: "desc" },
-    include: { consultant: true, livreur: true, items: true },
+    include: {
+      consultant: true,
+      livreur: true,
+      items: {
+        include: {
+          product: {
+            select: { choganCode: true, name: true, inspiredBy: true, inspiredBrand: true },
+          },
+        },
+      },
+    },
   });
 
   return excelResponse("commandes-jamaal.xlsx", [
@@ -23,7 +33,7 @@ export async function GET() {
         { header: "Consultant", key: "consultant", width: 20 },
         { header: "Livreur", key: "livreur", width: 18 },
         { header: "Mode de livraison", key: "deliveryMode", width: 20 },
-        { header: "Articles", key: "items", width: 50 },
+        { header: "Détail des articles (Code, Nom, Inspiré, Contenance, Prix)", key: "items", width: 65 },
       ],
       rows: orders.map((o) => ({
         date: o.createdAt.toLocaleDateString("fr-FR"),
@@ -34,7 +44,13 @@ export async function GET() {
         consultant: o.consultant?.name ?? "",
         livreur: o.livreur?.name ?? "",
         deliveryMode: o.deliveryMode,
-        items: o.items.map((i) => `${i.productName} (${i.volumeLabel} x${i.quantity})`).join(" | "),
+        items: o.items
+          .map((i) => {
+            const code = i.product?.choganCode ? `[${i.product.choganCode}] ` : "";
+            const inspired = i.product?.inspiredBy ? ` (Inspiré de: ${i.product.inspiredBy})` : "";
+            return `${code}${i.productName}${inspired} — ${i.volumeLabel} — ${i.price} FCFA x${i.quantity}`;
+          })
+          .join(" | "),
       })),
     },
   ]);

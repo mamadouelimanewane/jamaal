@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/currency";
+import { OrderDetailCell } from "@/components/admin/OrderDetailCell";
 
 export const dynamic = "force-dynamic";
 
@@ -33,7 +34,22 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
   const orders = await prisma.order.findMany({
     where: channel ? { channel } : undefined,
     orderBy: { createdAt: "desc" },
-    include: { items: true, consultant: true, livreur: true },
+    include: {
+      items: {
+        include: {
+          product: {
+            select: {
+              choganCode: true,
+              name: true,
+              inspiredBy: true,
+              inspiredBrand: true,
+            },
+          },
+        },
+      },
+      consultant: true,
+      livreur: true,
+    },
   });
 
   return (
@@ -62,12 +78,12 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
         ))}
       </nav>
 
-      <div className="mt-6 overflow-x-auto rounded-2xl border border-line bg-white">
+      <div className="mt-6 overflow-x-auto rounded-2xl border border-line bg-white shadow-xs">
         <table className="w-full text-sm">
           <thead className="bg-cream text-left text-xs uppercase text-navy/70">
             <tr>
               <th className="px-4 py-3">Client</th>
-              <th className="px-4 py-3">Articles</th>
+              <th className="px-4 py-3">Détail de la commande</th>
               <th className="px-4 py-3">Total</th>
               <th className="px-4 py-3">Consultant</th>
               <th className="px-4 py-3">Livraison</th>
@@ -77,8 +93,8 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
           </thead>
           <tbody>
             {orders.map((o) => (
-              <tr key={o.id} className="border-t border-line">
-                <td className="px-4 py-3">
+              <tr key={o.id} className="border-t border-line hover:bg-cream/20 transition-colors">
+                <td className="px-4 py-3 align-top">
                   <Link href={`/admin/commandes/${o.id}`} className="font-medium text-navy hover:underline">
                     {o.customerName}
                   </Link>
@@ -87,22 +103,24 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
                   {o.channel === "REVENDEUR" && <span className="ml-2 rounded-full bg-navy/10 px-2 py-0.5 text-[11px] font-semibold text-navy/80">Revendeur</span>}
                   <p className="text-xs text-navy/70">{o.customerPhone ?? o.customerEmail ?? ""}</p>
                 </td>
-                <td className="px-4 py-3 text-navy/85">{o.items.length}</td>
-                <td className="px-4 py-3 text-navy/85">{formatPrice(o.total)}</td>
-                <td className="px-4 py-3 text-navy/85">{o.consultant?.name ?? <span className="text-navy/60">{o.channel === "WHATSAPP" ? "Non précisé (WhatsApp)" : "Aucun revendeur"}</span>}</td>
-                <td className="px-4 py-3 text-navy/85">
+                <td className="px-4 py-3 align-top">
+                  <OrderDetailCell items={o.items} />
+                </td>
+                <td className="px-4 py-3 align-top font-semibold text-navy">{formatPrice(o.total)}</td>
+                <td className="px-4 py-3 align-top text-navy/85">{o.consultant?.name ?? <span className="text-navy/60">{o.channel === "WHATSAPP" ? "Non précisé (WhatsApp)" : "Aucun revendeur"}</span>}</td>
+                <td className="px-4 py-3 align-top text-navy/85">
                   {o.deliveryMode === "LIVRAISON_JAMAAL" ? (
                     <span>JAMAAL{o.livreur ? ` · ${o.livreur.name}` : ""}</span>
                   ) : (
                     "Retrait consultant"
                   )}
                 </td>
-                <td className="px-4 py-3">
-                  <span className={`rounded-full px-3 py-1 text-xs font-semibold ${statusColors[o.status] ?? "bg-cream text-navy"}`}>
+                <td className="px-4 py-3 align-top">
+                  <span className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${statusColors[o.status] ?? "bg-cream text-navy"}`}>
                     {statusLabels[o.status] ?? o.status}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-navy/75">{o.createdAt.toLocaleDateString("fr-FR")}</td>
+                <td className="px-4 py-3 align-top text-navy/75">{o.createdAt.toLocaleDateString("fr-FR")}</td>
               </tr>
             ))}
             {orders.length === 0 && (

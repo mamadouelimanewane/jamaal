@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/currency";
 import { OrderStatus } from "@prisma/client";
 import { ArrowLeft, Download } from "lucide-react";
+import { OrderDetailCell } from "@/components/admin/OrderDetailCell";
 
 export const dynamic = "force-dynamic";
 
@@ -53,7 +54,7 @@ export default async function ConsultantCommandesPage({
         : {}),
     },
     orderBy: { createdAt: "desc" },
-    include: { items: true },
+    include: { items: { include: { product: { select: { choganCode: true, name: true, inspiredBy: true, inspiredBrand: true } } } } },
   });
 
   const totalNet = orders
@@ -144,7 +145,7 @@ export default async function ConsultantCommandesPage({
             <tr>
               <th className="px-4 py-3">Client</th>
               <th className="px-4 py-3">Date</th>
-              <th className="px-4 py-3">Articles</th>
+              <th className="px-4 py-3">Détail commande</th>
               <th className="px-4 py-3">Total</th>
               <th className="px-4 py-3">Remise</th>
               <th className="px-4 py-3">Livraison</th>
@@ -169,7 +170,7 @@ export default async function ConsultantCommandesPage({
                 <td className="px-4 py-3 text-navy/75">
                   {o.createdAt.toLocaleDateString("fr-FR")}
                 </td>
-                <td className="px-4 py-3 text-navy/75">{o.items.length} art.</td>
+                <td className="px-4 py-3"><OrderDetailCell items={o.items} /></td>
                 <td className="px-4 py-3 font-semibold text-navy">
                   {formatPrice(o.total)}
                 </td>
