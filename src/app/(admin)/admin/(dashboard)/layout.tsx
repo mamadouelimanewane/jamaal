@@ -43,6 +43,8 @@ import { BadgePercent, BookOpen, Calculator,
   ShoppingBasket,
   GraduationCap,
   LogOut,
+  FileText,
+  BookMarked,
 } from "lucide-react";
 import { auth, signOut } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -81,6 +83,8 @@ const adminGroups = [
       { href: "/admin/stocks/prevision", label: "Prévision de stock", icon: TrendingUp },
       { href: "/admin/categories", label: "Catégories", icon: Tags },
       { href: "/admin/accueil", label: "Page d'accueil", icon: GalleryHorizontal },
+      { href: "/admin/catalogue-officiel", label: "Catalogue officiel (12 pages A4)", icon: FileText },
+      { href: "/admin/handbook", label: "Handbook disponibilités", icon: BookMarked },
     ],
   },
   {
@@ -163,6 +167,8 @@ const consultantGroups: { title: string | null; links: { href: string; label: st
       { href: "/admin/mon-marketing", label: "Mon marketing", icon: Share2, match: ["/admin/mon-kit-marketing", "/admin/outils"] },
       { href: "/admin/ma-boutique", label: "Ma boutique (lien de bio)", icon: Store },
       { href: "/admin/ma-communication", label: "Ma communication", icon: Megaphone },
+      { href: "/admin/catalogue-officiel", label: "Catalogue officiel (12 pages)", icon: FileText },
+      { href: "/admin/handbook", label: "Handbook disponibilités", icon: BookMarked },
     ],
   },
   { title: "Progresser", links: [{ href: "/admin/academie", label: "Académie et badges", icon: Award }, { href: "/admin/formation", label: "Quiz et formation", icon: GraduationCap }] },
