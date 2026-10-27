@@ -2,7 +2,7 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import { stopViewAsReseller } from "@/lib/actions/view-as";
 import { redirect } from "next/navigation";
-import { BadgePercent, Calculator,
+import { BadgePercent, BookOpen, Calculator,
   ShieldCheck,
   LayoutDashboard,
   Package,

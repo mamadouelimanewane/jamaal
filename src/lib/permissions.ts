@@ -33,7 +33,7 @@ export interface ModuleDef {
 }
 
 export const MODULES: ModuleDef[] = [
-  { id: "catalogue", label: "Catalogue", description: "Produits, catégories, listino Chogan, import de produits.", paths: ["/admin/produits", "/admin/categories"] },
+  { id: "catalogue", label: "Catalogue", description: "Produits, catégories, listino Chogan, import de produits.", paths: ["/admin/produits", "/admin/categories", "/admin/bible"] },
   { id: "commandes", label: "Commandes et réservations", description: "Commandes, factures, réservations, retours et remboursements.", paths: ["/admin/commandes", "/admin/reservations", "/admin/retours", "/admin/abonnements"] },
   { id: "clients", label: "Clients", description: "Fiches clients, messages reçus, avis.", paths: ["/admin/clients", "/admin/messages", "/admin/avis"] },
   { id: "revendeurs", label: "Revendeurs et réseau", description: "Consultants, candidatures, protocoles, primes d'équipe, défis.", paths: ["/admin/consultants", "/admin/conditions-speciales", "/admin/reseau", "/admin/academie", "/admin/candidatures", "/admin/protocole", "/admin/primes-equipe", "/admin/defis"] },
