@@ -154,35 +154,38 @@ const adminGroups = [
 /** Espace revendeur : rangé par sujet. Profil, contrat, classement et notifications sont dans la barre du haut ;
  * le wallet (retraits, dépôts) est dans « Mes gains » ; l'assistant IA a son bouton en bas de chaque page. */
 const consultantGroups: { title: string | null; links: { href: string; label: string; icon: typeof LayoutDashboard; match?: string[] }[] }[] = [
-  { title: null, links: [{ href: "/admin", label: "Tableau de bord", icon: LayoutDashboard }, { href: "/admin/copilote", label: "Mes actions du jour", icon: ListChecks }] },
+  { title: null, links: [{ href: "/admin", label: "Tableau de bord", icon: LayoutDashboard }] },
   {
-    title: "Ventes",
+    title: "Vendre",
     links: [
+      { href: "/admin/catalogue", label: "Catalogue produits", icon: Package },
+      { href: "/admin/handbook", label: "Produits disponibles", icon: BookMarked },
       { href: "/admin/mes-commandes", label: "Mes commandes", icon: ShoppingCart },
-      { href: "/admin/mes-ventes", label: "Mes ventes", icon: BarChart3 },
+      { href: "/admin/mes-commandes/nouvelle", label: "Enregistrer une vente", icon: ShoppingCart },
       { href: "/admin/mes-clients", label: "Mes clients", icon: Contact },
     ],
   },
   {
-    title: "Gains & équipe",
+    title: "Développer mes ventes",
     links: [
-      { href: "/admin/mes-gains", label: "Mes gains", icon: Banknote, match: ["/admin/mon-wallet"] },
-      { href: "/admin/mes-filleuls", label: "Mon équipe", icon: UsersRound },
-      { href: "/admin/mes-defis", label: "Mes défis", icon: Trophy },
+      { href: "/admin/ma-boutique", label: "Ma boutique en ligne", icon: Store },
+      { href: "/admin/mon-marketing", label: "Marketing et partage", icon: Share2, match: ["/admin/mon-kit-marketing", "/admin/outils"] },
+      { href: "/admin/ma-communication", label: "Infos et assistance", icon: Megaphone },
+      { href: "/admin/catalogue-officiel", label: "Catalogue PDF", icon: FileText },
+      { href: "/admin/copilote", label: "Actions conseillées", icon: ListChecks },
+      { href: "/admin/academie", label: "Académie et badges", icon: Award },
+      { href: "/admin/formation", label: "Formation", icon: GraduationCap },
     ],
   },
   {
-    title: "Promotion",
+    title: "Gérer mon activité",
     links: [
-      { href: "/admin/catalogue", label: "Produits", icon: Package },
-      { href: "/admin/mon-marketing", label: "Mon marketing", icon: Share2, match: ["/admin/mon-kit-marketing", "/admin/outils"] },
-      { href: "/admin/ma-boutique", label: "Ma boutique (lien de bio)", icon: Store },
-      { href: "/admin/ma-communication", label: "Ma communication", icon: Megaphone },
-      { href: "/admin/catalogue-officiel", label: "Catalogue officiel (12 pages)", icon: FileText },
-      { href: "/admin/handbook", label: "Produits disponibles", icon: BookMarked },
+      { href: "/admin/mes-ventes", label: "Mes ventes", icon: BarChart3 },
+      { href: "/admin/mes-gains", label: "Commissions et wallet", icon: Banknote, match: ["/admin/mon-wallet"] },
+      { href: "/admin/mes-filleuls", label: "Mon équipe", icon: UsersRound },
+      { href: "/admin/mes-defis", label: "Objectifs et défis", icon: Trophy },
     ],
   },
-  { title: "Progresser", links: [{ href: "/admin/academie", label: "Académie et badges", icon: Award }, { href: "/admin/formation", label: "Quiz et formation", icon: GraduationCap }] },
 ];
 
 const livreurLinks = [
@@ -239,7 +242,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         <span className="side-mini h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/10 font-serif-display text-lg font-semibold text-white">J</span>
         <span className="side-full">
           <span className="block font-serif-display text-lg font-semibold tracking-wide text-white">JAMAAL</span>
-          <span className="block text-xs text-white/65">{isReseller ? "Espace consultant" : role === "LIVREUR" ? "Espace livreur" : "Back-office"}</span>
+          <span className="block text-xs text-white/65">{isReseller ? "Espace vendeur" : role === "LIVREUR" ? "Espace livreur" : "Back-office"}</span>
         </span>
       </Link>
 
