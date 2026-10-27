@@ -22,6 +22,8 @@ import {
   type PaymentOption,
 } from "@/components/PaymentMethodSelector";
 import type { PaymentProviderId } from "@/lib/payment/types";
+import { trackEvent } from "@/lib/analytics";
+import { getAnalyticsSessionId } from "@/lib/analytics-session";
 
 const REF_COOKIE = "jamaal_ref";
 
@@ -67,6 +69,11 @@ export default function CartPage() {
   const codeOk = discounts.code && !("error" in discounts.code) ? discounts.code : null;
   const discountTotal = (discounts.offer?.discount ?? 0) + (codeOk?.discount ?? 0);
   const cartKey = items.map((i) => `${i.productId}|${i.volumeLabel}|${i.quantity}|${i.price}`).join(",");
+  const hasItems = items.length > 0;
+
+  useEffect(() => {
+    if (hasItems) void trackEvent({ name: "cart_view", path: "/panier", sessionId: getAnalyticsSessionId() });
+  }, [hasItems]);
 
   useEffect(() => {
     if (!items.length) return;
@@ -235,7 +242,8 @@ export default function CartPage() {
           : { mode: "RETRAIT" },
         false,
         codeOk ? couponCode : "",
-        giftWrap ? { occasion: giftOccasion, from: giftFrom, voiceUrl: giftVoice } : null
+        giftWrap ? { occasion: giftOccasion, from: giftFrom, voiceUrl: giftVoice } : null,
+        getAnalyticsSessionId()
       );
       if (!res.ok) {
         setError(res.error);
@@ -245,6 +253,7 @@ export default function CartPage() {
       saveCheckoutMemory({ name: customer.name, phone: customer.phone });
       clear();
 
+      if (paymentMethod !== "cod") await trackEvent({ name: "payment_started", path: "/panier", orderId: id, sessionId: getAnalyticsSessionId(), meta: { method: paymentMethod } });
       const pay = await initiatePayment(id, paymentMethod);
       if (pay.error) {
         // La commande est enregistrée : le paiement pourra être relancé depuis sa page.
@@ -365,7 +374,9 @@ export default function CartPage() {
               <span>Total</span>
               <span>{formatPrice(Math.max(0, total() - discountTotal) + deliveryFee)}</span>
             </div>
-            <div className="mt-3">
+            <details className="mt-3 rounded-lg border border-line px-3 py-2">
+              <summary className="cursor-pointer text-xs font-medium text-navy/75">{codeOk ? `Code promo appliqué : ${codeOk.code}` : "Vous avez un code promo ?"}</summary>
+              <div className="mt-2">
               <div className="flex gap-2">
                 <input
                   value={couponInput}
@@ -386,7 +397,8 @@ export default function CartPage() {
               </div>
               {discounts.code && "error" in discounts.code && <p className="mt-1 text-xs text-rose-dark">{discounts.code.error}</p>}
               {codeOk && <button type="button" onClick={() => { setCouponCode(""); setCouponInput(""); }} className="mt-1 text-xs text-navy/60 underline">Retirer le code</button>}
-            </div>
+              </div>
+            </details>
 
             <div className="mt-4 flex flex-col gap-3">
               <input
@@ -438,6 +450,9 @@ export default function CartPage() {
 
               <DeliveryChooser productsTotal={Math.max(0, total() - discountTotal)} value={delivery} onChange={setDelivery} recipientPhone={forOther ? recipient.phone : customer.phone} onAddressText={(t) => setCustomer((c) => ({ ...c, address: t }))} />
 
+              <details className="rounded-xl border border-line px-3 py-2">
+                <summary className="cursor-pointer text-sm font-medium text-navy">Options facultatives : vendeur ou cadeau</summary>
+                <div className="mt-3 space-y-3">
               {consultants.length > 0 && (
                 <div>
                   <select
@@ -482,6 +497,8 @@ export default function CartPage() {
                   </div>
                 )}
               </div>
+                </div>
+              </details>
 
               {paymentOptions === null ? (
                 <p className="text-sm text-navy/70">Chargement des moyens de paiement…</p>

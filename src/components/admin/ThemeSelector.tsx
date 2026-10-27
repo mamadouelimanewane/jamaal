@@ -87,18 +87,22 @@ export function ThemeSelector({ initialTheme, consultantName, avatarUrl, tagline
               </div>
               <div className="flex justify-center sm:justify-end">
                 <div className="h-28 w-28 overflow-hidden rounded-full border-4 sm:h-36 sm:w-36" style={{ borderColor: theme.palette.accent, backgroundColor: theme.palette.primary }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element -- aperçu de la photo vendeur */}
                   {avatarUrl ? <img src={avatarUrl} alt="Photo de la boutique" className="h-full w-full object-cover" /> : <span className="flex h-full items-center justify-center font-serif-display text-3xl text-white">{initials || "JM"}</span>}
                 </div>
               </div>
             </div>
             <div className="border-t px-4 py-4 sm:px-6" style={{ borderColor: `${theme.palette.accent}35` }}>
               <div className="mb-3 flex items-baseline justify-between gap-2">
-                <h4 className="font-serif-display text-base font-semibold">Mes coups de cœur</h4>
-                <span className="text-[10px] opacity-60">Sélection du vendeur</span>
+                <h4 className="font-serif-display text-base font-semibold">{showcase.length ? "Mes coups de cœur" : "Votre catalogue"}</h4>
+                <span className="text-[10px] opacity-60">{showcase.length ? "Sélection du vendeur" : "Aperçu des produits"}</span>
               </div>
               {previewProducts.length ? <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3">
                 {previewProducts.map((product) => <article key={product.id} className="min-w-0 border p-2" style={{ borderColor: `${theme.palette.accent}35`, backgroundColor: theme.palette.background }}>
-                  <div className="mb-2 flex h-16 items-center justify-center" style={{ background: `linear-gradient(140deg, ${theme.palette.accent}20, ${theme.palette.primary}12)` }}><span className="h-8 w-5 rounded-t-md rounded-b-sm border" style={{ borderColor: `${theme.palette.accent}90`, backgroundColor: `${theme.palette.surface}cc` }} /></div>
+                  <div className="mb-2 flex h-16 items-center justify-center overflow-hidden" style={{ background: `linear-gradient(140deg, ${theme.palette.accent}20, ${theme.palette.primary}12)` }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element -- aperçu de la photo catalogue */}
+                    {product.photo ? <img src={product.photo} alt={product.name} className="h-full w-full object-contain" /> : <span className="h-8 w-5 rounded-t-md rounded-b-sm border" style={{ borderColor: `${theme.palette.accent}90`, backgroundColor: `${theme.palette.surface}cc` }} />}
+                  </div>
                   <p className="truncate text-[11px] font-semibold">{product.name}</p>
                   {product.price != null && <p className="mt-1 text-[10px] font-medium" style={{ color: theme.palette.accent }}>{product.price.toLocaleString("fr-FR")} FCFA</p>}
                 </article>)}

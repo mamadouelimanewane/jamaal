@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/currency";
+import Link from "next/link";
 import { getBusinessModel } from "@/lib/business-model-store";
 import { payoutProvidersConfig, waveBusinessBalance, wavePayoutKeySource, wavePayoutKeyTail, WALLET_LABELS } from "@/lib/payouts/providers";
 import { retryAllWithdrawalsAction } from "@/lib/actions/wallet";
@@ -16,7 +17,7 @@ export const metadata = { title: "Wallets des membres" };
 export default async function WalletsAdminPage() {
   const session = await auth();
   if (session?.user?.role !== "ADMIN") redirect("/admin");
-  const [sums, pending, recent, consultants, livreurs, numbers, model] = await Promise.all([
+  const [sums, pending, recent, consultants, livreurs, numbers, model, failedPayouts, failedPayoutStats, commissionsToCredit, commissionsInReview, commissionNeeds] = await Promise.all([
     prisma.walletTransaction.groupBy({ by: ["ownerType", "ownerId"], where: { OR: [{ status: "VALIDE" }, { status: "EN_ATTENTE", kind: { in: ["RETRAIT", "PAIEMENT"] } }] }, _sum: { amount: true } }),
     prisma.walletTransaction.findMany({ where: { status: "EN_ATTENTE" }, orderBy: { createdAt: "asc" } }),
     prisma.walletTransaction.findMany({ where: { status: { not: "EN_ATTENTE" } }, orderBy: { updatedAt: "desc" }, take: 30 }),
@@ -24,6 +25,11 @@ export default async function WalletsAdminPage() {
     prisma.livreur.findMany({ select: { id: true, name: true, walletProvider: true, walletNumber: true }, orderBy: { name: "asc" } }),
     getDepositNumbers(),
     getBusinessModel(),
+    prisma.walletTransaction.findMany({ where: { kind: "RETRAIT", status: "ECHEC" }, orderBy: { updatedAt: "desc" }, take: 30 }),
+    prisma.walletTransaction.aggregate({ where: { kind: "RETRAIT", status: "ECHEC" }, _sum: { amount: true }, _count: { _all: true } }),
+    prisma.commissionEntry.aggregate({ where: { status: "A_VERSER", amount: { gt: 0 } }, _sum: { amount: true }, _count: { _all: true } }),
+    prisma.commissionEntry.aggregate({ where: { status: "EN_REVUE", amount: { gt: 0 } }, _sum: { amount: true }, _count: { _all: true } }),
+    prisma.commissionEntry.findMany({ where: { status: { in: ["A_VERSER", "EN_REVUE"] }, amount: { gt: 0 } }, orderBy: { createdAt: "asc" }, take: 30, include: { consultant: { select: { name: true } } } }),
   ]);
   const names = new Map<string, string>([...consultants.map((c) => [`CONSULTANT:${c.id}`, c.name] as const), ...livreurs.map((l) => [`LIVREUR:${l.id}`, l.name] as const)]);
   const label = (t: { ownerType: string; ownerId: string }) => `${names.get(`${t.ownerType}:${t.ownerId}`) ?? "?"} (${t.ownerType === "LIVREUR" ? "livreur" : "revendeur"})`;
@@ -61,11 +67,27 @@ export default async function WalletsAdminPage() {
         </div>
       </section>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-6">
         <div className="rounded-xl border border-line bg-white px-4 py-3"><p className="text-sm text-navy/80">Total dû aux membres</p><p className="text-xl font-semibold text-ink">{formatPrice(owed)}</p></div>
         <div className="rounded-xl border border-line bg-white px-4 py-3"><p className="text-sm text-navy/80">Retraits à verser</p><p className="text-xl font-semibold text-ink">{withdrawals.length} · {formatPrice(Math.abs(withdrawals.reduce((t, w) => t + w.amount, 0)))}</p></div>
         <div className="rounded-xl border border-line bg-white px-4 py-3"><p className="text-sm text-navy/80">Dépôts à vérifier</p><p className="text-xl font-semibold text-ink">{deposits.length} · {formatPrice(deposits.reduce((t, d) => t + d.amount, 0))}</p></div>
+        <div className={`rounded-xl border px-4 py-3 ${failedPayoutStats._count._all ? "border-red-200 bg-red-50" : "border-line bg-white"}`}><p className="text-sm text-navy/80">Payouts échoués</p><p className="text-xl font-semibold text-ink">{failedPayoutStats._count._all} · {formatPrice(Math.abs(failedPayoutStats._sum.amount ?? 0))}</p></div>
+        <div className={`rounded-xl border px-4 py-3 ${commissionsToCredit._count._all ? "border-amber-200 bg-amber-50" : "border-line bg-white"}`}><p className="text-sm text-navy/80">Commissions à créditer</p><p className="text-xl font-semibold text-ink">{commissionsToCredit._count._all} · {formatPrice(commissionsToCredit._sum.amount ?? 0)}</p></div>
+        <div className={`rounded-xl border px-4 py-3 ${commissionsInReview._count._all ? "border-amber-200 bg-amber-50" : "border-line bg-white"}`}><p className="text-sm text-navy/80">Commissions en revue</p><p className="text-xl font-semibold text-ink">{commissionsInReview._count._all} · {formatPrice(commissionsInReview._sum.amount ?? 0)}</p></div>
       </div>
+
+      {(commissionNeeds.length > 0) && <section className="rounded-2xl border border-amber-200 bg-white">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-amber-100 px-4 py-3 sm:px-5">
+          <h2 className="font-semibold text-amber-950">Commissions à créditer ou à vérifier</h2>
+          <Link href="/admin/fraude" className="text-xs font-semibold text-navy underline">Ouvrir le contrôle des commissions</Link>
+        </div>
+        <ul className="divide-y divide-line">
+          {commissionNeeds.map((entry) => <li key={entry.id} className="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5 text-sm sm:px-5">
+            <span className="min-w-0 text-navy">{entry.consultant.name} · commande {entry.orderId.slice(-8).toUpperCase()} · {entry.level === "VENTE" ? "vendeur" : entry.level === "NIVEAU_1" ? "parrain direct" : entry.level}</span>
+            <span className="shrink-0 font-semibold tabular-nums text-navy">{formatPrice(entry.amount)} · {entry.status === "EN_REVUE" ? "à vérifier" : "à créditer"}</span>
+          </li>)}
+        </ul>
+      </section>}
 
       <section className="rounded-2xl border border-line bg-white">
         <h2 className="border-b border-line px-4 py-3 font-semibold text-navy sm:px-5">Retraits à verser</h2>
@@ -80,6 +102,21 @@ export default async function WalletsAdminPage() {
                   {!t.providerRef && t.error && <p className="text-xs font-semibold text-amber-800">Envoi automatique retardé : {t.error}</p>}
                 </div>
                 <WithdrawalRowActions id={t.id} auto={!!autoOn} />
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section className="rounded-2xl border border-red-200 bg-white">
+        <h2 className="border-b border-red-100 px-4 py-3 font-semibold text-red-900 sm:px-5">Payouts échoués à examiner {failedPayouts.length > 0 && <span className="text-xs font-normal text-red-700">(30 plus récents)</span>}</h2>
+        {failedPayouts.length === 0 ? <p className="px-4 py-6 text-sm text-navy/70 sm:px-5">Aucun payout échoué.</p> : (
+          <ul className="divide-y divide-red-100">
+            {failedPayouts.map((tx) => (
+              <li key={tx.id} className="flex flex-col gap-1 px-4 py-3 text-sm sm:px-5">
+                <p className="font-semibold text-ink">{formatPrice(-tx.amount)} · {label(tx)} · {WALLET_LABELS[tx.provider as "WAVE"] ?? tx.provider} {tx.phone}</p>
+                <p className="text-xs text-red-800">{tx.error ?? "Le prestataire a refusé le transfert."} · {tx.updatedAt.toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short", timeZone: "Africa/Dakar" })}</p>
+                <p className="text-xs text-navy/60">Le montant est de nouveau disponible dans le wallet du membre. Il peut corriger ses coordonnées puis demander un nouveau payout.</p>
               </li>
             ))}
           </ul>
@@ -137,7 +174,7 @@ export default async function WalletsAdminPage() {
             <li key={t.id} className="flex items-start justify-between gap-3 px-4 py-2.5 text-sm sm:px-5">
               <div className="min-w-0">
                 <p className="text-ink">{KIND_LABELS[t.kind] ?? t.kind} · {label(t)}</p>
-                <p className="truncate text-xs text-navy/65">{t.updatedAt.toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short", timeZone: "Africa/Dakar" })}{t.note ? ` · ${t.note}` : ""}{t.status !== "VALIDE" ? ` · ${t.status.toLowerCase()}` : ""}</p>
+                <p className="truncate text-xs text-navy/65">{t.updatedAt.toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short", timeZone: "Africa/Dakar" })}{t.note ? ` · ${t.note}` : ""}{t.status !== "VALIDE" ? ` · ${t.status.toLowerCase()}` : ""}{t.providerRef ? ` · Réf. ${t.providerRef}` : ""}{t.error ? ` · ${t.error}` : ""}</p>
               </div>
               <span className={`shrink-0 font-semibold tabular-nums ${t.amount >= 0 ? "text-emerald-700" : "text-ink"}`}>{t.amount >= 0 ? "+" : "−"} {formatPrice(Math.abs(t.amount))}</span>
             </li>

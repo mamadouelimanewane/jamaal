@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { CalendarClock, Minus, Plus, ShieldCheck, ShoppingBag } from "lucide-react";
 import type { Product } from "@/data/types";
 import { useCartStore } from "@/lib/cart-store";
 import { formatPrice } from "@/lib/currency";
 import { depositFor, type ReservationSettings } from "@/lib/reservation";
+import { trackEvent } from "@/lib/analytics";
+import { getAnalyticsSessionId } from "@/lib/analytics-session";
 
 const LOW = 5;
 
@@ -27,6 +29,10 @@ export function ProductPurchasePanel({ product, reservation }: { product: Produc
   const reservable = out && !!reservation?.enabled;
   const maxQty = reservable ? 20 : Math.max(1, Math.min(20, Number.isFinite(stock) ? stock : 20));
 
+  useEffect(() => {
+    void trackEvent({ name: "product_view", path: `/produits/${product.slug}`, productId: product.id, sessionId: getAnalyticsSessionId() });
+  }, [product.id, product.slug]);
+
   function choose(i: number) {
     setVolumeIdx(i);
     const st = stockOf(volumes[i].label);
@@ -36,6 +42,7 @@ export function ProductPurchasePanel({ product, reservation }: { product: Produc
   function handleAdd() {
     if (out) return;
     addItem({ productId: product.id, slug: product.slug, name: product.name, volumeLabel: volume.label, price: volume.price, colorFrom: product.colorFrom, colorTo: product.colorTo }, Math.min(quantity, maxQty));
+    void trackEvent({ name: "add_to_cart", path: `/produits/${product.slug}`, productId: product.id, sessionId: getAnalyticsSessionId(), meta: { quantity: Math.min(quantity, maxQty), volume: volume.label } });
     setAdded(true);
     setTimeout(() => setAdded(false), 2200);
   }

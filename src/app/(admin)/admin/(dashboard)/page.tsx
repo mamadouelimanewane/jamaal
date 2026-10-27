@@ -112,6 +112,16 @@ async function AdminOverview() {
       </div>
       <p className="mt-1 text-sm text-navy/75">Vue d&apos;ensemble de l&apos;activité JAMAAL.</p>
 
+      <section className="mt-6 rounded-2xl border border-line bg-white p-4 sm:p-5">
+        <h2 className="font-serif-display text-lg font-semibold text-navy">À traiter en priorité</h2>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {pendingOrders > 0 && <Link href="/admin/commandes" className="rounded-full bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-900">{pendingOrders} commande(s) en attente · Ouvrir</Link>}
+          {pendingReturns > 0 && <Link href="/admin/retours" className="rounded-full bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-900">{pendingReturns} retour(s) à traiter · Ouvrir</Link>}
+          {lowStockCount > 0 && <Link href="/admin/stocks" className="rounded-full bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-900">{lowStockCount} référence(s) en stock bas · Vérifier</Link>}
+          {pendingOrders === 0 && pendingReturns === 0 && lowStockCount === 0 && <p className="text-sm text-emerald-800">Aucune action urgente pour le moment.</p>}
+        </div>
+      </section>
+
       <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-3">
         {cards.map((c) => (
           <StatCard key={c.label} {...c} />

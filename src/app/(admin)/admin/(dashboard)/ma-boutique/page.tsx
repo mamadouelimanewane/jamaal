@@ -14,7 +14,7 @@ export default async function MaBoutiquePage() {
   const me = await getReseller();
   if (!me) return <NotReseller />;
   const [links, catalog, badges] = await Promise.all([resellerLinks(me.slug ?? null), resellerCatalog(), earnedBadges(me.id)]);
-  const products = catalog.map((p) => ({ id: p.id, name: p.name, code: p.choganCode, price: p.price, multiFormat: p.multiFormat, inspiredBy: p.inspiredBy }));
+  const products = catalog.map((p) => ({ id: p.id, name: p.name, code: p.choganCode, price: p.price, photo: p.photo, multiFormat: p.multiFormat, inspiredBy: p.inspiredBy }));
   return (
     <div className="max-w-3xl">
       <h1 className="font-serif-display text-2xl font-semibold text-navy">Ma boutique</h1>

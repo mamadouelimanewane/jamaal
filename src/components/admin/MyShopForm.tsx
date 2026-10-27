@@ -36,6 +36,7 @@ export function MyShopForm({
   const [removed, setRemoved] = useState(false);
   const [text, setText] = useState(bio ?? "");
   const [taglineText, setTaglineText] = useState(tagline ?? "");
+  const [favoritePreview, setFavoritePreview] = useState(favorites);
   const input = useRef<HTMLInputElement>(null);
 
   async function pick(e: React.ChangeEvent<HTMLInputElement>) {
@@ -107,7 +108,7 @@ export function MyShopForm({
         tagline={taglineText}
         bio={text}
         products={products}
-        favorites={favorites}
+        favorites={favoritePreview}
       />
 
       {/* 3. Slogan / Phrase d'accroche */}
@@ -172,6 +173,7 @@ export function MyShopForm({
           max={8}
           showValue={false}
           removeLabel="Retirer de mes coups de cœur"
+          onSelectionChange={setFavoritePreview}
         />
       </div>
 

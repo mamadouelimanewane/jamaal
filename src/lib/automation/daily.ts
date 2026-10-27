@@ -17,6 +17,8 @@ import { sweepMissedCommissions } from "@/lib/payouts/engine";
 import { creditLivreurEarnings } from "@/lib/wallet";
 import { alertChallengesAlmostDone } from "@/lib/whatsapp/alerts";
 import { whatsappConfig } from "@/lib/whatsapp";
+import { recordAutomationRun } from "@/lib/automation/run-log";
+import { prisma } from "@/lib/prisma";
 
 export async function runDailyJobs(origin: string, opts: { budgetMs?: number; now?: Date } = {}) {
   const started = Date.now();
@@ -48,6 +50,15 @@ export async function runDailyJobs(origin: string, opts: { budgetMs?: number; no
   await step("veilleChogan", () => watchChoganPrices(Math.max(5_000, budgetMs - (Date.now() - started) - 8_000)));
   // Le résumé en dernier : il compte aussi les changements de prix détectés juste avant.
   await step("resume", () => sendDailySummary(origin, now).then((t) => (t.length > 60 ? "envoyé" : t)));
+  await step("nettoyageAnalytique", async () => {
+    const cutoff = new Date(now.getTime() - 180 * 86_400_000);
+    const [events, runs] = await Promise.all([
+      prisma.analyticsEvent.deleteMany({ where: { createdAt: { lt: cutoff } } }),
+      prisma.setting.deleteMany({ where: { key: { startsWith: "automation_run_", lt: `automation_run_${cutoff.getTime().toString().padStart(13, "0")}` } } }),
+    ]);
+    return { evenementsSupprimes: events.count, executionsSupprimees: runs.count };
+  });
   report.dureeMs = Date.now() - started;
+  await recordAutomationRun("daily", new Date(started), report);
   return report;
 }

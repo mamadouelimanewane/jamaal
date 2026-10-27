@@ -8,6 +8,7 @@ import { OrderStatus } from "@prisma/client";
 import { placeOrder, type CheckoutCustomer, type CheckoutDelivery, type CheckoutItem } from "@/lib/orders/place-order";
 export type { CheckoutCustomer, CheckoutDelivery, CheckoutItem };
 import { setOrderStatus } from "@/lib/orders/status";
+import { trackEvent } from "@/lib/analytics";
 
 /**
  * Crée une commande publique (checkout client).
@@ -48,12 +49,15 @@ export async function createOrder(
   delivery: CheckoutDelivery = { mode: "RETRAIT" },
   reservation: boolean = false,
   couponCode: string = "",
-  gift: unknown = null
+  gift: unknown = null,
+  analyticsSessionId?: string
 ): Promise<CreateOrderResult> {
   try {
     // Les options internes (clé de limitation…) ne viennent jamais du navigateur.
     const code = typeof couponCode === "string" ? couponCode.slice(0, 40) : "";
-    return { ok: true, id: await placeOrder(customer, items, consultantId, acceptCgv, giftWrap, giftMessage, delivery, reservation, { couponCode: code, gift: giftWrap ? cleanGiftInfo(gift) : undefined }) };
+    const id = await placeOrder(customer, items, consultantId, acceptCgv, giftWrap, giftMessage, delivery, reservation, { couponCode: code, gift: giftWrap ? cleanGiftInfo(gift) : undefined });
+    await trackEvent({ name: "order_created", path: reservation ? "/reserver" : "/panier", orderId: id, sessionId: analyticsSessionId });
+    return { ok: true, id };
   } catch (e) {
     const internal = !(e instanceof Error) || /^PrismaClient/.test(e.constructor.name);
     if (internal) console.error("[commande]", e);

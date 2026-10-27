@@ -5,6 +5,7 @@ import { AUTOMATIONS, automationStates, type AutomationId } from "@/lib/automati
 import { whatsappConfig } from "@/lib/whatsapp";
 import { geminiConfigured } from "@/lib/ai/gemini";
 import { AutomationToggle, RunDailyButton } from "@/components/admin/GrowthWidgets";
+import { latestAutomationRuns } from "@/lib/automation/run-log";
 
 export const dynamic = "force-dynamic";
 
@@ -33,7 +34,7 @@ export default async function AutomationsPage() {
     }
   };
   const problems: string[] = [];
-  const [states, sent, botIn, botOut, waOrders, carts, wa] = await Promise.all([
+  const [states, sent, botIn, botOut, waOrders, carts, wa, runs] = await Promise.all([
     step("réglages", automationStates(), Object.fromEntries(Object.keys(AUTOMATIONS).map((k) => [k, true])) as Record<AutomationId, boolean>),
     step("envois", prisma.automationSent.findMany({ where: { createdAt: { gte: since } }, select: { key: true } }), []),
     step("messages reçus", prisma.whatsAppMessage.count({ where: { direction: "IN", createdAt: { gte: since } } }), 0),
@@ -41,6 +42,7 @@ export default async function AutomationsPage() {
     step("commandes WhatsApp", prisma.order.count({ where: { channel: "WHATSAPP", createdAt: { gte: since } } }), 0),
     step("paniers", prisma.abandonedCart.findMany({ orderBy: { updatedAt: "desc" }, take: 8, select: { id: true, name: true, phone: true, total: true, updatedAt: true, remindedAt: true, orderedAt: true } }), []),
     step("WhatsApp", Promise.resolve().then(() => whatsappConfig()), { provider: "aucun", active: false, template: "", webhookReady: false }),
+    step("journal", latestAutomationRuns(), []),
   ]);
   let gemini = false;
   try {
@@ -127,6 +129,24 @@ export default async function AutomationsPage() {
         <h2 className="font-semibold text-navy">Lancer la tâche du jour maintenant</h2>
         <p className="mb-3 mt-1 text-sm text-navy/70">Pratique pour tester : défis terminés, relances, demandes d&apos;avis, veille des prix Chogan et résumé du soir. Rien n&apos;est envoyé deux fois.</p>
         <RunDailyButton />
+      </section>
+
+      <section className="rounded-2xl border border-line bg-white p-5">
+        <h2 className="font-semibold text-navy">Dernières exécutions automatiques</h2>
+        <p className="mt-1 text-xs text-navy/60">Le dernier résultat du cron du matin et du soir, avec les étapes en échec.</p>
+        {runs.length ? <ul className="mt-3 space-y-3">
+          {runs.map((run) => (
+            <li key={`${run.job}:${run.startedAt}`} className="rounded-xl border border-line p-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="text-sm font-semibold text-navy">{run.job === "daily" ? "Tâche du soir" : "Kit du matin"} · {new Date(run.startedAt).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short", timeZone: "Africa/Dakar" })}</p>
+                <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${run.status === "OK" ? "bg-emerald-50 text-emerald-800" : run.status === "PARTIEL" ? "bg-amber-50 text-amber-900" : "bg-red-50 text-red-800"}`}>{run.status === "OK" ? "Terminé" : run.status === "PARTIEL" ? "Terminé avec des erreurs" : "Échec"} · {(run.durationMs / 1000).toFixed(1)} s</span>
+              </div>
+              <ul className="mt-2 grid gap-1 text-xs sm:grid-cols-2">
+                {run.steps.map((item) => <li key={item.name} className={item.status === "ECHEC" ? "text-red-800" : "text-navy/70"}>{item.status === "ECHEC" ? "Échec" : "OK"} · {item.name}{item.status === "ECHEC" && ` : ${item.detail}`}</li>)}
+              </ul>
+            </li>
+          ))}
+        </ul> : <p className="mt-3 text-sm text-navy/60">Le journal se remplira à la prochaine exécution planifiée.</p>}
       </section>
 
       <section className="rounded-2xl border border-line bg-white p-5">

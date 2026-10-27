@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/currency";
 import { BarList } from "@/components/admin/BarList";
 import { DailyRevenueChart } from "@/components/admin/DailyRevenueChart";
+import { getAnalyticsFunnel } from "@/lib/analytics";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +18,7 @@ const daysAgo = (n: number) => new Date(Date.now() - n * 86_400_000);
 const channelLabels: Record<string, string> = { SITE: "Site", WHATSAPP: "WhatsApp", REVENDEUR: "Revendeur", CATALOGUE: "Catalogue WhatsApp" };
 
 export default async function AdminStatsPage() {
-  const [dailyRaw, statusGroups, topProducts, topConsultantsRaw, channelGroups] = await Promise.all([
+  const [dailyRaw, statusGroups, topProducts, topConsultantsRaw, channelGroups, funnel] = await Promise.all([
     prisma.$queryRaw<{ date: string; total: bigint }[]>`
       SELECT to_char("createdAt", 'YYYY-MM-DD') as date, SUM(total)::bigint as total
       FROM "Order"
@@ -42,6 +43,7 @@ export default async function AdminStatsPage() {
     prisma.order
       .groupBy({ by: ["channel"], _count: { _all: true }, _sum: { total: true }, where: { status: { not: "ANNULEE" }, createdAt: { gte: daysAgo(30) } } })
       .catch(() => []),
+    getAnalyticsFunnel(30).catch(() => []),
   ]);
 
   const dailyMap = new Map(dailyRaw.map((d) => [d.date, Number(d.total)]));
@@ -75,6 +77,20 @@ export default async function AdminStatsPage() {
           formatValue={(v) => formatPrice(v)}
           color="emerald"
         />
+      </div>
+
+      <div className="mt-6 rounded-2xl border border-line bg-white p-5">
+        <h2 className="mb-1 text-sm font-semibold text-navy">Parcours d&apos;achat (30 jours)</h2>
+        <p className="mb-4 text-xs text-navy/60">Sessions temporaires du navigateur, du produit au paiement. Les pages de compte, de commande et de suivi ne sont pas suivies.</p>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {funnel.map((step) => (
+            <div key={step.name} className="rounded-xl border border-line bg-cream/40 px-4 py-3">
+              <p className="text-xs font-medium text-navy/70">{step.label}</p>
+              <p className="mt-1 text-xl font-semibold tabular-nums text-navy">{step.sessions.toLocaleString("fr-FR")} <span className="text-xs font-normal text-navy/55">sessions</span></p>
+              <p className="mt-1 text-xs text-navy/60">{step.events.toLocaleString("fr-FR")} événements · {step.rate}% des sessions avec vue produit</p>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-3">

@@ -97,8 +97,18 @@ const adminGroups = [
       { href: "/admin/retours", label: "Retours & remboursements", icon: Undo2 },
       { href: "/admin/coupons", label: "Codes promo", icon: Tags },
       { href: "/admin/offres", label: "Offres de fêtes", icon: Gift },
-      { href: "/admin/avis", label: "Avis clients", icon: Star },
+    ],
+  },
+  {
+    title: "Relation client",
+    links: [
       { href: "/admin/clients", label: "Clients (CRM)", icon: Contact },
+      { href: "/admin/avis", label: "Avis clients", icon: Star },
+      { href: "/admin/messages", label: "Messages de contact", icon: Mail },
+      { href: "/admin/whatsapp", label: "Centre WhatsApp", icon: Share2 },
+      { href: "/admin/whatsapp/conversations", label: "Conversations WhatsApp", icon: Mail },
+      { href: "/admin/whatsapp/campagnes", label: "Campagnes WhatsApp", icon: Megaphone },
+      { href: "/admin/journal-whatsapp", label: "Journal WhatsApp", icon: Mail },
     ],
   },
   {
@@ -113,22 +123,23 @@ const adminGroups = [
       { href: "/admin/academie", label: "Académie", icon: Award },
       { href: "/admin/candidatures", label: "Candidatures", icon: Contact },
       { href: "/admin/protocole", label: "Protocole de partenariat", icon: FileSignature },
-      { href: "/admin/messages", label: "Messages de contact", icon: Mail },
       { href: "/admin/annonces", label: "Annonces aux consultants", icon: Megaphone },
-      { href: "/admin/whatsapp", label: "Centre WhatsApp", icon: Share2 },
-      { href: "/admin/whatsapp/conversations", label: "Conversations WhatsApp", icon: Mail },
-      { href: "/admin/whatsapp/campagnes", label: "Campagnes WhatsApp", icon: Megaphone },
-      { href: "/admin/journal-whatsapp", label: "Journal WhatsApp", icon: Mail },
+    ],
+  },
+  {
+    title: "Opérations",
+    links: [
       { href: "/admin/livraisons", label: "Livraisons", icon: Truck },
       { href: "/admin/livreurs", label: "Livreurs", icon: Bike },
     ],
   },
   {
-    title: "Pilotage",
+    title: "Pilotage & finance",
     links: [
       { href: "/admin/statistiques", label: "Statistiques", icon: BarChart3 },
       { href: "/admin/automatisations", label: "Automatisations", icon: Zap },
       { href: "/admin/comptabilite", label: "Comptabilité & finance", icon: Wallet },
+      { href: "/admin/wallets", label: "Commissions & wallets", icon: Banknote },
     ],
   },
   {
@@ -255,8 +266,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <div className="flex flex-col gap-0.5">
               <SidebarNavLink href="/admin/notifications" label="Notifications" icon={<Bell size={18} />} badge={unreadCount} />
               {canSee("/admin/utilisateurs") && <SidebarNavLink href="/admin/utilisateurs" label="Utilisateurs" icon={<UserCog size={18} />} />}
-              {canSee("/admin/wallets") && <SidebarNavLink href="/admin/wallets" label="Wallets des membres" icon={<Wallet size={18} />} />}
-              {canSee("/admin/versements") && <SidebarNavLink href="/admin/versements" label="Versements" icon={<Wallet size={18} />} />}
               {canSee("/admin/modele-economique") && <SidebarNavLink href="/admin/modele-economique" label="Modèle économique" icon={<Calculator size={18} />} />}
               {canSee("/admin/reglages") && <SidebarNavLink href="/admin/reglages" label="Réglages & Fidélité" icon={<Settings size={18} />} />}
               {canSee("/admin/historique") && <SidebarNavLink href="/admin/historique" label="Journal des actions" icon={<ClipboardList size={18} />} />}

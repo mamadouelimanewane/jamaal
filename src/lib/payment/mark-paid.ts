@@ -7,6 +7,7 @@ import { awardLoyaltyForOrder } from "@/lib/loyalty-award";
 import { amountDue } from "@/lib/reservation";
 import { DEPOSIT_PREFIX, markDepositPaid as markWalletDepositPaid } from "@/lib/wallet";
 import { GIFT_PREFIX } from "@/lib/gift/gift";
+import { trackEvent } from "@/lib/analytics";
 
 type Method = "WAVE" | "ORANGE_MONEY" | "STRIPE";
 
@@ -48,8 +49,9 @@ export async function markOrderPaid(
 
   // Réservation : l'acompte réserve le produit, sans clôturer le paiement ni verser de commission.
   if (due.part === "ACOMPTE") {
-    await markDepositPaid(orderId, opts.externalRef ?? null);
-    return true;
+    const marked = await markDepositPaid(orderId, opts.externalRef ?? null);
+    if (marked) await trackEvent({ name: "payment_confirmed", orderId, path: "/commande" });
+    return marked;
   }
 
   const res = await prisma.order.updateMany({
@@ -63,6 +65,8 @@ export async function markOrderPaid(
     },
   });
   if (res.count === 0) return true; // un autre appel concurrent a déjà traité
+
+  await trackEvent({ name: "payment_confirmed", orderId, path: "/commande" });
 
   try {
     await awardLoyaltyForOrder(orderId);

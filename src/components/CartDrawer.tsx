@@ -1,12 +1,19 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect } from "react";
 import { X, Minus, Plus, Trash2 } from "lucide-react";
 import { useCartStore } from "@/lib/cart-store";
 import { formatPrice } from "@/lib/currency";
+import { trackEvent } from "@/lib/analytics";
+import { getAnalyticsSessionId } from "@/lib/analytics-session";
 
 export function CartDrawer() {
   const { items, isOpen, close, removeItem, updateQuantity, total } = useCartStore();
+
+  useEffect(() => {
+    if (isOpen && items.length > 0) void trackEvent({ name: "cart_open", path: "/panier", sessionId: getAnalyticsSessionId() });
+  }, [isOpen, items.length]);
 
   if (!isOpen) return null;
 

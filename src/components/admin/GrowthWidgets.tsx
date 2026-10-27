@@ -73,16 +73,21 @@ export interface PickerProduct {
   name: string;
   code: string | null;
   price: number | null;
+  photo?: string | null;
 }
 
 /** Choix des produits d'un coffret : recherche + cases à cocher, champs « productIds ». */
-export function ProductPicker({ products, initial, max, showValue = true, removeLabel = "Retirer du coffret" }: { products: PickerProduct[]; initial: string[]; max?: number; showValue?: boolean; removeLabel?: string }) {
+export function ProductPicker({ products, initial, max, showValue = true, removeLabel = "Retirer du coffret", onSelectionChange }: { products: PickerProduct[]; initial: string[]; max?: number; showValue?: boolean; removeLabel?: string; onSelectionChange?: (ids: string[]) => void }) {
   const [selected, setSelected] = useState<string[]>(initial);
   const [q, setQ] = useState("");
   const byId = useMemo(() => new Map(products.map((p) => [p.id, p])), [products]);
   const norm = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
   const results = q.trim().length >= 2 ? products.filter((p) => norm(`${p.name} ${p.code ?? ""} ${(p as { inspiredBy?: string | null }).inspiredBy ?? ""}`).includes(norm(q.trim()))).slice(0, 12) : [];
   const value = selected.reduce((s, id) => s + (byId.get(id)?.price ?? 0), 0);
+  const updateSelection = (next: string[]) => {
+    setSelected(next);
+    onSelectionChange?.(next);
+  };
   return (
     <div className="space-y-2">
       {selected.map((id) => (
@@ -92,7 +97,7 @@ export function ProductPicker({ products, initial, max, showValue = true, remove
         {selected.map((id) => (
           <span key={id} className="inline-flex items-center gap-1 rounded-full bg-ia-light px-3 py-1 text-xs font-medium text-ia-dark">
             {byId.get(id)?.name ?? id}
-            <button type="button" aria-label={removeLabel} onClick={() => setSelected((s) => s.filter((x) => x !== id))}>
+            <button type="button" aria-label={removeLabel} onClick={() => updateSelection(selected.filter((x) => x !== id))}>
               <X size={13} />
             </button>
           </span>
@@ -112,7 +117,7 @@ export function ProductPicker({ products, initial, max, showValue = true, remove
               <li key={p.id}>
                 <button
                   type="button"
-                  onClick={() => setSelected((s) => (on ? s.filter((x) => x !== p.id) : max && s.length >= max ? s : [...s, p.id]))}
+                  onClick={() => updateSelection(on ? selected.filter((x) => x !== p.id) : max && selected.length >= max ? selected : [...selected, p.id])}
                   className={`flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-sm hover:bg-cream ${on ? "bg-ia-light/60" : ""}`}
                 >
                   <span>

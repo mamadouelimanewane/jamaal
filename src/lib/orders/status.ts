@@ -12,6 +12,7 @@ import { cancelCommissionsForOrder, runPayoutsForOrder } from "@/lib/payouts/eng
 import { recordLivreurEarning } from "@/lib/delivery-engine";
 import { syncOrderStock } from "@/lib/stock";
 import { notifyOrderUpdate } from "@/lib/whatsapp/order-notify";
+import { trackEvent } from "@/lib/analytics";
 
 function later(task: () => Promise<unknown>) {
   try {
@@ -51,8 +52,11 @@ function refresh(id: string) {
 }
 
 export async function setOrderStatus(id: string, status: OrderStatus): Promise<void> {
-  const before = await prisma.order.findUnique({ where: { id }, select: { status: true } });
+  const before = await prisma.order.findUnique({ where: { id }, select: { status: true, paymentMethod: true, paymentStatus: true } });
   await prisma.order.update({ where: { id }, data: { status } });
+  if (before && status === "LIVREE" && before.status !== status && before.paymentMethod === "A_LA_LIVRAISON" && before.paymentStatus !== "PAYE") {
+    await trackEvent({ name: "payment_confirmed", orderId: id, path: "/commande" });
+  }
   if (before && before.status !== status) await prisma.orderStatusHistory.create({ data: { orderId: id, status } }).catch(() => {});
   if (status === "LIVREE") await notifyConsultantOfDelivery(id);
   await onOrderStatusChanged(id, status);
