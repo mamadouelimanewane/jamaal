@@ -83,7 +83,12 @@ export default async function ConsultantShopPage({ params }: Props) {
       <div className="mx-auto max-w-md px-4 pb-16 pt-8">
         {/* En-tête : photo, nom, slogan, présentation */}
         <section className="text-center">
-          <div className={`mx-auto h-28 w-28 overflow-hidden rounded-full border-4 ${st.avatarBorder}`}>
+          {/* Overlay hero subtil */}
+          <div className={`absolute inset-x-0 top-0 h-60 pointer-events-none ${st.heroOverlay}`} aria-hidden="true" />
+
+          <div
+            className={`relative mx-auto h-28 w-28 overflow-hidden rounded-full border-4 ${st.avatarBorder} ${st.avatarRing}`}
+          >
             {c.photo ? (
               // eslint-disable-next-line @next/next/no-img-element -- photo du consultant
               <img src={c.photo} alt={c.name} className="h-full w-full object-cover" />
@@ -99,7 +104,7 @@ export default async function ConsultantShopPage({ params }: Props) {
           </h1>
 
           {c.tagline && (
-            <p className={`mt-1 font-serif-display italic text-sm font-medium tracking-wide ${st.textSecondary}`}>
+            <p className={`mt-1 font-serif-display italic text-sm font-medium tracking-wide ${st.textAccent}`}>
               « {c.tagline} »
             </p>
           )}
@@ -152,7 +157,7 @@ export default async function ConsultantShopPage({ params }: Props) {
             href={wa}
             target="_blank"
             rel="noopener noreferrer"
-            className={`mt-6 flex items-center justify-center gap-2 rounded-2xl px-5 py-4 text-base font-semibold transition hover:opacity-95 ${st.waButton}`}
+            className={`mt-6 flex items-center justify-center gap-2 rounded-2xl px-5 py-4 text-base font-semibold ${st.waButton}`}
           >
             <MessageCircle size={20} /> Me contacter sur WhatsApp
           </a>
@@ -164,7 +169,7 @@ export default async function ConsultantShopPage({ params }: Props) {
             <Link
               key={s.href}
               href={s.href}
-              className={`flex items-center gap-3 rounded-2xl px-4 py-3.5 text-sm font-semibold transition ${st.cardBg} ${st.shortcutHover}`}
+              className={`flex items-center gap-3 rounded-2xl px-4 py-3.5 text-sm font-semibold transition-all ${st.cardBg} ${st.shortcutHover}`}
             >
               <s.icon size={18} className="shrink-0 text-amber-500" />
               <span className={st.textPrimary}>{s.label}</span>
@@ -178,15 +183,16 @@ export default async function ConsultantShopPage({ params }: Props) {
             <h2 className={`font-serif-display text-xl font-semibold ${st.textPrimary}`}>
               {shop.chosen ? `Les coups de cœur de ${first}` : "Les préférés de mes clients"}
             </h2>
-            <ul className="mt-3 grid grid-cols-2 gap-3">
+            <div className={`mt-1 mb-3 h-px w-12 border-t-2 ${st.dividerStyle}`} />
+            <ul className="grid grid-cols-2 gap-3">
               {products.map((p) => {
                 const ask = waProduct(p.name);
                 return (
                   <li
                     key={p.id}
-                    className={`flex flex-col overflow-hidden rounded-2xl transition ${st.productCardBg}`}
+                    className={`flex flex-col overflow-hidden rounded-2xl transition-all duration-200 ${st.productCardBg} ${st.productCardHover}`}
                   >
-                    <Link href={`/produits/${p.slug}${ref}`} className="block aspect-square bg-cream/40">
+                    <Link href={`/produits/${p.slug}${ref}`} className="block aspect-square">
                       {p.photo ? (
                         // eslint-disable-next-line @next/next/no-img-element -- photos du catalogue
                         <img src={p.photo} alt={p.name} loading="lazy" className="h-full w-full object-cover" />
@@ -204,19 +210,19 @@ export default async function ConsultantShopPage({ params }: Props) {
                         {p.name}
                       </Link>
                       {p.inspiredBy && (
-                        <p className={`line-clamp-1 text-[11px] ${st.textMuted}`}>
+                        <p className={`line-clamp-1 text-[11px] italic ${st.textAccent}`}>
                           Inspiré de {p.inspiredBy}
                         </p>
                       )}
                       {p.price ? (
-                        <p className={`mt-1 text-sm font-semibold ${st.textPrimary}`}>
+                        <p className={`mt-1 text-sm ${st.priceStyle}`}>
                           {priceLabel(p.price, p.multiFormat).replace(/^à/, "À")}
                         </p>
                       ) : null}
                       <div className="mt-auto flex gap-1.5 pt-2">
                         <Link
                           href={`/produits/${p.slug}${ref}`}
-                          className={`flex-1 rounded-full px-2 py-2 text-center text-xs font-semibold transition ${st.buttonPrimary}`}
+                          className={`flex-1 rounded-full px-2 py-2 text-center text-xs font-semibold ${st.buttonPrimary}`}
                         >
                           Commander
                         </Link>
@@ -246,13 +252,14 @@ export default async function ConsultantShopPage({ params }: Props) {
             <h2 className={`font-serif-display text-xl font-semibold ${st.textPrimary}`}>
               {reviews.some((r) => r.mine) ? "Ce que disent mes clients" : "Ce que disent les clients JAMAAL"}
             </h2>
-            <ul className="-mx-4 mt-3 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2">
+            <div className={`mt-1 mb-3 h-px w-12 border-t-2 ${st.dividerStyle}`} />
+            <ul className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2">
               {reviews.map((r) => (
                 <li
                   key={r.id}
-                  className={`w-64 shrink-0 snap-start rounded-2xl p-4 shadow-sm ${st.cardBg}`}
+                  className={`w-64 shrink-0 snap-start rounded-2xl p-4 ${st.cardBg}`}
                 >
-                  <p className="flex gap-0.5 text-amber-500" aria-label={`${r.rating} sur 5`}>
+                  <p className={`flex gap-0.5 ${st.starColor}`} aria-label={`${r.rating} sur 5`}>
                     {Array.from({ length: 5 }, (_, i) => (
                       <Star key={i} size={14} fill={i < r.rating ? "currentColor" : "none"} />
                     ))}
@@ -270,8 +277,8 @@ export default async function ConsultantShopPage({ params }: Props) {
 
         {/* Bandeau de réassurance officielle */}
         <section className={`mt-9 rounded-2xl p-5 text-center shadow-md ${st.guaranteeBannerBg}`}>
-          <ShieldCheck className="mx-auto" size={24} />
-          <p className="mt-2 text-sm leading-relaxed">
+          <ShieldCheck className={`mx-auto ${st.guaranteeBannerText}`} size={24} />
+          <p className={`mt-2 text-sm leading-relaxed ${st.guaranteeBannerText}`}>
             Produits officiels Chogan, distribués au Sénégal par JAMAAL. Paiement Wave, Orange Money ou à la livraison.
           </p>
           {wa && (
@@ -279,7 +286,7 @@ export default async function ConsultantShopPage({ params }: Props) {
               href={wa}
               target="_blank"
               rel="noopener noreferrer"
-              className={`mt-4 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition ${st.buttonSecondary}`}
+              className={`mt-4 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-all ${st.buttonSecondary}`}
             >
               <MessageCircle size={16} /> Écrire à {first}
             </a>
