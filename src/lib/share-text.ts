@@ -11,8 +11,19 @@ export const productLink = (origin: string, slug: string, refSlug: string | null
 
 const fcfa = (n: number) => `${n.toLocaleString("fr-FR")} FCFA`;
 
-export function shareMessage(items: ShareItem[], origin: string, refSlug: string | null, channel: "whatsapp" | "tiktok" | "instagram" = "whatsapp"): string {
+export function shareMessage(items: ShareItem[], origin: string, refSlug: string | null, channel: "whatsapp" | "tiktok" | "instagram" | "facebook" = "whatsapp"): string {
   if (!items.length) return "";
+  if (channel === "facebook") {
+    // Facebook : liens cliquables dans la publication, idéal pour convertir avec le lien produit/boutique
+    const shop = refSlug ? `${origin}/c/${refSlug}` : origin;
+    if (items.length === 1) {
+      const p = items[0];
+      const link = productLink(origin, p.slug, refSlug);
+      return `🌸 Découvrez ${p.name}${p.inspiredBy ? ` (inspiré de ${p.inspiredBy})` : ""}${p.price ? ` à seulement ${priceLabel(p.price, p.multiFormat)}` : ""} !\n\n✨ Haute parfumerie Chogan Italie, tenue longue durée.\n🚚 Livraison express partout à Dakar et au Sénégal.\n\n👉 Commandez directement ici : ${link}\nOu contactez-moi par message privé ou sur WhatsApp ! 🌸\n\n#JAMAAL #Chogan #ParfumDakar #Luxe #Dakar #Senegal`;
+    }
+    const lines = items.map((p) => `• ${p.name}${p.inspiredBy ? ` (inspiré de ${p.inspiredBy})` : ""}${p.price ? ` — ${priceLabel(p.price, p.multiFormat)}` : ""} : ${productLink(origin, p.slug, refSlug)}`);
+    return `🌸 Ma sélection parfum & beauté JAMAAL Chogan 🌸\n\n${lines.join("\n")}\n\n🚚 Livraison rapide à domicile partout au Sénégal.\n👉 Visitez toute ma boutique : ${shop}\n\nContactez-moi en message privé ou sur WhatsApp pour commander ! ✨\n#JAMAAL #Chogan #ParfumDakar #Senegal`;
+  }
   if (channel === "instagram") {
     // Instagram : liens non cliquables dans la légende → on renvoie au lien de la bio, avec la boutique en clair.
     const names = items.map((p) => `${p.name}${p.price ? ` — ${priceLabel(p.price, p.multiFormat)}` : ""}`).join("\n");

@@ -67,8 +67,16 @@ const isIos = () =>
   (/iphone|ipad|ipod/i.test(navigator.userAgent) ||
     (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1));
 
-type App = "whatsapp" | "instagram" | "tiktok";
-const APP_LABEL: Record<App, string> = { whatsapp: "WhatsApp", instagram: "Instagram", tiktok: "TikTok" };
+function FacebookIcon({ size = 16, className = "" }: { size?: number; className?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className={className}>
+      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+    </svg>
+  );
+}
+
+type App = "whatsapp" | "instagram" | "tiktok" | "facebook";
+const APP_LABEL: Record<App, string> = { whatsapp: "WhatsApp", instagram: "Instagram", tiktok: "TikTok", facebook: "Facebook" };
 
 const copy = (text: string) => {
   void navigator.clipboard?.writeText(text).catch(() => {});
@@ -124,6 +132,7 @@ export function ShareStudio({
   const waUrl = `https://wa.me/${target}?text=${encodeURIComponent(text)}`;
   const tiktokText = useMemo(() => shareMessage(items, origin, refSlug, "tiktok"), [items, origin, refSlug]);
   const instaText = useMemo(() => shareMessage(items, origin, refSlug, "instagram"), [items, origin, refSlug]);
+  const facebookText = useMemo(() => shareMessage(items, origin, refSlug, "facebook"), [items, origin, refSlug]);
 
   useEffect(() => {
     const [fmt, list] = key.split("|") as [Format, string];
@@ -349,6 +358,44 @@ export function ShareStudio({
       }, 500);
     } else {
       window.open("https://www.tiktok.com/upload", "_blank", "noopener");
+    }
+
+    setTimeout(() => {
+      channelBox.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 150);
+  }
+
+  /** Publier sur Facebook */
+  async function onFacebook() {
+    setMsg(null);
+    openChannel("facebook");
+    copy(facebookText);
+    const files = ready?.files ?? [];
+
+    if (touch && canShareFiles(files)) {
+      setBusy(true);
+      const r = await shareFiles(files, isIos() ? undefined : facebookText);
+      setBusy(false);
+      if (r === "ok") {
+        setMsg("✓ Visuel partagé ! Collez le texte dans votre publication Facebook.");
+        return;
+      }
+    }
+
+    if (files.length) {
+      files.forEach(download);
+      setSaved(true);
+    }
+
+    setMsg("✓ Texte copié & image prête ! Ouvrez Facebook pour publier.");
+
+    if (touch) {
+      window.location.href = "fb://";
+      setTimeout(() => {
+        window.open("https://www.facebook.com/", "_blank", "noopener");
+      }, 1000);
+    } else {
+      window.open("https://www.facebook.com/", "_blank", "noopener");
     }
 
     setTimeout(() => {
@@ -608,6 +655,14 @@ export function ShareStudio({
 
         <button
           type="button"
+          onClick={onFacebook}
+          disabled={busy || loading}
+          className={`${btn} bg-[#1877F2] text-white hover:bg-[#166fe5] shadow-sm`}
+        >
+          {loading ? <Loader2 size={16} className="animate-spin" /> : <FacebookIcon size={16} />} Publier sur Facebook
+        </button>
+        <button
+          type="button"
           onClick={onGallery}
           disabled={busy || loading}
           className={`${btn} border border-line text-navy hover:bg-cream`}
@@ -680,10 +735,10 @@ export function ShareStudio({
             busy={busy}
             ios={isIos()}
             touch={touch}
-            caption={channel === "whatsapp" ? text : channel === "instagram" ? instaText : tiktokText}
+            caption={channel === "whatsapp" ? text : channel === "instagram" ? instaText : channel === "tiktok" ? tiktokText : facebookText}
             onSave={onGallery}
             onDirect={() =>
-              shareDirect(channel, channel === "whatsapp" ? text : channel === "instagram" ? instaText : tiktokText)
+              shareDirect(channel, channel === "whatsapp" ? text : channel === "instagram" ? instaText : channel === "tiktok" ? tiktokText : facebookText)
             }
             onClose={() => setChannel(null)}
           />
@@ -735,14 +790,14 @@ export function ShareStudio({
                 ? `whatsapp://send?text=${encodeURIComponent(text)}`
                 : guide === "instagram"
                 ? "instagram://app"
-                : "snssdk1233://"
+                : guide === "facebook" ? "fb://" : "snssdk1233://"
             }
             className={`mt-3 inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-white ${
               guide === "whatsapp"
                 ? "bg-[#25D366]"
                 : guide === "instagram"
                 ? "bg-gradient-to-r from-[#f58529] via-[#dd2a7b] to-[#8134af]"
-                : "bg-black"
+                : guide === "facebook" ? "bg-[#1877F2]" : "bg-black"
             }`}
           >
             Ouvrir {APP_LABEL[guide]}
@@ -761,12 +816,14 @@ const APP_STYLE: Record<App, string> = {
   whatsapp: "bg-[#25D366] text-white",
   instagram: "bg-gradient-to-r from-[#f58529] via-[#dd2a7b] to-[#8134af] text-white",
   tiktok: "bg-black text-white",
+  facebook: "bg-[#1877F2] text-white",
 };
 
 export function appLink(app: App, caption: string): string {
   if (app === "whatsapp") return `https://wa.me/?text=${encodeURIComponent(caption)}`;
   if (app === "instagram") return "https://www.instagram.com/";
-  return "https://www.tiktok.com/upload";
+  if (app === "tiktok") return "https://www.tiktok.com/upload";
+  return "https://www.facebook.com/";
 }
 
 const WHERE: Record<App, string> = {
@@ -774,6 +831,7 @@ const WHERE: Record<App, string> = {
     "Choisissez la discussion, puis 📎 → Galerie pour joindre l'image. Pour un statut : onglet Actus → 📷 → choisissez l'image.",
   instagram: "Touchez + → Publication ou Story, choisissez l'image dans vos photos, puis collez le texte en légende.",
   tiktok: "Touchez + → Importer, choisissez l'image, puis collez le texte en description.",
+  facebook: "Touchez « Que voulez-vous dire ? » ou « Photo/Vidéo », choisissez l'image, puis collez le texte.",
 };
 
 const WHERE_DESKTOP: Record<App, string> = {
@@ -783,6 +841,8 @@ const WHERE_DESKTOP: Record<App, string> = {
     "Sur instagram.com : Créer + → Sélectionner depuis l'ordinateur → l'image dans Téléchargements, puis collez le texte en légende.",
   tiktok:
     "Sur la page d'envoi TikTok : Sélectionner un fichier → l'image dans Téléchargements, puis collez le texte en description.",
+  facebook:
+    "Sur facebook.com : Créer une publication → Photo/vidéo → choisissez l'image dans Téléchargements, puis collez le texte.",
 };
 
 function ChannelSteps({
@@ -818,6 +878,13 @@ function ChannelSteps({
       window.location.href = "instagram://app";
       setTimeout(() => {
         window.open("https://www.instagram.com/", "_blank", "noopener");
+      }, 1000);
+      return;
+    }
+    if (app === "facebook" && touch) {
+      window.location.href = "fb://";
+      setTimeout(() => {
+        window.open("https://www.facebook.com/", "_blank", "noopener");
       }, 1000);
       return;
     }
