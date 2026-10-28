@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/currency";
 import { DeliveryTimeline } from "@/components/DeliveryTimeline";
 import { LiveTracking } from "@/components/LiveTracking";
+import Link from "next/link";
+import { DeliveryRescheduleForm } from "@/components/DeliveryRescheduleForm";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +19,9 @@ export default async function TrackingPage({
     include: { items: true, livreur: true, consultant: true },
   });
   if (!order) notFound();
+  const reorder = new URLSearchParams();
+  reorder.set("selection", JSON.stringify(order.items.filter((item) => item.productId).map((item) => ({ productId: item.productId, volumeLabel: item.volumeLabel }))));
+  if (order.consultant?.slug) reorder.set("ref", order.consultant.slug);
 
   return (
     <div className="mx-auto max-w-xl px-4 py-12 sm:px-6">
@@ -64,6 +69,9 @@ export default async function TrackingPage({
           Votre colis est livré directement par notre équipe JAMAAL.
         </p>
       )}
+      {order.deliveryMode === "LIVRAISON_JAMAAL" && order.status !== "ANNULEE" && order.deliveryStatus !== "LIVREE" && (
+        <DeliveryRescheduleForm orderId={order.id} />
+      )}
       {order.deliveryMode === "RETRAIT_CONSULTANT" && order.consultant && (
         <p className="mt-4 text-center text-sm text-navy/60">
           Votre colis est remis par votre consultant·e {order.consultant.name}.
@@ -87,6 +95,13 @@ export default async function TrackingPage({
           <span>{formatPrice(order.total)}</span>
         </div>
       </div>
+      {order.items.some((item) => item.productId) && order.status !== "ANNULEE" && (
+        <div className="mt-5 rounded-2xl border border-line bg-cream/60 p-5 text-center">
+          <h2 className="font-semibold text-navy">Vous souhaitez recommander ?</h2>
+          <p className="mt-1 text-sm text-navy/70">Retrouvez ces articles dans un panier. Les prix et stocks seront vérifiés au moment de la reprise.</p>
+          <Link href={`/panier?${reorder.toString()}`} className="mt-3 inline-flex rounded-full bg-navy px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-light">Recommander ces articles</Link>
+        </div>
+      )}
     </div>
   );
 }

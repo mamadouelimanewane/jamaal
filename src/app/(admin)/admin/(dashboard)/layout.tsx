@@ -169,6 +169,7 @@ const consultantGroups: { title: string | null; links: { href: string; label: st
     title: "Développer mes ventes",
     links: [
       { href: "/admin/ma-boutique", label: "Ma boutique en ligne", icon: Store },
+        { href: "/admin/achats-groupes", label: "Achats groupés", icon: UsersRound },
       { href: "/admin/mon-marketing", label: "Marketing et partage", icon: Share2, match: ["/admin/mon-kit-marketing", "/admin/outils"] },
       { href: "/admin/ma-communication", label: "Infos et assistance", icon: Megaphone },
       { href: "/admin/catalogue-officiel", label: "Catalogue PDF", icon: FileText },

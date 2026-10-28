@@ -119,3 +119,33 @@ export async function recoverCartDraft(id: string) {
   });
   return recovered.length ? recovered : null;
 }
+
+/** Prépare le panier d'un client depuis une sélection partagée par un vendeur. */
+export async function loadSharedSelection(input: unknown) {
+  if (!Array.isArray(input)) return null;
+  const requested = input.slice(0, 12).flatMap((raw) => {
+    if (!raw || typeof raw !== "object") return [];
+    const item = raw as { productId?: unknown; volumeLabel?: unknown };
+    if (typeof item.productId !== "string" || item.productId.length > 40 || typeof item.volumeLabel !== "string" || item.volumeLabel.length > 60) return [];
+    return [{ productId: item.productId, volumeLabel: item.volumeLabel }];
+  });
+  if (!requested.length) return null;
+  const products = await prisma.product.findMany({
+    where: { id: { in: [...new Set(requested.map((item) => item.productId))] } },
+    select: { id: true, slug: true, name: true, colorFrom: true, colorTo: true, stock: true, regularPrice: true, testerPrice: true, volumes: true, variants: { select: { volumeLabel: true, stock: true } } },
+  });
+  const byId = new Map(products.map((product) => [product.id, product]));
+  const prices = await getCartPrices(requested);
+  const result = requested.flatMap((item, index) => {
+    const product = byId.get(item.productId);
+    const price = prices[index]?.price;
+    if (!product || price == null) return [];
+    const hasVariants = product.variants.length > 0;
+    const stock = hasVariants
+      ? product.variants.find((variant) => variant.volumeLabel === item.volumeLabel)?.stock ?? 0
+      : product.stock;
+    if (stock <= 0) return [];
+    return [{ productId: product.id, slug: product.slug, name: product.name, volumeLabel: item.volumeLabel, price, quantity: 1, colorFrom: product.colorFrom, colorTo: product.colorTo }];
+  });
+  return result.length ? result : null;
+}

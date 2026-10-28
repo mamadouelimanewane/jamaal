@@ -173,7 +173,10 @@ export function HandbookView({ rows, refSlug, consultantName }: HandbookViewProp
       const price = row.salePrice ? ` — ${formatPrice(row.salePrice)}` : "";
       return `• ${row.name}${format}${price}\n${url}`;
     });
-    const message = `Bonjour ! Voici les produits disponibles que je vous propose :\n\n${lines.join("\n\n")}\n\nDites-moi si vous souhaitez passer commande. 🌸`;
+    const cartUrl = new URL("/panier", window.location.origin);
+    cartUrl.searchParams.set("selection", JSON.stringify(selectedRows.map((row) => ({ productId: row.productId, volumeLabel: row.format && row.format !== "Format unique" ? row.format : "Format unique" }))));
+    if (refSlug) cartUrl.searchParams.set("ref", refSlug);
+    const message = `Bonjour ! Voici les produits disponibles que je vous propose :\n\n${lines.join("\n\n")}\n\nPour commander toute cette sélection dans un seul panier : ${cartUrl.toString()}\n\nDites-moi si vous avez une question. 🌸`;
     const target = digits.length === 9 ? `221${digits}` : digits;
     window.open(`https://wa.me/${target}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
     setShareNotice("WhatsApp s’est ouvert avec les fiches d’achat. Vérifiez le message puis appuyez sur Envoyer.");

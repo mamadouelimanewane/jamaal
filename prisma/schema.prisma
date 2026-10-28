@@ -193,6 +193,7 @@ model Product {
   variants          ProductVariant[]
   stockMovements    StockMovement[]
   reviews           Review[]
+  groupDeals        GroupDeal[]
 
   @@index([category])
   @@index([choganCode])
@@ -481,6 +482,7 @@ model Consultant {
   user   User?
   orders Order[]
   piece  ConsultantPiece?
+  groupDeals GroupDeal[]
 
   commissionPayments CommissionPayment[]
   commissionEntries  CommissionEntry[]
@@ -1040,6 +1042,40 @@ model Offer {
   createdAt   DateTime @default(now())
 
   @@index([active, endsAt])
+}
+
+/// Achat groupé : le vendeur partage une offre à plusieurs participants; le code promo n'est délivré qu'au seuil atteint.
+model GroupDeal {
+  id           String               @id @default(cuid())
+  title        String
+  description  String               @default("")
+  productId    String
+  product      Product              @relation(fields: [productId], references: [id], onDelete: Cascade)
+  volumeLabel  String
+  targetCount  Int                  @default(3)
+  discountPct  Int                  @default(10)
+  status       String               @default("OPEN")
+  consultantId String?
+  consultant   Consultant?          @relation(fields: [consultantId], references: [id], onDelete: SetNull)
+  expiresAt    DateTime
+  participants GroupDealParticipant[]
+  createdAt    DateTime             @default(now())
+
+  @@index([status, expiresAt])
+  @@index([consultantId, createdAt])
+}
+
+model GroupDealParticipant {
+  id         String    @id @default(cuid())
+  dealId     String
+  deal       GroupDeal @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  name       String
+  phone      String
+  couponCode String?   @unique
+  createdAt  DateTime  @default(now())
+
+  @@unique([dealId, phone])
+  @@index([dealId, createdAt])
 }
 
 /// Défi du mois pour les revendeurs : objectif (nombre de ventes ou chiffre d'affaires) et bonus.

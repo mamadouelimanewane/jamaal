@@ -9,8 +9,31 @@ import { logActivity } from "@/lib/activity-log";
 import { advanceDelivery, DeliveryError, payLivreurs } from "@/lib/delivery-engine";
 import { DELIVERY_LABELS, type DeliveryStatus } from "@/lib/delivery";
 import { normalizeWalletNumber } from "@/lib/payouts/providers";
+import { headers } from "next/headers";
+import { clientIpFromHeaders, rateLimit } from "@/lib/rate-limit";
+import { canonicalizePhone } from "@/lib/phone";
+import { notifyTeamWhatsApp } from "@/lib/whatsapp";
 
 export type DeliveryActionResult = { ok: boolean; error?: string };
+
+/** Le client peut proposer un nouveau créneau; la demande est journalisée et reste à confirmer par l'équipe. */
+export async function requestDeliveryReschedule(orderId: string, phoneSuffix: string, requestedAt: string): Promise<DeliveryActionResult> {
+  const limited = await rateLimit(`delivery-reschedule:${clientIpFromHeaders(await headers())}`, { limit: 4, windowMs: 60 * 60_000 });
+  if (!limited.ok) return { ok: false, error: "Trop de demandes. Réessayez dans un moment." };
+  if (!/^[a-z0-9_-]{12,64}$/i.test(orderId) || !/^\d{4}$/.test(phoneSuffix)) return { ok: false, error: "Vérifiez les informations saisies." };
+  const order = await prisma.order.findUnique({ where: { id: orderId }, select: { id: true, status: true, deliveryStatus: true, deliveryMode: true, customerName: true, customerPhone: true, deliveryContactPhone: true } });
+  if (!order || order.deliveryMode !== "LIVRAISON_JAMAAL" || order.status === "ANNULEE" || order.deliveryStatus === "LIVREE") return { ok: false, error: "Cette livraison ne peut plus être reprogrammée." };
+  const phone = canonicalizePhone(order.deliveryContactPhone ?? order.customerPhone ?? "");
+  if (phone.length < 4 || phone.slice(-4) !== phoneSuffix) return { ok: false, error: "Les quatre derniers chiffres ne correspondent pas au numéro de la commande." };
+  const date = new Date(requestedAt);
+  if (!Number.isFinite(date.getTime()) || date.getTime() < Date.now() + 60 * 60_000 || date.getTime() > Date.now() + 14 * 86_400_000) return { ok: false, error: "Choisissez un créneau entre une heure et quatorze jours à partir de maintenant." };
+  const slot = date.toLocaleString("fr-FR", { dateStyle: "full", timeStyle: "short", timeZone: "Africa/Dakar" });
+  await prisma.deliveryEvent.create({ data: { orderId, status: "DEMANDE_REPROGRAMMATION", note: `Demande client : ${slot}` } });
+  notifyTeamWhatsApp(`Demande de nouveau créneau de livraison JAMAAL\nCommande ${orderId.slice(-8).toUpperCase()} · ${order.customerName}\nCréneau souhaité : ${slot}\nÀ confirmer avec le client.`);
+  revalidatePath(`/admin/commandes/${orderId}`);
+  revalidatePath(`/suivi/${orderId}`);
+  return { ok: true };
+}
 
 const STATUSES = Object.keys(DELIVERY_LABELS) as DeliveryStatus[];
 const asStatus = (v: string): DeliveryStatus | null => (STATUSES.includes(v as DeliveryStatus) ? (v as DeliveryStatus) : null);

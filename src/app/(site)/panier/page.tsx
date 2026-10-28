@@ -10,7 +10,7 @@ import { VoiceRecorder } from "@/components/gift/VoiceRecorder";
 import { OCCASIONS } from "@/lib/gift/gift";
 import { createOrder } from "@/lib/actions/orders";
 import { locateFromText } from "@/lib/actions/delivery-quote";
-import { getCartPrices, previewCartDiscounts, recoverCartDraft, saveCartDraft, type CartDiscounts } from "@/lib/actions/cart";
+import { getCartPrices, loadSharedSelection, previewCartDiscounts, recoverCartDraft, saveCartDraft, type CartDiscounts } from "@/lib/actions/cart";
 import { DeliveryChooser, type DeliveryChoice } from "@/components/DeliveryChooser";
 import { getActiveConsultantsForCheckout, getCheckoutPrefill } from "@/lib/actions/public-data";
 import { forgetCheckoutMemory, loadCheckoutMemory, saveCheckoutMemory } from "@/lib/checkout-memory";
@@ -72,17 +72,31 @@ export default function CartPage() {
   const hasItems = items.length > 0;
 
   useEffect(() => {
-    const recoveryId = new URLSearchParams(window.location.search).get("reprise");
-    if (!recoveryId) return;
+    const params = new URLSearchParams(window.location.search);
+    const sharedCoupon = params.get("coupon");
+    if (sharedCoupon && /^[A-Z0-9_-]{4,32}$/i.test(sharedCoupon)) {
+      setCouponInput(sharedCoupon.toUpperCase());
+      setCouponCode(sharedCoupon.toUpperCase());
+      window.history.replaceState(null, "", "/panier");
+    }
+    const recoveryId = params.get("reprise");
+    const sharedSelection = params.get("selection");
+    if (!recoveryId && !sharedSelection) return;
     let cancelled = false;
-    recoverCartDraft(recoveryId).then((recovered) => {
+    const recovery = recoveryId
+      ? recoverCartDraft(recoveryId)
+      : (() => {
+          try { return loadSharedSelection(JSON.parse(sharedSelection!)); }
+          catch { return Promise.resolve(null); }
+        })();
+    recovery.then((recovered) => {
       if (cancelled) return;
       if (recovered?.length) {
         replaceItems(recovered);
         setError(null);
         window.history.replaceState(null, "", "/panier");
       } else {
-        setError("Ce lien de reprise a expiré ou la commande a déjà été passée.");
+        setError(recoveryId ? "Ce lien de reprise a expiré ou la commande a déjà été passée." : "Les produits partagés ne sont plus disponibles. Votre panier n’a pas été modifié.");
         window.history.replaceState(null, "", "/panier");
       }
     }).catch(() => {
