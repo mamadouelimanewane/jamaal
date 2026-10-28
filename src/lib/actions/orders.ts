@@ -48,12 +48,13 @@ export async function createOrder(
   delivery: CheckoutDelivery = { mode: "RETRAIT" },
   reservation: boolean = false,
   couponCode: string = "",
-  gift: unknown = null
+  gift: unknown = null,
+  installments: number = 0
 ): Promise<CreateOrderResult> {
   try {
     // Les options internes (clé de limitation…) ne viennent jamais du navigateur.
     const code = typeof couponCode === "string" ? couponCode.slice(0, 40) : "";
-    return { ok: true, id: await placeOrder(customer, items, consultantId, acceptCgv, giftWrap, giftMessage, delivery, reservation, { couponCode: code, gift: giftWrap ? cleanGiftInfo(gift) : undefined }) };
+    return { ok: true, id: await placeOrder(customer, items, consultantId, acceptCgv, giftWrap, giftMessage, delivery, reservation, { couponCode: code, gift: giftWrap ? cleanGiftInfo(gift) : undefined, installments: Number(installments) || 0 }) };
   } catch (e) {
     const internal = !(e instanceof Error) || /^PrismaClient/.test(e.constructor.name);
     if (internal) console.error("[commande]", e);
@@ -130,6 +131,10 @@ export async function getOrderConfirmation(id: string) {
       reservationDelay: true,
       paymentRef: true,
       channel: true,
+      installmentCount: true,
+      installmentsPaid: true,
+      installmentIntervalDays: true,
+      installmentRefs: true,
       consultant: { select: { name: true, city: true, whatsapp: true } },
       items: {
         select: {

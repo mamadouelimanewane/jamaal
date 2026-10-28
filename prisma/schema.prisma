@@ -342,6 +342,13 @@ model Order {
   /// Délai annoncé au client au moment de la réservation (ex. « 15 à 21 jours »).
   reservationDelay   String?
   reservationReadyAt DateTime?
+  /// Paiement en 2 ou 3 fois (src/lib/installments.ts) : 0 = en une fois.
+  installmentCount        Int       @default(0)
+  installmentsPaid        Int       @default(0)
+  installmentIntervalDays Int       @default(15)
+  /// Références des paiements d'échéances déjà comptés (un même paiement n'est jamais compté deux fois).
+  installmentRefs         String[]  @default([])
+  installmentNextDue      DateTime?
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
   items         OrderItem[]

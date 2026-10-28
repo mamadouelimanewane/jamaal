@@ -7,6 +7,8 @@ import { awardLoyaltyForOrder } from "@/lib/loyalty-award";
 import { amountDue } from "@/lib/reservation";
 import { DEPOSIT_PREFIX, markDepositPaid as markWalletDepositPaid } from "@/lib/wallet";
 import { GIFT_PREFIX } from "@/lib/gift/gift";
+import { dueDates, isInstallmentOrder } from "@/lib/installments";
+import { notifyInstallmentReceived } from "@/lib/installments-notify";
 
 type Method = "WAVE" | "ORANGE_MONEY" | "STRIPE";
 
@@ -39,11 +41,34 @@ export async function markOrderPaid(
     console.error("[payment] méthode inattendue", orderId, order.paymentMethod, opts.method);
     return false;
   }
+  // Paiement en plusieurs fois : un même paiement (même référence) n'est jamais compté deux fois.
+  if (isInstallmentOrder(order) && opts.externalRef && order.installmentRefs.includes(opts.externalRef)) return true;
   const due = amountDue(order);
   if (!due) return true; // rien à encaisser (réservation annulée ou soldée)
   if (opts.amount != null && opts.amount !== due.amount) {
     console.error("[payment] montant inattendu", orderId, opts.amount, due.amount);
     return false;
+  }
+
+  // Échéance intermédiaire : comptée (atomiquement), sans clôturer le paiement ni verser de commission.
+  const lastInstallment = due.part === "ECHEANCE" && order.installmentsPaid + 1 >= order.installmentCount;
+  if (due.part === "ECHEANCE" && !lastInstallment) {
+    const k = order.installmentsPaid;
+    const next = dueDates(order.createdAt, order.installmentCount, order.installmentIntervalDays)[k + 1];
+    const res = await prisma.order.updateMany({
+      where: { id: orderId, installmentsPaid: k, paymentStatus: { not: "PAYE" } },
+      data: { installmentsPaid: k + 1, installmentNextDue: next, ...(opts.externalRef ? { installmentRefs: { push: opts.externalRef } } : {}), ...(order.status === "EN_ATTENTE" ? { status: "CONFIRMEE" } : {}) },
+    });
+    if (res.count) {
+      try {
+        after(() => notifyInstallmentReceived(orderId, k + 1));
+      } catch {
+        void notifyInstallmentReceived(orderId, k + 1);
+      }
+      safeRevalidate(`/commande/${orderId}`);
+      safeRevalidate(`/admin/commandes/${orderId}`);
+    }
+    return true;
   }
 
   // Réservation : l'acompte réserve le produit, sans clôturer le paiement ni verser de commission.
@@ -60,12 +85,13 @@ export async function markOrderPaid(
       ...(opts.externalRef ? { paymentRef: opts.externalRef } : {}),
       ...(order.status === "EN_ATTENTE" ? { status: "CONFIRMEE" } : {}),
       ...(order.isReservation ? { reservationStatus: "SOLDEE" } : {}),
+      ...(lastInstallment ? { installmentsPaid: order.installmentCount, installmentNextDue: null, ...(opts.externalRef ? { installmentRefs: { push: opts.externalRef } } : {}) } : {}),
     },
   });
   if (res.count === 0) return true; // un autre appel concurrent a déjà traité
 
   // Lien de paiement d'un revendeur : la livraison part en préparation maintenant, et le revendeur est prévenu.
-  if (order.channel === "REVENDEUR") {
+  if (order.channel === "REVENDEUR" || isInstallmentOrder(order)) {
     try {
       await afterPayLinkPaid(order);
     } catch (err) {
@@ -119,7 +145,7 @@ export async function markDepositPaid(orderId: string, externalRef: string | nul
 
 
 /** Commande d'un revendeur payée en ligne par son client : livraison à préparer, notification au revendeur. */
-async function afterPayLinkPaid(order: { id: string; consultantId: string | null; deliveryMode: string; deliveryStatus: string | null; isReservation: boolean; customerName: string; total: number }) {
+async function afterPayLinkPaid(order: { id: string; consultantId: string | null; deliveryMode: string; deliveryStatus: string | null; isReservation: boolean; customerName: string; total: number; installmentCount: number }) {
   if (order.deliveryMode === "LIVRAISON_JAMAAL" && !order.deliveryStatus && !order.isReservation) {
     await prisma.order.update({
       where: { id: order.id },
@@ -134,8 +160,8 @@ async function afterPayLinkPaid(order: { id: string; consultantId: string | null
     data: {
       userId: user.id,
       orderId: order.id,
-      title: "Paiement reçu 💳",
-      message: `${order.customerName} a réglé sa commande de ${order.total.toLocaleString("fr-FR")} F en ligne. Commande n° ${order.id.slice(-8).toUpperCase()}.`,
+      title: isInstallmentOrder(order) ? "Commande entièrement payée 💳" : "Paiement reçu 💳",
+      message: `${order.customerName} a réglé ${isInstallmentOrder(order) ? `la dernière échéance de sa commande (${order.total.toLocaleString("fr-FR")} F au total)` : `sa commande de ${order.total.toLocaleString("fr-FR")} F`} en ligne. Commande n° ${order.id.slice(-8).toUpperCase()}.`,
     },
   });
   safeRevalidate(`/admin/mes-commandes/${order.id}`);

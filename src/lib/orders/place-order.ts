@@ -16,6 +16,9 @@ import { getBusinessModel } from "@/lib/business-model-store";
 import { isValidPoint, newDeliveryCode, quoteDelivery } from "@/lib/delivery";
 import { depositFor } from "@/lib/reservation";
 import { getReservationSettings } from "@/lib/reservation-store";
+import { getInstallmentSettings } from "@/lib/installments-store";
+import { offeredCounts } from "@/lib/installments";
+import { getAvailablePaymentProviders } from "@/lib/payment";
 import { codeDiscount, offerDiscount, resolveDiscountCode } from "@/lib/offers";
 import { phoneLookupVariants } from "@/lib/phone";
 import { subscriptionDiscount } from "@/lib/subscriptions/plan";
@@ -61,6 +64,8 @@ export interface PlaceOrderOptions {
   couponCode?: string;
   /** Commande d'un abonnement de réassort : remise abonné sur les produits. */
   subscriptionId?: string;
+  /** Paiement en 2 ou 3 fois demandé par le client (0 ou absent : en une fois). */
+  installments?: number;
   subscriptionDiscountPct?: number;
   /** « Offrir à distance » : occasion, expéditeur, message vocal (le message écrit est giftMessage). */
   gift?: { occasion?: string | null; from?: string | null; voiceUrl?: string | null };
@@ -298,6 +303,18 @@ export async function placeOrder(
   }
   const giftCardId = giftCardUse > 0 && codeRef && !("error" in codeRef) ? codeRef.id : null;
 
+  // 3 sexies. Paiement en 2 ou 3 fois : échéances payées en ligne ; préparation et livraison une fois tout réglé.
+  let installmentData: { installmentCount?: number; installmentIntervalDays?: number; installmentNextDue?: Date } = {};
+  const parts = Math.round(Number(opts.installments ?? 0));
+  if (parts >= 2) {
+    const settings = await getInstallmentSettings();
+    if (reservation || opts.subscriptionId) throw new Error("Le paiement en plusieurs fois n'est pas possible pour cette commande.");
+    if (!offeredCounts(total, settings).includes(parts)) throw new Error(settings.enabled ? `Le paiement en plusieurs fois est proposé à partir de ${settings.minTotal.toLocaleString("fr-FR")} F.` : "Le paiement en plusieurs fois n'est pas proposé pour le moment.");
+    if (!getAvailablePaymentProviders(await getBusinessModel()).some((p) => p.id !== "cod")) throw new Error("Le paiement en plusieurs fois demande un paiement en ligne, indisponible pour le moment.");
+    installmentData = { installmentCount: parts, installmentIntervalDays: settings.intervalDays, installmentNextDue: new Date() };
+    if (deliveryData.deliveryMode === "LIVRAISON_JAMAAL") deliveryData.deliveryStatus = undefined;
+  }
+
   // 4. Vérifier le consultant s'il est fourni
   let validConsultantId: string | null = null;
   if (data.consultantId) {
@@ -346,6 +363,7 @@ export async function placeOrder(
       ...deliveryData,
       ...reservationData,
       ...offerData,
+      ...installmentData,
       items: {
         create: serverItems.map((i, k) => ({
           productId: i.productId,

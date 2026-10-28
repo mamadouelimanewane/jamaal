@@ -19,11 +19,13 @@ export const payLinkUrl = (origin: string, orderId: string) => `${origin.replace
 const F = (n: number) => `${n.toLocaleString("fr-FR").replace(/ | /g, " ")} F CFA`;
 
 /** Message WhatsApp du revendeur à son client. */
-export function payLinkMessage(o: { customerName: string; total: number; url: string; seller: string; ref: string }): string {
+export function payLinkMessage(o: { customerName: string; total: number; url: string; seller: string; ref: string; plan?: string | null }): string {
   const first = o.customerName.trim().split(/\s+/)[0] || "";
   return [
     `Bonjour ${first},`,
-    `voici le lien pour régler votre commande JAMAAL n° ${o.ref} de ${F(o.total)} :`,
+    o.plan
+      ? `voici le lien pour régler votre commande JAMAAL n° ${o.ref} de ${F(o.total)} en plusieurs fois (${o.plan}). Le même lien sert pour chaque échéance :`
+      : `voici le lien pour régler votre commande JAMAAL n° ${o.ref} de ${F(o.total)} :`,
     o.url,
     "Paiement sécurisé par Wave ou Orange Money. Dès réception, votre commande est préparée.",
     `Merci ! ${o.seller}`,

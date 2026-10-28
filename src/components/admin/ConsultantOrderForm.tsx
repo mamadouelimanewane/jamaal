@@ -1,5 +1,6 @@
 "use client";
 
+import { offeredCounts, type InstallmentSettings } from "@/lib/installments";
 import { startTransition as dispatch, useActionState, useState, useTransition } from "react";
 import { Search, Plus, Trash2 } from "lucide-react";
 import { searchProductsForOrder, type ProductSearchResult } from "@/lib/actions/product-search";
@@ -26,6 +27,7 @@ export function ConsultantOrderForm({
   walletBalance = 0,
   special,
   onlinePay = [],
+  installments = null,
 }: {
   depot: { lat: number; lng: number; label: string };
   vendor: { address: string | null; lat: number | null; lng: number | null };
@@ -34,10 +36,13 @@ export function ConsultantOrderForm({
   special?: { collect: CollectMethod[]; creditLimit: number; zones: SpecialZone[] } | null;
   /** Moyens de paiement en ligne actifs (lien de paiement envoyé au client), vide si aucun. */
   onlinePay?: string[];
+  /** Paiement en plusieurs fois (réglages JAMAAL), proposé avec le lien de paiement. */
+  installments?: InstallmentSettings | null;
 }) {
   const [collect, setCollect] = useState<"NON" | CollectMethod>("NON");
   const [payLink, setPayLink] = useState(false);
   const [payWallet, setPayWallet] = useState(false);
+  const [parts, setParts] = useState(1);
   const owed = Math.max(0, -walletBalance);
   const [query, setQuery] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
@@ -69,6 +74,7 @@ export function ConsultantOrderForm({
   }
 
   const total = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  const partsOk = (n: number) => n === 1 || (!!installments && offeredCounts(total, installments).includes(n));
 
   return (
     <form
@@ -198,6 +204,22 @@ export function ConsultantOrderForm({
                 <span className="block text-xs">Après l&apos;enregistrement, vous envoyez le lien sur son WhatsApp en un clic. Il paie en ligne : la commande, la livraison et vos commissions se confirment automatiquement.</span>
               </span>
             </label>
+          )}
+          {payLink && installments && offeredCounts(total, installments).length > 0 && (
+            <fieldset className="-mt-2 rounded-xl border border-sky-200 bg-white px-4 py-3 text-sm text-navy">
+              <legend className="px-1 text-xs font-semibold">Mon client paie</legend>
+              <input type="hidden" name="installments" value={partsOk(parts) ? parts : 1} />
+              <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Nombre de paiements">
+                {[1, ...offeredCounts(total, installments)].map((n) => (
+                  <button key={n} type="button" role="radio" aria-checked={(partsOk(parts) ? parts : 1) === n} onClick={() => setParts(n)} className={`min-h-10 rounded-full px-3.5 py-1.5 text-xs font-semibold ${(partsOk(parts) ? parts : 1) === n ? "bg-navy text-white" : "border border-line bg-white text-navy hover:bg-cream"}`}>
+                    {n === 1 ? "En 1 fois" : `En ${n} fois`}
+                  </button>
+                ))}
+              </div>
+              {partsOk(parts) && parts > 1 && (
+                <p className="mt-2 text-xs text-navy/75">Une échéance tous les {installments.intervalDays} jours avec rappel WhatsApp au client. Livraison et commissions une fois tout réglé.</p>
+              )}
+            </fieldset>
           )}
 
           <label className={`flex items-start gap-3 rounded-xl border px-4 py-3 text-sm ${walletBalance > 0 && collect === "NON" && !payLink ? "border-emerald-200 bg-emerald-50 text-emerald-950" : "border-line bg-cream/50 text-navy/70"}`}>

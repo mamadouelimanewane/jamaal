@@ -17,6 +17,8 @@ import { forgetCheckoutMemory, loadCheckoutMemory, saveCheckoutMemory } from "@/
 import { OrderOnWhatsApp } from "@/components/OrderOnWhatsApp";
 import { initiatePayment } from "@/lib/actions/payment";
 import { listPaymentOptions } from "@/lib/actions/payment-options";
+import { getInstallmentOffer } from "@/lib/actions/installments";
+import { offeredCounts, planLabel, splitAmounts, type InstallmentSettings } from "@/lib/installments";
 import {
   PaymentMethodSelector,
   type PaymentOption,
@@ -60,12 +62,19 @@ export default function CartPage() {
   // Moyens de paiement autorisés et configurés (Wave, Orange Money…), chargés depuis le serveur.
   const [paymentOptions, setPaymentOptions] = useState<PaymentOption[] | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<PaymentProviderId | null>(null);
+  const [installmentOffer, setInstallmentOffer] = useState<InstallmentSettings | null>(null);
+  const [parts, setParts] = useState(1);
   // Remises : offre de fêtes (automatique) et code promo saisi.
   const [couponInput, setCouponInput] = useState("");
   const [couponCode, setCouponCode] = useState("");
   const [discounts, setDiscounts] = useState<CartDiscounts>({ offer: null, code: null });
   const codeOk = discounts.code && !("error" in discounts.code) ? discounts.code : null;
   const discountTotal = (discounts.offer?.discount ?? 0) + (codeOk?.discount ?? 0);
+  // Paiement en 2 ou 3 fois : proposé à partir du montant fixé par JAMAAL, en paiement en ligne uniquement.
+  const grandTotal = Math.max(0, total() - discountTotal) + deliveryFee;
+  const onlineOptions = (paymentOptions ?? []).filter((o) => o.id !== "cod");
+  const partChoices = installmentOffer && onlineOptions.length ? offeredCounts(grandTotal, installmentOffer) : [];
+  const chosenParts = partChoices.includes(parts) ? parts : 1;
   const cartKey = items.map((i) => `${i.productId}|${i.volumeLabel}|${i.quantity}|${i.price}`).join(",");
 
   useEffect(() => {
@@ -158,6 +167,7 @@ export default function CartPage() {
         if (opts.length) setPaymentMethod(opts[0].id);
       })
       .catch(() => setPaymentOptions([]));
+    getInstallmentOffer().then(setInstallmentOffer).catch(() => setInstallmentOffer(null));
   }, []);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -235,7 +245,8 @@ export default function CartPage() {
           : { mode: "RETRAIT" },
         false,
         codeOk ? couponCode : "",
-        giftWrap ? { occasion: giftOccasion, from: giftFrom, voiceUrl: giftVoice } : null
+        giftWrap ? { occasion: giftOccasion, from: giftFrom, voiceUrl: giftVoice } : null,
+        chosenParts
       );
       if (!res.ok) {
         setError(res.error);
@@ -275,7 +286,7 @@ export default function CartPage() {
           </Link>
         </div>
       ) : (
-        <div className="mt-8 grid gap-8 lg:grid-cols-3">
+        <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-3 [&>*]:min-w-0">
           {pricesUpdated && (
             <p role="status" className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 lg:col-span-3">
               Les prix de certains articles ont changé depuis votre dernière visite. Votre panier affiche les prix actuels.
@@ -486,11 +497,40 @@ export default function CartPage() {
               {paymentOptions === null ? (
                 <p className="text-sm text-navy/70">Chargement des moyens de paiement…</p>
               ) : paymentOptions.length && paymentMethod ? (
-                <PaymentMethodSelector
-                  options={paymentOptions}
-                  value={paymentMethod}
-                  onChange={setPaymentMethod}
-                />
+                <>
+                  <PaymentMethodSelector
+                    options={chosenParts > 1 ? onlineOptions : paymentOptions}
+                    value={paymentMethod}
+                    onChange={setPaymentMethod}
+                  />
+                  {partChoices.length > 0 && installmentOffer && (
+                    <fieldset className="rounded-xl border border-line bg-cream/40 px-3 py-3">
+                      <legend className="px-1 text-xs font-semibold text-navy">Payer en plusieurs fois, sans frais</legend>
+                      <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Nombre de paiements">
+                        {[1, ...partChoices].map((n) => (
+                          <button
+                            key={n}
+                            type="button"
+                            role="radio"
+                            aria-checked={chosenParts === n}
+                            onClick={() => {
+                              setParts(n);
+                              if (n > 1 && paymentMethod === "cod" && onlineOptions[0]) setPaymentMethod(onlineOptions[0].id);
+                            }}
+                            className={`min-h-10 rounded-full px-3.5 py-2 text-xs font-semibold ${chosenParts === n ? "bg-navy text-white" : "border border-line bg-white text-navy hover:bg-cream"}`}
+                          >
+                            {n === 1 ? "En 1 fois" : `En ${n} fois · ${planLabel(grandTotal, n)}`}
+                          </button>
+                        ))}
+                      </div>
+                      {chosenParts > 1 && (
+                        <p className="mt-2 text-xs leading-relaxed text-navy/75">
+                          Aujourd&apos;hui {formatPrice(splitAmounts(grandTotal, chosenParts)[0])}, puis une échéance tous les {installmentOffer.intervalDays} jours, avec un rappel WhatsApp. Votre commande est préparée et livrée dès qu&apos;elle est entièrement réglée.
+                        </p>
+                      )}
+                    </fieldset>
+                  )}
+                </>
               ) : (
                 <p role="alert" className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-900">
                   Le paiement en ligne n&apos;est pas encore disponible. Contactez-nous sur WhatsApp pour passer votre commande.
@@ -520,7 +560,7 @@ export default function CartPage() {
               disabled={submitting || !paymentMethod}
               className="mt-5 w-full rounded-full bg-navy py-3 text-sm font-semibold text-white transition hover:bg-navy-light disabled:opacity-60"
             >
-              {submitting ? "Redirection vers le paiement…" : paymentMethod === "cod" ? "Passer la commande" : "Payer"}
+              {submitting ? "Redirection vers le paiement…" : paymentMethod === "cod" ? "Passer la commande" : chosenParts > 1 ? `Payer la 1re échéance (${formatPrice(splitAmounts(grandTotal, chosenParts)[0])})` : "Payer"}
             </button>
 
             <p className="mt-3 text-center text-[11px] text-navy/40">

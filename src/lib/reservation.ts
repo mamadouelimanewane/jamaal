@@ -2,6 +2,8 @@
  * Réservation d'un produit en rupture : le client paie un acompte, JAMAAL commande chez Chogan,
  * puis le client règle le solde à l'arrivée du produit. Pur (utilisable partout).
  */
+import { splitAmounts } from "./installments";
+
 
 export interface ReservationSettings {
   enabled: boolean;
@@ -54,13 +56,21 @@ export interface PayableOrder {
   depositAmount: number;
   depositPaidAt: Date | string | null;
   reservationStatus: string | null;
+  /** Paiement en plusieurs fois (src/lib/installments.ts) : nombre d'échéances (0 = en une fois) et échéances payées. */
+  installmentCount?: number;
+  installmentsPaid?: number;
 }
 
 /**
  * Montant à encaisser maintenant : l'acompte tant qu'il n'est pas payé, puis le solde
  * (seulement une fois le produit arrivé). Null : rien à payer pour l'instant.
  */
-export function amountDue(o: PayableOrder): { amount: number; part: "ACOMPTE" | "SOLDE" | "TOTAL" } | null {
+export function amountDue(o: PayableOrder): { amount: number; part: "ACOMPTE" | "SOLDE" | "TOTAL" | "ECHEANCE" } | null {
+  if (!o.isReservation && (o.installmentCount ?? 0) >= 2) {
+    const paid = o.installmentsPaid ?? 0;
+    if (paid >= o.installmentCount!) return null;
+    return { amount: splitAmounts(o.total, o.installmentCount!)[paid], part: "ECHEANCE" };
+  }
   if (!o.isReservation) return { amount: o.total, part: "TOTAL" };
   if (o.reservationStatus === "ANNULEE" || o.reservationStatus === "SOLDEE") return null;
   if (!o.depositPaidAt) return { amount: o.depositAmount, part: "ACOMPTE" };

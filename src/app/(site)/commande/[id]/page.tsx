@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { isInstallmentOrder, nextInstallment } from "@/lib/installments";
+import { InstallmentSchedule } from "@/components/InstallmentSchedule";
 import { PAY_LINK_REF } from "@/lib/pay-link";
 import { prisma } from "@/lib/prisma";
 import { SubscribeOffer } from "@/components/subscription/SubscribeOffer";
@@ -51,7 +53,10 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
   const isCanceled = sp.canceled === "1" && !isPaid;
   // Lien de paiement envoyé par le conseiller, pas encore ouvert : rien n'est « en cours » chez le prestataire.
   const linkNotStarted = order.channel === "REVENDEUR" && order.paymentRef === PAY_LINK_REF && !isPaid;
-  const isPending = paymentStatus === "EN_ATTENTE" && !isPaid && !linkNotStarted;
+  // Paiement en plusieurs fois : entre deux échéances, rien n'est « en cours » (la dernière a été comptée).
+  const inst = isInstallmentOrder(order) && !isPaid ? nextInstallment(order) : null;
+  const betweenInstallments = !!inst && order.installmentsPaid >= 1 && !!order.paymentRef && order.installmentRefs.includes(order.paymentRef);
+  const isPending = paymentStatus === "EN_ATTENTE" && !isPaid && !linkNotStarted && !betweenInstallments;
   const due = amountDue(order);
   const resa = order.isReservation ? ((order.reservationStatus ?? "ACOMPTE_ATTENDU") as ReservationStatus) : null;
   const balance = Math.max(0, order.total - order.depositAmount);
@@ -67,6 +72,8 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
         <p className="text-xs font-semibold uppercase tracking-widest text-rose-dark">
           {resa ? `Réservation · ${RESERVATION_LABELS[resa]}` : isPaid
             ? "Paiement confirmé"
+            : inst && order.installmentsPaid > 0 && !isPending
+              ? `${order.installmentsPaid}/${order.installmentCount} échéances réglées`
             : linkNotStarted
               ? "Commande à régler"
             : isCanceled
@@ -91,6 +98,8 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
                     : "Cette réservation a été annulée."
           ) : isPaid
             ? "Votre paiement a bien été reçu. Nous préparons votre commande."
+            : inst && order.installmentsPaid > 0 && !isPending
+              ? `Merci, votre échéance est bien reçue. Prochaine échéance : ${formatPrice(inst.amount)} le ${inst.dueAt.toLocaleDateString("fr-FR", { day: "numeric", month: "long", timeZone: "UTC" })}, avec un rappel sur WhatsApp. Votre commande est préparée dès qu'elle est entièrement réglée.`
             : linkNotStarted
               ? `${order.consultant?.name ?? "Votre conseiller JAMAAL"} a préparé votre commande. Réglez-la en ligne avec le bouton ci-dessous : elle est préparée dès réception du paiement.`
             : isCanceled
@@ -103,8 +112,9 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
         {resa ? (
           due && due.amount > 0 && <PayOrderButton orderId={order.id} label={due.part === "ACOMPTE" ? `Payer l'acompte (${formatPrice(due.amount)})` : `Payer le solde (${formatPrice(due.amount)})`} />
         ) : (
-          !isPaid && <PayOrderButton orderId={order.id} />
+          !isPaid && <PayOrderButton orderId={order.id} label={inst ? `Payer l'échéance ${inst.n}/${inst.of} (${formatPrice(inst.amount)})` : undefined} />
         )}
+        {isInstallmentOrder(order) && <InstallmentSchedule order={order} className="mt-6" />}
 
         <div className="mt-6 rounded-xl bg-navy/5 px-4 py-3 text-left text-sm">
           <div className="flex justify-between">

@@ -6,6 +6,7 @@ import { getBusinessModel } from "@/lib/business-model-store";
 import { walletBalance } from "@/lib/wallet";
 import { activeTerms, allowedCollect, parseZones } from "@/lib/special-terms";
 import { getAvailablePaymentProviders } from "@/lib/payment";
+import { getInstallmentSettings } from "@/lib/installments-store";
 
 export default async function NewConsultantOrderPage() {
   const session = await auth();
@@ -17,6 +18,7 @@ export default async function NewConsultantOrderPage() {
   const me = user?.consultant;
   const wallet = me ? (await walletBalance({ type: "CONSULTANT", id: me.id })).balance : 0;
   const terms = activeTerms(me?.specialTerms);
+  const installments = await getInstallmentSettings();
   const onlinePay = getAvailablePaymentProviders(model).filter((p) => p.id !== "cod").map((p) => p.label);
   const special = terms ? { collect: allowedCollect(terms), creditLimit: terms.creditLimit, zones: parseZones(terms.zones) } : null;
 
@@ -28,7 +30,7 @@ export default async function NewConsultantOrderPage() {
       <p className="mt-1 text-sm text-navy/75">
         Choisissez les produits, renseignez votre client, puis où livrer : chez lui, ou chez vous si vous achetez pour son compte.
       </p>
-      <ConsultantOrderForm depot={{ lat: model.depotLat, lng: model.depotLng, label: model.depotLabel }} vendor={{ address: me?.deliveryAddress ?? null, lat: me?.deliveryLat ?? null, lng: me?.deliveryLng ?? null }} walletBalance={wallet} special={special} onlinePay={onlinePay} />
+      <ConsultantOrderForm depot={{ lat: model.depotLat, lng: model.depotLng, label: model.depotLabel }} vendor={{ address: me?.deliveryAddress ?? null, lat: me?.deliveryLat ?? null, lng: me?.deliveryLng ?? null }} walletBalance={wallet} special={special} onlinePay={onlinePay} installments={installments} />
     </div>
   );
 }

@@ -50,6 +50,8 @@ async function startPayment(
       depositAmount: true,
       depositPaidAt: true,
       reservationStatus: true,
+      installmentCount: true,
+      installmentsPaid: true,
     },
   });
 
@@ -63,6 +65,9 @@ async function startPayment(
   }
   if (due.part === "ACOMPTE" && method === "cod") {
     throw new Error("L'acompte de réservation se paie en ligne (Wave ou Orange Money).");
+  }
+  if (due.part === "ECHEANCE" && method === "cod") {
+    throw new Error("Les échéances se paient en ligne (Wave ou Orange Money).");
   }
 
   const provider = getPaymentProvider(method);
@@ -82,7 +87,7 @@ async function startPayment(
     customerEmail: order.customerEmail,
     successUrl: `${origin.replace(/\/$/, "")}/commande/${order.id}?paid=1`,
     cancelUrl: `${origin.replace(/\/$/, "")}/commande/${order.id}?canceled=1`,
-    description: `${due.part === "ACOMPTE" ? "Acompte réservation" : due.part === "SOLDE" ? "Solde réservation" : "Commande"} JAMAAL ${order.id.slice(-8).toUpperCase()}`,
+    description: `${due.part === "ACOMPTE" ? "Acompte réservation" : due.part === "SOLDE" ? "Solde réservation" : due.part === "ECHEANCE" ? `Échéance ${order.installmentsPaid + 1}/${order.installmentCount}` : "Commande"} JAMAAL ${order.id.slice(-8).toUpperCase()}`,
   });
 
   // Persister méthode + ref

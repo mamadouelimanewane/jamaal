@@ -92,6 +92,7 @@ const adminGroups = [
     links: [
       { href: "/admin/commandes", label: "Commandes", icon: ShoppingCart },
       { href: "/admin/reservations", label: "Réservations", icon: CalendarClock },
+      { href: "/admin/paiement-echelonne", label: "Paiement en plusieurs fois", icon: CalendarClock },
       { href: "/admin/abonnements", label: "Abonnements et cartes cadeaux", icon: Repeat },
       { href: "/admin/reservations/a-commander", label: "À commander (réservations)", icon: ClipboardList },
       { href: "/admin/retours", label: "Retours & remboursements", icon: Undo2 },

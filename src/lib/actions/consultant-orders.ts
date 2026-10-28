@@ -18,6 +18,8 @@ import { runPayoutsForOrder } from "@/lib/payouts/engine";
 import { after } from "next/server";
 import { getAvailablePaymentProviders } from "@/lib/payment";
 import { PAY_LINK_REF } from "@/lib/pay-link";
+import { getInstallmentSettings } from "@/lib/installments-store";
+import { offeredCounts } from "@/lib/installments";
 import { notifyOrderUpdate } from "@/lib/whatsapp/order-notify";
 import type { Prisma } from "@prisma/client";
 
@@ -158,6 +160,16 @@ async function placeConsultantOrder(formData: FormData): Promise<string> {
   }
   const total = productsTotal - discountAmount + Number(deliveryData.deliveryFee ?? 0);
 
+  // Paiement en 2 ou 3 fois (uniquement avec le lien de paiement au client).
+  const parts = Math.round(Number(formData.get("installments") ?? 0));
+  let installmentData: { installmentCount?: number; installmentIntervalDays?: number; installmentNextDue?: Date } = {};
+  if (parts >= 2) {
+    if (!payLink) throw new Error("Le paiement en plusieurs fois se fait avec le lien de paiement envoyé au client.");
+    const settings = await getInstallmentSettings();
+    if (!offeredCounts(total, settings).includes(parts)) throw new Error(settings.enabled ? `Le paiement en plusieurs fois est proposé à partir de ${settings.minTotal.toLocaleString("fr-FR")} F.` : "Le paiement en plusieurs fois n'est pas proposé pour le moment.");
+    installmentData = { installmentCount: parts, installmentIntervalDays: settings.intervalDays, installmentNextDue: new Date() };
+  }
+
   const orderData = {
       customerName,
       customerPhone: customerPhone || null,
@@ -174,6 +186,7 @@ async function placeConsultantOrder(formData: FormData): Promise<string> {
       ...(deliveryData.deliveryStatus && !payLink ? { deliveryEvents: { create: { status: "A_PREPARER", note: `${deliveryNote} · ${deliveryData.deliveryDistanceKm} km du dépôt` } } } : {}),
       // Lien de paiement : la livraison ne part en préparation qu'une fois le paiement reçu (markOrderPaid).
       ...(payLink ? { deliveryStatus: null, paymentMethod: "WAVE" as const, paymentStatus: "EN_ATTENTE" as const, paymentRef: PAY_LINK_REF } : {}),
+      ...installmentData,
       ...(payWithWallet ? { paymentMethod: "WALLET" as const, paymentStatus: "PAYE" as const, paidAt: new Date(), paymentRef: "wallet" } : {}),
       ...(collect && isCollectMethod(collect) ? { paymentMethod: "WALLET" as const, paymentStatus: "PAYE" as const, paidAt: new Date(), paymentRef: collectRef(collect) } : {}),
   } satisfies Prisma.OrderUncheckedCreateInput;

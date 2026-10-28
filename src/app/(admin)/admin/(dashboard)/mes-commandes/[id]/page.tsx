@@ -10,6 +10,8 @@ import { DELIVERY_LABELS, type DeliveryStatus } from "@/lib/delivery";
 import { CopyButton } from "@/components/admin/CopyButton";
 import { getSiteUrl } from "@/lib/site-url";
 import { isPayLinkOrder, payLinkMessage, payLinkUrl } from "@/lib/pay-link";
+import { isInstallmentOrder, planLabel } from "@/lib/installments";
+import { InstallmentSchedule } from "@/components/InstallmentSchedule";
 import { settlePendingPayment } from "@/lib/payment/settle";
 import { shopWhatsAppLink } from "@/lib/shop/consultant-shop";
 
@@ -48,7 +50,7 @@ export default async function MesCommandeDetailPage({
   }
   const justCreated = (await searchParams).lien === "1";
   const payLink = isPayLinkOrder(order) ? payLinkUrl((await getSiteUrl().catch(() => "")) || "https://www.jamaal.sn", order.id) : null;
-  const payMsg = payLink ? payLinkMessage({ customerName: order.customerName, total: order.total, url: payLink, seller: user.consultant.name, ref: order.id.slice(-8).toUpperCase() }) : "";
+  const payMsg = payLink ? payLinkMessage({ customerName: order.customerName, total: order.total, url: payLink, seller: user.consultant.name, ref: order.id.slice(-8).toUpperCase(), plan: isInstallmentOrder(order) ? planLabel(order.total, order.installmentCount) : null }) : "";
   const payWa = payLink && order.customerPhone ? shopWhatsAppLink(order.customerPhone, payMsg) : null;
   const linkPaid = payLink && order.paymentStatus === "PAYE";
 
@@ -89,6 +91,7 @@ export default async function MesCommandeDetailPage({
           <span>{formatPrice(order.total)}</span>
         </div>
         <p className="mt-2 text-right text-xs text-navy/75">Paiement : {paymentLine(order)}</p>
+        {isInstallmentOrder(order) && <InstallmentSchedule order={order} className="mt-3" />}
       </div>
 
       {payLink && order.status !== "ANNULEE" && (
@@ -102,9 +105,9 @@ export default async function MesCommandeDetailPage({
             </>
           ) : (
             <>
-              <h2 className="text-sm font-semibold text-sky-950">{justCreated ? "Commande enregistrée : envoyez le lien de paiement" : "Lien de paiement en attente"}</h2>
+              <h2 className="text-sm font-semibold text-sky-950">{justCreated ? "Commande enregistrée : envoyez le lien de paiement" : isInstallmentOrder(order) && order.installmentsPaid > 0 ? `${order.installmentsPaid}/${order.installmentCount} échéances réglées` : "Lien de paiement en attente"}</h2>
               <p className="mt-1 text-sm text-sky-950/85">
-                Votre client paie {formatPrice(order.total)} en ligne (Wave ou Orange Money) avec ce lien. Dès le paiement, la commande{order.deliveryMode === "LIVRAISON_JAMAAL" ? " part en livraison" : " est confirmée"}, vos commissions sont enregistrées et vous êtes prévenu·e.
+                Votre client paie {formatPrice(order.total)} en ligne (Wave ou Orange Money){isInstallmentOrder(order) ? ` en ${order.installmentCount} fois (${planLabel(order.total, order.installmentCount)})` : ""} avec ce lien{isInstallmentOrder(order) ? ", qui sert aussi aux échéances suivantes" : ""}. Dès le paiement, la commande{order.deliveryMode === "LIVRAISON_JAMAAL" ? " part en livraison" : " est confirmée"}, vos commissions sont enregistrées et vous êtes prévenu·e.
               </p>
               <p className="mt-3 break-all rounded-lg bg-white px-3 py-2 font-mono text-xs text-navy">{payLink}</p>
               <div className="mt-3 flex flex-wrap gap-2">
