@@ -517,6 +517,7 @@ model Consultant {
   /// Conditions spéciales (encaissement direct, commission propre, zones de livraison propres), sinon le régime normal.
   specialTermsId String?
   specialTerms   SpecialTerms? @relation(fields: [specialTermsId], references: [id], onDelete: SetNull)
+  shopEvents ShopEvent[]
 }
 
 model CommissionPayment {
@@ -1241,4 +1242,19 @@ model SpecialTerms {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   consultants Consultant[]
+}
+
+/// Statistiques de la boutique personnelle (/c/<slug>) : « visite », « whatsapp » ou « produit ».
+/// « sid » : identifiant de visite anonyme tiré au hasard dans le navigateur (aucune donnée personnelle).
+model ShopEvent {
+  id           String     @id @default(cuid())
+  consultantId String
+  consultant   Consultant @relation(fields: [consultantId], references: [id], onDelete: Cascade)
+  kind         String
+  productId    String?
+  sid          String?
+  createdAt    DateTime   @default(now())
+
+  @@index([consultantId, createdAt])
+  @@index([sid])
 }

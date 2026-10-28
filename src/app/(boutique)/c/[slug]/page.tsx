@@ -7,6 +7,7 @@ import { getConsultantShop, shopWhatsAppLink } from "@/lib/shop/consultant-shop"
 import { priceLabel } from "@/lib/share-text";
 import { getSiteUrl } from "@/lib/site-url";
 import { shopLook } from "@/lib/shop/themes";
+import { ShopTracker } from "@/components/shop/ShopTracker";
 import "./shop.css";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -90,7 +91,7 @@ export default async function ConsultantShopPage({ params }: Props) {
 
   const waButton = (label: string) =>
     wa ? (
-      <a href={wa} target="_blank" rel="noopener noreferrer" className="sh-btn sh-btn-wa">
+      <a href={wa} data-track="whatsapp" target="_blank" rel="noopener noreferrer" className="sh-btn sh-btn-wa">
         <WaIcon /> {label}
       </a>
     ) : null;
@@ -106,7 +107,7 @@ export default async function ConsultantShopPage({ params }: Props) {
         )}
       </div>
       {star && (
-        <Link href={`/produits/${star.slug}${ref}`} className="sh-card absolute -bottom-5 left-3 max-w-[80%] rounded-2xl px-4 py-3 shadow-lg sm:-left-6 sm:bottom-10">
+        <Link href={`/produits/${star.slug}${ref}`} data-track="produit" data-product={star.id} className="sh-card absolute -bottom-5 left-3 max-w-[80%] rounded-2xl px-4 py-3 shadow-lg sm:-left-6 sm:bottom-10">
           <span className="sh-eyebrow block text-[10px]">{shop.chosen ? "Son conseil" : "À découvrir"}</span>
           <span className="sh-display mt-1 block text-lg leading-snug">{star.name}</span>
         </Link>
@@ -116,6 +117,7 @@ export default async function ConsultantShopPage({ params }: Props) {
 
   return (
     <div className="sh-root min-h-screen" style={look.vars as CSSProperties}>
+      <ShopTracker slug={c.slug} />
       <p className="sh-band px-4 py-2.5 text-center text-[11px] uppercase tracking-[0.14em] sm:text-xs">
         Conseil et commande sur WhatsApp · Paiement Wave, Orange Money ou à la livraison
       </p>
@@ -137,7 +139,7 @@ export default async function ConsultantShopPage({ params }: Props) {
               <ShoppingBag size={18} strokeWidth={1.6} />
             </Link>
             {wa && (
-              <a href={wa} target="_blank" rel="noopener noreferrer" className="sh-btn sh-btn-wa sh-btn-small">
+              <a href={wa} data-track="whatsapp" target="_blank" rel="noopener noreferrer" className="sh-btn sh-btn-wa sh-btn-small">
                 <WaIcon size={16} /> <span className="hidden sm:inline">Écrire à {first}</span>
                 <span className="sm:hidden">WhatsApp</span>
               </a>
@@ -183,7 +185,7 @@ export default async function ConsultantShopPage({ params }: Props) {
           </div>
           <div className="min-w-0 flex-[1_1_340px]">
             {hero === "showcase" && star ? (
-              <Link href={`/produits/${star.slug}${ref}`} className="sh-card sh-product mx-auto block max-w-[440px] overflow-hidden rounded-[24px]">
+              <Link href={`/produits/${star.slug}${ref}`} data-track="produit" data-product={star.id} className="sh-card sh-product mx-auto block max-w-[440px] overflow-hidden rounded-[24px]">
                 <div className="flex aspect-square items-center justify-center p-8" style={{ background: tint(0) }}>
                   {star.photo ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -238,7 +240,7 @@ export default async function ConsultantShopPage({ params }: Props) {
                 const ask = waProduct(p.name);
                 return (
                   <article key={p.id} className="sh-card sh-product flex flex-col overflow-hidden rounded-[18px]">
-                    <Link href={`/produits/${p.slug}${ref}`} className="flex aspect-square items-center justify-center overflow-hidden p-5" style={{ background: tint(i) }} tabIndex={-1} aria-hidden="true">
+                    <Link href={`/produits/${p.slug}${ref}`} data-track="produit" data-product={p.id} className="flex aspect-square items-center justify-center overflow-hidden p-5" style={{ background: tint(i) }} tabIndex={-1} aria-hidden="true">
                       {p.photo ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={p.photo} alt="" loading="lazy" className="h-full w-full object-contain" />
@@ -247,13 +249,13 @@ export default async function ConsultantShopPage({ params }: Props) {
                       )}
                     </Link>
                     <div className="flex flex-1 flex-col gap-1.5 p-4 sm:p-5">
-                      <Link href={`/produits/${p.slug}${ref}`} className="sh-link sh-display text-lg leading-snug sm:text-[22px]">{p.name}</Link>
+                      <Link href={`/produits/${p.slug}${ref}`} data-track="produit" data-product={p.id} className="sh-link sh-display text-lg leading-snug sm:text-[22px]">{p.name}</Link>
                       {p.inspiredBy && <span className="sh-muted line-clamp-2 text-[13px]">Inspiration : {p.inspiredBy}</span>}
                       <span className="mt-2 text-[15px] font-medium tabular-nums">{price(p)}</span>
                       <div className="mt-auto flex gap-2 pt-3">
-                        <Link href={`/produits/${p.slug}${ref}`} className="sh-btn sh-btn-primary sh-btn-small min-w-0 flex-1 px-3">Commander</Link>
+                        <Link href={`/produits/${p.slug}${ref}`} data-track="produit" data-product={p.id} className="sh-btn sh-btn-primary sh-btn-small min-w-0 flex-1 px-3">Commander</Link>
                         {ask && (
-                          <a href={ask} target="_blank" rel="noopener noreferrer" aria-label={`Demander ${p.name} sur WhatsApp`} className="sh-icon-btn sh-btn-wa">
+                          <a href={ask} data-track="whatsapp" target="_blank" rel="noopener noreferrer" aria-label={`Demander ${p.name} sur WhatsApp`} className="sh-icon-btn sh-btn-wa">
                             <WaIcon />
                           </a>
                         )}
@@ -319,7 +321,7 @@ export default async function ConsultantShopPage({ params }: Props) {
           <div className="flex-[1_1_200px] text-sm leading-8">
             <p className="text-[11px] uppercase tracking-[0.24em]">Votre conseiller</p>
             <p>{c.name} · {c.city}</p>
-            {wa && <a href={wa} target="_blank" rel="noopener noreferrer">WhatsApp : {c.whatsapp}</a>}
+            {wa && <a href={wa} data-track="whatsapp" target="_blank" rel="noopener noreferrer">WhatsApp : {c.whatsapp}</a>}
           </div>
           <div className="flex-[1_1_200px] text-sm leading-8">
             <p className="text-[11px] uppercase tracking-[0.24em]">La Maison</p>

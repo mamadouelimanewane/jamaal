@@ -166,6 +166,7 @@ const consultantGroups: { title: string | null; links: { href: string; label: st
       { href: "/admin/catalogue", label: "Produits", icon: Package },
       { href: "/admin/mon-marketing", label: "Mon marketing", icon: Share2, match: ["/admin/mon-kit-marketing", "/admin/outils"] },
       { href: "/admin/ma-boutique", label: "Ma boutique (lien de bio)", icon: Store },
+      { href: "/admin/stats-boutique", label: "Statistiques de ma boutique", icon: BarChart3 },
       { href: "/admin/ma-communication", label: "Ma communication", icon: Megaphone },
       { href: "/admin/catalogue-officiel", label: "Catalogue officiel (12 pages)", icon: FileText },
       { href: "/admin/handbook", label: "Produits disponibles", icon: BookMarked },
