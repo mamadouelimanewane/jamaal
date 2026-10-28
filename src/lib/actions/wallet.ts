@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "./auth-guard";
 import { logActivity } from "@/lib/activity-log";
 import { getReseller } from "@/lib/reseller";
-import { getBusinessModel } from "@/lib/business-model-store";
+import { getBusinessModel, saveBusinessModel } from "@/lib/business-model-store";
 import { getAvailablePaymentProviders, getPaymentProvider } from "@/lib/payment";
 import { getSiteUrl } from "@/lib/site-url";
 import { notifyTeamWhatsApp } from "@/lib/whatsapp";
@@ -48,6 +48,7 @@ export async function withdrawAction(_prev: WalletActionState, fd: FormData): Pr
     // Accepté par Wave, en cours de traitement : confirmé à la prochaine relecture.
     if (t.providerRef) return { ok: true, message: `Versement de ${(-t.amount).toLocaleString("fr-FR")} F en cours vers ${t.phone} : vous recevrez le SMS de ${WALLET_LABELS[t.provider as "WAVE"] ?? "votre opérateur"} dans quelques instants.` };
     // Versement automatique bloqué côté JAMAAL (solde, clé) : il repart tout seul, l'équipe est déjà prévenue.
+    if (!(await getBusinessModel()).payoutsEnabled) return { ok: true, message: `Demande de retrait de ${(-t.amount).toLocaleString("fr-FR")} F enregistrée : les envois sont momentanément suspendus par JAMAAL, elle partira dès la reprise sur ${t.phone}. Le montant est bloqué sur votre wallet en attendant.` };
     if (t.error) return { ok: true, message: `Demande de retrait de ${(-t.amount).toLocaleString("fr-FR")} F enregistrée : le versement automatique est momentanément retardé, il partira tout seul sur ${t.phone}. Le montant est bloqué sur votre wallet en attendant.` };
     notifyTeamWhatsApp(`Demande de retrait wallet : ${me.name}, ${(-t.amount).toLocaleString("fr-FR")} F vers ${t.phone}. À verser dans Admin > Wallets.`);
     return { ok: true, message: `Demande de retrait de ${(-t.amount).toLocaleString("fr-FR")} F enregistrée : JAMAAL vous verse le montant sur ${t.phone} au plus vite. Il est bloqué sur votre wallet en attendant.` };
@@ -113,6 +114,19 @@ export async function resolveWithdrawalAction(txId: string, paid: boolean, note?
   } catch (e) {
     return fail(e);
   }
+}
+
+/** Admin : arrêt d'urgence des retraits automatiques, ou reprise (les demandes en attente repartent aussitôt). */
+export async function setAutoWithdrawalsAction(on: boolean): Promise<{ ok: boolean; message?: string; error?: string }> {
+  const session = await requireAdmin("comptabilite");
+  const model = await getBusinessModel();
+  await saveBusinessModel({ ...model, payoutsEnabled: on });
+  await logActivity(session, on ? "Retraits automatiques réactivés" : "Retraits automatiques suspendus (urgence)", "WalletTransaction", "auto");
+  notifyTeamWhatsApp(on ? "✅ Retraits automatiques réactivés : les demandes en attente repartent." : "⛔ Retraits automatiques SUSPENDUS par l'administrateur : les demandes restent en attente jusqu'à la reprise.");
+  const r = on ? await retryPendingWithdrawals() : null;
+  revalidatePath("/admin/modele-economique");
+  refresh();
+  return { ok: true, message: on ? `Retraits automatiques réactivés${r ? ` : ${r.relances} demande(s) relancée(s)` : ""}.` : "Retraits automatiques suspendus : plus rien ne part tant que vous ne les réactivez pas." };
 }
 
 /** Admin : renvoie tous les retraits en attente et relit les versements en cours. */

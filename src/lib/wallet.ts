@@ -36,9 +36,10 @@ export const STATUS_LABELS: Record<string, string> = { EN_ATTENTE: "En attente",
 
 export class WalletError extends Error {}
 
-/** Pas de seuil de retrait : tout solde positif est disponible pour un payout. */
+/** Montant minimal d'un retrait vers Wave / Orange Money (FCFA). */
+export const MIN_WITHDRAWAL = 100;
 export async function minWithdrawal() {
-  return 1;
+  return MIN_WITHDRAWAL;
 }
 
 /** Solde disponible et détail. */

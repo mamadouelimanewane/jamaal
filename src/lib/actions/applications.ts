@@ -36,8 +36,17 @@ async function activeInvite(): Promise<string> {
   return code && (await resolveSponsorCode(code)) ? code : "";
 }
 
-/** Candidature publique (page /devenir-consultant). */
-export async function submitApplication(_prev: ApplicationState, formData: FormData): Promise<ApplicationState> {
+/** Candidature publique (page /devenir-consultant). Ne lève jamais d'erreur : le formulaire reste rempli. */
+export async function submitApplication(prev: ApplicationState, formData: FormData): Promise<ApplicationState> {
+  try {
+    return await submitApplicationUnsafe(prev, formData);
+  } catch (e) {
+    console.error("[candidature]", e);
+    return { ok: false, error: "Votre candidature n'a pas pu être enregistrée à cause d'un problème technique. Vos informations sont gardées : réessayez dans un instant." };
+  }
+}
+
+async function submitApplicationUnsafe(_prev: ApplicationState, formData: FormData): Promise<ApplicationState> {
   // Honeypot : un robot remplit ce champ caché, on fait semblant d'accepter.
   if (String(formData.get("website") ?? "").trim()) return { ok: true };
 

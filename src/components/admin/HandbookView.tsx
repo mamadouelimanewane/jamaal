@@ -324,7 +324,7 @@ export function HandbookView({ rows, refSlug, consultantName }: HandbookViewProp
             <span className="text-xs text-navy/60 font-medium">Trier par :</span>
             <select
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as any)}
+              onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
               className="rounded-xl border border-line bg-white px-3 py-2 text-xs font-semibold text-navy outline-none"
             >
               <option value="stock">Quantité disponible (décroissant)</option>

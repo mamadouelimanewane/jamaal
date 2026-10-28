@@ -574,8 +574,15 @@ export function BusinessModelEditor({
             </fieldset>
             <div className="flex flex-col gap-4">
               <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-3 text-sm text-emerald-900">
-                Chaque commission est créditée automatiquement dans le wallet JAMAAL du vendeur et de ses parrains. Le membre peut ensuite demander un retrait vers Wave ou Orange Money.
+                Chaque commission est créditée automatiquement dans le wallet JAMAAL du vendeur et de ses parrains. Le membre peut ensuite demander un retrait vers Wave ou Orange Money (100 F minimum).
               </p>
+              <label className={`flex items-start gap-3 rounded-xl border px-3.5 py-2.5 text-[15px] font-medium ${model.payoutsEnabled ? "border-line text-ink" : "border-rose-dark/40 bg-rose/10 text-rose-dark"}`}>
+                <input type="checkbox" name="payoutsEnabled" checked={model.payoutsEnabled} onChange={(e) => setModel((m) => ({ ...m, payoutsEnabled: e.target.checked }))} className="mt-0.5 h-5 w-5 accent-[#182845]" />
+                <span>
+                  Envoyer automatiquement les retraits sur Wave / Orange Money
+                  <span className="block text-xs font-normal text-navy/75">Activé par défaut. Décochez en cas d&apos;urgence : les demandes de retrait restent en attente (montant bloqué), rien ne part ; elles repartent quand vous recochez.</span>
+                </span>
+              </label>
               <label className="block text-sm font-medium text-ink">
                 Moment du crédit de la commission dans le wallet
                 <select name="payoutTrigger" value={model.payoutTrigger} onChange={(e) => setModel((m) => ({ ...m, payoutTrigger: e.target.value === "DELIVERED" ? "DELIVERED" : "PAID" }))} className={input}>

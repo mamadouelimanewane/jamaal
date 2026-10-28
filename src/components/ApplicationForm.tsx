@@ -1,6 +1,6 @@
 "use client";
 
-import { startTransition, useActionState, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { submitApplication, type ApplicationState } from "@/lib/actions/applications";
 import { WHATSAPP_CONTACTS, whatsappLink } from "@/lib/contact";
 import { fillProtocol, ID_TYPES, pieceLabel, type ProtocolDoc } from "@/lib/protocol";
@@ -10,6 +10,10 @@ import { compressPhoto } from "@/lib/compress-photo";
 import { IdPhotoPicker } from "@/components/IdPhotoPicker";
 
 const initial: ApplicationState = { ok: false };
+/** Brouillon de la candidature (onglet en cours) : rien n'est perdu si la page se recharge après une erreur. */
+const DRAFT_KEY = "jamaal_candidature_brouillon";
+const DRAFT_FIELDS = ["name", "phone", "email", "city", "country", "address", "sponsorCode", "experience", "motivation", "idType", "idNumber"] as const;
+const CHECKS = ["acceptProtocol", "acceptTerms"] as const;
 
 const input =
   "mt-1.5 w-full rounded-xl border border-line bg-white px-4 py-3 text-sm outline-none transition focus:border-rose-dark focus:ring-4 focus:ring-rose/10";
@@ -18,8 +22,10 @@ const step = "flex items-center gap-2.5 font-serif-display text-xl text-navy sm:
 const stepNum = "flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-navy font-sans text-sm font-semibold text-white";
 
 export function ApplicationForm({ sponsorCode = "", sponsorName = null, protocol }: { sponsorCode?: string; sponsorName?: string | null; protocol: ProtocolDoc }) {
-  const [state, action, pending] = useActionState(submitApplication, initial);
-  const [preparing, startPrep] = useTransition();
+  const [state, setState] = useState<ApplicationState>(initial);
+  const [pending, startPrep] = useTransition();
+  const formRef = useRef<HTMLFormElement>(null);
+  const [restored, setRestored] = useState(false);
   const [f, setF] = useState({ name: "", phone: "", address: "", idType: "CNI", idNumber: "", sponsorCode });
   const [signature, setSignature] = useState<string | null>(null);
   const [localError, setLocalError] = useState<string | null>(null);
@@ -27,6 +33,48 @@ export function ApplicationForm({ sponsorCode = "", sponsorName = null, protocol
   const [triedSubmit, setTriedSubmit] = useState(false);
   // Code reçu par lien d'invitation : fixe, le candidat ne peut pas le changer.
   const locked = sponsorCode !== "";
+  // Reprise du brouillon (après un rechargement de la page) : champs texte et cases cochées.
+  useEffect(() => {
+    let draft: Record<string, string | boolean> | null = null;
+    try {
+      draft = JSON.parse(sessionStorage.getItem(DRAFT_KEY) ?? "null");
+    } catch {
+      draft = null;
+    }
+    const form = formRef.current;
+    if (!draft || !form) return;
+    queueMicrotask(() => {
+      setF((v) => ({
+        ...v,
+        ...Object.fromEntries((["name", "phone", "address", "idType", "idNumber"] as const).filter((k) => typeof draft![k] === "string").map((k) => [k, draft![k] as string])),
+        ...(locked || typeof draft!.sponsorCode !== "string" ? {} : { sponsorCode: draft!.sponsorCode as string }),
+      }));
+      for (const k of ["email", "city", "country", "experience", "motivation"]) {
+        const el = form.elements.namedItem(k) as HTMLInputElement | HTMLTextAreaElement | null;
+        if (el && typeof draft![k] === "string" && draft![k]) el.value = draft![k] as string;
+      }
+      for (const k of CHECKS) {
+        const el = form.elements.namedItem(k) as HTMLInputElement | null;
+        if (el && draft![k] === true) el.checked = true;
+      }
+      if (Object.values(draft!).some((v) => v)) setRestored(true);
+    });
+  }, [locked]);
+
+  function saveDraft() {
+    const form = formRef.current;
+    if (!form) return;
+    const fd = new FormData(form);
+    const draft: Record<string, string | boolean> = {};
+    for (const k of DRAFT_FIELDS) draft[k] = String(fd.get(k) ?? "");
+    for (const k of CHECKS) draft[k] = fd.get(k) === "on";
+    try {
+      sessionStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+    } catch {
+      // stockage indisponible : le formulaire reste rempli tant que la page n'est pas rechargée
+    }
+  }
+
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => setF((v) => ({ ...v, [k]: e.target.value }));
   const filled = fillProtocol(protocol.text, { nom: f.name, piece: pieceLabel(f.idType, f.idNumber), adresse: f.address, telephone: f.phone, code_parrain: f.sponsorCode.toLowerCase() });
 
@@ -45,18 +93,35 @@ export function ApplicationForm({ sponsorCode = "", sponsorName = null, protocol
       setLocalError("Signez le protocole dans le cadre prévu (au doigt ou à la souris).");
       return;
     }
+    saveDraft();
     const fd = new FormData(form);
     startPrep(async () => {
-      for (const k of ["idFront", "idBack"] as const) {
-        const file = photos[k];
-        if (file) fd.set(k, await compressPhoto(file), `${k}.jpg`);
+      try {
+        for (const k of ["idFront", "idBack"] as const) {
+          const file = photos[k];
+          if (file) fd.set(k, await compressPhoto(file), `${k}.jpg`);
+        }
+        fd.set("signature", signature);
+        fd.set("protocolVersion", String(protocol.version));
+        // Appel direct : une erreur (réseau coupé, site mis à jour, envoi trop lourd) revient ici au lieu
+        // d'afficher une page d'erreur qui ferait perdre le formulaire.
+        const r = await submitApplication(initial, fd);
+        if (r.ok) {
+          try {
+            sessionStorage.removeItem(DRAFT_KEY);
+          } catch {
+            // rien à nettoyer
+          }
+        }
+        setState(r);
+        if (!r.ok) requestAnimationFrame(() => document.getElementById("candidature-erreur")?.scrollIntoView({ behavior: "smooth", block: "center" }));
+      } catch {
+        setState({ ok: false, error: "L'envoi n'a pas abouti (connexion coupée ou site mis à jour). Vos informations sont gardées : vérifiez votre connexion puis appuyez de nouveau sur « Signer et envoyer ». Si le problème continue, rechargez la page : les champs se rempliront tout seuls (photos et signature à refaire)." });
+        requestAnimationFrame(() => document.getElementById("candidature-erreur")?.scrollIntoView({ behavior: "smooth", block: "center" }));
       }
-      fd.set("signature", signature);
-      fd.set("protocolVersion", String(protocol.version));
-      startTransition(() => action(fd));
     });
   }
-  const busy = pending || preparing;
+  const busy = pending;
 
   if (state.ok) {
     return (
@@ -92,7 +157,12 @@ export function ApplicationForm({ sponsorCode = "", sponsorName = null, protocol
   }
 
   return (
-    <form onSubmit={submit} noValidate={false} className="grid gap-5 sm:grid-cols-2">
+    <form ref={formRef} onSubmit={submit} onInput={saveDraft} onChange={saveDraft} noValidate={false} className="grid gap-5 sm:grid-cols-2">
+      {restored && (
+        <p role="status" className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 sm:col-span-2">
+          Nous avons repris les informations que vous aviez saisies. Ajoutez de nouveau les photos de votre pièce et votre signature, puis envoyez.
+        </p>
+      )}
       {/* Honeypot anti-robots : invisible pour les humains */}
       <div aria-hidden="true" className="absolute left-[-9999px] h-0 w-0 overflow-hidden">
         <label>
@@ -195,7 +265,7 @@ export function ApplicationForm({ sponsorCode = "", sponsorName = null, protocol
       </label>
 
       {(localError ?? state.error) && (
-        <p role="alert" className="rounded-xl border border-rose-dark/20 bg-rose/10 px-4 py-3 text-sm text-rose-dark sm:col-span-2">
+        <p id="candidature-erreur" role="alert" className="rounded-xl border border-rose-dark/20 bg-rose/10 px-4 py-3 text-sm text-rose-dark sm:col-span-2">
           {localError ?? state.error}
         </p>
       )}

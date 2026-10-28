@@ -37,7 +37,7 @@ test("commissions créditées une seule fois", { skip: !enabled }, async () => {
 
 test("retrait : montant bloqué, solde insuffisant refusé, refus = remboursé", { skip: !enabled }, async () => {
   await assert.rejects(() => m.w.requestWithdrawal(owner(), 50000, null), /Solde insuffisant/);
-  await assert.rejects(() => m.w.requestWithdrawal(owner(), 100, null), /minimal/);
+  await assert.rejects(() => m.w.requestWithdrawal(owner(), 99, null), /minimal/);
   const t = await m.w.requestWithdrawal(owner(), 5000, null);
   assert.equal(t.status, "EN_ATTENTE"); // pas de clés de versement en test
   assert.equal(await bal(), 7000);

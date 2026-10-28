@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/currency";
 import { getBusinessModel } from "@/lib/business-model-store";
 import { payoutProvidersConfig, waveBusinessBalance, wavePayoutKeySource, wavePayoutKeyTail, WALLET_LABELS } from "@/lib/payouts/providers";
-import { retryAllWithdrawalsAction } from "@/lib/actions/wallet";
+import { retryAllWithdrawalsAction, setAutoWithdrawalsAction } from "@/lib/actions/wallet";
 import { RowAction } from "@/components/admin/RowAction";
 import { getDepositNumbers } from "@/lib/wallet-settings";
 import { KIND_LABELS } from "@/lib/wallet";
@@ -53,11 +53,18 @@ export default async function WalletsAdminPage() {
               <li>Wave : {!model.payoutWave ? "retraits non proposés (Modèle économique)" : cfg.WAVE ? `envoi automatique depuis le compte Wave Business, clé …${wavePayoutKeyTail()}${wavePayoutKeySource() === "paiement" ? " (clé des paiements : elle doit avoir « Payout API » dans Wave Business › Développeurs)" : " (clé de versement dédiée)"}` : "pas de clé : versement à la main"}</li>
               {cfg.WAVE && <li>Solde Wave Business : {waveBalance == null ? "illisible (la clé n'a pas « Balance API »)" : <strong>{formatPrice(waveBalance)}</strong>}{waveBalance != null && waveBalance < pendingTotal ? " : insuffisant pour les retraits en attente, rechargez le compte" : ""}</li>}
               <li>Orange Money : {!model.payoutOrangeMoney ? "retraits non proposés (Modèle économique)" : cfg.ORANGE_MONEY ? "envoi automatique (agrégateur)" : "pas de connecteur de transfert : versement à la main"}</li>
-              {!model.payoutsEnabled && <li>Les versements automatiques sont coupés dans Admin › Modèle économique.</li>}
+              {!model.payoutsEnabled && <li className="font-semibold text-rose-dark">⛔ Retraits automatiques SUSPENDUS : rien ne part, les demandes attendent la reprise.</li>}
             </ul>
             <p className="mt-1 text-xs opacity-80">Les commissions et primes sont créditées automatiquement dans le wallet JAMAAL. Un retrait vers Wave ou Orange Money est ensuite envoyé automatiquement si le prestataire est configuré.</p>
           </div>
-          {autoOn && <RowAction label="Relancer les retraits en attente" run={retryAllWithdrawalsAction} />}
+          <div className="flex flex-col items-end gap-2">
+            {model.payoutsEnabled ? (
+              <RowAction label="⛔ Suspendre les retraits (urgence)" danger run={setAutoWithdrawalsAction.bind(null, false)} confirm="Suspendre tous les retraits automatiques ? Les demandes resteront en attente jusqu'à la reprise." />
+            ) : (
+              <RowAction label="Réactiver les retraits automatiques" run={setAutoWithdrawalsAction.bind(null, true)} confirm="Réactiver les retraits automatiques ? Les demandes en attente partiront tout de suite." />
+            )}
+            {autoOn && <RowAction label="Relancer les retraits en attente" run={retryAllWithdrawalsAction} />}
+          </div>
         </div>
       </section>
 

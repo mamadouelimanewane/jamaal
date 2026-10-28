@@ -16,6 +16,7 @@ import { effectiveTitle } from "@/lib/network";
 import { commissionBase } from "@/lib/commission";
 import { creditCommissionEntries, reverseWalletCreditsForOrder } from "@/lib/wallet";
 import { withSpecialRates } from "@/lib/special-terms";
+import { screenOrder } from "@/lib/fraud/run";
 
 export type Level = "VENTE" | "NIVEAU_1" | "NIVEAU_2";
 
@@ -98,6 +99,9 @@ export async function runPayoutsForOrder(orderId: string) {
   try {
     const model = await getBusinessModel();
     const members = await recordCommissionsForOrder(orderId, model);
+    // Contrôle anti-fraude AVANT le crédit : une vente suspecte (auto-achat, achat du parrain) ou un membre signalé
+    // voit ses commissions passer « EN_REVUE » (non créditées, donc non retirables) ; l'admin décide (Contrôle des commissions).
+    if (members.length) await screenOrder(orderId);
     // Le solde interne est crédité automatiquement ; le membre choisit ensuite le montant à retirer.
     if (members.length) await creditCommissionEntries({ orderId });
     refreshPages();

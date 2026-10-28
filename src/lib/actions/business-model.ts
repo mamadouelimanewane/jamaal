@@ -74,8 +74,8 @@ export async function saveBusinessModelAction(_prev: BusinessModelState, formDat
   input.acceptOrangeMoney = formData.get("acceptOrangeMoney") === "on";
   input.acceptCard = formData.get("acceptCard") === "on";
   input.acceptCashOnDelivery = formData.get("acceptCashOnDelivery") === "on";
-  // Conservé pour compatibilité historique ; les retraits du wallet peuvent être envoyés automatiquement.
-  input.payoutsEnabled = true;
+  // Retraits automatiques vers Wave / Orange Money : activés par défaut, l'admin peut les couper en cas d'urgence.
+  input.payoutsEnabled = formData.get("payoutsEnabled") === "on";
   input.payoutTrigger = formData.get("payoutTrigger") === "DELIVERED" ? "DELIVERED" : "PAID";
   input.payoutWave = formData.get("payoutWave") === "on";
   input.payoutOrangeMoney = formData.get("payoutOrangeMoney") === "on";

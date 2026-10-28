@@ -94,3 +94,34 @@ test("retrait versé : notification avec montant, produit vendu et acheteur", { 
   assert.match(n!.message, /Wave \(\+221771112233\)/);
   assert.match(n!.message, /6\s500 F · Aqua Soul for Him 50 ml ×2, acheteur Awa Diop \(commande/);
 });
+
+test("arrêt d'urgence : rien ne part, la demande attend puis repart à la reprise ; minimum 100 F", { skip: !enabled }, async () => {
+  const store = await import("../business-model-store");
+  const model = await store.getBusinessModel();
+  await assert.rejects(() => m.w.requestWithdrawal(owner(), 99, null), /minimal/);
+  await store.saveBusinessModel({ ...model, payoutsEnabled: false });
+  try {
+    const before = sent.length;
+    wave = () => ({ status: 200, body: { id: "pt-stop", status: "succeeded" } });
+    const t = await m.w.requestWithdrawal(owner(), 1000, null);
+    assert.equal(t.status, "EN_ATTENTE");
+    assert.equal(sent.length, before, "aucun appel Wave pendant l'arrêt");
+    await store.saveBusinessModel({ ...model, payoutsEnabled: true });
+    await m.w.retryPendingWithdrawals();
+    assert.equal((await m.prisma.walletTransaction.findUniqueOrThrow({ where: { id: t.id } })).status, "VALIDE");
+  } finally {
+    await store.saveBusinessModel(model);
+  }
+});
+
+test("anti-fraude : un auto-achat n'est pas crédité sur le wallet (commission en vérification)", { skip: !enabled }, async () => {
+  const { runPayoutsForOrder } = await import("../payouts/engine");
+  const b0 = await bal();
+  const o = await m.prisma.order.create({ data: { customerName: "Retrait Auto", customerPhone: "770000001", total: 20000, consultantId: T, status: "LIVREE", paymentStatus: "PAYE", paidAt: new Date(), items: { create: [{ productName: "Test", volumeLabel: "50 ml", price: 20000, quantity: 1 }] } } });
+  await runPayoutsForOrder(o.id);
+  const entries = await m.prisma.commissionEntry.findMany({ where: { orderId: o.id } });
+  assert.ok(entries.length > 0, "commission enregistrée");
+  assert.ok(entries.every((e) => e.status === "EN_REVUE"), entries.map((e) => e.status).join(","));
+  assert.equal(await bal(), b0, "rien de crédité");
+  await m.prisma.fraudFlag.deleteMany({ where: { consultantId: T } });
+});
