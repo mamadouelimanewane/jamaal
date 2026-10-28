@@ -219,7 +219,7 @@ export function HandbookView({ rows, refSlug, consultantName }: HandbookViewProp
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-36 sm:pb-6">
       {/* ── BANDEAU EN-TÊTE ────────────────────────────────────────────── */}
       <div className="rounded-3xl border border-line bg-gradient-to-br from-[#16233a] via-[#1c2c48] to-[#0e1726] p-6 text-white shadow-xl">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -284,20 +284,6 @@ export function HandbookView({ rows, refSlug, consultantName }: HandbookViewProp
           </div>
         </div>
       </div>
-
-      <section className="rounded-2xl border border-line bg-white p-4 shadow-sm">
-        <div className="flex flex-wrap items-center gap-2">
-          <button type="button" onClick={choosePhoneContact} className="inline-flex items-center gap-2 rounded-full border border-line px-4 py-2 text-sm font-semibold text-navy hover:bg-cream">
-            <Contact size={16} /> Choisir un contact du téléphone
-          </button>
-          <input type="tel" inputMode="tel" value={contactPhone} onChange={(event) => setContactPhone(event.target.value)} placeholder="Numéro WhatsApp du client" aria-label="Numéro WhatsApp du client" className="min-w-56 flex-1 rounded-full border border-line px-4 py-2 text-sm" />
-          <button type="button" onClick={shareSelected} disabled={!selectedKeys.length} className="inline-flex items-center gap-2 rounded-full bg-[#25D366] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">
-            <Send size={16} /> Envoyer {selectedKeys.length ? `${selectedKeys.length} produit${selectedKeys.length > 1 ? "s" : ""}` : "sur WhatsApp"}
-          </button>
-        </div>
-        <p className="mt-2 text-xs text-navy/60">Le sélecteur du téléphone dépend du navigateur. Si le bouton ne peut pas ouvrir vos contacts, saisissez le numéro. WhatsApp demandera de confirmer l’envoi.</p>
-        {shareNotice && <p role="status" className="mt-2 text-xs font-medium text-navy/80">{shareNotice}</p>}
-      </section>
 
       {/* ── BARRE DE RECHERCHE & FILTRES ──────────────────────────────── */}
       <div className="rounded-2xl border border-line bg-white p-4 shadow-sm space-y-3">
@@ -534,6 +520,26 @@ export function HandbookView({ rows, refSlug, consultantName }: HandbookViewProp
           )}
         </div>
       </div>
+
+      {selectedKeys.length > 0 && (
+        <section aria-label="Envoyer les produits sélectionnés" className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white/95 px-3 pt-3 shadow-[0_-8px_30px_rgba(22,35,58,0.14)] backdrop-blur sm:bottom-4 sm:left-auto sm:right-6 sm:w-[min(28rem,calc(100vw-3rem))] sm:rounded-2xl sm:border sm:p-4">
+          <div className="mx-auto max-w-6xl">
+            <div className="mb-2 flex items-center justify-between">
+              <p className="text-sm font-semibold text-navy">{selectedKeys.length} produit{selectedKeys.length > 1 ? "s" : ""} sélectionné{selectedKeys.length > 1 ? "s" : ""}</p>
+              <button type="button" onClick={() => setSelectedKeys([])} className="text-xs font-medium text-navy/60 underline">Tout désélectionner</button>
+            </div>
+            <div className="mb-2 flex gap-2">
+              <input type="tel" inputMode="tel" value={contactPhone} onChange={(event) => setContactPhone(event.target.value)} placeholder="Numéro WhatsApp (facultatif)" aria-label="Numéro WhatsApp du client" className="min-w-0 flex-1 rounded-full border border-line px-3 py-2 text-sm" />
+              <button type="button" onClick={choosePhoneContact} aria-label="Choisir un contact du téléphone" title="Choisir un contact du téléphone" className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-line px-3 py-2 text-xs font-semibold text-navy hover:bg-cream"><Contact size={15} /> Contacts</button>
+            </div>
+            <button type="button" onClick={shareSelected} className="flex w-full items-center justify-center gap-2 rounded-full bg-[#25D366] px-4 py-3 text-sm font-bold text-white shadow-sm hover:bg-[#20ba59]">
+              <Send size={17} /> Envoyer {selectedKeys.length} produit{selectedKeys.length > 1 ? "s" : ""} sur WhatsApp
+            </button>
+            <p className="mt-1 text-center text-[11px] text-navy/60">WhatsApp s’ouvre avec les fiches et le panier. Appuyez sur Envoyer dans WhatsApp.</p>
+            {shareNotice && <p role="status" className="mt-2 text-center text-xs font-medium text-navy/80">{shareNotice}</p>}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

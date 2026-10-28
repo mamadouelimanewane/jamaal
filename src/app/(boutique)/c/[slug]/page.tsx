@@ -12,6 +12,7 @@ import {
   Truck,
   Dna,
   Phone,
+  CreditCard,
   Award,
   ChevronRight,
   ShoppingBag,
@@ -310,10 +311,10 @@ export default async function ConsultantShopPage({ params }: Props) {
 
           <div className="flex flex-col items-center gap-2">
             <span className="h-12 w-12 rounded-2xl bg-white/10 flex items-center justify-center text-xl mb-1 shadow-inner">
-              <Phone size={22} className="text-amber-300" />
+              <CreditCard size={22} className="text-amber-300" />
             </span>
-            <p className={`font-serif-display font-bold text-sm ${st.guaranteeBannerText}`}>Paiement à Réception</p>
-            <p className={`text-xs opacity-75 max-w-[180px] ${st.guaranteeBannerText}`}>Réglez sereinement par Wave, Orange Money ou Espèces</p>
+            <p className={`font-serif-display font-bold text-sm ${st.guaranteeBannerText}`}>Paiement sécurisé</p>
+            <p className={`text-xs opacity-75 max-w-[180px] ${st.guaranteeBannerText}`}>Réglez par Wave, Orange Money ou avec votre wallet JAMAAL</p>
           </div>
         </div>
       </section>

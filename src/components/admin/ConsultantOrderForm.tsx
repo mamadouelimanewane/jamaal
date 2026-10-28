@@ -171,13 +171,13 @@ export function ConsultantOrderForm({
                     onClick={() => setCollect(m)}
                     className={`rounded-full px-3.5 py-1.5 text-xs font-semibold ${collect === m ? "bg-navy text-white" : "border border-line bg-white text-navy hover:bg-cream"}`}
                   >
-                    {m === "NON" ? "Non — paiement à la réception" : `Oui, en ${COLLECT_LABELS[m]}`}
+                    {m === "NON" ? "Non, le client paiera depuis sa commande" : `Oui, en ${COLLECT_LABELS[m]}`}
                   </button>
                 ))}
               </div>
               <p className="mt-2 text-xs text-navy/75">
                 {collect === "NON"
-                  ? "La commande est enregistrée avec paiement à la réception : le client règle à la remise du colis ou au retrait."
+                  ? "Le lien de commande permettra au client de régler par les moyens de paiement disponibles : Wave, Orange Money ou wallet."
                   : `Commande payée tout de suite. Le montant (produits + livraison) est porté au débit de votre wallet : c'est l'argent à reverser à JAMAAL, vos commissions viennent en déduction.`}
                 {" "}Déjà à reverser : <strong>{owed.toLocaleString("fr-FR")} F</strong> · plafond {special.creditLimit.toLocaleString("fr-FR")} F.
               </p>
@@ -186,8 +186,8 @@ export function ConsultantOrderForm({
 
           {!special?.collect.length && (
             <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-950">
-              <p className="font-semibold">Mode de paiement : à la réception</p>
-              <p className="mt-1 text-xs">Si vous n’encaissez pas le client et ne payez pas avec votre wallet, la commande reste à régler à la remise ou au retrait du produit.</p>
+              <p className="font-semibold">Paiement par le client sur sa commande</p>
+              <p className="mt-1 text-xs">Le client reçoit un lien pour régler par les moyens disponibles : Wave, Orange Money ou wallet. L’encaissement direct par le revendeur est réservé aux conditions spéciales.</p>
             </div>
           )}
 
