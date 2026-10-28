@@ -1,371 +1,314 @@
 ﻿/**
- * Bibliothèque de thèmes haute couture pour les boutiques personnelles des revendeurs (/c/<slug>).
- * Chaque thème transforme la boutique en un véritable site web e-commerce de marque de luxe,
- * tout en conservant l'identité et le lien direct vers le conseiller personnel.
+ * Thèmes des boutiques personnelles des revendeurs (/c/<slug>), version 2.
  *
- * Inspirés des codes graphiques et de l'univers officiel de JAMAAL Luxury Cosmetics :
- *  - Top bar e-commerce & bannière d'annonces de réassurance
- *  - Header de navigation prestigieux (logo officiel + cartouche conseiller agréé)
- *  - Hero banner immersif grand format avec photo officielle
- *  - Grille de produits haute définition avec badges 30% d'essence
- *  - Réassurance 4 piliers "Les Attentions JAMAAL"
- *  - Avis clients et footer complet de grande marque
+ * 14 thèmes clairs, chacun avec sa palette, son couple de polices, la forme du portrait,
+ * une frise décorative facultative et trois accents au choix. La page applique ces valeurs
+ * en variables CSS : aucune classe dynamique, et des contrastes vérifiés (texte ≥ 4,5:1).
+ *
+ * Les anciens identifiants (première version) restent acceptés et sont convertis.
  */
 
-export type ShopThemeId =
-  | "luxury-rose"
-  | "noir-gold"
-  | "sahara-nude"
-  | "midnight-navy"
-  | "royal-emerald"
-  | "pearl-minimal";
+export const SHOP_THEME_IDS = [
+  "maison",
+  "champagne",
+  "teranga",
+  "galerie",
+  "rose",
+  "arcenciel",
+  "ciel",
+  "emeraude",
+  "lavande",
+  "safran",
+  "rouge",
+  "argent",
+  "violet",
+  "or",
+] as const;
+
+export type ShopThemeId = (typeof SHOP_THEME_IDS)[number];
 
 export interface ShopTheme {
   id: ShopThemeId;
   name: string;
-  tagline: string;
+  /** Une ligne pour le sélecteur. */
   mood: string;
-  description: string;
-  /** Emoji représentatif du thème pour les swatches */
-  emoji: string;
-  palette: {
-    primary: string;
-    accent: string;
-    background: string;
-    surface: string;
-    /** Couleur du glow/halo de l'avatar */
-    glow: string;
-  };
-  isDark: boolean;
-  styles: {
-    /** Fond de page : dégradé multi-stops luxe */
-    pageBg: string;
-    /** Overlay subtil sur le haut (hero) */
-    heroOverlay: string;
-    textPrimary: string;
-    textSecondary: string;
-    textMuted: string;
-    /** Texte accentué (prix, highlights) */
-    textAccent: string;
-    /** Cartes produit et raccourcis — glassmorphism */
-    cardBg: string;
-    cardBorder: string;
-    /** Effet hover des cartes */
-    cardHover: string;
-    /** Bordure + glow de l'avatar */
-    avatarBorder: string;
-    avatarRing: string;
-    /** Badges de titre, ville */
-    badgeStyle: string;
-    /** Bouton principal (Commander, CTA) */
-    buttonPrimary: string;
-    /** Bouton secondaire */
-    buttonSecondary: string;
-    /** Bouton WhatsApp */
-    waButton: string;
-    /** Hover des raccourcis / liens */
-    shortcutHover: string;
-    /** Fond des cartes produit */
-    productCardBg: string;
-    productCardHover: string;
-    /** Bandeau de réassurance */
-    guaranteeBannerBg: string;
-    guaranteeBannerText: string;
-    /** Étoiles d'avis */
-    starColor: string;
-    /** Séparateur décoratif (ligne or, rose, platine…) */
-    dividerStyle: string;
-    /** Prix mis en valeur */
-    priceStyle: string;
-    logoInvert?: boolean;
+  /** Fond de page, cartes, encre, texte secondaire, filets, fond doux (bandeaux, portrait). */
+  bg: string;
+  surface: string;
+  ink: string;
+  muted: string;
+  line: string;
+  soft: string;
+  /** Trois accents au choix du revendeur (texte et boutons, lisibles sur le fond et en blanc dessus). */
+  accents: [string, string, string];
+  /** Section foncée (« Commander ») et pied de page. */
+  dark: string;
+  darkInk: string;
+  darkAccent: string;
+  footer: string;
+  footerInk: string;
+  /** Variables CSS des polices (déclarées par next/font dans le layout des boutiques). */
+  display: string;
+  body: string;
+  /** Familles pour les aperçus hors boutique (sans chargement de police). */
+  displayName: string;
+  bodyName: string;
+  /** Forme du portrait (border-radius). */
+  portrait: string;
+  /** Frise décorative sous l'en-tête (fond CSS) ou rien. */
+  decor: string | null;
+  /** Teintes de fond des photos produits, en rotation. */
+  tints: string[];
+}
+
+const t = (x: ShopTheme) => x;
+
+export const SHOP_THEMES: ShopTheme[] = [
+  t({
+    id: "maison", name: "Maison JAMAAL", mood: "La signature : ivoire, bleu nuit, or rose",
+    bg: "#FBF8F4", surface: "#FFFFFF", ink: "#1D2F4F", muted: "#4A5872", line: "#E7DCD3", soft: "#F4ECE5",
+    accents: ["#8E5244", "#1D2F4F", "#7A6A3A"],
+    dark: "#1D2F4F", darkInk: "#F4ECE4", darkAccent: "#E3BFB2", footer: "#142339", footerInk: "#D5DAE4",
+    display: "--f-cormorant", body: "--f-jost", displayName: "Cormorant Garamond", bodyName: "Jost",
+    portrait: "220px 220px 12px 12px", decor: null,
+    tints: ["#EEF1F6", "#F7ECE8", "#F1EEF5", "#E9ECF1"],
+  }),
+  t({
+    id: "champagne", name: "Champagne Doré", mood: "Lumineux et précieux : crème, brun, or bronze",
+    bg: "#F7F1E6", surface: "#FFFDF8", ink: "#2B2418", muted: "#5E5240", line: "#E3D6BF", soft: "#EFE4CF",
+    accents: ["#7A5D24", "#8E5244", "#2B2418"],
+    dark: "#3A3022", darkInk: "#F7F1E6", darkAccent: "#E6CF9C", footer: "#2B2418", footerInk: "#E3D6BF",
+    display: "--f-bodoni", body: "--f-manrope", displayName: "Bodoni Moda", bodyName: "Manrope",
+    portrait: "12px", decor: "linear-gradient(90deg,#C9A45A,#EBD9AC,#C9A45A)",
+    tints: ["#F3EAD8", "#EFE4CF", "#F6EEDF", "#EDE3D0"],
+  }),
+  t({
+    id: "teranga", name: "Teranga", mood: "Luxe sénégalais : sable, terre cuite, indigo",
+    bg: "#F3EADF", surface: "#FBF6EF", ink: "#2A1F1A", muted: "#5C4A3E", line: "#DCCBB6", soft: "#EADCCB",
+    accents: ["#96462A", "#24324F", "#725512"],
+    dark: "#24324F", darkInk: "#F3EADF", darkAccent: "#E9B48F", footer: "#1E2A42", footerInk: "#DCCBB6",
+    display: "--f-fraunces", body: "--f-dmsans", displayName: "Fraunces", bodyName: "DM Sans",
+    portrait: "28px", decor: "repeating-linear-gradient(90deg,#A4502F 0 28px,#24324F 28px 56px,#E3A21A 56px 84px)",
+    tints: ["#EADCCB", "#E5D3C0", "#EFE3D4", "#E0D0BD"],
+  }),
+  t({
+    id: "galerie", name: "Galerie Blanche", mood: "Éditorial minimaliste : blanc, noir, bleu JAMAAL",
+    bg: "#FFFFFF", surface: "#F5F5F4", ink: "#111111", muted: "#52525B", line: "#E4E4E2", soft: "#EFEFED",
+    accents: ["#1D2F4F", "#111111", "#8E5244"],
+    dark: "#111111", darkInk: "#FFFFFF", darkAccent: "#D4D4D8", footer: "#111111", footerInk: "#D4D4D8",
+    display: "--f-instrument", body: "--f-intertight", displayName: "Instrument Serif", bodyName: "Inter Tight",
+    portrait: "0px", decor: null,
+    tints: ["#F5F5F4", "#EFEFED"],
+  }),
+  t({
+    id: "rose", name: "Rose Poudré", mood: "Féminin et romantique : rose poudré, prune",
+    bg: "#FCF1F3", surface: "#FFFFFF", ink: "#4A1F2E", muted: "#6E4452", line: "#F3D5DC", soft: "#F8E1E7",
+    accents: ["#A23D62", "#4A1F2E", "#8C5A4C"],
+    dark: "#4A1F2E", darkInk: "#FCF1F3", darkAccent: "#F3B9CA", footer: "#3A1724", footerInk: "#F3D5DC",
+    display: "--font-playfair", body: "--f-montserrat", displayName: "Playfair Display", bodyName: "Montserrat",
+    portrait: "999px", decor: null,
+    tints: ["#F8E1E7", "#FBEAEE", "#F3D5DC", "#FBEAEE"],
+  }),
+  t({
+    id: "arcenciel", name: "Arc-en-ciel", mood: "Joyeux et coloré : une couleur par parfum",
+    bg: "#FFFCF7", surface: "#FFFFFF", ink: "#1F2340", muted: "#4B5070", line: "#EFE9DF", soft: "#F4EFE6",
+    accents: ["#6A3FA0", "#2756A5", "#B23A2A"],
+    dark: "#1F2340", darkInk: "#FFFCF7", darkAccent: "#FFD27A", footer: "#1F2340", footerInk: "#E6E3F0",
+    display: "--f-dmserif", body: "--f-outfit", displayName: "DM Serif Display", bodyName: "Outfit",
+    portrait: "32px", decor: "linear-gradient(90deg,#E4572E,#F3A712,#F6D743,#4CB963,#2E86DE,#8E5BD6)",
+    tints: ["#FDE2D6", "#FFF1C9", "#DDF3E2", "#DCE7F8", "#EBDFF8", "#FDE0EA"],
+  }),
+  t({
+    id: "ciel", name: "Ciel & Marine", mood: "Bleu ciel, bleu marine et une 2ᵉ couleur",
+    bg: "#EEF6FC", surface: "#FFFFFF", ink: "#13294B", muted: "#3E5577", line: "#D6E6F3", soft: "#DCEBF8",
+    accents: ["#7D5E17", "#B0442D", "#A23D62"],
+    dark: "#13294B", darkInk: "#EEF6FC", darkAccent: "#D4AF5A", footer: "#0E1F3A", footerInk: "#D6E6F3",
+    display: "--f-caslon", body: "--f-nunito", displayName: "Libre Caslon Display", bodyName: "Nunito Sans",
+    portrait: "999px 999px 24px 24px", decor: "linear-gradient(90deg,#BFDDF4,#13294B)",
+    tints: ["#DCEBF8", "#E8F2FB", "#D3E6F6", "#E8F2FB"],
+  }),
+  t({
+    id: "emeraude", name: "Jardin d'Émeraude", mood: "Botanique et apaisant : émeraude, sauge, or",
+    bg: "#F4F1E8", surface: "#FBF9F3", ink: "#163A2E", muted: "#44584F", line: "#DED7C2", soft: "#DCE5D7",
+    accents: ["#2F6B52", "#77591F", "#163A2E"],
+    dark: "#163A2E", darkInk: "#F4F1E8", darkAccent: "#D9BE7E", footer: "#102C23", footerInk: "#DED7C2",
+    display: "--f-gilda", body: "--f-karla", displayName: "Gilda Display", bodyName: "Karla",
+    portrait: "200px 200px 200px 24px", decor: null,
+    tints: ["#DCE5D7", "#E6EBDD", "#EDE7D6", "#D5E0D2"],
+  }),
+  t({
+    id: "lavande", name: "Lavande", mood: "Doux et poétique : lilas, violet profond",
+    bg: "#F6F3FB", surface: "#FFFFFF", ink: "#2E2148", muted: "#574B6E", line: "#E2DAEE", soft: "#ECE5F6",
+    accents: ["#6B4FA0", "#4A3577", "#7E4C8E"],
+    dark: "#2E2148", darkInk: "#F6F3FB", darkAccent: "#CDBDF0", footer: "#241A39", footerInk: "#E2DAEE",
+    display: "--f-marcellus", body: "--f-lato", displayName: "Marcellus", bodyName: "Lato",
+    portrait: "999px", decor: null,
+    tints: ["#ECE5F6", "#E6DDF3", "#F1ECF8", "#E2DAEE"],
+  }),
+  t({
+    id: "safran", name: "Safran & Bordeaux", mood: "Chaud et festif : safran, bordeaux, crème",
+    bg: "#FBF5E8", surface: "#FFFFFF", ink: "#3A1018", muted: "#66404A", line: "#EBDCBD", soft: "#F6E6C2",
+    accents: ["#6E1A2C", "#8C5A00", "#3A1018"],
+    dark: "#6E1A2C", darkInk: "#FBF5E8", darkAccent: "#F2C14E", footer: "#3A1018", footerInk: "#EBDCBD",
+    display: "--f-prata", body: "--f-worksans", displayName: "Prata", bodyName: "Work Sans",
+    portrait: "24px", decor: "repeating-linear-gradient(90deg,#E3A21A 0 18px,#6E1A2C 18px 36px)",
+    tints: ["#F6E6C2", "#F3DCCB", "#F8EDD3", "#EFD9C9"],
+  }),
+  t({
+    id: "rouge", name: "Rouge Passion", mood: "Audacieux et glamour : écarlate, crème, noir",
+    bg: "#FFF8F3", surface: "#FFFFFF", ink: "#2A0A10", muted: "#5E3A3F", line: "#EBD6D3", soft: "#F7E4E1",
+    accents: ["#B3122E", "#2A0A10", "#8C0E24"],
+    dark: "#2A0A10", darkInk: "#FFF8F3", darkAccent: "#FF8A9B", footer: "#1A0609", footerInk: "#EBD6D3",
+    display: "--f-cinzel", body: "--f-raleway", displayName: "Cinzel", bodyName: "Raleway",
+    portrait: "4px", decor: "linear-gradient(90deg,#B3122E,#2A0A10)",
+    tints: ["#F7E4E1", "#FBEDEA", "#F3DAD6", "#FBEDEA"],
+  }),
+  t({
+    id: "argent", name: "Argent Platine", mood: "Moderne et raffiné : argent, gris perle, graphite",
+    bg: "#F2F3F5", surface: "#FFFFFF", ink: "#23272E", muted: "#4F5560", line: "#DADDE2", soft: "#E6E8EC",
+    accents: ["#4A515C", "#23272E", "#1D2F4F"],
+    dark: "#23272E", darkInk: "#F2F3F5", darkAccent: "#C9CED6", footer: "#1A1D22", footerInk: "#DADDE2",
+    display: "--f-tenor", body: "--f-inter", displayName: "Tenor Sans", bodyName: "Inter",
+    portrait: "16px", decor: "linear-gradient(90deg,#B8BEC7,#F2F3F5,#9AA1AC)",
+    tints: ["#E6E8EC", "#EEF0F2", "#E1E4E8", "#EEF0F2"],
+  }),
+  t({
+    id: "violet", name: "Violet Améthyste", mood: "Royal et vibrant : violet, lilas, magenta",
+    bg: "#FAF7FF", surface: "#FFFFFF", ink: "#24093F", muted: "#4E3A66", line: "#E3D6FA", soft: "#EDE3FF",
+    accents: ["#6A1FD1", "#B0186D", "#4A0FA0"],
+    dark: "#24093F", darkInk: "#FAF7FF", darkAccent: "#E3A6FF", footer: "#1A062E", footerInk: "#E3D6FA",
+    display: "--f-yeseva", body: "--f-quicksand", displayName: "Yeseva One", bodyName: "Quicksand",
+    portrait: "999px", decor: "linear-gradient(90deg,#6A1FD1,#C21E7A)",
+    tints: ["#EDE3FF", "#F5EEFF", "#FBE6F3", "#F5EEFF"],
+  }),
+  t({
+    id: "or", name: "Or Impérial", mood: "Art déco et prestigieux : or, ivoire, brun",
+    bg: "#FFFBF0", surface: "#FFFFFF", ink: "#2B2205", muted: "#5A4C24", line: "#E6D49A", soft: "#F6EBC8",
+    accents: ["#7A5C00", "#2B2205", "#8E5244"],
+    dark: "#2B2205", darkInk: "#FFFBF0", darkAccent: "#E5C35A", footer: "#1F1803", footerInk: "#E6D49A",
+    display: "--f-italiana", body: "--f-josefin", displayName: "Italiana", bodyName: "Josefin Sans",
+    portrait: "210px 210px 0 0", decor: "linear-gradient(90deg,#C9A227,#F3E3A3,#C9A227)",
+    tints: ["#F6EBC8", "#FBF3DC", "#F2E4B8", "#FBF3DC"],
+  }),
+];
+
+export const DEFAULT_THEME_ID: ShopThemeId = "maison";
+
+/** Anciens identifiants (première version des thèmes) vers les nouveaux. */
+export const LEGACY_THEME_IDS: Record<string, ShopThemeId> = {
+  "luxury-rose": "maison",
+  "noir-gold": "champagne",
+  "sahara-nude": "teranga",
+  "midnight-navy": "ciel",
+  "royal-emerald": "emeraude",
+  "pearl-minimal": "galerie",
+};
+
+/** Identifiant valide (nouveau ou ancien) vers l'identifiant courant, sinon le thème par défaut. */
+export function normalizeThemeId(id: string | null | undefined): ShopThemeId {
+  const v = String(id ?? "").trim();
+  if ((SHOP_THEME_IDS as readonly string[]).includes(v)) return v as ShopThemeId;
+  return LEGACY_THEME_IDS[v] ?? DEFAULT_THEME_ID;
+}
+
+export function getShopTheme(themeId: string | null | undefined): ShopTheme {
+  const id = normalizeThemeId(themeId);
+  return SHOP_THEMES.find((x) => x.id === id)!;
+}
+
+/* ── Personnalisation ───────────────────────────────────────────────────── */
+
+export const SHOP_HEROES = [
+  { id: "portrait", label: "Mon portrait" },
+  { id: "showcase", label: "Un produit vedette" },
+  { id: "banner", label: "Bannière" },
+] as const;
+export type ShopHero = (typeof SHOP_HEROES)[number]["id"];
+
+export const SHOP_TYPOS = [
+  { id: "theme", label: "Celle du thème" },
+  { id: "classique", label: "Classique JAMAAL" },
+] as const;
+export type ShopTypo = (typeof SHOP_TYPOS)[number]["id"];
+
+/** Sections que le revendeur peut masquer. */
+export const SHOP_SECTIONS = [
+  { id: "services", label: "Services (Parfum ADN, catalogue, offrir…)" },
+  { id: "products", label: "Mes coups de cœur" },
+  { id: "steps", label: "Comment commander" },
+  { id: "reviews", label: "Avis clients" },
+] as const;
+export type ShopSection = (typeof SHOP_SECTIONS)[number]["id"];
+
+export function normalizeHero(v: unknown): ShopHero {
+  return SHOP_HEROES.some((h) => h.id === v) ? (v as ShopHero) : "portrait";
+}
+export function normalizeTypo(v: unknown): ShopTypo {
+  return v === "classique" ? "classique" : "theme";
+}
+export function normalizeAccent(v: unknown): 0 | 1 | 2 {
+  const n = Number(v);
+  return n === 1 || n === 2 ? n : 0;
+}
+export function normalizeHidden(v: unknown): ShopSection[] {
+  const list: unknown[] = Array.isArray(v) ? v : [];
+  return SHOP_SECTIONS.map((s) => s.id).filter((id) => list.includes(id));
+}
+
+export interface ShopLook {
+  theme: ShopTheme;
+  accent: string;
+  hero: ShopHero;
+  typo: ShopTypo;
+  hidden: ShopSection[];
+  /** Variables CSS à poser sur la racine de la page. */
+  vars: Record<string, string>;
+}
+
+/** Réglages enregistrés du revendeur vers l'apparence finale de sa boutique. */
+export function shopLook(opts: { theme?: string | null; accent?: unknown; hero?: unknown; typo?: unknown; hidden?: unknown }): ShopLook {
+  const theme = getShopTheme(opts.theme);
+  const accent = theme.accents[normalizeAccent(opts.accent)];
+  const typo = normalizeTypo(opts.typo);
+  const display = typo === "classique" ? "--font-playfair" : theme.display;
+  const body = typo === "classique" ? "--font-poppins" : theme.body;
+  return {
+    theme,
+    accent,
+    hero: normalizeHero(opts.hero),
+    typo,
+    hidden: normalizeHidden(opts.hidden),
+    vars: {
+      "--s-bg": theme.bg,
+      "--s-surface": theme.surface,
+      "--s-ink": theme.ink,
+      "--s-muted": theme.muted,
+      "--s-line": theme.line,
+      "--s-soft": theme.soft,
+      "--s-acc": accent,
+      "--s-dark": theme.dark,
+      "--s-dark-ink": theme.darkInk,
+      "--s-dark-acc": theme.darkAccent,
+      "--s-footer": theme.footer,
+      "--s-footer-ink": theme.footerInk,
+      "--s-portrait": theme.portrait,
+      "--s-display": `var(${display}), Georgia, serif`,
+      "--s-body": `var(${body}), system-ui, sans-serif`,
+    },
   };
 }
 
-export const DEFAULT_THEME_ID: ShopThemeId = "luxury-rose";
+/* ── Contraste (WCAG) : utilisé par les tests pour garantir la lisibilité ── */
 
-export const SHOP_THEMES: ShopTheme[] = [
-  // ─────────────────────────────────────────────────────────────────────────────
-  // 1. ROSE ÉLYSÉE — L'élégance signature de la Maison JAMAAL
-  // ─────────────────────────────────────────────────────────────────────────────
-  {
-    id: "luxury-rose",
-    name: "Rose Élysée & Or Rose",
-    tagline: "L'élégance signature de la Maison JAMAAL",
-    mood: "Haute parfumerie féminine, floral poudré, marbre crème et or rose 18k",
-    description: "Inspiré des plus prestigieuses maisons de la place Vendôme. Harmonie soyeuse de rose poudrée, d'or rose brossé et d'un blanc ivoire lumineux.",
-    emoji: "🌸",
-    isDark: false,
-    palette: {
-      primary: "#1a1a2e",
-      accent: "#c9956b",
-      background: "#fef6f0",
-      surface: "#ffffff",
-      glow: "#c9956b",
-    },
-    styles: {
-      pageBg: "bg-[radial-gradient(ellipse_at_top,_#fce8df_0%,_#fef6f0_35%,_#fdfaf8_70%,_#ffffff_100%)]",
-      heroOverlay: "bg-gradient-to-b from-[#fce8df]/70 via-[#fef6f0]/40 to-transparent",
-      textPrimary: "text-[#1a1a2e]",
-      textSecondary: "text-[#1a1a2e]/80",
-      textMuted: "text-[#1a1a2e]/50",
-      textAccent: "text-[#b07a50]",
-      cardBg: "bg-white/90 backdrop-blur-md border border-[#f0e0d4] shadow-[0_4px_20px_rgba(201,149,107,0.10)]",
-      cardBorder: "border-[#f0e0d4]",
-      cardHover: "hover:shadow-[0_8px_30px_rgba(201,149,107,0.20)] hover:border-[#c9956b]/70 hover:-translate-y-1",
-      avatarBorder: "border-[#c9956b] bg-[#1a1a2e]",
-      avatarRing: "ring-4 ring-[#c9956b]/25 ring-offset-2 ring-offset-[#fef6f0]",
-      badgeStyle: "bg-white/95 border border-[#e8d0bf] text-[#1a1a2e] shadow-sm backdrop-blur-md",
-      buttonPrimary: "bg-gradient-to-br from-[#c9956b] to-[#b07a50] hover:from-[#d4a37a] hover:to-[#be875c] text-white font-semibold shadow-[0_4px_16px_rgba(201,149,107,0.35)] hover:shadow-[0_6px_22px_rgba(201,149,107,0.48)] transition-all",
-      buttonSecondary: "bg-white/90 border border-[#e8d0bf] text-[#1a1a2e] hover:bg-[#fce8df]/50 hover:border-[#c9956b]/60 transition-all font-semibold",
-      waButton: "bg-gradient-to-br from-[#25D366] to-[#1aad54] hover:from-[#2de374] hover:to-[#20ba59] text-white shadow-[0_4px_16px_rgba(37,211,102,0.35)] hover:shadow-[0_6px_24px_rgba(37,211,102,0.45)] font-semibold transition-all",
-      shortcutHover: "hover:border-[#c9956b]/50 hover:bg-white hover:shadow-[0_4px_18px_rgba(201,149,107,0.15)]",
-      productCardBg: "bg-white/95 backdrop-blur-md border border-[#f0e0d4] shadow-[0_4px_16px_rgba(201,149,107,0.08)]",
-      productCardHover: "hover:shadow-[0_10px_32px_rgba(201,149,107,0.22)] hover:-translate-y-1 hover:border-[#c9956b]/80",
-      guaranteeBannerBg: "bg-gradient-to-br from-[#1a1a2e] via-[#24243e] to-[#1a1a2e] border border-[#c9956b]/30 shadow-xl",
-      guaranteeBannerText: "text-[#fef6f0]",
-      starColor: "text-[#c9956b]",
-      dividerStyle: "border-[#f0e0d4]",
-      priceStyle: "text-[#b07a50] font-bold font-mono",
-      logoInvert: false,
-    },
-  },
+function lum(hex: string): number {
+  const h = hex.replace("#", "");
+  const [r, g, b] = [0, 2, 4]
+    .map((i) => parseInt(h.slice(i, i + 2), 16) / 255)
+    .map((c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // 2. NOIR & OR IMPÉRIAL — Le prestige intemporel de la haute parfumerie
-  // ─────────────────────────────────────────────────────────────────────────────
-  {
-    id: "noir-gold",
-    name: "Noir Impérial & Or",
-    tagline: "Le prestige absolu de la haute parfumerie",
-    mood: "Haute couture nocturne, flaconnage d'exception, or 24 carats et velours noir",
-    description: "L'atmosphère intimiste des suites de luxe et des salons privés de parfumeurs. Noir obsidienne profond rehaussé de touches d'or chaud étincelant.",
-    emoji: "👑",
-    isDark: true,
-    palette: {
-      primary: "#f4f1ea",
-      accent: "#d4af37",
-      background: "#0b0c10",
-      surface: "#14161d",
-      glow: "#d4af37",
-    },
-    styles: {
-      pageBg: "bg-[radial-gradient(ellipse_at_top,_#1a1d26_0%,_#0e1017_40%,_#0b0c10_75%,_#07070a_100%)]",
-      heroOverlay: "bg-gradient-to-b from-[#d4af37]/15 via-[#14161d]/50 to-transparent",
-      textPrimary: "text-[#f4f1ea]",
-      textSecondary: "text-[#f4f1ea]/85",
-      textMuted: "text-[#f4f1ea]/50",
-      textAccent: "text-[#e5c158]",
-      cardBg: "bg-[#14161d]/90 backdrop-blur-md border border-[#d4af37]/25 shadow-[0_4px_24px_rgba(0,0,0,0.6)]",
-      cardBorder: "border-[#d4af37]/25",
-      cardHover: "hover:shadow-[0_8px_32px_rgba(212,175,55,0.22)] hover:border-[#d4af37]/60 hover:-translate-y-1",
-      avatarBorder: "border-[#d4af37] bg-[#0b0c10]",
-      avatarRing: "ring-4 ring-[#d4af37]/30 ring-offset-2 ring-offset-[#0b0c10]",
-      badgeStyle: "bg-[#181a24] border border-[#d4af37]/35 text-[#f4f1ea] shadow-md backdrop-blur-md",
-      buttonPrimary: "bg-gradient-to-br from-[#d4af37] via-[#c49b2c] to-[#a88220] hover:from-[#e5c158] hover:to-[#c49b2c] text-[#0b0c10] font-bold shadow-[0_4px_18px_rgba(212,175,55,0.40)] hover:shadow-[0_6px_26px_rgba(212,175,55,0.55)] transition-all",
-      buttonSecondary: "bg-[#181a24]/90 border border-[#d4af37]/40 text-[#f4f1ea] hover:bg-[#202330] hover:border-[#d4af37]/70 transition-all font-semibold",
-      waButton: "bg-gradient-to-br from-[#25D366] to-[#1aad54] hover:from-[#2de374] hover:to-[#20ba59] text-white shadow-[0_4px_16px_rgba(37,211,102,0.35)] hover:shadow-[0_6px_24px_rgba(37,211,102,0.50)] font-semibold transition-all",
-      shortcutHover: "hover:border-[#d4af37]/60 hover:bg-[#1a1d28] hover:shadow-[0_4px_20px_rgba(212,175,55,0.18)]",
-      productCardBg: "bg-[#12141c]/95 backdrop-blur-md border border-[#d4af37]/20 shadow-[0_4px_20px_rgba(0,0,0,0.7)]",
-      productCardHover: "hover:shadow-[0_10px_34px_rgba(212,175,55,0.25),0_2px_10px_rgba(0,0,0,0.9)] hover:-translate-y-1 hover:border-[#d4af37]/65",
-      guaranteeBannerBg: "bg-gradient-to-br from-[#12141c] via-[#1a1d28] to-[#12141c] border border-[#d4af37]/30 shadow-2xl",
-      guaranteeBannerText: "text-[#f4f1ea]",
-      starColor: "text-[#d4af37]",
-      dividerStyle: "border-[#d4af37]/25",
-      priceStyle: "text-[#e5c158] font-bold font-mono",
-      logoInvert: true,
-    },
-  },
-
-  // ─────────────────────────────────────────────────────────────────────────────
-  // 3. MAISON BLANCHE & OR SOLAIRE — L'exacte ambiance du site web officiel JAMAAL
-  // ─────────────────────────────────────────────────────────────────────────────
-  {
-    id: "pearl-minimal",
-    name: "Maison Blanche & Or Solaire",
-    tagline: "L'allure officielle du grand site web JAMAAL",
-    mood: "Clair, épuré, architectural, marbre de Carrare et accents marine & or",
-    description: "La signature visuelle directe du site web jamaal.sn : fond blanc ivoire marbré, typographies marines profondes, terre de sienne et touches d'or solaire.",
-    emoji: "🏛️",
-    isDark: false,
-    palette: {
-      primary: "#1e2a3a",
-      accent: "#9c6254",
-      background: "#fdfbfa",
-      surface: "#ffffff",
-      glow: "#d4af37",
-    },
-    styles: {
-      pageBg: "bg-[radial-gradient(ellipse_at_top,_#f5ede8_0%,_#fdfbfa_40%,_#ffffff_75%,_#fbf8f6_100%)]",
-      heroOverlay: "bg-gradient-to-b from-[#eadfda]/60 via-[#fdfbfa]/30 to-transparent",
-      textPrimary: "text-[#1e2a3a]",
-      textSecondary: "text-[#1e2a3a]/80",
-      textMuted: "text-[#1e2a3a]/50",
-      textAccent: "text-[#9c6254]",
-      cardBg: "bg-white/95 backdrop-blur-md border border-[#eadfda] shadow-[0_4px_18px_rgba(30,42,58,0.06)]",
-      cardBorder: "border-[#eadfda]",
-      cardHover: "hover:shadow-[0_8px_28px_rgba(156,98,84,0.16)] hover:border-[#9c6254]/50 hover:-translate-y-1",
-      avatarBorder: "border-[#1e2a3a] bg-[#1e2a3a]",
-      avatarRing: "ring-4 ring-[#9c6254]/20 ring-offset-2 ring-offset-[#fdfbfa]",
-      badgeStyle: "bg-white border border-[#eadfda] text-[#1e2a3a] shadow-sm backdrop-blur-md",
-      buttonPrimary: "bg-gradient-to-br from-[#1e2a3a] to-[#2b3a4e] hover:from-[#2b3a4e] hover:to-[#3b4c64] text-white font-semibold shadow-[0_4px_16px_rgba(30,42,58,0.30)] hover:shadow-[0_6px_22px_rgba(30,42,58,0.45)] transition-all",
-      buttonSecondary: "bg-white border border-[#eadfda] text-[#1e2a3a] hover:bg-[#f5ede8] hover:border-[#9c6254]/60 transition-all font-semibold",
-      waButton: "bg-gradient-to-br from-[#25D366] to-[#1aad54] hover:from-[#2de374] hover:to-[#20ba59] text-white shadow-[0_4px_16px_rgba(37,211,102,0.32)] hover:shadow-[0_6px_22px_rgba(37,211,102,0.45)] font-semibold transition-all",
-      shortcutHover: "hover:border-[#9c6254]/40 hover:bg-[#faf6f3] hover:shadow-[0_4px_16px_rgba(30,42,58,0.08)]",
-      productCardBg: "bg-white/95 backdrop-blur-md border border-[#eadfda] shadow-[0_3px_12px_rgba(30,42,58,0.05)]",
-      productCardHover: "hover:shadow-[0_10px_28px_rgba(156,98,84,0.18)] hover:-translate-y-1 hover:border-[#9c6254]/60",
-      guaranteeBannerBg: "bg-gradient-to-br from-[#1e2a3a] via-[#243346] to-[#1e2a3a] border border-[#d9cbbd]/40 shadow-xl",
-      guaranteeBannerText: "text-[#fdfbfa]",
-      starColor: "text-[#d4af37]",
-      dividerStyle: "border-[#eadfda]",
-      priceStyle: "text-[#9c6254] font-bold font-mono",
-      logoInvert: false,
-    },
-  },
-
-  // ─────────────────────────────────────────────────────────────────────────────
-  // 4. ÉMERAUDE PRIVÉE & OR — Les salons confidentiels de parfum de niche
-  // ─────────────────────────────────────────────────────────────────────────────
-  {
-    id: "royal-emerald",
-    name: "Émeraude Privée & Or",
-    tagline: "Les collections d'exception et flacons rares",
-    mood: "Mystérieux, opulent, salon privé d'initiés, velours vert impérial",
-    description: "Évoquant les flacons de collection rares et les bibliothèques olfactives privées. Vert émeraude sombre impérial souligné d'or antique raffiné.",
-    emoji: "💎",
-    isDark: true,
-    palette: {
-      primary: "#e8f0e8",
-      accent: "#c8a94a",
-      background: "#04140a",
-      surface: "#091e10",
-      glow: "#c8a94a",
-    },
-    styles: {
-      pageBg: "bg-[radial-gradient(ellipse_at_top,_#0d2916_0%,_#061a0d_40%,_#04140a_75%,_#020a05_100%)]",
-      heroOverlay: "bg-gradient-to-b from-[#c8a94a]/15 via-[#091e10]/50 to-transparent",
-      textPrimary: "text-[#e8f0e8]",
-      textSecondary: "text-[#e8f0e8]/85",
-      textMuted: "text-[#e8f0e8]/50",
-      textAccent: "text-[#dfbe59]",
-      cardBg: "bg-[#091e10]/90 backdrop-blur-md border border-[#c8a94a]/25 shadow-[0_4px_24px_rgba(0,0,0,0.65)]",
-      cardBorder: "border-[#c8a94a]/25",
-      cardHover: "hover:shadow-[0_8px_32px_rgba(200,169,74,0.24)] hover:border-[#c8a94a]/60 hover:-translate-y-1",
-      avatarBorder: "border-[#c8a94a] bg-[#04140a]",
-      avatarRing: "ring-4 ring-[#c8a94a]/30 ring-offset-2 ring-offset-[#04140a]",
-      badgeStyle: "bg-[#0c2615] border border-[#c8a94a]/35 text-[#e8f0e8] shadow-md backdrop-blur-md",
-      buttonPrimary: "bg-gradient-to-br from-[#c8a94a] via-[#b89535] to-[#9c7a20] hover:from-[#dfbe59] hover:to-[#b89535] text-[#04140a] font-bold shadow-[0_4px_18px_rgba(200,169,74,0.40)] hover:shadow-[0_6px_26px_rgba(200,169,74,0.55)] transition-all",
-      buttonSecondary: "bg-[#0c2615]/90 border border-[#c8a94a]/35 text-[#e8f0e8] hover:bg-[#12331d] hover:border-[#c8a94a]/65 transition-all font-semibold",
-      waButton: "bg-gradient-to-br from-[#25D366] to-[#1aad54] hover:from-[#2de374] hover:to-[#20ba59] text-white shadow-[0_4px_16px_rgba(37,211,102,0.35)] hover:shadow-[0_6px_24px_rgba(37,211,102,0.50)] font-semibold transition-all",
-      shortcutHover: "hover:border-[#c8a94a]/55 hover:bg-[#0e2c18] hover:shadow-[0_4px_20px_rgba(200,169,74,0.18)]",
-      productCardBg: "bg-[#081b0e]/95 backdrop-blur-md border border-[#c8a94a]/20 shadow-[0_4px_20px_rgba(0,0,0,0.7)]",
-      productCardHover: "hover:shadow-[0_10px_34px_rgba(200,169,74,0.26),0_2px_10px_rgba(0,0,0,0.9)] hover:-translate-y-1 hover:border-[#c8a94a]/65",
-      guaranteeBannerBg: "bg-gradient-to-br from-[#081b0e] via-[#0e2c18] to-[#081b0e] border border-[#c8a94a]/30 shadow-2xl",
-      guaranteeBannerText: "text-[#e8f0e8]",
-      starColor: "text-[#c8a94a]",
-      dividerStyle: "border-[#c8a94a]/25",
-      priceStyle: "text-[#dfbe59] font-bold font-mono",
-      logoInvert: true,
-    },
-  },
-
-  // ─────────────────────────────────────────────────────────────────────────────
-  // 5. BLEU NUIT SAPHIR & PLATINE — La nuit royale méditerranéenne
-  // ─────────────────────────────────────────────────────────────────────────────
-  {
-    id: "midnight-navy",
-    name: "Saphir Royal & Platine",
-    tagline: "La nuit royale méditerranéenne",
-    mood: "Souverain, magnétique, ciel d'Orient étoilé, saphir et platine",
-    description: "Inspiré des nuits étoilées de la Riviera et des sillages marins intenses. Bleu royal profond, reflets saphir et platine étincelant.",
-    emoji: "🌌",
-    isDark: true,
-    palette: {
-      primary: "#f0f4fc",
-      accent: "#60a5fa",
-      background: "#060b18",
-      surface: "#0d162e",
-      glow: "#60a5fa",
-    },
-    styles: {
-      pageBg: "bg-[radial-gradient(ellipse_at_top,_#121e3f_0%,_#091125_40%,_#060b18_75%,_#03050c_100%)]",
-      heroOverlay: "bg-gradient-to-b from-[#60a5fa]/15 via-[#0d162e]/50 to-transparent",
-      textPrimary: "text-[#f0f4fc]",
-      textSecondary: "text-[#f0f4fc]/85",
-      textMuted: "text-[#f0f4fc]/50",
-      textAccent: "text-[#93c5fd]",
-      cardBg: "bg-[#0d162e]/90 backdrop-blur-md border border-[#60a5fa]/25 shadow-[0_4px_24px_rgba(0,0,0,0.65)]",
-      cardBorder: "border-[#60a5fa]/25",
-      cardHover: "hover:shadow-[0_8px_32px_rgba(96,165,250,0.22)] hover:border-[#60a5fa]/60 hover:-translate-y-1",
-      avatarBorder: "border-[#60a5fa] bg-[#060b18]",
-      avatarRing: "ring-4 ring-[#60a5fa]/30 ring-offset-2 ring-offset-[#060b18]",
-      badgeStyle: "bg-[#101b38] border border-[#60a5fa]/35 text-[#f0f4fc] shadow-md backdrop-blur-md",
-      buttonPrimary: "bg-gradient-to-br from-[#3b82f6] via-[#2563eb] to-[#1d4ed8] hover:from-[#60a5fa] hover:to-[#2563eb] text-white font-bold shadow-[0_4px_18px_rgba(37,99,235,0.40)] hover:shadow-[0_6px_26px_rgba(37,99,235,0.55)] transition-all",
-      buttonSecondary: "bg-[#101b38]/90 border border-[#60a5fa]/35 text-[#f0f4fc] hover:bg-[#16244a] hover:border-[#60a5fa]/65 transition-all font-semibold",
-      waButton: "bg-gradient-to-br from-[#25D366] to-[#1aad54] hover:from-[#2de374] hover:to-[#20ba59] text-white shadow-[0_4px_16px_rgba(37,211,102,0.35)] hover:shadow-[0_6px_24px_rgba(37,211,102,0.50)] font-semibold transition-all",
-      shortcutHover: "hover:border-[#60a5fa]/55 hover:bg-[#132042] hover:shadow-[0_4px_20px_rgba(96,165,250,0.18)]",
-      productCardBg: "bg-[#0b1328]/95 backdrop-blur-md border border-[#60a5fa]/20 shadow-[0_4px_20px_rgba(0,0,0,0.7)]",
-      productCardHover: "hover:shadow-[0_10px_34px_rgba(96,165,250,0.25),0_2px_10px_rgba(0,0,0,0.9)] hover:-translate-y-1 hover:border-[#60a5fa]/65",
-      guaranteeBannerBg: "bg-gradient-to-br from-[#0b1328] via-[#132042] to-[#0b1328] border border-[#60a5fa]/30 shadow-2xl",
-      guaranteeBannerText: "text-[#f0f4fc]",
-      starColor: "text-[#fbbf24]",
-      dividerStyle: "border-[#60a5fa]/25",
-      priceStyle: "text-[#93c5fd] font-bold font-mono",
-      logoInvert: true,
-    },
-  },
-
-  // ─────────────────────────────────────────────────────────────────────────────
-  // 6. AMBRE SAHARIEN & TERRACOTTA — La chaleur solaire des épices précieuses
-  // ─────────────────────────────────────────────────────────────────────────────
-  {
-    id: "sahara-nude",
-    name: "Ambre Saharien & Or Chaud",
-    tagline: "La chaleur envoûtante des épices rares",
-    mood: "Solaire, ambré, sensuel, dunes d'or et coucher de soleil dakarois",
-    description: "Inspiré des sables chauds, de la vanille bourbon et des bois fumés. Teintes sable doré, ambre miellé et terracotta chic.",
-    emoji: "✨",
-    isDark: false,
-    palette: {
-      primary: "#241408",
-      accent: "#b56938",
-      background: "#fbf6f0",
-      surface: "#ffffff",
-      glow: "#d48850",
-    },
-    styles: {
-      pageBg: "bg-[radial-gradient(ellipse_at_top,_#f5e5d3_0%,_#fbf6f0_40%,_#fffcf9_75%,_#fbf6f0_100%)]",
-      heroOverlay: "bg-gradient-to-b from-[#f5e5d3]/70 via-[#fbf6f0]/40 to-transparent",
-      textPrimary: "text-[#241408]",
-      textSecondary: "text-[#241408]/80",
-      textMuted: "text-[#241408]/50",
-      textAccent: "text-[#a05525]",
-      cardBg: "bg-white/90 backdrop-blur-md border border-[#ebd8c5] shadow-[0_4px_20px_rgba(181,105,56,0.10)]",
-      cardBorder: "border-[#ebd8c5]",
-      cardHover: "hover:shadow-[0_8px_30px_rgba(181,105,56,0.20)] hover:border-[#b56938]/60 hover:-translate-y-1",
-      avatarBorder: "border-[#b56938] bg-[#241408]",
-      avatarRing: "ring-4 ring-[#b56938]/25 ring-offset-2 ring-offset-[#fbf6f0]",
-      badgeStyle: "bg-white/95 border border-[#ebd8c5] text-[#241408] shadow-sm backdrop-blur-md",
-      buttonPrimary: "bg-gradient-to-br from-[#b56938] via-[#a05525] to-[#864016] hover:from-[#c87642] hover:to-[#a05525] text-white font-semibold shadow-[0_4px_16px_rgba(181,105,56,0.35)] hover:shadow-[0_6px_22px_rgba(181,105,56,0.48)] transition-all",
-      buttonSecondary: "bg-white/90 border border-[#ebd8c5] text-[#241408] hover:bg-[#f5e5d3]/50 hover:border-[#b56938]/60 transition-all font-semibold",
-      waButton: "bg-gradient-to-br from-[#25D366] to-[#1aad54] hover:from-[#2de374] hover:to-[#20ba59] text-white shadow-[0_4px_16px_rgba(37,211,102,0.35)] hover:shadow-[0_6px_24px_rgba(37,211,102,0.45)] font-semibold transition-all",
-      shortcutHover: "hover:border-[#b56938]/50 hover:bg-white hover:shadow-[0_4px_18px_rgba(181,105,56,0.15)]",
-      productCardBg: "bg-white/95 backdrop-blur-md border border-[#ebd8c5] shadow-[0_4px_16px_rgba(181,105,56,0.08)]",
-      productCardHover: "hover:shadow-[0_10px_32px_rgba(181,105,56,0.22)] hover:-translate-y-1 hover:border-[#b56938]/70",
-      guaranteeBannerBg: "bg-gradient-to-br from-[#241408] via-[#331c0c] to-[#241408] border border-[#b56938]/30 shadow-xl",
-      guaranteeBannerText: "text-[#fbf6f0]",
-      starColor: "text-[#b56938]",
-      dividerStyle: "border-[#ebd8c5]",
-      priceStyle: "text-[#a05525] font-bold font-mono",
-      logoInvert: false,
-    },
-  },
-];
-
-/**
- * Récupère un thème par son identifiant.
- * Si l'identifiant est absent ou inconnu, retourne le thème signature par défaut (Rose Élysée).
- */
-export function getShopTheme(themeId: string | null | undefined): ShopTheme {
-  const found = SHOP_THEMES.find((t) => t.id === themeId);
-  return found ?? SHOP_THEMES[0]!;
+export function contrast(a: string, b: string): number {
+  const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m);
+  return (x + 0.05) / (y + 0.05);
 }

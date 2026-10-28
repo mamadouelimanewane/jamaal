@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getReseller } from "@/lib/reseller";
 import { MAX_FAVORITES } from "@/lib/shop/consultant-shop";
-import { SHOP_THEMES, DEFAULT_THEME_ID, type ShopThemeId } from "@/lib/shop/themes";
+import { normalizeAccent, normalizeHero, normalizeHidden, normalizeThemeId, normalizeTypo } from "@/lib/shop/themes";
 
 export type ShopState = { ok: boolean; message?: string; error?: string };
 const TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -19,8 +19,11 @@ export async function updateMyShop(_prev: ShopState, fd: FormData): Promise<Shop
   const bio = String(fd.get("bio") ?? "").trim().replace(/\s+/g, " ").slice(0, 220) || null;
   const tagline = String(fd.get("tagline") ?? "").trim().replace(/\s+/g, " ").slice(0, 100) || null;
 
-  const themeRaw = String(fd.get("theme") ?? "").trim();
-  const shopTheme: ShopThemeId = (SHOP_THEMES.some((t) => t.id === themeRaw) ? themeRaw : DEFAULT_THEME_ID) as ShopThemeId;
+  const shopTheme = normalizeThemeId(String(fd.get("theme") ?? ""));
+  const shopAccent = normalizeAccent(fd.get("accent"));
+  const shopHero = normalizeHero(fd.get("hero"));
+  const shopTypo = normalizeTypo(fd.get("typo"));
+  const shopHidden = normalizeHidden(fd.getAll("hidden").map(String));
 
   const ids = fd.getAll("productIds").map(String).filter(Boolean).slice(0, MAX_FAVORITES);
   const favorites = ids.length ? (await prisma.product.findMany({ where: { id: { in: ids } }, select: { id: true } })).map((p) => p.id) : [];
@@ -45,6 +48,10 @@ export async function updateMyShop(_prev: ShopState, fd: FormData): Promise<Shop
       shopBio: bio,
       shopTagline: tagline,
       shopTheme,
+      shopAccent,
+      shopHero,
+      shopTypo,
+      shopHidden,
       favorites: ordered,
       titleForm,
       ...(shopPhoto !== undefined ? { shopPhoto } : {}),

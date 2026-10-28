@@ -1,286 +1,211 @@
 ﻿"use client";
 
 import { useState } from "react";
-import { Check, Sparkles, Palette, Eye, Moon, Sun, ShoppingBag, Phone, Star, ShieldCheck, Truck } from "lucide-react";
-import { SHOP_THEMES, DEFAULT_THEME_ID, type ShopThemeId, getShopTheme } from "@/lib/shop/themes";
+import { Check, Palette } from "lucide-react";
+import {
+  SHOP_THEMES,
+  SHOP_HEROES,
+  SHOP_TYPOS,
+  SHOP_SECTIONS,
+  getShopTheme,
+  normalizeAccent,
+  normalizeHero,
+  normalizeHidden,
+  normalizeThemeId,
+  normalizeTypo,
+  type ShopHero,
+  type ShopSection,
+  type ShopThemeId,
+  type ShopTypo,
+} from "@/lib/shop/themes";
 
-interface ThemeSelectorProps {
+export interface ThemeSelectorProps {
   initialTheme: string | null | undefined;
+  initialAccent?: number | null;
+  initialHero?: string | null;
+  initialTypo?: string | null;
+  initialHidden?: string[] | null;
   consultantName: string;
   avatarUrl: string | null;
 }
 
-export function ThemeSelector({ initialTheme, consultantName, avatarUrl }: ThemeSelectorProps) {
-  const [selectedId, setSelectedId] = useState<ShopThemeId>(
-    (initialTheme && SHOP_THEMES.some((t) => t.id === initialTheme)
-      ? (initialTheme as ShopThemeId)
-      : DEFAULT_THEME_ID)
-  );
+const pill = (on: boolean) =>
+  `min-h-10 rounded-full border px-3.5 py-2 text-sm font-medium transition ${on ? "border-navy bg-navy text-white" : "border-line bg-white text-navy hover:bg-cream"}`;
 
-  const activeTheme = getShopTheme(selectedId);
-  const st = activeTheme.styles;
+/**
+ * Apparence de la boutique (/c/<slug>) : thème, accent, mise en avant, typographie et sections.
+ * Les choix partent avec le formulaire de Ma boutique (champs cachés) ; l'aperçu se met à jour en direct.
+ */
+export function ThemeSelector({ initialTheme, initialAccent, initialHero, initialTypo, initialHidden, consultantName, avatarUrl }: ThemeSelectorProps) {
+  const [themeId, setThemeId] = useState<ShopThemeId>(normalizeThemeId(initialTheme));
+  const [accent, setAccent] = useState<0 | 1 | 2>(normalizeAccent(initialAccent));
+  const [hero, setHero] = useState<ShopHero>(normalizeHero(initialHero));
+  const [typo, setTypo] = useState<ShopTypo>(normalizeTypo(initialTypo));
+  const [hidden, setHidden] = useState<ShopSection[]>(normalizeHidden(initialHidden));
 
-  const initials = consultantName
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((w) => w[0]?.toUpperCase())
-    .join("");
+  const t = getShopTheme(themeId);
+  const acc = t.accents[accent];
+  const display = typo === "classique" ? "'Playfair Display', Georgia, serif" : `'${t.displayName}', Georgia, serif`;
+  const body = typo === "classique" ? "'Poppins', system-ui, sans-serif" : `'${t.bodyName}', system-ui, sans-serif`;
+  const first = consultantName.split(/\s+/)[0] || "Moi";
+  const initials = consultantName.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase()).join("");
+  const toggle = (s: ShopSection) => setHidden((h) => (h.includes(s) ? h.filter((x) => x !== s) : [...h, s]));
+  const show = (s: ShopSection) => !hidden.includes(s);
 
   return (
     <div className="space-y-6">
-      {/* Champ caché pour la soumission du formulaire */}
-      <input type="hidden" name="theme" value={selectedId} />
+      <input type="hidden" name="theme" value={themeId} />
+      <input type="hidden" name="accent" value={accent} />
+      <input type="hidden" name="hero" value={hero} />
+      <input type="hidden" name="typo" value={typo} />
+      {hidden.map((h) => <input key={h} type="hidden" name="hidden" value={h} />)}
 
-      {/* En-tête */}
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <label className="flex items-center gap-2 text-sm font-semibold text-navy">
-            <Palette size={16} className="text-rose-dark" />
-            Design E-commerce · Thème de ma boutique en ligne
-          </label>
-          <p className="mt-0.5 text-xs text-navy/60">
-            Choisissez l&apos;univers esthétique qui habillera votre site web personnel auprès de vos clients.
-          </p>
-        </div>
-        <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-amber-50 border border-amber-200 px-3 py-1 text-xs font-bold text-amber-800 shadow-xs">
-          <Sparkles size={12} />
-          {SHOP_THEMES.length} Thèmes Haute Parfumerie
-        </span>
+      <div>
+        <p className="flex items-center gap-2 text-sm font-semibold text-navy">
+          <Palette size={16} className="text-rose-dark" aria-hidden="true" /> Apparence de ma boutique
+        </p>
+        <p className="mt-1 text-xs text-navy/70">Choisissez un thème, puis ajustez l&apos;accent et la mise en avant. Enregistrez en bas de page pour publier.</p>
       </div>
 
-      {/* Grille des thèmes disponibles */}
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {SHOP_THEMES.map((theme) => {
-          const isSelected = theme.id === selectedId;
-          return (
-            <button
-              key={theme.id}
-              type="button"
-              onClick={() => setSelectedId(theme.id)}
-              className={[
-                "group relative flex flex-col rounded-2xl text-left transition-all duration-300 overflow-hidden cursor-pointer",
-                isSelected
-                  ? "border-2 border-navy shadow-xl ring-2 ring-navy/15 scale-[1.02]"
-                  : "border border-line bg-white/90 hover:border-navy/40 hover:shadow-md hover:scale-[1.01]",
-              ].join(" ")}
-            >
-              {/* Bandeau d'ambiance avec swatches */}
-              <div
-                className="h-16 w-full relative overflow-hidden"
-                style={{
-                  background: `radial-gradient(ellipse at 30% 50%, ${theme.palette.glow}66 0%, ${theme.palette.background} 65%, ${theme.palette.surface} 100%)`,
-                }}
-              >
-                <div className="absolute bottom-2 left-3 flex items-center gap-1.5">
-                  <span
-                    className="h-5 w-5 rounded-full border-2 border-white/70 shadow-sm"
-                    style={{ background: theme.palette.background }}
-                  />
-                  <span
-                    className="h-5 w-5 rounded-full border-2 border-white/70 shadow-sm"
-                    style={{ background: theme.palette.accent }}
-                  />
-                  <span
-                    className="h-4 w-4 rounded-full border-2 border-white/70 shadow-sm"
-                    style={{ background: theme.palette.primary }}
-                  />
-                </div>
-                <div className="absolute top-2 right-2.5 flex items-center gap-1.5 bg-black/30 backdrop-blur-xs px-2 py-0.5 rounded-full">
-                  <span className="text-sm">{theme.emoji}</span>
-                  {theme.isDark ? (
-                    <Moon size={11} className="text-amber-300" />
-                  ) : (
-                    <Sun size={11} className="text-amber-400" />
-                  )}
-                </div>
-                {isSelected && (
-                  <span className="absolute top-2 left-2.5 inline-flex items-center gap-1 rounded-full bg-navy px-2 py-0.5 text-[10px] font-bold text-white shadow">
-                    <Check size={10} /> Actif
-                  </span>
-                )}
-              </div>
-
-              {/* Description */}
-              <div className={`p-3.5 ${isSelected ? "bg-navy/4" : "bg-white"} flex-1 flex flex-col justify-between`}>
-                <div>
-                  <p className="font-serif-display text-sm font-bold text-navy leading-tight">
-                    {theme.name}
-                  </p>
-                  <p className="mt-0.5 text-[11px] font-medium text-rose-dark line-clamp-1">
-                    {theme.tagline}
-                  </p>
-                  <p className="mt-1 text-[11px] text-navy/55 line-clamp-2 leading-relaxed">
-                    {theme.description}
-                  </p>
-                </div>
-              </div>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* ── APERÇU GRAND FORMAT DU SITE WEB REVENDEUR ─────────────────────────── */}
-      <div className="rounded-3xl border border-line bg-white overflow-hidden shadow-xl">
-        {/* Barre supérieure du preview */}
-        <div className="flex items-center justify-between border-b border-line bg-slate-50/90 px-5 py-3">
-          <div className="flex items-center gap-2">
-            <span className="flex h-3 w-3 rounded-full bg-emerald-500" />
-            <span className="font-serif-display text-xs font-bold text-navy">
-              Aperçu en direct du Site Web · Thème : {activeTheme.name}
-            </span>
-          </div>
-          <span className="text-[11px] font-semibold text-navy/60">
-            {activeTheme.isDark ? "🌙 Mode Nuit Prestigieux" : "☀️ Mode Lumineux Épuré"}
-          </span>
-        </div>
-
-        {/* Simulation complète du site e-commerce */}
-        <div
-          className="p-4 sm:p-6 transition-all duration-300 text-left"
-          style={{
-            background: activeTheme.isDark
-              ? `radial-gradient(ellipse at top, ${activeTheme.palette.glow}25 0%, ${activeTheme.palette.background} 50%)`
-              : `radial-gradient(ellipse at top, ${activeTheme.palette.glow}35 0%, ${activeTheme.palette.background} 45%, #ffffff 90%)`,
-          }}
-        >
-          <div className="mx-auto max-w-xl space-y-4">
-
-            {/* 1. Simulation Top Bar */}
-            <div className="rounded-xl border border-white/20 bg-white/10 backdrop-blur-xs py-1.5 px-3 text-center text-[10px] uppercase tracking-wider font-bold" style={{ color: activeTheme.palette.primary }}>
-              ✦ Haute Parfumerie Chogan Italie · 30% d&apos;Essence Pure · Livraison Express Dakar
-            </div>
-
-            {/* 2. Simulation Header Web */}
-            <div
-              className="flex items-center justify-between p-3 rounded-2xl border shadow-sm backdrop-blur-md"
-              style={{
-                backgroundColor: activeTheme.isDark ? `${activeTheme.palette.surface}f0` : "rgba(255,255,255,0.92)",
-                borderColor: `${activeTheme.palette.accent}33`,
-              }}
-            >
-              <div className="flex items-center gap-2">
-                <span className="font-serif-display font-bold text-sm tracking-widest" style={{ color: activeTheme.palette.primary }}>
-                  JAMAAL
-                </span>
-                <span className="text-[10px] opacity-60" style={{ color: activeTheme.palette.primary }}>
-                  · Boutique de {consultantName || "Votre Nom"}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[9px] font-bold text-emerald-600">
-                  En Ligne
-                </span>
-                <span className="rounded-full p-1.5 text-xs text-white shadow-xs" style={{ background: "#25D366" }}>
-                  <Phone size={11} />
-                </span>
-              </div>
-            </div>
-
-            {/* 3. Simulation Hero Banner de Site Web */}
-            <div
-              className="p-5 rounded-3xl border shadow-md flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left"
-              style={{
-                backgroundColor: activeTheme.isDark ? `${activeTheme.palette.surface}d0` : "rgba(255,255,255,0.85)",
-                borderColor: `${activeTheme.palette.accent}40`,
-              }}
-            >
-              <div
-                className="h-20 w-20 shrink-0 overflow-hidden rounded-2xl shadow-xl relative"
-                style={{
-                  border: `3px solid ${activeTheme.palette.accent}`,
-                  boxShadow: `0 0 0 4px ${activeTheme.palette.glow}30`,
-                }}
-              >
-                {avatarUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
-                ) : (
-                  <span
-                    className="flex h-full w-full items-center justify-center font-serif-display text-2xl font-bold text-white"
-                    style={{ backgroundColor: activeTheme.palette.primary }}
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
+        <div className="min-w-0 space-y-6">
+          <fieldset>
+            <legend className="text-xs font-semibold uppercase tracking-wider text-navy/60">1 · Thème</legend>
+            <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
+              {SHOP_THEMES.map((x) => {
+                const on = x.id === themeId;
+                return (
+                  <button
+                    key={x.id}
+                    type="button"
+                    aria-pressed={on}
+                    onClick={() => { setThemeId(x.id); setAccent(0); }}
+                    className={`relative min-h-[76px] rounded-xl bg-white p-3 text-left transition ${on ? "border-2 border-navy" : "border border-line hover:border-navy/40"}`}
                   >
-                    {initials || "JM"}
-                  </span>
-                )}
-              </div>
-
-              <div className="flex-1 min-w-0">
-                <span className="inline-block rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider shadow-xs mb-1" style={{ backgroundColor: `${activeTheme.palette.accent}20`, color: activeTheme.palette.accent }}>
-                  Conseiller·e Agréé·e · Dakar
-                </span>
-                <h4 className="font-serif-display text-lg font-bold" style={{ color: activeTheme.palette.primary }}>
-                  {consultantName || "Votre Nom"}
-                </h4>
-                <p className="font-serif-display text-xs italic mt-0.5" style={{ color: activeTheme.palette.accent }}>
-                  « {activeTheme.tagline} »
-                </p>
-                <div className="mt-2.5 flex flex-wrap gap-2 justify-center sm:justify-start">
-                  <span className="rounded-xl px-2.5 py-1 text-[10px] font-bold text-white shadow-sm flex items-center gap-1" style={{ background: "#25D366" }}>
-                    <span>💬</span> WhatsApp Direct
-                  </span>
-                  <span className="rounded-xl px-2.5 py-1 text-[10px] font-semibold border shadow-xs" style={{ borderColor: `${activeTheme.palette.accent}55`, color: activeTheme.palette.primary }}>
-                    🔍 Explorer les parfums
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* 4. Simulation Grille E-commerce 2 Cartes Produits */}
-            <div className="grid grid-cols-2 gap-3">
-              {[
-                { name: "Baccarat Rouge 540", brand: "Extrait Privé N°118", price: "42 600 FCFA" },
-                { name: "Black Opium", brand: "Extrait Femme N°055", price: "14 800 FCFA" },
-              ].map((item, idx) => (
-                <div
-                  key={idx}
-                  className="rounded-2xl p-3 border shadow-sm flex flex-col justify-between"
-                  style={{
-                    backgroundColor: activeTheme.isDark ? `${activeTheme.palette.surface}f0` : "rgba(255,255,255,0.95)",
-                    borderColor: `${activeTheme.palette.accent}25`,
-                  }}
-                >
-                  <div className="h-20 rounded-xl bg-neutral-200/30 flex items-center justify-center text-2xl mb-2 relative overflow-hidden">
-                    <span className="text-2xl">✨</span>
-                    <span className="absolute top-1 left-1 rounded-full bg-black/60 px-1.5 py-0.5 text-[8px] font-bold text-amber-300">
-                      30% Pur
+                    <span className="flex gap-1" aria-hidden="true">
+                      {[x.bg, x.ink, x.accents[0]].map((c) => <span key={c} className="h-5 w-5 rounded-md border border-black/10" style={{ background: c }} />)}
                     </span>
-                  </div>
-                  <div>
-                    <p className="font-serif-display text-xs font-bold line-clamp-1" style={{ color: activeTheme.palette.primary }}>
-                      {item.name}
-                    </p>
-                    <p className="text-[10px] italic line-clamp-1" style={{ color: activeTheme.palette.accent }}>
-                      {item.brand}
-                    </p>
-                    <div className="mt-2 flex items-center justify-between">
-                      <span className="font-mono text-xs font-bold" style={{ color: activeTheme.palette.accent }}>
-                        {item.price}
-                      </span>
-                      <span className="rounded-lg px-2 py-0.5 text-[9px] font-bold text-white shadow-xs" style={{ backgroundColor: activeTheme.palette.primary }}>
-                        Commander
-                      </span>
-                    </div>
-                  </div>
-                </div>
+                    <span className="mt-2 block text-sm font-semibold text-navy">{x.name}</span>
+                    <span className="mt-0.5 block text-[11px] leading-snug text-navy/65">{x.mood}</span>
+                    {on && <Check size={16} className="absolute right-2 top-2 text-navy" aria-hidden="true" />}
+                  </button>
+                );
+              })}
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend className="text-xs font-semibold uppercase tracking-wider text-navy/60">2 · Accent</legend>
+            <div className="mt-2 flex gap-3">
+              {t.accents.map((c, i) => (
+                <button
+                  key={c}
+                  type="button"
+                  aria-label={`Accent ${i + 1}`}
+                  aria-pressed={accent === i}
+                  onClick={() => setAccent(i as 0 | 1 | 2)}
+                  className="h-11 w-11 rounded-full transition"
+                  style={{ background: c, border: accent === i ? "3px solid #fff" : "1px solid #D9D3CC", boxShadow: accent === i ? "0 0 0 2px #1D2F4F" : undefined }}
+                />
               ))}
             </div>
+          </fieldset>
 
-            {/* 5. Simulation Réassurance */}
-            <div
-              className="p-3 rounded-2xl border text-center flex items-center justify-around text-[10px] font-medium"
-              style={{
-                backgroundColor: activeTheme.isDark ? `${activeTheme.palette.surface}a0` : "rgba(255,255,255,0.8)",
-                borderColor: `${activeTheme.palette.accent}20`,
-                color: activeTheme.palette.primary,
-              }}
-            >
-              <span className="flex items-center gap-1">🛡️ Produits Certifiés</span>
-              <span className="flex items-center gap-1">🚚 Livraison Dakar 24h</span>
-              <span className="flex items-center gap-1">💳 Wave &amp; OM</span>
+          <fieldset>
+            <legend className="text-xs font-semibold uppercase tracking-wider text-navy/60">3 · Haut de page</legend>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {SHOP_HEROES.map((h) => (
+                <button key={h.id} type="button" aria-pressed={hero === h.id} onClick={() => setHero(h.id)} className={pill(hero === h.id)}>{h.label}</button>
+              ))}
             </div>
+            <p className="mt-1.5 text-[11px] text-navy/60">« Un produit vedette » met en avant votre premier coup de cœur.</p>
+          </fieldset>
 
+          <fieldset>
+            <legend className="text-xs font-semibold uppercase tracking-wider text-navy/60">4 · Typographie</legend>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {SHOP_TYPOS.map((h) => (
+                <button key={h.id} type="button" aria-pressed={typo === h.id} onClick={() => setTypo(h.id)} className={pill(typo === h.id)}>{h.label}</button>
+              ))}
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend className="text-xs font-semibold uppercase tracking-wider text-navy/60">5 · Sections affichées</legend>
+            <div className="mt-2 grid gap-2 sm:grid-cols-2">
+              {SHOP_SECTIONS.map((s) => (
+                <label key={s.id} className="flex min-h-11 cursor-pointer items-center gap-2.5 rounded-xl border border-line bg-white px-3 text-sm text-navy">
+                  <input type="checkbox" checked={show(s.id)} onChange={() => toggle(s.id)} className="h-4 w-4 shrink-0 accent-navy" />
+                  {s.label}
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        </div>
+
+        {/* Aperçu (couleurs et mise en page ; les polices du thème s'affichent sur la boutique). */}
+        <div className="lg:sticky lg:top-20 lg:self-start">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-navy/60">Aperçu</p>
+          <div className="mx-auto w-[280px] overflow-hidden rounded-[30px] border-[8px] border-[#1B1B1D] text-left" style={{ background: t.bg, color: t.ink, fontFamily: body }} aria-hidden="true">
+            <div className="px-2 py-1.5 text-center text-[8px] uppercase tracking-[0.14em]" style={{ background: t.ink, color: t.bg }}>Conseil et commande sur WhatsApp</div>
+            <div className="flex items-center justify-between px-3 py-2.5" style={{ borderBottom: `1px solid ${t.line}` }}>
+              <span style={{ fontFamily: display, letterSpacing: "0.3em", fontSize: 15 }}>JAMAAL</span>
+              <span className="rounded-full px-2 py-1 text-[9px] font-semibold text-white" style={{ background: "#128C4B" }}>WhatsApp</span>
+            </div>
+            {t.decor && <div style={{ height: 4, background: t.decor }} />}
+            <div className="max-h-[430px] overflow-hidden">
+              {hero === "banner" ? (
+                <div className="m-3 rounded-2xl px-3 py-6 text-center text-white" style={{ background: acc }}>
+                  <div className="text-[8px] uppercase tracking-[0.2em]">Votre conseiller</div>
+                  <div className="mt-1" style={{ fontFamily: display, fontSize: 24, lineHeight: 1.05 }}>{consultantName}</div>
+                </div>
+              ) : (
+                <div className="px-3 pb-3 pt-4">
+                  {hero === "showcase" ? (
+                    <div className="flex items-center gap-2.5 rounded-xl p-2.5" style={{ background: t.surface, border: `1px solid ${t.line}` }}>
+                      <div className="h-16 w-12 rounded-lg" style={{ background: t.tints[0], border: `1px solid ${t.line}` }} />
+                      <div>
+                        <div className="text-[8px] uppercase tracking-[0.18em]" style={{ color: acc }}>Le conseil de {first}</div>
+                        <div style={{ fontFamily: display, fontSize: 15 }}>Mon coup de cœur</div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="mx-auto flex h-[120px] w-[96px] items-center justify-center overflow-hidden" style={{ borderRadius: t.portrait, background: t.soft, border: `1px solid ${t.line}` }}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      {avatarUrl ? <img src={avatarUrl} alt="" className="h-full w-full object-cover" /> : <span style={{ fontFamily: display, fontSize: 32 }}>{initials}</span>}
+                    </div>
+                  )}
+                  <div className="mt-3 text-[8px] uppercase tracking-[0.2em]" style={{ color: acc }}>La boutique de votre conseiller</div>
+                  <div className="mt-1" style={{ fontFamily: display, fontSize: 22, lineHeight: 1.05 }}>{consultantName}</div>
+                </div>
+              )}
+              <div className="px-3"><div className="rounded-full py-2 text-center text-[10px] font-semibold text-white" style={{ background: "#128C4B" }}>Échanger avec {first}</div></div>
+              {show("services") && (
+                <div className="mt-3 grid grid-cols-2 gap-1.5 px-3 py-2.5" style={{ background: t.soft }}>
+                  {["Parfum ADN", "Catalogue"].map((s) => (
+                    <div key={s} className="rounded-lg px-2 py-2 text-[10px]" style={{ background: t.surface, border: `1px solid ${t.line}` }}>{s}</div>
+                  ))}
+                </div>
+              )}
+              {show("products") && (
+                <div className="px-3 pt-3">
+                  <div className="text-center" style={{ fontFamily: display, fontSize: 14 }}>Les coups de cœur de {first}</div>
+                  <div className="mt-2 grid grid-cols-2 gap-1.5">
+                    {[0, 1].map((i) => (
+                      <div key={i} className="overflow-hidden rounded-lg" style={{ background: t.surface, border: `1px solid ${t.line}` }}>
+                        <div className="h-14" style={{ background: t.tints[i % t.tints.length] }} />
+                        <div className="p-1.5"><div className="rounded-full py-1 text-center text-[8px] font-semibold text-white" style={{ background: acc }}>Commander</div></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {show("steps") && (
+                <div className="mt-3 px-3 py-3 text-center text-[11px]" style={{ background: t.dark, color: t.darkInk, fontFamily: display }}>Commander, simplement</div>
+              )}
+            </div>
           </div>
+          <p className="mt-2 text-center text-[11px] text-navy/60">Thème {t.name}</p>
         </div>
       </div>
     </div>

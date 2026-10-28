@@ -1,0 +1,51 @@
+/*
+ * Boutique personnelle (/c/<slug>) : couleurs et polices viennent des variables posées par le thème
+ * (src/lib/shop/themes.ts → shopLook().vars). Aucune couleur en dur ici, sauf WhatsApp (#128C4B, contraste AA).
+ */
+.sh-root { background: var(--s-bg); color: var(--s-ink); font-family: var(--s-body); }
+.sh-display { font-family: var(--s-display); font-weight: 500; letter-spacing: -0.005em; }
+.sh-muted { color: var(--s-muted); }
+.sh-acc { color: var(--s-acc); }
+.sh-eyebrow { color: var(--s-acc); font-size: 12px; letter-spacing: 0.26em; text-transform: uppercase; }
+.sh-line { border-color: var(--s-line); }
+.sh-soft { background: var(--s-soft); }
+.sh-surface { background: var(--s-surface); border: 1px solid var(--s-line); }
+.sh-band { background: var(--s-ink); color: var(--s-bg); }
+.sh-dark { background: var(--s-dark); color: var(--s-dark-ink); }
+.sh-dark-acc { color: var(--s-dark-acc); }
+.sh-dark-rule { border-top: 1px solid color-mix(in srgb, var(--s-dark-ink) 28%, transparent); }
+.sh-footer { background: var(--s-footer); color: var(--s-footer-ink); }
+.sh-footer a:hover { text-decoration: underline; }
+.sh-portrait { border-radius: var(--s-portrait); background: var(--s-soft); border: 1px solid var(--s-line); }
+.sh-accent-bg { background: var(--s-acc); color: #fff; }
+
+.sh-btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 48px; padding: 14px 24px; border-radius: 999px; font-size: 15px; font-weight: 500; text-decoration: none; transition: transform .15s ease, opacity .15s ease, background-color .15s ease; }
+.sh-btn:hover { transform: translateY(-1px); }
+.sh-btn:focus-visible, .sh-link:focus-visible, .sh-card:focus-visible { outline: 2px solid var(--s-acc); outline-offset: 3px; }
+.sh-btn-wa { background: #128C4B; color: #fff; }
+.sh-btn-wa:hover { background: #0F7A41; }
+.sh-btn-primary { background: var(--s-acc); color: #fff; }
+.sh-btn-primary:hover { opacity: .9; }
+.sh-btn-ghost { border: 1px solid var(--s-ink); color: var(--s-ink); }
+.sh-btn-ghost:hover { background: var(--s-soft); }
+.sh-btn-light { background: #fff; color: var(--s-acc); }
+.sh-btn-small { min-height: 44px; padding: 10px 14px; font-size: 14px; }
+.sh-icon-btn { width: 44px; height: 44px; flex-shrink: 0; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; }
+
+.sh-link { color: var(--s-ink); text-decoration: none; }
+.sh-link:hover { color: var(--s-acc); }
+.sh-underline { border-bottom: 1px solid var(--s-acc); padding-bottom: 6px; letter-spacing: 0.16em; text-transform: uppercase; font-size: 14px; color: var(--s-ink); text-decoration: none; }
+.sh-underline:hover { color: var(--s-acc); }
+
+.sh-card { background: var(--s-surface); border: 1px solid var(--s-line); color: var(--s-ink); text-decoration: none; transition: transform .2s ease, box-shadow .2s ease; }
+a.sh-card:hover, .sh-product:hover { transform: translateY(-2px); box-shadow: 0 14px 34px color-mix(in srgb, var(--s-ink) 12%, transparent); }
+.sh-product { transition: transform .2s ease, box-shadow .2s ease; }
+.sh-product img { mix-blend-mode: multiply; transition: transform .4s ease; }
+.sh-product:hover img { transform: scale(1.04); }
+
+.sh-grid-products { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; }
+@media (min-width: 640px) { .sh-grid-products { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 24px; } }
+
+.sh-decor { height: 6px; }
+.sh-wordmark { font-family: var(--s-display); letter-spacing: 0.34em; padding-left: 0.34em; line-height: 1; }
+.sh-stars { color: var(--s-acc); letter-spacing: 3px; }

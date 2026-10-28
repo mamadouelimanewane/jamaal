@@ -1,29 +1,13 @@
 ﻿import type { Metadata } from "next";
+import type { CSSProperties } from "react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import {
-  Gift,
-  MapPin,
-  MessageCircle,
-  Search,
-  ShieldCheck,
-  Sparkles,
-  Star,
-  Truck,
-  Dna,
-  Phone,
-  Award,
-  ChevronRight,
-  ShoppingBag,
-  Clock,
-  CheckCircle2,
-  HelpCircle,
-  ArrowRight,
-} from "lucide-react";
+import { Dna, Gift, LayoutGrid, MessageCircle, ShoppingBag, Sparkles } from "lucide-react";
 import { getConsultantShop, shopWhatsAppLink } from "@/lib/shop/consultant-shop";
 import { priceLabel } from "@/lib/share-text";
 import { getSiteUrl } from "@/lib/site-url";
-import { getShopTheme } from "@/lib/shop/themes";
+import { shopLook } from "@/lib/shop/themes";
+import "./shop.css";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -32,23 +16,19 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const shop = await getConsultantShop(slug).catch(() => null);
-  if (!shop) return { title: "Boutique Officielle JAMAAL" };
+  if (!shop) return { title: "Boutique JAMAAL" };
   const first = shop.consultant.name.split(/\s+/)[0];
   const description =
     shop.consultant.bio ||
     shop.consultant.tagline ||
-    `Boutique officielle de ${first}, conseiller·e agréé·e JAMAAL à ${shop.consultant.city}. Haute Parfumerie Chogan 30% d'essence, commande directe WhatsApp et livraison à domicile partout au Sénégal.`;
+    `La boutique de ${first}, conseiller·e JAMAAL à ${shop.consultant.city} : conseil parfum, commande sur WhatsApp et livraison.`;
   return {
-    title: `Boutique Officielle de ${first} · JAMAAL Luxury Cosmetics`,
+    title: `La boutique de ${first}`,
     description,
     openGraph: {
-      title: `Boutique de ${first} · JAMAAL Haute Parfumerie`,
+      title: `La boutique de ${first} · JAMAAL`,
       description,
-      images: shop.consultant.photo
-        ? [shop.consultant.photo]
-        : shop.products[0]?.photo
-        ? [shop.products[0].photo]
-        : undefined,
+      images: shop.consultant.photo ? [shop.consultant.photo] : shop.products[0]?.photo ? [shop.products[0].photo] : undefined,
     },
   };
 }
@@ -61,17 +41,17 @@ const initials = (name: string) =>
     .map((w) => w[0]!.toUpperCase())
     .join("");
 
+const price = (p: { price: number | null; multiFormat: boolean }) =>
+  p.price ? priceLabel(p.price, p.multiFormat).replace(/^à/, "À") : "Prix sur demande";
+
+function WaIcon({ size = 18 }: { size?: number }) {
+  return <MessageCircle size={size} strokeWidth={1.8} aria-hidden="true" />;
+}
+
 /**
- * Boutique personnelle du conseiller — Véritable site web de marque de luxe :
- * - Announcement Bar supérieure
- * - Header e-commerce avec logo officiel JAMAAL, menu de navigation et contact
- * - Hero grand format immersif avec portrait officiel, titre, ville et notes clients
- * - Bandeau de réassurance 4 piliers « Les Attentions JAMAAL »
- * - Raccourcis univers & services (Quiz Parfum ADN, Routine Beauté, Collections)
- * - Vitrine e-commerce haute définition (badges 30% d'essence, prix FCFA, commande directe)
- * - Guide de commande en 3 étapes simples
- * - Témoignages & avis vérifiés
- * - Footer complet de haute parfumerie
+ * Boutique personnelle du conseiller (lien de bio Instagram / TikTok), habillée par le thème qu'il a choisi
+ * dans Ma boutique : 14 thèmes, 3 accents, mise en avant (portrait, produit vedette ou bannière),
+ * typographie et sections masquables. Toutes les couleurs passent par des variables CSS (shop.css).
  */
 export default async function ConsultantShopPage({ params }: Props) {
   const { slug } = await params;
@@ -79,566 +59,279 @@ export default async function ConsultantShopPage({ params }: Props) {
   if (!shop) notFound();
 
   const { consultant: c, products, reviews, stats } = shop;
-  const theme = getShopTheme(c.themeId);
-  const st = theme.styles;
+  const look = shopLook({ theme: c.themeId, ...c.look });
+  const { theme, hero, hidden } = look;
+  const show = (s: (typeof hidden)[number]) => !hidden.includes(s);
 
   const first = c.name.split(/\s+/)[0];
   const ref = `?ref=${c.slug}`;
   const origin = (await getSiteUrl().catch(() => "")).replace(/\/$/, "");
-  const wa = shopWhatsAppLink(
-    c.whatsapp,
-    `Bonjour ${first}, je visite votre boutique officielle JAMAAL (${origin}/c/${c.slug}) : j'aimerais des conseils parfumés et passer commande 🌸`
-  );
+  const wa = shopWhatsAppLink(c.whatsapp, `Bonjour ${first}, je visite votre boutique JAMAAL (${origin}/c/${c.slug}) : j'aimerais un conseil parfum.`);
   const waProduct = (name: string) =>
-    shopWhatsAppLink(
-      c.whatsapp,
-      `Bonjour ${first}, je souhaite commander ${name} (vu sur votre boutique JAMAAL). Est-il disponible pour livraison ?`
-    );
+    shopWhatsAppLink(c.whatsapp, `Bonjour ${first}, je souhaite commander ${name} (vu sur votre boutique JAMAAL). Est-il disponible ?`);
 
-  const shortcuts = [
-    { href: `/parfum-adn${ref}`, label: "Quiz Parfum ADN", desc: "Votre signature olfactive en 1 min", icon: Dna, badge: "Recommandé" },
-    { href: `/collections${ref}`, label: "Tout le Catalogue", desc: "Extraits 15ml, 30ml, 70ml & Niche", icon: Search, badge: "Intégral" },
-    { href: `/skin-advisor${ref}`, label: "Diagnostic Beauté", desc: "Soins & crèmes corps parfumées", icon: Sparkles, badge: "IA Beauté" },
-    { href: `/carte-cadeau${ref}`, label: "Offrir un Coffret", desc: "Le cadeau prestigieux par excellence", icon: Gift, badge: "Cadeau" },
+  const myReviews = reviews.filter((r) => r.mine);
+  const star = products[0];
+  const tint = (i: number) => theme.tints[i % theme.tints.length];
+  const tagline = c.tagline || "L'art du parfum d'exception, conseillé avec soin.";
+
+  const services = [
+    { href: `/parfum-adn${ref}`, title: "Parfum ADN", text: "Quelques questions, et trois parfums faits pour vous.", icon: Dna },
+    { href: `/collections${ref}`, title: "Tout le catalogue", text: "Extraits de parfum, formats voyage, coffrets, soins.", icon: LayoutGrid },
+    { href: `/skin-advisor${ref}`, title: "Diagnostic beauté", text: "Une routine de soins adaptée à votre peau.", icon: Sparkles },
+    { href: `/carte-cadeau${ref}`, title: "Offrir", text: "Carte cadeau et coffrets, livrés avec votre message.", icon: Gift },
   ];
 
+  const steps = [
+    { n: "01", title: "Choisissez", text: `Parcourez les coups de cœur de ${first} ou le catalogue, ou demandez conseil.` },
+    { n: "02", title: `Échangez avec ${first}`, text: "Votre parfum, le format et la livraison se confirment sur WhatsApp." },
+    { n: "03", title: "Recevez et payez", text: "Livraison à domicile ou retrait. Wave, Orange Money ou à la livraison." },
+  ];
+
+  const waButton = (label: string) =>
+    wa ? (
+      <a href={wa} target="_blank" rel="noopener noreferrer" className="sh-btn sh-btn-wa">
+        <WaIcon /> {label}
+      </a>
+    ) : null;
+
+  const portrait = (
+    <div className="relative mx-auto w-full max-w-[420px]">
+      <div className="sh-portrait flex aspect-[4/5] items-center justify-center overflow-hidden">
+        {c.photo ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={c.photo} alt={c.name} className="h-full w-full object-cover" />
+        ) : (
+          <span className="sh-display text-[88px] leading-none" aria-hidden="true">{initials(c.name)}</span>
+        )}
+      </div>
+      {star && (
+        <Link href={`/produits/${star.slug}${ref}`} className="sh-card absolute -bottom-5 left-3 max-w-[80%] rounded-2xl px-4 py-3 shadow-lg sm:-left-6 sm:bottom-10">
+          <span className="sh-eyebrow block text-[10px]">{shop.chosen ? "Son conseil" : "À découvrir"}</span>
+          <span className="sh-display mt-1 block text-lg leading-snug">{star.name}</span>
+        </Link>
+      )}
+    </div>
+  );
+
   return (
-    <div className={`min-h-screen ${st.pageBg} selection:bg-amber-400 selection:text-black font-sans`}>
+    <div className="sh-root min-h-screen" style={look.vars as CSSProperties}>
+      <p className="sh-band px-4 py-2.5 text-center text-[11px] uppercase tracking-[0.14em] sm:text-xs">
+        Conseil et commande sur WhatsApp · Paiement Wave, Orange Money ou à la livraison
+      </p>
 
-      {/* ── 1. TOP ANNOUNCEMENT BAR (STYLE GRAND SITE WEB) ───────────────── */}
-      <aside aria-label="Annonces boutique" className={`border-b ${st.cardBorder} py-2 px-4 text-center text-[11px] tracking-widest uppercase font-medium ${st.cardBg}`}>
-        <div className="mx-auto max-w-6xl flex items-center justify-center gap-3 flex-wrap">
-          <span className="inline-flex items-center gap-1.5 font-bold">
-            <Sparkles size={13} className={st.textAccent} />
-            Haute Parfumerie Chogan Italie · 30% d&apos;Essence Pure
-          </span>
-          <span className="hidden sm:inline text-neutral-400">•</span>
-          <span className="hidden sm:inline">
-            Livraison Express à Domicile (Dakar &amp; Régions)
-          </span>
-          <span className="hidden md:inline text-neutral-400">•</span>
-          <span className="hidden md:inline font-semibold">
-            Boutique Agréée de {c.name}
-          </span>
-        </div>
-      </aside>
-
-      {/* ── 2. HEADER & NAVIGATION E-COMMERCE ───────────────────────────── */}
-      <header className={`sticky top-0 z-50 border-b ${st.cardBorder} ${theme.isDark ? "bg-[#0b0c10]/85" : "bg-white/85"} backdrop-blur-lg transition-all`}>
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3.5 sm:px-6">
-          {/* Logo & Identité Revendeur */}
-          <div className="flex items-center gap-3">
-            <Link href={`/${ref}`} className="flex items-center gap-2 group">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/logo/jamaal-logo.jpg"
-                alt="JAMAAL Luxury Cosmetics"
-                className={`h-10 w-auto rounded-xl shadow-sm transition-transform duration-300 group-hover:scale-105 ${st.logoInvert ? "brightness-95 contrast-125" : ""}`}
-              />
-            </Link>
-            <div className="hidden sm:block border-l border-neutral-300/40 pl-3">
-              <span className={`block font-serif-display text-sm font-bold tracking-wide ${st.textPrimary}`}>
-                {c.name}
-              </span>
-              <span className={`block text-[10px] uppercase tracking-wider ${st.textMuted}`}>
-                Conseiller·e Agréé·e · {c.city}
-              </span>
-            </div>
-          </div>
-
-          {/* Navigation centrale de vrai site web */}
-          <nav className="hidden lg:flex items-center gap-6 text-xs font-semibold tracking-wider uppercase">
-            <a href="#produits" className={`${st.textSecondary} hover:${st.textAccent} transition`}>
-              Nos Parfums
-            </a>
-            <a href="#services" className={`${st.textSecondary} hover:${st.textAccent} transition`}>
-              Expérience
-            </a>
-            <a href="#attentions" className={`${st.textSecondary} hover:${st.textAccent} transition`}>
-              Garanties
-            </a>
-            <a href="#avis" className={`${st.textSecondary} hover:${st.textAccent} transition`}>
-              Avis Clients
-            </a>
-            <Link href={`/collections${ref}`} className={`${st.textAccent} hover:underline font-bold`}>
-              Catalogue ↗
-            </Link>
+      <header className="sh-line border-b">
+        <div className="mx-auto flex max-w-[1240px] items-center justify-between gap-4 px-4 py-4 sm:px-6">
+          <nav aria-label="Menu" className="hidden flex-1 gap-7 text-[13px] uppercase tracking-[0.12em] lg:flex">
+            {show("products") && <a href="#coups-de-coeur" className="sh-link">Parfums</a>}
+            {show("services") && <a href="#univers" className="sh-link">Conseil</a>}
+            {show("steps") && <a href="#commander" className="sh-link">Commander</a>}
+            {show("reviews") && reviews.length > 0 && <a href="#avis" className="sh-link">Avis</a>}
           </nav>
-
-          {/* Boutons d'action rapides */}
-          <div className="flex items-center gap-2.5">
-            <Link
-              href={`/panier${ref}`}
-              aria-label="Mon panier"
-              className={`p-2 rounded-full border ${st.cardBorder} ${st.cardBg} ${st.textPrimary} hover:scale-105 transition`}
-            >
-              <ShoppingBag size={17} />
+          <Link href={`/${ref}`} className="sh-link shrink-0 lg:text-center" aria-label="JAMAAL, accueil du site">
+            <span className="sh-wordmark block text-[22px] sm:text-[28px]">JAMAAL</span>
+            <span className="sh-acc mt-1.5 block text-[8px] tracking-[0.42em] sm:text-[10px]">LUXURY COSMETICS</span>
+          </Link>
+          <div className="flex items-center justify-end gap-2 sm:gap-3 lg:flex-1">
+            <Link href={`/panier${ref}`} aria-label="Mon panier" className="sh-icon-btn sh-line sh-link border">
+              <ShoppingBag size={18} strokeWidth={1.6} />
             </Link>
             {wa && (
-              <a
-                href={wa}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-all shadow-md ${st.waButton}`}
-              >
-                <Phone size={14} />
-                <span className="hidden sm:inline">Commander sur WhatsApp</span>
+              <a href={wa} target="_blank" rel="noopener noreferrer" className="sh-btn sh-btn-wa sh-btn-small">
+                <WaIcon size={16} /> <span className="hidden sm:inline">Écrire à {first}</span>
                 <span className="sm:hidden">WhatsApp</span>
               </a>
             )}
           </div>
         </div>
+        {theme.decor && <div className="sh-decor" style={{ background: theme.decor }} aria-hidden="true" />}
       </header>
 
-      {/* ── 3. HERO BANNER E-COMMERCE IMMERSIF (GRAND FORMAT) ──────────── */}
-      <section className="relative overflow-hidden border-b border-white/10">
-        <div className={`absolute inset-0 ${st.heroOverlay} pointer-events-none`} aria-hidden="true" />
-
-        <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16 lg:py-20 relative z-10">
-          <div className="flex flex-col items-center gap-8 text-center md:flex-row md:text-left md:gap-12 lg:gap-16">
-
-            {/* Portrait officiel avec cadre d'orfèvrerie */}
-            <div className="shrink-0 relative">
-              <div
-                className={`relative h-44 w-44 overflow-hidden rounded-3xl border-4 shadow-2xl sm:h-52 sm:w-52 lg:h-60 lg:w-60 ${st.avatarBorder} ${st.avatarRing}`}
-              >
-                {c.photo ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={c.photo} alt={c.name} className="h-full w-full object-cover" />
-                ) : (
-                  <span className="flex h-full w-full items-center justify-center font-serif-display text-6xl text-white">
-                    {initials(c.name)}
-                  </span>
-                )}
-                <div className="absolute bottom-2 right-2 rounded-full bg-emerald-500 p-1.5 text-white shadow-lg border-2 border-white">
-                  <CheckCircle2 size={16} />
-                </div>
-              </div>
-
-              {/* Badges de réputation */}
-              <div className="mt-4 flex justify-center gap-2">
-                <span className={`inline-flex items-center gap-1 rounded-xl px-2.5 py-1 text-xs font-bold shadow-sm ${st.badgeStyle}`}>
-                  <Star size={12} className="text-amber-400 fill-amber-400" />
-                  {stats.rating ? stats.rating.toFixed(1) : "5.0"}
-                </span>
-                <span className={`inline-flex items-center gap-1 rounded-xl px-2.5 py-1 text-xs font-bold shadow-sm ${st.badgeStyle}`}>
-                  {stats.clients >= 5 ? `${stats.clients}+ clients` : "Conseil Privé"}
-                </span>
-                <span className={`inline-flex items-center gap-1 rounded-xl px-2.5 py-1 text-xs font-bold shadow-sm ${st.badgeStyle}`}>
-                  🇸🇳 {c.city}
-                </span>
-              </div>
-            </div>
-
-            {/* Texte et présentation de prestige */}
-            <div className="flex-1 min-w-0">
-              <div className="inline-flex items-center gap-2 rounded-full px-3.5 py-1 text-xs font-bold tracking-wider uppercase mb-3 border shadow-sm backdrop-blur-md" style={{ borderColor: theme.palette.accent }}>
-                <Award size={13} className="text-amber-400" />
-                <span>Boutique Officielle · {c.title} JAMAAL</span>
-              </div>
-
-              <h1 className={`font-serif-display text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl ${st.textPrimary} leading-tight`}>
-                {c.name}
-              </h1>
-
-              {c.tagline ? (
-                <p className={`mt-3 font-serif-display text-lg italic sm:text-xl lg:text-2xl ${st.textAccent}`}>
-                  « {c.tagline} »
-                </p>
-              ) : (
-                <p className={`mt-3 font-serif-display text-lg italic sm:text-xl ${st.textAccent}`}>
-                  « L&apos;art du parfum d&apos;exception à prix juste. »
-                </p>
-              )}
-
-              <p className={`mt-4 max-w-xl text-sm leading-relaxed sm:text-base ${st.textSecondary}`}>
-                {c.bio ||
-                  `Bienvenue dans mon espace exclusif ! Conseiller·e officiel·le de la Maison JAMAAL, je sélectionne pour vous les plus grands extraits de parfum Chogan (30% d'essence pure). Conseils sur-mesure et livraison soignée à domicile.`}
-              </p>
-
-              {/* Boutons d'appel à l'action */}
-              <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
-                {wa && (
-                  <a
-                    href={wa}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`flex items-center justify-center gap-2.5 rounded-2xl px-7 py-4 text-sm font-bold shadow-lg transition-all ${st.waButton}`}
-                  >
-                    <MessageCircle size={19} />
-                    <span>Échanger avec {first} sur WhatsApp</span>
-                  </a>
-                )}
-                <a
-                  href="#produits"
-                  className={`flex items-center justify-center gap-2 rounded-2xl px-6 py-4 text-sm font-semibold transition-all ${st.buttonSecondary}`}
-                >
-                  <Search size={16} /> Explorer les parfums
-                </a>
-              </div>
+      {/* Haut de page : portrait, produit vedette ou bannière, au choix du revendeur. */}
+      {hero === "banner" ? (
+        <section aria-label="Votre conseiller" className="mx-auto max-w-[1240px] px-4 pb-14 pt-6 sm:px-6 sm:pt-12">
+          <div className="sh-accent-bg rounded-[28px] px-6 py-14 text-center sm:px-12 sm:py-20">
+            <p className="text-xs uppercase tracking-[0.26em]">Votre conseiller JAMAAL · {c.city}</p>
+            <h1 className="sh-display mt-4 text-[clamp(40px,7vw,80px)] leading-[1]">{c.name}</h1>
+            <p className="sh-display mt-4 text-xl italic sm:text-2xl">{tagline}</p>
+            <div className="mt-8 flex flex-wrap justify-center gap-3">
+              {waButton(`Échanger avec ${first}`)}
+              <Link href={`/parfum-adn${ref}`} className="sh-btn sh-btn-light">Trouver mon parfum</Link>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* ── 4. BANDEAU « LES ATTENTIONS JAMAAL » (4 PILIERS DU SITE WEB) ──── */}
-      <section id="attentions" aria-label="Les attentions JAMAAL" className={`border-b ${st.cardBorder} ${st.guaranteeBannerBg} py-8 px-4`}>
-        <div className="mx-auto max-w-6xl grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-          <div className="flex flex-col items-center gap-2">
-            <span className="h-12 w-12 rounded-2xl bg-white/10 flex items-center justify-center text-xl mb-1 shadow-inner">
-              <Sparkles size={22} className="text-amber-400" />
-            </span>
-            <p className={`font-serif-display font-bold text-sm ${st.guaranteeBannerText}`}>30% d&apos;Essence Pure</p>
-            <p className={`text-xs opacity-75 max-w-[180px] ${st.guaranteeBannerText}`}>Extraits de parfum certifiés Chogan, tenue supérieure à 12h</p>
-          </div>
-
-          <div className="flex flex-col items-center gap-2">
-            <span className="h-12 w-12 rounded-2xl bg-white/10 flex items-center justify-center text-xl mb-1 shadow-inner">
-              <ShieldCheck size={22} className="text-emerald-400" />
-            </span>
-            <p className={`font-serif-display font-bold text-sm ${st.guaranteeBannerText}`}>Conseil Sur-Mesure</p>
-            <p className={`text-xs opacity-75 max-w-[180px] ${st.guaranteeBannerText}`}>Accompagnement personnalisé par {first} pour trouver votre sillage</p>
-          </div>
-
-          <div className="flex flex-col items-center gap-2">
-            <span className="h-12 w-12 rounded-2xl bg-white/10 flex items-center justify-center text-xl mb-1 shadow-inner">
-              <Truck size={22} className="text-sky-400" />
-            </span>
-            <p className={`font-serif-display font-bold text-sm ${st.guaranteeBannerText}`}>Livraison Express</p>
-            <p className={`text-xs opacity-75 max-w-[180px] ${st.guaranteeBannerText}`}>Partout à Dakar sous 24h et expéditions rapides en régions</p>
-          </div>
-
-          <div className="flex flex-col items-center gap-2">
-            <span className="h-12 w-12 rounded-2xl bg-white/10 flex items-center justify-center text-xl mb-1 shadow-inner">
-              <Phone size={22} className="text-amber-300" />
-            </span>
-            <p className={`font-serif-display font-bold text-sm ${st.guaranteeBannerText}`}>Paiement à Réception</p>
-            <p className={`text-xs opacity-75 max-w-[180px] ${st.guaranteeBannerText}`}>Réglez sereinement par Wave, Orange Money ou Espèces</p>
-          </div>
-        </div>
-      </section>
-
-      {/* ── 5. SERVICES & EXPÉRIENCE DE MARQUE ──────────────────────────── */}
-      <section id="services" aria-label="Services exclusifs" className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-        <div className="flex items-end justify-between mb-6">
-          <div>
-            <p className={`text-[10px] uppercase tracking-[0.2em] font-bold ${st.textAccent}`}>Expérience Olfactive</p>
-            <h2 className={`font-serif-display text-2xl font-bold sm:text-3xl ${st.textPrimary} mt-1`}>
-              Découvrir nos univers
-            </h2>
-          </div>
-          <Link href={`/collections${ref}`} className={`text-xs font-bold ${st.textAccent} hover:underline flex items-center gap-1`}>
-            <span>Catalogue complet</span>
-            <ArrowRight size={14} />
-          </Link>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {shortcuts.map((s) => (
-            <Link
-              key={s.href}
-              href={s.href}
-              className={`group relative flex flex-col justify-between p-5 rounded-3xl transition-all duration-300 ${st.cardBg} ${st.cardHover} ${st.shortcutHover}`}
-            >
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <span className={`h-11 w-11 rounded-2xl flex items-center justify-center shadow-md ${st.badgeStyle}`}>
-                    <s.icon size={20} className={st.textAccent} />
-                  </span>
-                  <span className="text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-amber-400/10 text-amber-500 border border-amber-400/20">
-                    {s.badge}
-                  </span>
-                </div>
-                <h3 className={`font-serif-display font-bold text-base ${st.textPrimary}`}>
-                  {s.label}
-                </h3>
-                <p className={`mt-1 text-xs leading-relaxed ${st.textMuted}`}>
-                  {s.desc}
-                </p>
-              </div>
-
-              <div className="mt-4 pt-3 border-t border-neutral-200/20 flex items-center justify-between text-xs font-semibold">
-                <span className={st.textAccent}>Explorer</span>
-                <ChevronRight size={15} className={`transition-transform duration-200 group-hover:translate-x-1 ${st.textAccent}`} />
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* ── 6. VITRINE PRODUITS E-COMMERCE (GRANDE GRILLE) ───────────────── */}
-      <section id="produits" aria-label="Vitrine parfums" className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
-          <div>
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-400/10 px-3 py-1 text-xs font-bold text-amber-500 border border-amber-400/20 mb-2">
-              <Sparkles size={12} /> Sélection Privée
-            </div>
-            <h2 className={`font-serif-display text-3xl font-bold sm:text-4xl ${st.textPrimary}`}>
-              {shop.chosen ? `Les Coups de Cœur de ${first}` : "Les Meilleures Ventes du Moment"}
-            </h2>
-            <p className={`mt-1 text-xs sm:text-sm ${st.textSecondary}`}>
-              Flacons scellés en direct de Chogan Italie · Prix officiels JAMAAL en Francs CFA
+          {c.bio && <p className="sh-muted mx-auto mt-8 max-w-2xl text-center text-base leading-relaxed sm:text-[17px]">{c.bio}</p>}
+        </section>
+      ) : (
+        <section aria-label="Votre conseiller" className="mx-auto flex max-w-[1240px] flex-wrap items-center gap-12 px-4 pb-16 pt-10 sm:px-6 sm:pb-20 sm:pt-16 lg:gap-14">
+          <div className="min-w-0 flex-[1_1_440px]">
+            <p className="sh-eyebrow">La boutique de votre conseiller JAMAAL · {c.city}</p>
+            <h1 className="sh-display mt-4 text-[clamp(44px,8vw,88px)] leading-[0.98]">{c.name}</h1>
+            <p className="sh-display sh-acc mt-4 text-xl italic sm:text-2xl">{tagline}</p>
+            <p className="sh-muted mt-5 max-w-[34rem] text-base leading-relaxed sm:text-[17px]">
+              {c.bio || `Conseiller·e JAMAAL à ${c.city}. Dites-moi ce que vous aimez porter : je vous guide vers le parfum qui vous ressemble, et je vous le fais livrer.`}
             </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              {waButton(`Échanger avec ${first}`)}
+              <Link href={`/parfum-adn${ref}`} className="sh-btn sh-btn-ghost">Trouver mon parfum en 1 minute</Link>
+            </div>
+            <div className="sh-line sh-muted mt-10 flex flex-wrap gap-x-6 gap-y-2 border-t pt-6 text-sm">
+              <span>{c.title} JAMAAL</span>
+              <span>Livraison à domicile ou retrait</span>
+              <span>Wave · Orange Money · à la livraison</span>
+              {myReviews.length > 0 && stats.rating ? <span>★ {stats.rating.toFixed(1)} · {myReviews.length} avis</span> : null}
+            </div>
           </div>
+          <div className="min-w-0 flex-[1_1_340px]">
+            {hero === "showcase" && star ? (
+              <Link href={`/produits/${star.slug}${ref}`} className="sh-card sh-product mx-auto block max-w-[440px] overflow-hidden rounded-[24px]">
+                <div className="flex aspect-square items-center justify-center p-8" style={{ background: tint(0) }}>
+                  {star.photo ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={star.photo} alt={star.name} className="h-full w-full object-contain" />
+                  ) : (
+                    <Sparkles size={48} aria-hidden="true" />
+                  )}
+                </div>
+                <div className="p-6">
+                  <span className="sh-eyebrow text-[11px]">{shop.chosen ? `Le conseil de ${first}` : "À découvrir"}</span>
+                  <span className="sh-display mt-2 block text-3xl">{star.name}</span>
+                  {star.inspiredBy && <span className="sh-muted mt-1 block text-sm">Inspiration : {star.inspiredBy}</span>}
+                  <span className="mt-3 block text-lg font-medium tabular-nums">{price(star)}</span>
+                </div>
+              </Link>
+            ) : (
+              portrait
+            )}
+          </div>
+        </section>
+      )}
 
-          <Link
-            href={`/collections${ref}`}
-            className={`inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-2.5 text-xs font-bold transition-all shadow-sm ${st.buttonSecondary}`}
-          >
-            <Search size={14} /> Voir les 120+ fragrances
-          </Link>
-        </div>
+      {show("services") && (
+        <section id="univers" aria-label="Services" className="sh-soft sh-line border-y">
+          <div className="mx-auto max-w-[1240px] px-4 py-14 sm:px-6 sm:py-16">
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <h2 className="sh-display text-3xl sm:text-[40px]">Comment puis-je vous aider ?</h2>
+              <Link href={`/collections${ref}`} className="sh-acc text-sm uppercase tracking-[0.1em] hover:underline">Tout le catalogue</Link>
+            </div>
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5">
+              {services.map((s) => (
+                <Link key={s.href} href={s.href} className="sh-card flex min-h-[170px] flex-col gap-3 rounded-2xl p-6">
+                  <s.icon size={26} strokeWidth={1.4} className="sh-acc" aria-hidden="true" />
+                  <span className="sh-display text-2xl leading-tight">{s.title}</span>
+                  <span className="sh-muted text-sm leading-relaxed">{s.text}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
-        {products.length > 0 ? (
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 sm:gap-6">
-            {products.map((p) => {
-              const ask = waProduct(p.name);
-              return (
-                <article
-                  key={p.id}
-                  className={`group flex flex-col overflow-hidden rounded-3xl transition-all duration-300 ${st.productCardBg} ${st.productCardHover}`}
-                >
-                  {/* Photo produit avec badge et zoom doux */}
-                  <div className="relative aspect-[3/4] overflow-hidden bg-neutral-100">
-                    <Link href={`/produits/${p.slug}${ref}`} className="block h-full w-full">
+      {show("products") && (
+        <section id="coups-de-coeur" aria-label="Coups de cœur" className="mx-auto max-w-[1240px] px-4 pb-16 pt-16 sm:px-6 sm:pt-20">
+          <p className="sh-eyebrow text-center">{shop.chosen ? "Sélection personnelle" : "Les plus demandés"}</p>
+          <h2 className="sh-display mt-3 text-center text-[clamp(32px,5vw,48px)] leading-tight">
+            {shop.chosen ? `Les coups de cœur de ${first}` : "Les parfums du moment"}
+          </h2>
+          {products.length > 0 ? (
+            <div className="sh-grid-products mt-10 sm:mt-12">
+              {products.map((p, i) => {
+                const ask = waProduct(p.name);
+                return (
+                  <article key={p.id} className="sh-card sh-product flex flex-col overflow-hidden rounded-[18px]">
+                    <Link href={`/produits/${p.slug}${ref}`} className="flex aspect-square items-center justify-center overflow-hidden p-5" style={{ background: tint(i) }} tabIndex={-1} aria-hidden="true">
                       {p.photo ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={p.photo}
-                          alt={p.name}
-                          loading="lazy"
-                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-108"
-                        />
+                        <img src={p.photo} alt="" loading="lazy" className="h-full w-full object-contain" />
                       ) : (
-                        <div className="flex h-full items-center justify-center text-neutral-400">
-                          <Sparkles size={40} />
-                        </div>
+                        <Sparkles size={36} />
                       )}
                     </Link>
-
-                    {/* Badge 30% d'essence */}
-                    <div className="absolute top-2.5 left-2.5">
-                      <span className="rounded-full bg-black/60 backdrop-blur-md px-2.5 py-1 text-[9px] font-bold text-amber-300 uppercase tracking-widest border border-amber-400/30">
-                        Extrait 30%
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Détails du parfum */}
-                  <div className="flex flex-1 flex-col p-4 sm:p-5">
-                    <p className={`text-[11px] font-bold uppercase tracking-wider ${st.textMuted}`}>
-                      Haute Parfumerie
-                    </p>
-                    <Link
-                      href={`/produits/${p.slug}${ref}`}
-                      className={`mt-1 font-serif-display text-base font-bold line-clamp-1 group-hover:${st.textAccent} transition-colors ${st.textPrimary}`}
-                    >
-                      {p.name}
-                    </Link>
-
-                    {p.inspiredBy && (
-                      <p className={`mt-0.5 line-clamp-1 text-xs italic ${st.textAccent}`}>
-                        Inspiré de {p.inspiredBy}
-                      </p>
-                    )}
-
-                    {/* Prix officiel JAMAAL */}
-                    <div className="mt-3 pt-3 border-t border-neutral-200/20 flex items-baseline justify-between">
-                      <div>
-                        <span className="text-[10px] text-neutral-400 uppercase tracking-wider block">Tarif JAMAAL</span>
-                        <span className={`text-base font-bold font-mono ${st.priceStyle}`}>
-                          {p.price ? priceLabel(p.price, p.multiFormat).replace(/^à/, "À") : "Consulter"}
-                        </span>
+                    <div className="flex flex-1 flex-col gap-1.5 p-4 sm:p-5">
+                      <Link href={`/produits/${p.slug}${ref}`} className="sh-link sh-display text-lg leading-snug sm:text-[22px]">{p.name}</Link>
+                      {p.inspiredBy && <span className="sh-muted line-clamp-2 text-[13px]">Inspiration : {p.inspiredBy}</span>}
+                      <span className="mt-2 text-[15px] font-medium tabular-nums">{price(p)}</span>
+                      <div className="mt-auto flex gap-2 pt-3">
+                        <Link href={`/produits/${p.slug}${ref}`} className="sh-btn sh-btn-primary sh-btn-small min-w-0 flex-1 px-3">Commander</Link>
+                        {ask && (
+                          <a href={ask} target="_blank" rel="noopener noreferrer" aria-label={`Demander ${p.name} sur WhatsApp`} className="sh-icon-btn sh-btn-wa">
+                            <WaIcon />
+                          </a>
+                        )}
                       </div>
                     </div>
-
-                    {/* Actions : Commander & WhatsApp direct */}
-                    <div className="mt-4 flex gap-2">
-                      <Link
-                        href={`/produits/${p.slug}${ref}`}
-                        className={`flex-1 rounded-2xl py-2.5 text-center text-xs font-bold transition-all shadow-sm ${st.buttonPrimary}`}
-                      >
-                        Commander
-                      </Link>
-                      {ask && (
-                        <a
-                          href={ask}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          aria-label={`Commander ${p.name} sur WhatsApp`}
-                          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-[#25D366] text-white shadow-md hover:bg-[#20ba59] transition"
-                        >
-                          <MessageCircle size={16} />
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-        ) : (
-          <p className="text-center py-10 text-sm text-neutral-500">Aucun produit mis en avant pour le moment.</p>
-        )}
-
-        <div className="mt-10 text-center">
-          <Link
-            href={`/collections${ref}`}
-            className={`inline-flex items-center gap-2 rounded-2xl px-8 py-4 text-sm font-bold shadow-lg transition-all ${st.buttonSecondary}`}
-          >
-            <Search size={16} />
-            <span>Explorer l&apos;intégralité du catalogue JAMAAL</span>
-            <ArrowRight size={15} />
-          </Link>
-        </div>
-      </section>
-
-      {/* ── 7. SECTION « COMMENT COMMANDER EN 3 ÉTAPES » ────────────────── */}
-      <section aria-label="Comment commander" className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
-        <div className={`rounded-3xl border ${st.cardBorder} ${st.cardBg} p-8 sm:p-12 shadow-xl`}>
-          <div className="text-center max-w-xl mx-auto mb-10">
-            <span className={`text-[10px] font-bold uppercase tracking-widest ${st.textAccent}`}>Processus Fluide</span>
-            <h2 className={`font-serif-display text-2xl sm:text-3xl font-bold ${st.textPrimary} mt-1`}>
-              Commander en toute sérénité
-            </h2>
-            <p className={`mt-2 text-xs sm:text-sm ${st.textSecondary}`}>
-              Un service sur-mesure digne des plus grandes maisons de luxe, orchestré par {first}.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="flex flex-col items-center text-center">
-              <span className={`h-12 w-12 rounded-2xl flex items-center justify-center text-lg font-bold mb-4 shadow-md ${st.badgeStyle}`}>
-                1
-              </span>
-              <h3 className={`font-serif-display font-bold text-base ${st.textPrimary}`}>Choisissez votre Fragrance</h3>
-              <p className={`mt-2 text-xs leading-relaxed ${st.textMuted}`}>
-                Parcourez les coups de cœur ci-dessus ou testez notre Quiz Parfum ADN pour révéler votre signature olfactive.
-              </p>
+                  </article>
+                );
+              })}
             </div>
-
-            <div className="flex flex-col items-center text-center">
-              <span className={`h-12 w-12 rounded-2xl flex items-center justify-center text-lg font-bold mb-4 shadow-md ${st.badgeStyle}`}>
-                2
-              </span>
-              <h3 className={`font-serif-display font-bold text-base ${st.textPrimary}`}>Échangez avec {first}</h3>
-              <p className={`mt-2 text-xs leading-relaxed ${st.textMuted}`}>
-                Cliquez sur WhatsApp pour valider la disponibilité immédiate du flacon et convenir de votre adresse de livraison.
-              </p>
-            </div>
-
-            <div className="flex flex-col items-center text-center">
-              <span className={`h-12 w-12 rounded-2xl flex items-center justify-center text-lg font-bold mb-4 shadow-md ${st.badgeStyle}`}>
-                3
-              </span>
-              <h3 className={`font-serif-display font-bold text-base ${st.textPrimary}`}>Livraison &amp; Paiement Sûr</h3>
-              <p className={`mt-2 text-xs leading-relaxed ${st.textMuted}`}>
-                Recevez votre coffret scellé chez vous ou à votre bureau sous 24h, et payez directement par Wave, OM ou espèces.
-              </p>
-            </div>
+          ) : (
+            <p className="sh-muted py-10 text-center text-sm">La sélection arrive bientôt.</p>
+          )}
+          <div className="mt-10 text-center">
+            <Link href={`/collections${ref}`} className="sh-underline inline-block">Découvrir tout le catalogue JAMAAL</Link>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      {/* ── 8. TÉMOIGNAGES CLIENTS VÉRIFIÉS ──────────────────────────────── */}
-      {reviews.length > 0 && (
-        <section id="avis" aria-label="Avis clients" className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-          <div className="text-center max-w-lg mx-auto mb-8">
-            <span className={`text-[10px] font-bold uppercase tracking-widest ${st.textAccent}`}>Témoignages Vérifiés</span>
-            <h2 className={`font-serif-display text-2xl sm:text-3xl font-bold ${st.textPrimary} mt-1`}>
-              Ce que disent nos clients
-            </h2>
+      {show("steps") && (
+        <section id="commander" aria-label="Comment commander" className="sh-dark">
+          <div className="mx-auto max-w-[1240px] px-4 py-16 sm:px-6 sm:py-[72px]">
+            <h2 className="sh-display text-center text-[clamp(30px,4.5vw,42px)]">Commander, simplement</h2>
+            <div className="mt-10 grid gap-8 md:grid-cols-3">
+              {steps.map((s) => (
+                <div key={s.n} className="sh-dark-rule pt-5">
+                  <div className="sh-display sh-dark-acc text-4xl leading-none">{s.n}</div>
+                  <h3 className="mt-3 text-lg font-medium">{s.title}</h3>
+                  <p className="mt-2 text-[15px] leading-relaxed opacity-90">{s.text}</p>
+                </div>
+              ))}
+            </div>
+            {wa && <div className="mt-10 text-center">{waButton(`Commander avec ${first}`)}</div>}
           </div>
+        </section>
+      )}
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {show("reviews") && reviews.length > 0 && (
+        <section id="avis" aria-label="Avis clients" className="mx-auto max-w-[1240px] px-4 py-16 sm:px-6 sm:py-20">
+          <h2 className="sh-display text-center text-[clamp(30px,4.5vw,42px)]">
+            {myReviews.length > 0 ? `Ils ont commandé avec ${first}` : "Ils ont choisi JAMAAL"}
+          </h2>
+          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {reviews.map((r) => (
-              <div
-                key={r.id}
-                className={`rounded-3xl p-6 transition-all duration-300 ${st.cardBg} ${st.cardHover}`}
-              >
-                <div className="flex gap-1 mb-3">
-                  {Array.from({ length: 5 }, (_, i) => (
-                    <Star
-                      key={i}
-                      size={14}
-                      className={i < r.rating ? "text-amber-400 fill-amber-400" : "text-neutral-300"}
-                    />
-                  ))}
+              <figure key={r.id} className="sh-card m-0 rounded-2xl p-6">
+                <div className="sh-stars text-[15px]" aria-label={`${r.rating} étoiles sur 5`}>
+                  {"★".repeat(r.rating)}
+                  {"☆".repeat(Math.max(0, 5 - r.rating))}
                 </div>
-                <p className={`text-xs sm:text-sm leading-relaxed italic ${st.textSecondary}`}>
-                  « {r.comment} »
-                </p>
-                <div className="mt-5 pt-4 border-t border-neutral-200/20 flex items-center gap-3">
-                  <span
-                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white shadow-sm"
-                    style={{ backgroundColor: theme.palette.accent }}
-                  >
-                    {r.author[0]?.toUpperCase()}
-                  </span>
-                  <div>
-                    <p className={`text-xs font-bold ${st.textPrimary}`}>{r.author}</p>
-                    <p className={`text-[10px] ${st.textMuted}`}>{r.product}</p>
-                  </div>
-                </div>
-              </div>
+                <blockquote className="sh-display mt-3 text-xl italic leading-snug">« {r.comment} »</blockquote>
+                <figcaption className="sh-muted mt-4 text-sm">{r.author} · {r.product}</figcaption>
+              </figure>
             ))}
           </div>
         </section>
       )}
 
-      {/* ── 9. FOOTER E-COMMERCE COMPLET DE HAUTE PARFUMERIE ─────────────── */}
-      <footer className={`mt-16 border-t ${st.cardBorder} ${theme.isDark ? "bg-[#07080a]" : "bg-neutral-50"}`}>
-        <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 pb-10 border-b border-neutral-200/20">
-            {/* Col 1 : Marque & Logo */}
-            <div className="md:col-span-2">
-              <Link href={`/${ref}`} className="inline-block">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/logo/jamaal-logo.jpg"
-                  alt="JAMAAL Luxury Cosmetics"
-                  className={`h-11 w-auto rounded-xl ${st.logoInvert ? "brightness-95 contrast-125" : ""}`}
-                />
-              </Link>
-              <p className={`mt-3 text-xs leading-relaxed max-w-sm ${st.textMuted}`}>
-                JAMAAL Luxury Cosmetics est le distributeur d&apos;excellence des parfums et cosmétiques Chogan au Sénégal. Extraits purs à 30% d&apos;essence, créés avec passion en Italie.
-              </p>
-            </div>
-
-            {/* Col 2 : Votre Conseiller */}
-            <div>
-              <p className={`text-xs font-bold uppercase tracking-wider ${st.textPrimary} mb-3`}>
-                Votre Conseiller·e
-              </p>
-              <ul className={`space-y-1.5 text-xs ${st.textMuted}`}>
-                <li className="font-semibold text-neutral-800 dark:text-neutral-200">{c.name}</li>
-                <li>Secteur : {c.city} &amp; Tout le Sénégal</li>
-                {c.whatsapp && <li>WhatsApp : {c.whatsapp}</li>}
-                <li>Statut : Conseiller·e Agréé·e</li>
-              </ul>
-            </div>
-
-            {/* Col 3 : Accès Rapides */}
-            <div>
-              <p className={`text-xs font-bold uppercase tracking-wider ${st.textPrimary} mb-3`}>
-                Univers JAMAAL
-              </p>
-              <ul className={`space-y-1.5 text-xs ${st.textMuted}`}>
-                <li><Link href={`/collections${ref}`} className="hover:underline">Catalogue Parfums</Link></li>
-                <li><Link href={`/parfum-adn${ref}`} className="hover:underline">Quiz Parfum ADN</Link></li>
-                <li><Link href={`/carte-cadeau${ref}`} className="hover:underline">Cartes Cadeaux</Link></li>
-                <li><Link href={`/mentions-legales${ref}`} className="hover:underline">Mentions Légales</Link></li>
-              </ul>
-            </div>
+      <footer id="contact" className="sh-footer">
+        <div className="mx-auto flex max-w-[1240px] flex-wrap justify-between gap-10 px-4 pb-8 pt-14 sm:px-6">
+          <div className="flex-[1_1_260px]">
+            <div className="sh-wordmark text-2xl" style={{ paddingLeft: 0 }}>JAMAAL</div>
+            <p className="mt-3 max-w-xs text-sm leading-relaxed">Parfums et soins de la Maison JAMAAL, conseillés et livrés par votre conseiller.</p>
           </div>
-
-          <div className="pt-6 flex flex-col sm:flex-row items-center justify-between text-[11px] text-neutral-400 gap-3">
-            <p>© {new Date().getFullYear()} JAMAAL Luxury Cosmetics · Boutique Personnelle de {c.name}</p>
-            <p className="font-serif-display italic">« Un parfum ne se porte pas, il se vit. »</p>
+          <div className="flex-[1_1_200px] text-sm leading-8">
+            <p className="text-[11px] uppercase tracking-[0.24em]">Votre conseiller</p>
+            <p>{c.name} · {c.city}</p>
+            {wa && <a href={wa} target="_blank" rel="noopener noreferrer">WhatsApp : {c.whatsapp}</a>}
+          </div>
+          <div className="flex-[1_1_200px] text-sm leading-8">
+            <p className="text-[11px] uppercase tracking-[0.24em]">La Maison</p>
+            <p><Link href={`/collections${ref}`}>Catalogue complet</Link></p>
+            <p><Link href={`/carte-cadeau${ref}`}>Carte cadeau</Link></p>
+            <p><Link href={`/devenir-consultant${ref}`}>Devenir conseiller</Link></p>
           </div>
         </div>
+        <p className="mx-auto max-w-[1240px] px-4 pb-7 pt-5 text-xs sm:px-6">
+          © {new Date().getFullYear()} JAMAAL Luxury Cosmetics · Boutique de {c.name}, conseiller·e agréé·e
+        </p>
       </footer>
-
     </div>
   );
 }

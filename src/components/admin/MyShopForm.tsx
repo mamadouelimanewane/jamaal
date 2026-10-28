@@ -14,6 +14,7 @@ export function MyShopForm({
   bio,
   tagline,
   theme,
+  look,
   favorites,
   products,
   name,
@@ -24,6 +25,7 @@ export function MyShopForm({
   bio: string | null;
   tagline?: string | null;
   theme?: string | null;
+  look?: { accent: number; hero: string; typo: string; hidden: string[] };
   favorites: string[];
   products: PickerProduct[];
   name: string;
@@ -100,7 +102,7 @@ export function MyShopForm({
       </div>
 
       {/* 2. Bibliothèque de Thèmes */}
-      <ThemeSelector initialTheme={theme} consultantName={name} avatarUrl={preview && !removed ? preview : null} />
+      <ThemeSelector initialTheme={theme} initialAccent={look?.accent} initialHero={look?.hero} initialTypo={look?.typo} initialHidden={look?.hidden} consultantName={name} avatarUrl={preview && !removed ? preview : null} />
 
       {/* 3. Slogan / Phrase d'accroche */}
       <label className="block text-sm font-medium text-navy">

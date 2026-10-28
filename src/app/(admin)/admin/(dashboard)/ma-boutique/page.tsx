@@ -16,7 +16,7 @@ export default async function MaBoutiquePage() {
   const [links, catalog, badges] = await Promise.all([resellerLinks(me.slug ?? null), resellerCatalog(), earnedBadges(me.id)]);
   const products = catalog.map((p) => ({ id: p.id, name: p.name, code: p.choganCode, price: p.price, multiFormat: p.multiFormat, inspiredBy: p.inspiredBy }));
   return (
-    <div className="max-w-3xl">
+    <div className="max-w-5xl">
       <h1 className="font-serif-display text-2xl font-semibold text-navy">Ma boutique</h1>
       <p className="mt-1 text-sm text-navy/75">Votre mini-boutique mobile : photo, thème personnalisé, présentation, coups de cœur, avis de vos clients et bouton WhatsApp. C&apos;est le lien à mettre dans votre bio Instagram et TikTok.</p>
       {links.shop ? (
@@ -38,6 +38,7 @@ export default async function MaBoutiquePage() {
           bio={me.shopBio ?? null}
           tagline={me.shopTagline ?? null}
           theme={me.shopTheme ?? null}
+          look={{ accent: me.shopAccent, hero: me.shopHero, typo: me.shopTypo, hidden: me.shopHidden }}
           favorites={me.favorites ?? []}
           products={products}
           name={me.name}
