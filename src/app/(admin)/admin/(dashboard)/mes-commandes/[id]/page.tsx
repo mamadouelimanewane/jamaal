@@ -7,6 +7,11 @@ import { formatPrice } from "@/lib/currency";
 import { ReceiptDownload } from "@/components/admin/ReceiptDownload";
 import { CopyTrackingLink } from "@/components/admin/CopyTrackingLink";
 import { DELIVERY_LABELS, type DeliveryStatus } from "@/lib/delivery";
+import { CopyButton } from "@/components/admin/CopyButton";
+import { getSiteUrl } from "@/lib/site-url";
+import { isPayLinkOrder, payLinkMessage, payLinkUrl } from "@/lib/pay-link";
+import { settlePendingPayment } from "@/lib/payment/settle";
+import { shopWhatsAppLink } from "@/lib/shop/consultant-shop";
 
 export const dynamic = "force-dynamic";
 
@@ -20,8 +25,10 @@ const statusLabels: Record<string, string> = {
 
 export default async function MesCommandeDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ lien?: string }>;
 }) {
   const session = await auth();
   if (session?.user?.role !== "CONSULTANT") redirect("/admin");
@@ -33,8 +40,17 @@ export default async function MesCommandeDetailPage({
   });
   if (!user?.consultant) notFound();
 
-  const order = await prisma.order.findUnique({ where: { id }, include: { items: true } });
+  let order = await prisma.order.findUnique({ where: { id }, include: { items: true } });
   if (!order || order.consultantId !== user.consultant.id) notFound();
+  // Lien de paiement : on vérifie le paiement auprès du prestataire à l'ouverture (même sans webhook).
+  if (isPayLinkOrder(order) && order.paymentStatus === "EN_ATTENTE" && order.status !== "ANNULEE") {
+    if ((await settlePendingPayment(id).catch(() => "unknown")) === "paid") order = (await prisma.order.findUnique({ where: { id }, include: { items: true } })) ?? order;
+  }
+  const justCreated = (await searchParams).lien === "1";
+  const payLink = isPayLinkOrder(order) ? payLinkUrl((await getSiteUrl().catch(() => "")) || "https://www.jamaal.sn", order.id) : null;
+  const payMsg = payLink ? payLinkMessage({ customerName: order.customerName, total: order.total, url: payLink, seller: user.consultant.name, ref: order.id.slice(-8).toUpperCase() }) : "";
+  const payWa = payLink && order.customerPhone ? shopWhatsAppLink(order.customerPhone, payMsg) : null;
+  const linkPaid = payLink && order.paymentStatus === "PAYE";
 
   const headersList = await headers();
   const host = headersList.get("host");
@@ -75,11 +91,46 @@ export default async function MesCommandeDetailPage({
         <p className="mt-2 text-right text-xs text-navy/75">Paiement : {paymentLine(order)}</p>
       </div>
 
+      {payLink && order.status !== "ANNULEE" && (
+        <div className={`mt-6 rounded-2xl border p-5 ${linkPaid ? "border-emerald-200 bg-emerald-50" : justCreated ? "border-sky-300 bg-sky-50 ring-2 ring-sky-200" : "border-sky-200 bg-sky-50"}`}>
+          {linkPaid ? (
+            <>
+              <h2 className="text-sm font-semibold text-emerald-950">Paiement reçu en ligne ✓</h2>
+              <p className="mt-1 text-sm text-emerald-950/85">
+                {order.customerName} a payé {formatPrice(order.total)}{order.paidAt ? ` le ${order.paidAt.toLocaleDateString("fr-FR")} à ${order.paidAt.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}` : ""}. Vos commissions sont enregistrées{order.deliveryMode === "LIVRAISON_JAMAAL" ? " et la livraison est en préparation" : ""}.
+              </p>
+            </>
+          ) : (
+            <>
+              <h2 className="text-sm font-semibold text-sky-950">{justCreated ? "Commande enregistrée : envoyez le lien de paiement" : "Lien de paiement en attente"}</h2>
+              <p className="mt-1 text-sm text-sky-950/85">
+                Votre client paie {formatPrice(order.total)} en ligne (Wave ou Orange Money) avec ce lien. Dès le paiement, la commande{order.deliveryMode === "LIVRAISON_JAMAAL" ? " part en livraison" : " est confirmée"}, vos commissions sont enregistrées et vous êtes prévenu·e.
+              </p>
+              <p className="mt-3 break-all rounded-lg bg-white px-3 py-2 font-mono text-xs text-navy">{payLink}</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {payWa && (
+                  <a href={payWa} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center rounded-full bg-[#128C4B] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0F7A41]">
+                    Envoyer sur le WhatsApp de {order.customerName.split(/\s+/)[0]}
+                  </a>
+                )}
+                <CopyButton text={payMsg} label="Copier le message" />
+                <CopyButton text={payLink} label="Copier le lien" />
+              </div>
+              <p className="mt-2 text-xs text-sky-950/70">Le paiement se vérifie tout seul ; rouvrez cette page pour voir l&apos;état à jour.</p>
+            </>
+          )}
+        </div>
+      )}
+
       {order.deliveryMode === "LIVRAISON_JAMAAL" && (
         <div className="mt-6 rounded-2xl border border-line bg-white p-5">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 className="text-sm font-semibold text-navy">Livraison JAMAAL</h2>
-            {order.deliveryStatus && <span className="rounded-full bg-cream px-3 py-1 text-sm font-semibold text-ink">{DELIVERY_LABELS[order.deliveryStatus as DeliveryStatus] ?? order.deliveryStatus}</span>}
+            {order.deliveryStatus ? (
+              <span className="rounded-full bg-cream px-3 py-1 text-sm font-semibold text-ink">{DELIVERY_LABELS[order.deliveryStatus as DeliveryStatus] ?? order.deliveryStatus}</span>
+            ) : payLink && !linkPaid ? (
+              <span className="rounded-full bg-sky-100 px-3 py-1 text-sm font-semibold text-sky-950">Part dès le paiement</span>
+            ) : null}
           </div>
           <p className="mt-2 text-[15px] text-ink">
             {order.deliveryTarget === "VENDEUR" ? "Livrée chez vous, pour votre client." : "Livrée directement à votre client."}

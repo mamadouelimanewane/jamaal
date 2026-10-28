@@ -16,6 +16,8 @@ import { debitCollectedForOrder, debitForOrder, walletBalance, WalletError } fro
 import { activeTerms, allowedCollect, collectRef, isCollectMethod, parseZones } from "@/lib/special-terms";
 import { runPayoutsForOrder } from "@/lib/payouts/engine";
 import { after } from "next/server";
+import { getAvailablePaymentProviders } from "@/lib/payment";
+import { PAY_LINK_REF } from "@/lib/pay-link";
 import { notifyOrderUpdate } from "@/lib/whatsapp/order-notify";
 import type { Prisma } from "@prisma/client";
 
@@ -43,7 +45,7 @@ export async function createConsultantOrder(_prev: ConsultantOrderState, formDat
     if (internal) console.error("[commande vendeur]", e);
     return { ok: false, error: internal ? "La commande n'a pas pu être enregistrée, réessayez." : e.message };
   }
-  redirect(`/admin/mes-commandes/${orderId}`);
+  redirect(`/admin/mes-commandes/${orderId}${formData.get("payLink") === "on" ? "?lien=1" : ""}`);
 }
 
 async function placeConsultantOrder(formData: FormData): Promise<string> {
@@ -126,6 +128,14 @@ async function placeConsultantOrder(formData: FormData): Promise<string> {
   const collect = collectRaw && collectRaw !== "NON" ? collectRaw : null;
   if (collect && (!isCollectMethod(collect) || !allowedCollect(terms).includes(collect))) throw new Error("Ce moyen d'encaissement n'est pas autorisé pour votre compte.");
   if (collect && payWithWallet) throw new Error("Choisissez soit « payer avec mon wallet », soit « mon client m'a payé ».");
+  // Lien de paiement : le client règle lui-même en ligne (Wave ou Orange Money) ; livraison et commissions après paiement.
+  const payLink = formData.get("payLink") === "on";
+  if (payLink && (payWithWallet || collect)) throw new Error("Choisissez un seul mode de paiement : lien au client, wallet ou client déjà payé.");
+  if (payLink) {
+    const online = getAvailablePaymentProviders(await getBusinessModel()).filter((p) => p.id !== "cod");
+    if (!online.length) throw new Error("Le paiement en ligne n'est pas encore activé : choisissez un autre mode de paiement.");
+    if (!customerPhone) throw new Error("Indiquez le WhatsApp du client pour lui envoyer le lien de paiement.");
+  }
   if (payWithWallet) {
     const { balance } = await walletBalance({ type: "CONSULTANT", id: consultant.id });
     const max = productsTotal + Number(deliveryData.deliveryFee ?? 0);
@@ -161,7 +171,9 @@ async function placeConsultantOrder(formData: FormData): Promise<string> {
       status: "CONFIRMEE",
       statusHistory: { create: { status: "CONFIRMEE" } },
       items: { create: items },
-      ...(deliveryData.deliveryStatus ? { deliveryEvents: { create: { status: "A_PREPARER", note: `${deliveryNote} · ${deliveryData.deliveryDistanceKm} km du dépôt` } } } : {}),
+      ...(deliveryData.deliveryStatus && !payLink ? { deliveryEvents: { create: { status: "A_PREPARER", note: `${deliveryNote} · ${deliveryData.deliveryDistanceKm} km du dépôt` } } } : {}),
+      // Lien de paiement : la livraison ne part en préparation qu'une fois le paiement reçu (markOrderPaid).
+      ...(payLink ? { deliveryStatus: null, paymentMethod: "WAVE" as const, paymentStatus: "EN_ATTENTE" as const, paymentRef: PAY_LINK_REF } : {}),
       ...(payWithWallet ? { paymentMethod: "WALLET" as const, paymentStatus: "PAYE" as const, paidAt: new Date(), paymentRef: "wallet" } : {}),
       ...(collect && isCollectMethod(collect) ? { paymentMethod: "WALLET" as const, paymentStatus: "PAYE" as const, paidAt: new Date(), paymentRef: collectRef(collect) } : {}),
   } satisfies Prisma.OrderUncheckedCreateInput;

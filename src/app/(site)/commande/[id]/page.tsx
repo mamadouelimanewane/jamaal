@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PAY_LINK_REF } from "@/lib/pay-link";
 import { prisma } from "@/lib/prisma";
 import { SubscribeOffer } from "@/components/subscription/SubscribeOffer";
 import { subscriptionDiscountPct } from "@/lib/subscriptions/run";
@@ -48,7 +49,9 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
   // Le statut vient de la base (vérifié auprès du prestataire) : l'adresse « ?paid=1 » seule ne prouve rien.
   const isPaid = paymentStatus === "PAYE";
   const isCanceled = sp.canceled === "1" && !isPaid;
-  const isPending = paymentStatus === "EN_ATTENTE" && !isPaid;
+  // Lien de paiement envoyé par le conseiller, pas encore ouvert : rien n'est « en cours » chez le prestataire.
+  const linkNotStarted = order.channel === "REVENDEUR" && order.paymentRef === PAY_LINK_REF && !isPaid;
+  const isPending = paymentStatus === "EN_ATTENTE" && !isPaid && !linkNotStarted;
   const due = amountDue(order);
   const resa = order.isReservation ? ((order.reservationStatus ?? "ACOMPTE_ATTENDU") as ReservationStatus) : null;
   const balance = Math.max(0, order.total - order.depositAmount);
@@ -64,6 +67,8 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
         <p className="text-xs font-semibold uppercase tracking-widest text-rose-dark">
           {resa ? `Réservation · ${RESERVATION_LABELS[resa]}` : isPaid
             ? "Paiement confirmé"
+            : linkNotStarted
+              ? "Commande à régler"
             : isCanceled
               ? "Paiement annulé"
               : isPending
@@ -86,6 +91,8 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
                     : "Cette réservation a été annulée."
           ) : isPaid
             ? "Votre paiement a bien été reçu. Nous préparons votre commande."
+            : linkNotStarted
+              ? `${order.consultant?.name ?? "Votre conseiller JAMAAL"} a préparé votre commande. Réglez-la en ligne avec le bouton ci-dessous : elle est préparée dès réception du paiement.`
             : isCanceled
               ? "Le paiement a été annulé. Votre commande reste enregistrée : réglez-la avec le bouton ci-dessous, ou contactez-nous sur WhatsApp."
               : isPending

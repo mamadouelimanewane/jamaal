@@ -128,6 +128,8 @@ export async function getOrderConfirmation(id: string) {
       depositPaidAt: true,
       reservationStatus: true,
       reservationDelay: true,
+      paymentRef: true,
+      channel: true,
       consultant: { select: { name: true, city: true, whatsapp: true } },
       items: {
         select: {

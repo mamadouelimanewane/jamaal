@@ -25,14 +25,19 @@ export function ConsultantOrderForm({
   vendor,
   walletBalance = 0,
   special,
+  onlinePay = [],
 }: {
   depot: { lat: number; lng: number; label: string };
   vendor: { address: string | null; lat: number | null; lng: number | null };
   walletBalance?: number;
   /** Conditions spéciales du revendeur : encaissement direct et zones de livraison propres. */
   special?: { collect: CollectMethod[]; creditLimit: number; zones: SpecialZone[] } | null;
+  /** Moyens de paiement en ligne actifs (lien de paiement envoyé au client), vide si aucun. */
+  onlinePay?: string[];
 }) {
   const [collect, setCollect] = useState<"NON" | CollectMethod>("NON");
+  const [payLink, setPayLink] = useState(false);
+  const [payWallet, setPayWallet] = useState(false);
   const owed = Math.max(0, -walletBalance);
   const [query, setQuery] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
@@ -169,6 +174,7 @@ export function ConsultantOrderForm({
                     role="radio"
                     aria-checked={collect === m}
                     onClick={() => setCollect(m)}
+                    disabled={payLink && m !== "NON"}
                     className={`rounded-full px-3.5 py-1.5 text-xs font-semibold ${collect === m ? "bg-navy text-white" : "border border-line bg-white text-navy hover:bg-cream"}`}
                   >
                     {m === "NON" ? "Non, pas encore" : `Oui, en ${COLLECT_LABELS[m]}`}
@@ -184,8 +190,18 @@ export function ConsultantOrderForm({
             </fieldset>
           )}
 
-          <label className={`flex items-start gap-3 rounded-xl border px-4 py-3 text-sm ${walletBalance > 0 && collect === "NON" ? "border-emerald-200 bg-emerald-50 text-emerald-950" : "border-line bg-cream/50 text-navy/70"}`}>
-            <input type="checkbox" name="payWithWallet" disabled={walletBalance <= 0 || collect !== "NON"} className="mt-0.5 h-4 w-4 accent-emerald-700" />
+          {onlinePay.length > 0 && (
+            <label className={`flex items-start gap-3 rounded-xl border px-4 py-3 text-sm ${collect === "NON" && !payWallet ? "border-sky-200 bg-sky-50 text-sky-950" : "border-line bg-cream/50 text-navy/70"}`}>
+              <input type="checkbox" name="payLink" checked={payLink} onChange={(e) => setPayLink(e.target.checked)} disabled={collect !== "NON" || payWallet} className="mt-0.5 h-4 w-4 accent-sky-700" />
+              <span>
+                <strong>Envoyer un lien de paiement à mon client</strong> · {onlinePay.join(" ou ")}
+                <span className="block text-xs">Après l&apos;enregistrement, vous envoyez le lien sur son WhatsApp en un clic. Il paie en ligne : la commande, la livraison et vos commissions se confirment automatiquement.</span>
+              </span>
+            </label>
+          )}
+
+          <label className={`flex items-start gap-3 rounded-xl border px-4 py-3 text-sm ${walletBalance > 0 && collect === "NON" && !payLink ? "border-emerald-200 bg-emerald-50 text-emerald-950" : "border-line bg-cream/50 text-navy/70"}`}>
+            <input type="checkbox" name="payWithWallet" checked={payWallet} onChange={(e) => setPayWallet(e.target.checked)} disabled={walletBalance <= 0 || collect !== "NON" || payLink} className="mt-0.5 h-4 w-4 accent-emerald-700" />
             <span>
               <strong>Payer avec mon wallet</strong> · solde {walletBalance.toLocaleString("fr-FR")} F
               <span className="block text-xs">La commande est réglée tout de suite (produits{" "}+ livraison) : votre client n&apos;a rien à payer à la livraison.</span>

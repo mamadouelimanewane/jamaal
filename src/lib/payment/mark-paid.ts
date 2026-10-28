@@ -64,6 +64,15 @@ export async function markOrderPaid(
   });
   if (res.count === 0) return true; // un autre appel concurrent a déjà traité
 
+  // Lien de paiement d'un revendeur : la livraison part en préparation maintenant, et le revendeur est prévenu.
+  if (order.channel === "REVENDEUR") {
+    try {
+      await afterPayLinkPaid(order);
+    } catch (err) {
+      console.error("[lien de paiement]", err);
+    }
+  }
+
   try {
     await awardLoyaltyForOrder(orderId);
   } catch (err) {
@@ -74,9 +83,9 @@ export async function markOrderPaid(
   after(() => runPayoutsForOrder(orderId));
   notifyOrderUpdate(orderId, "PAYEE");
 
-  revalidatePath(`/commande/${orderId}`);
-  revalidatePath("/admin/commandes");
-  revalidatePath(`/admin/commandes/${orderId}`);
+  safeRevalidate(`/commande/${orderId}`);
+  safeRevalidate("/admin/commandes");
+  safeRevalidate(`/admin/commandes/${orderId}`);
   return true;
 }
 
@@ -102,8 +111,39 @@ export async function markDepositPaid(orderId: string, externalRef: string | nul
       })),
     });
   }
-  revalidatePath(`/commande/${orderId}`);
-  revalidatePath("/admin/reservations");
-  revalidatePath(`/admin/commandes/${orderId}`);
+  safeRevalidate(`/commande/${orderId}`);
+  safeRevalidate("/admin/reservations");
+  safeRevalidate(`/admin/commandes/${orderId}`);
   return true;
+}
+
+
+/** Commande d'un revendeur payée en ligne par son client : livraison à préparer, notification au revendeur. */
+async function afterPayLinkPaid(order: { id: string; consultantId: string | null; deliveryMode: string; deliveryStatus: string | null; isReservation: boolean; customerName: string; total: number }) {
+  if (order.deliveryMode === "LIVRAISON_JAMAAL" && !order.deliveryStatus && !order.isReservation) {
+    await prisma.order.update({
+      where: { id: order.id },
+      data: { deliveryStatus: "A_PREPARER", deliveryEvents: { create: { status: "A_PREPARER", note: "Paiement en ligne reçu : livraison à préparer" } } },
+    });
+    safeRevalidate("/admin/livraisons");
+  }
+  if (!order.consultantId) return;
+  const user = await prisma.user.findFirst({ where: { consultantId: order.consultantId }, select: { id: true } });
+  if (!user) return;
+  await prisma.notification.create({
+    data: {
+      userId: user.id,
+      orderId: order.id,
+      title: "Paiement reçu 💳",
+      message: `${order.customerName} a réglé sa commande de ${order.total.toLocaleString("fr-FR")} F en ligne. Commande n° ${order.id.slice(-8).toUpperCase()}.`,
+    },
+  });
+  safeRevalidate(`/admin/mes-commandes/${order.id}`);
+}
+
+/** revalidatePath est refusé pendant le rendu d'une page (vérification au retour du client) : sans conséquence ici. */
+function safeRevalidate(path: string) {
+  try {
+    revalidatePath(path);
+  } catch {}
 }

@@ -6,8 +6,14 @@ import { prisma } from "@/lib/prisma";
 import { DEPOSIT_PREFIX } from "@/lib/wallet";
 import { settleVersusPayment, type SettleResult } from "./settle-versus";
 import { settleWavePayment } from "./settle-wave";
+import { PAY_LINK_REF } from "@/lib/pay-link";
 
 export async function settlePendingPayment(id: string): Promise<SettleResult> {
+  // Lien de paiement d'un revendeur pas encore ouvert par le client : rien à vérifier chez un prestataire.
+  if (!id.includes("_")) {
+    const o = await prisma.order.findUnique({ where: { id }, select: { paymentRef: true } }).catch(() => null);
+    if (o?.paymentRef === PAY_LINK_REF) return "pending";
+  }
   const v = await settleVersusPayment(id).catch(() => "unknown" as const);
   if (v !== "unknown") return v;
   return settleWavePayment(id).catch(() => "unknown" as const);
