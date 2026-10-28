@@ -16,7 +16,7 @@ export default async function TrackingPage({
   const { id } = await params;
   const order = await prisma.order.findUnique({
     where: { id },
-    include: { items: true, livreur: true, consultant: true },
+    include: { items: true, livreur: true, consultant: true, deliveryEvents: { where: { status: { in: ["REPROGRAMMATION_CONFIRMEE", "REPROGRAMMATION_REFUSEE"] } }, orderBy: { createdAt: "desc" }, take: 3 } },
   });
   if (!order) notFound();
   const reorder = new URLSearchParams();
@@ -69,6 +69,7 @@ export default async function TrackingPage({
           Votre colis est livré directement par notre équipe JAMAAL.
         </p>
       )}
+      {order.deliveryEvents.length > 0 && <section className="mt-4 rounded-2xl border border-line bg-white p-4"><h2 className="text-sm font-semibold text-navy">Réponse à votre demande de créneau</h2><ul className="mt-2 space-y-2">{order.deliveryEvents.map((event) => <li key={event.id} className="text-sm"><span className={`font-semibold ${event.status === "REPROGRAMMATION_CONFIRMEE" ? "text-emerald-700" : "text-rose-700"}`}>{event.status === "REPROGRAMMATION_CONFIRMEE" ? "Créneau confirmé" : "Créneau non confirmé"}</span><span className="text-navy/70"> · {event.note?.split("\n").at(-1)} · {event.createdAt.toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short", timeZone: "Africa/Dakar" })}</span></li>)}</ul></section>}
       {order.deliveryMode === "LIVRAISON_JAMAAL" && order.status !== "ANNULEE" && order.deliveryStatus !== "LIVREE" && (
         <DeliveryRescheduleForm orderId={order.id} />
       )}

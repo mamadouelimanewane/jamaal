@@ -171,17 +171,24 @@ export function ConsultantOrderForm({
                     onClick={() => setCollect(m)}
                     className={`rounded-full px-3.5 py-1.5 text-xs font-semibold ${collect === m ? "bg-navy text-white" : "border border-line bg-white text-navy hover:bg-cream"}`}
                   >
-                    {m === "NON" ? "Non, pas encore" : `Oui, en ${COLLECT_LABELS[m]}`}
+                    {m === "NON" ? "Non — paiement à la réception" : `Oui, en ${COLLECT_LABELS[m]}`}
                   </button>
                 ))}
               </div>
               <p className="mt-2 text-xs text-navy/75">
                 {collect === "NON"
-                  ? "La commande attend son paiement (à la livraison ou plus tard)."
+                  ? "La commande est enregistrée avec paiement à la réception : le client règle à la remise du colis ou au retrait."
                   : `Commande payée tout de suite. Le montant (produits + livraison) est porté au débit de votre wallet : c'est l'argent à reverser à JAMAAL, vos commissions viennent en déduction.`}
                 {" "}Déjà à reverser : <strong>{owed.toLocaleString("fr-FR")} F</strong> · plafond {special.creditLimit.toLocaleString("fr-FR")} F.
               </p>
             </fieldset>
+          )}
+
+          {!special?.collect.length && (
+            <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-950">
+              <p className="font-semibold">Mode de paiement : à la réception</p>
+              <p className="mt-1 text-xs">Si vous n’encaissez pas le client et ne payez pas avec votre wallet, la commande reste à régler à la remise ou au retrait du produit.</p>
+            </div>
           )}
 
           <label className={`flex items-start gap-3 rounded-xl border px-4 py-3 text-sm ${walletBalance > 0 && collect === "NON" ? "border-emerald-200 bg-emerald-50 text-emerald-950" : "border-line bg-cream/50 text-navy/70"}`}>

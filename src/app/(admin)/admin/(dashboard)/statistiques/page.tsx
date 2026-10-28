@@ -17,38 +17,50 @@ const statusLabels: Record<string, string> = {
 const daysAgo = (n: number) => new Date(Date.now() - n * 86_400_000);
 const channelLabels: Record<string, string> = { SITE: "Site", WHATSAPP: "WhatsApp", REVENDEUR: "Revendeur", CATALOGUE: "Catalogue WhatsApp" };
 
-export default async function AdminStatsPage() {
+export default async function AdminStatsPage({ searchParams }: { searchParams: Promise<{ jours?: string; produit?: string; vendeur?: string; source?: string }> }) {
+  const params = await searchParams;
+  const allowedDays = [7, 30, 90];
+  const daysSelected = allowedDays.includes(Number(params.jours)) ? Number(params.jours) : 30;
+  const [funnelProducts, funnelConsultants] = await Promise.all([
+    prisma.product.findMany({ select: { id: true, name: true }, orderBy: { name: "asc" }, take: 1000 }),
+    prisma.consultant.findMany({ where: { active: true }, select: { id: true, name: true }, orderBy: { name: "asc" } }),
+  ]);
+  const productId = funnelProducts.some((p) => p.id === params.produit) ? params.produit : undefined;
+  const consultantId = funnelConsultants.some((c) => c.id === params.vendeur) ? params.vendeur : undefined;
+  const allowedSources = ["SITE", "VENDEUR", "WHATSAPP", "REVENDEUR", "CATALOGUE"];
+  const source = allowedSources.includes(params.source ?? "") ? params.source : undefined;
   const [dailyRaw, statusGroups, topProducts, topConsultantsRaw, channelGroups, funnel] = await Promise.all([
     prisma.$queryRaw<{ date: string; total: bigint }[]>`
       SELECT to_char("createdAt", 'YYYY-MM-DD') as date, SUM(total)::bigint as total
       FROM "Order"
-      WHERE status != 'ANNULEE' AND "createdAt" >= now() - interval '30 days'
+      WHERE status != 'ANNULEE' AND "createdAt" >= now() - (${daysSelected} * interval '1 day')
       GROUP BY date
       ORDER BY date
     `,
-    prisma.order.groupBy({ by: ["status"], _count: { _all: true } }),
+    prisma.order.groupBy({ by: ["status"], _count: { _all: true }, where: { createdAt: { gte: daysAgo(daysSelected) } } }),
     prisma.orderItem.groupBy({
       by: ["productName"],
       _sum: { quantity: true },
+      where: { order: { is: { createdAt: { gte: daysAgo(daysSelected) }, status: { not: "ANNULEE" } } } },
       orderBy: { _sum: { quantity: "desc" } },
       take: 6,
     }),
     prisma.order.groupBy({
       by: ["consultantId"],
       _sum: { total: true },
-      where: { consultantId: { not: null }, status: { not: "ANNULEE" } },
+      where: { consultantId: { not: null }, status: { not: "ANNULEE" }, createdAt: { gte: daysAgo(daysSelected) } },
       orderBy: { _sum: { total: "desc" } },
       take: 6,
     }),
     prisma.order
-      .groupBy({ by: ["channel"], _count: { _all: true }, _sum: { total: true }, where: { status: { not: "ANNULEE" }, createdAt: { gte: daysAgo(30) } } })
+      .groupBy({ by: ["channel"], _count: { _all: true }, _sum: { total: true }, where: { status: { not: "ANNULEE" }, createdAt: { gte: daysAgo(daysSelected) } } })
       .catch(() => []),
-    getAnalyticsFunnel(30).catch(() => []),
+    getAnalyticsFunnel(daysSelected, { productId, consultantId, source }).catch(() => []),
   ]);
 
   const dailyMap = new Map(dailyRaw.map((d) => [d.date, Number(d.total)]));
   const days: { date: string; total: number }[] = [];
-  for (let i = 29; i >= 0; i--) {
+  for (let i = daysSelected - 1; i >= 0; i--) {
     const d = new Date();
     d.setDate(d.getDate() - i);
     const key = d.toISOString().slice(0, 10);
@@ -62,15 +74,15 @@ export default async function AdminStatsPage() {
   return (
     <div>
       <h1 className="font-serif-display text-2xl font-semibold text-navy">Statistiques</h1>
-      <p className="mt-1 text-sm text-navy/75">Performance des 30 derniers jours.</p>
+      <div className="mt-1 flex flex-wrap items-center justify-between gap-3"><p className="text-sm text-navy/75">Performance des {daysSelected} derniers jours.</p><nav aria-label="Période des statistiques" className="flex gap-2">{allowedDays.map((n)=><a key={n} href={`/admin/statistiques?jours=${n}&produit=${productId??""}&vendeur=${consultantId??""}&source=${source??""}`} aria-current={daysSelected===n?"page":undefined} className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${daysSelected===n?"border-navy bg-navy text-white":"border-line bg-white text-navy"}`}>{n} jours</a>)}</nav></div>
 
       <div className="mt-6 rounded-2xl border border-line bg-white p-5">
-        <h2 className="mb-4 text-sm font-semibold text-navy">Chiffre d&apos;affaires par jour</h2>
+        <h2 className="mb-4 text-sm font-semibold text-navy">Chiffre d&apos;affaires par jour ({daysSelected} jours)</h2>
         <DailyRevenueChart data={days} />
       </div>
 
       <div className="mt-6 rounded-2xl border border-line bg-white p-5">
-        <h2 className="mb-1 text-sm font-semibold text-navy">Commandes par canal (30 jours)</h2>
+        <h2 className="mb-1 text-sm font-semibold text-navy">Commandes par canal ({daysSelected} jours)</h2>
         <p className="mb-4 text-xs text-navy/60">Site, assistant WhatsApp et commandes saisies par les revendeurs : les canaux se complètent.</p>
         <BarList
           items={channelGroups.map((g) => ({ label: `${channelLabels[g.channel] ?? g.channel} · ${g._count._all} commande(s)`, value: g._sum.total ?? 0 }))}
@@ -80,8 +92,15 @@ export default async function AdminStatsPage() {
       </div>
 
       <div className="mt-6 rounded-2xl border border-line bg-white p-5">
-        <h2 className="mb-1 text-sm font-semibold text-navy">Parcours d&apos;achat (30 jours)</h2>
-        <p className="mb-4 text-xs text-navy/60">Sessions temporaires du navigateur, du produit au paiement. Les pages de compte, de commande et de suivi ne sont pas suivies.</p>
+        <h2 className="mb-1 text-sm font-semibold text-navy">Parcours d&apos;achat ({daysSelected} jours)</h2>
+        <p className="mb-4 text-xs text-navy/60">Sessions temporaires du navigateur, du produit au paiement. Les filtres appliquent le rattachement d’attribution enregistré avec les événements.</p>
+        <form action="/admin/statistiques" method="get" className="mb-4 grid gap-3 rounded-xl bg-cream/40 p-3 sm:grid-cols-2 lg:grid-cols-4">
+          <input type="hidden" name="jours" value={daysSelected}/>
+          <label className="text-xs font-medium text-navy">Produit<select name="produit" defaultValue={productId??""} className="mt-1 w-full rounded-lg border border-line bg-white p-2"><option value="">Tous les produits</option>{funnelProducts.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select></label>
+          <label className="text-xs font-medium text-navy">Vendeur référent<select name="vendeur" defaultValue={consultantId??""} className="mt-1 w-full rounded-lg border border-line bg-white p-2"><option value="">Tous les vendeurs</option>{funnelConsultants.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
+          <label className="text-xs font-medium text-navy">Canal / source<select name="source" defaultValue={source??""} className="mt-1 w-full rounded-lg border border-line bg-white p-2"><option value="">Toutes les sources</option><option value="SITE">Site direct</option><option value="VENDEUR">Lien vendeur</option><option value="WHATSAPP">WhatsApp</option><option value="REVENDEUR">Vente saisie par vendeur</option><option value="CATALOGUE">Catalogue WhatsApp</option></select></label>
+          <button className="self-end rounded-lg bg-navy px-4 py-2 text-sm font-semibold text-white">Appliquer les filtres</button>
+        </form>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {funnel.map((step) => (
             <div key={step.name} className="rounded-xl border border-line bg-cream/40 px-4 py-3">

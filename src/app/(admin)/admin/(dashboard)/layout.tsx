@@ -85,12 +85,14 @@ const adminGroups = [
       { href: "/admin/accueil", label: "Page d'accueil", icon: GalleryHorizontal },
       { href: "/admin/catalogue-officiel", label: "Catalogue officiel (12 pages A4)", icon: FileText },
       { href: "/admin/handbook", label: "Produits disponibles", icon: BookMarked },
+      { href: "/admin/produits/qualite", label: "Qualité du catalogue", icon: ShieldCheck },
     ],
   },
   {
     title: "Ventes",
     links: [
       { href: "/admin/commandes", label: "Commandes", icon: ShoppingCart },
+      { href: "/admin/commandes/achats-groupes", label: "Superviser achats groupés", icon: Users },
       { href: "/admin/reservations", label: "Réservations", icon: CalendarClock },
       { href: "/admin/abonnements", label: "Abonnements et cartes cadeaux", icon: Repeat },
       { href: "/admin/reservations/a-commander", label: "À commander (réservations)", icon: ClipboardList },
@@ -130,6 +132,7 @@ const adminGroups = [
     title: "Opérations",
     links: [
       { href: "/admin/livraisons", label: "Livraisons", icon: Truck },
+      { href: "/admin/livraisons/demandes-creneau", label: "Demandes de créneau", icon: CalendarClock },
       { href: "/admin/livreurs", label: "Livreurs", icon: Bike },
     ],
   },
@@ -140,6 +143,7 @@ const adminGroups = [
       { href: "/admin/automatisations", label: "Automatisations", icon: Zap },
       { href: "/admin/comptabilite", label: "Comptabilité & finance", icon: Wallet },
       { href: "/admin/wallets", label: "Commissions & wallets", icon: Banknote },
+      { href: "/admin/wallets/rapprochement", label: "Rapprochement des versements", icon: ShieldCheck },
     ],
   },
   {

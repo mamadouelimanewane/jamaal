@@ -2,6 +2,7 @@
 
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { cookies } from "next/headers";
 
 const EVENT_NAMES = new Set(["page_view", "product_view", "add_to_cart", "cart_open", "cart_view", "order_created", "payment_started", "payment_confirmed"]);
 
@@ -26,6 +27,23 @@ export async function trackEvent(input: {
     const linkedSession = input.sessionId || (input.orderId
       ? (await prisma.analyticsEvent.findFirst({ where: { name: "order_created", orderId: input.orderId }, select: { sessionId: true } }))?.sessionId ?? undefined
       : undefined);
+    let consultantId: string | undefined;
+    let source = "SITE";
+    try {
+      const slug = (await cookies()).get("jamaal_ref")?.value;
+      if (slug) {
+        const referrer = await prisma.consultant.findUnique({ where: { slug }, select: { id: true } });
+        consultantId = referrer?.id;
+        if (consultantId) source = "VENDEUR";
+      }
+    } catch { /* Appel automatique sans contexte HTTP : on utilisera les données de la commande. */ }
+    if (input.orderId) {
+      const order = await prisma.order.findUnique({ where: { id: input.orderId }, select: { consultantId: true, channel: true } });
+      if (order) {
+        consultantId = order.consultantId ?? consultantId;
+        source = order.channel;
+      }
+    }
     const metadata = input.meta ? JSON.stringify(input.meta) : "";
     const safeSession = linkedSession && /^[a-z0-9-]{1,64}$/i.test(linkedSession) ? linkedSession : undefined;
     await prisma.analyticsEvent.create({
@@ -33,6 +51,8 @@ export async function trackEvent(input: {
         name: input.name.slice(0, 64),
         path: input.path?.startsWith("/") ? input.path.split("?")[0]?.slice(0, 255) : undefined,
         productId: input.productId?.slice(0, 100),
+        consultantId,
+        source: source.slice(0, 32),
         orderId: input.orderId?.slice(0, 100),
         sessionId: safeSession,
         meta: metadata && metadata.length <= 500 ? (JSON.parse(metadata) as Prisma.InputJsonValue) : undefined,
@@ -45,13 +65,26 @@ export async function trackEvent(input: {
 }
 
 /** Nombre d'événements et de sessions par étape, limité aux événements autorisés. */
-export async function getAnalyticsFunnel(days = 30) {
+export async function getAnalyticsFunnel(days = 30, filters: { productId?: string; consultantId?: string; source?: string } = {}) {
   const { requireAdmin } = await import("@/lib/actions/auth-guard");
   await requireAdmin("statistiques", "read");
   const since = new Date(Date.now() - Math.max(1, Math.min(180, days)) * 86_400_000);
-  const rows = await prisma.analyticsEvent.groupBy({
+  let sessionIds: string[] | undefined;
+  const sessionFilters: Prisma.AnalyticsEventWhereInput[] = [];
+  if (filters.productId) sessionFilters.push({ productId: filters.productId, name: { in: ["product_view", "add_to_cart"] } });
+  if (filters.consultantId) sessionFilters.push({ consultantId: filters.consultantId });
+  if (filters.source) sessionFilters.push({ source: filters.source });
+  if (sessionFilters.length) {
+    const sets = await Promise.all(sessionFilters.map(async (filter) => {
+      const sessions = await prisma.analyticsEvent.findMany({ where: { createdAt: { gte: since }, sessionId: { not: null }, ...filter }, select: { sessionId: true }, distinct: ["sessionId"], take: 20_000 });
+      return new Set(sessions.flatMap((row) => row.sessionId ? [row.sessionId] : []));
+    }));
+    const seed = [...sets[0]];
+    sessionIds = seed.filter((id) => sets.every((set) => set.has(id)));
+  }
+  const rows = sessionIds?.length === 0 ? [] : await prisma.analyticsEvent.groupBy({
     by: ["name", "sessionId"],
-    where: { createdAt: { gte: since }, sessionId: { not: null }, name: { in: [...EVENT_NAMES] } },
+    where: { createdAt: { gte: since }, sessionId: { not: null }, name: { in: [...EVENT_NAMES] }, ...(sessionIds ? { sessionId: { in: sessionIds } } : {}) },
     _count: { _all: true },
   });
   const order = ["product_view", "add_to_cart", "cart_open", "cart_view", "order_created", "payment_started", "payment_confirmed"];

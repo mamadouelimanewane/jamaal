@@ -125,7 +125,8 @@ export function HandbookView({ rows, refSlug, consultantName }: HandbookViewProp
     const code = row.productCode ? ` [Code: ${row.productCode}]` : "";
     const fmt = row.format && row.format !== "Format unique" ? ` en ${row.format}` : "";
     const prx = row.salePrice ? ` au prix de *${formatPrice(row.salePrice)}*` : "";
-    const msg = `${intro} Le produit *${row.name}*${insp}${fmt}${code} est bien *DISPONIBLE EN STOCK À DAKAR* (${row.stock} pièce${row.stock > 1 ? "s" : ""} restante${row.stock > 1 ? "s" : ""})${prx}.\n\nSouhaitez-vous que je vous le fasse livrer aujourd'hui ? 🌸`;
+    const url = new URL(`/produits/${row.slug}${refSlug ? `?ref=${encodeURIComponent(refSlug)}` : ""}`, window.location.origin).toString();
+    const msg = `${intro} Le produit *${row.name}*${insp}${fmt}${code} est bien *DISPONIBLE EN STOCK À DAKAR* (${row.stock} pièce${row.stock > 1 ? "s" : ""} restante${row.stock > 1 ? "s" : ""})${prx}.\n\n📸 Photo, détails et commande : ${url}\n\nSouhaitez-vous que je vous le fasse livrer aujourd'hui ? 🌸`;
     return `https://wa.me/?text=${encodeURIComponent(msg)}`;
   };
 
@@ -176,10 +177,10 @@ export function HandbookView({ rows, refSlug, consultantName }: HandbookViewProp
     const cartUrl = new URL("/panier", window.location.origin);
     cartUrl.searchParams.set("selection", JSON.stringify(selectedRows.map((row) => ({ productId: row.productId, volumeLabel: row.format && row.format !== "Format unique" ? row.format : "Format unique" }))));
     if (refSlug) cartUrl.searchParams.set("ref", refSlug);
-    const message = `Bonjour ! Voici les produits disponibles que je vous propose :\n\n${lines.join("\n\n")}\n\nPour commander toute cette sélection dans un seul panier : ${cartUrl.toString()}\n\nDites-moi si vous avez une question. 🌸`;
+    const message = `Bonjour ! Voici les produits disponibles que je vous propose. Ouvrez chaque fiche pour voir sa photo, ses détails et commander :\n\n${lines.join("\n\n")}\n\nPour commander toute cette sélection dans un seul panier : ${cartUrl.toString()}\n\nDites-moi si vous avez une question. 🌸`;
     const target = digits.length === 9 ? `221${digits}` : digits;
     window.open(`https://wa.me/${target}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
-    setShareNotice("WhatsApp s’est ouvert avec les fiches d’achat. Vérifiez le message puis appuyez sur Envoyer.");
+    setShareNotice("WhatsApp s’est ouvert avec les liens des fiches : chaque lien affiche la photo et permet de commander. Attendez l’aperçu de la première fiche, puis appuyez sur Envoyer.");
   }
 
   // Exporter en CSV

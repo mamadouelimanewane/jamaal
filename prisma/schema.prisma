@@ -777,6 +777,8 @@ model AnalyticsEvent {
   name      String
   path      String?
   productId String?
+  consultantId String?
+  source    String?
   orderId   String?
   meta      Json?
   sessionId String?
@@ -784,6 +786,8 @@ model AnalyticsEvent {
 
   @@index([name, createdAt])
   @@index([createdAt])
+  @@index([consultantId, createdAt])
+  @@index([source, createdAt])
 }
 
 enum ApplicationStatus {
