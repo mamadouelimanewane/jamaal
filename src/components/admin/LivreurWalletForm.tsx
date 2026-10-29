@@ -16,9 +16,9 @@ export function LivreurWalletForm({ provider, number, channels = ["WAVE", "ORANG
           {(channels.includes("ORANGE_MONEY") || provider === "ORANGE_MONEY") && <option value="ORANGE_MONEY">Orange Money</option>}
         </select>
       </label>
-      <label className="min-w-0 flex-1 text-sm font-medium text-ink">
+      <label className="min-w-0 flex-1 basis-[13rem] text-sm font-medium text-ink">
         Numéro
-        <input name="walletNumber" defaultValue={number ?? ""} inputMode="tel" placeholder="77 123 45 67" className="mt-1.5 block w-full rounded-xl border border-line px-3 py-2.5 text-[15px]" />
+        <input name="walletNumber" defaultValue={number ?? ""} inputMode="tel" placeholder="77 123 45 67" className="mt-1.5 block w-full rounded-xl border border-line px-3 py-2.5 text-lg tracking-wide" />
       </label>
       <button disabled={pending} className="rounded-xl bg-navy px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-light disabled:opacity-60">{pending ? "…" : "Enregistrer"}</button>
       {state.error && <p role="alert" className="w-full text-sm text-red-700">{state.error}</p>}

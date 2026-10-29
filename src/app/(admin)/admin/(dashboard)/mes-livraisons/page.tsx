@@ -128,7 +128,7 @@ export default async function MesLivraisonsPage() {
 
       {done.length > 0 && (
         <section className="mt-8">
-          <h2 className="mb-3 text-lg font-extrabold text-ink">🕑 Mes dernières courses</h2>
+          <div className="mb-3 flex items-center justify-between gap-2"><h2 className="text-lg font-extrabold text-ink">🕑 Mes dernières courses</h2><a href="/admin/mon-wallet?onglet=courses#lv-historique" className="rounded-full bg-[#2563EB] px-4 py-2 text-sm font-bold text-white">Tout voir ›</a></div>
           <ul className="divide-y divide-line rounded-2xl border border-line bg-white">
             {done.map((o) => (
               <li key={o.id} className="flex items-center justify-between gap-3 px-5 py-3 text-[15px]">

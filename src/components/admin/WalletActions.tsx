@@ -20,6 +20,7 @@ export function WalletActions({
   account,
   depositNumbers,
   onlineDeposit,
+  defaultTab = "retirer",
 }: {
   balance: number;
   min: number;
@@ -27,8 +28,10 @@ export function WalletActions({
   account: string | null;
   depositNumbers: { WAVE: string; ORANGE_MONEY: string };
   onlineDeposit: { WAVE: boolean; ORANGE_MONEY: boolean };
+  /** Onglet ouvert sans ancre dans l'adresse (ex. « recharger » quand le livreur doit rendre de l'argent). */
+  defaultTab?: "retirer" | "recharger";
 }) {
-  const [tab, setTab] = useState<"retirer" | "recharger">("retirer");
+  const [tab, setTab] = useState<"retirer" | "recharger">(defaultTab);
   const [w, withdraw, wPending] = useActionState(withdrawAction, initial);
   const [d, deposit, dPending] = useActionState(depositAction, initial);
   const [provider, setProvider] = useState<"WAVE" | "ORANGE_MONEY">("WAVE");
@@ -37,11 +40,11 @@ export function WalletActions({
   const effectiveMode = online ? mode : "declare";
 
   useEffect(() => {
-    const fromHash = () => setTab(window.location.hash === "#recharger" ? "recharger" : "retirer");
+    const fromHash = () => setTab(window.location.hash === "#recharger" ? "recharger" : window.location.hash === "#retirer" ? "retirer" : defaultTab);
     fromHash();
     window.addEventListener("hashchange", fromHash);
     return () => window.removeEventListener("hashchange", fromHash);
-  }, []);
+  }, [defaultTab]);
   useEffect(() => {
     if (d.redirectUrl) window.location.assign(d.redirectUrl);
   }, [d.redirectUrl]);
