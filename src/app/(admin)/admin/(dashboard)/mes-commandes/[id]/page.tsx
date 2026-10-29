@@ -119,7 +119,7 @@ export default async function MesCommandeDetailPage({
                 <CopyButton text={payMsg} label="Copier le message" />
                 <CopyButton text={payLink} label="Copier le lien" />
               </div>
-              <p className="mt-2 text-xs text-sky-950/70">Le paiement se vérifie tout seul ; rouvrez cette page pour voir l&apos;état à jour.</p>
+              <p className="mt-2 text-xs text-sky-950/70">Le paiement se vérifie tout seul ; rouvrez cette page pour voir l&apos;état à jour. Sans aucun paiement, votre client reçoit un rappel au bout de 2 jours et la commande est annulée au bout de 7 jours (produits remis en stock).</p>
             </>
           )}
         </div>

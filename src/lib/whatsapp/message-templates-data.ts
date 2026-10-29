@@ -24,7 +24,10 @@ export type MessageKey =
   | "carte_cadeau"
   | "carte_cadeau_acheteur"
   | "abonnement_rappel"
-  | "abonnement_commande";
+  | "abonnement_commande"
+  | "echeance_rappel"
+  | "echeance_recue"
+  | "commande_a_payer";
 
 export type MessageDef = { group: string; label: string; when: string; vars: Record<string, string>; text: string };
 
@@ -155,6 +158,27 @@ export const WA_MESSAGES: Record<MessageKey, MessageDef> = {
     when: "La commande d'un abonnement est créée (bouton de paiement).",
     vars: { prenom: "Prénom du client", numero: "N° de commande", montant: "Montant", remise: "Remise abonné", lien: "Lien pour gérer l'abonnement" },
     text: "Bonjour {prenom}, votre réassort JAMAAL n° {numero} est prêt : {montant} (remise abonné {remise} incluse). Payez en un clic avec le bouton ci-dessous. Gérer mon abonnement : {lien}",
+  },
+  echeance_rappel: {
+    group: "Paiement en plusieurs fois",
+    label: "Rappel d'échéance",
+    when: "2 jours avant chaque échéance, puis le jour même (bouton « Payer mon échéance »).",
+    vars: { prenom: "Prénom du client", numero: "N° de commande", echeance: "Échéance (ex. 2/3)", montant: "Montant de l'échéance", quand: "« aujourd'hui » ou « le 13 novembre »" },
+    text: "Bonjour {prenom} 🌸\nPetit rappel : l'échéance {echeance} de votre commande JAMAAL n° {numero} ({montant}) est à régler {quand}.\nPayez en un clic avec Wave ou Orange Money grâce au bouton ci-dessous. Merci !",
+  },
+  echeance_recue: {
+    group: "Paiement en plusieurs fois",
+    label: "Échéance reçue",
+    when: "Une échéance (hors la dernière) vient d'être payée.",
+    vars: { prenom: "Prénom du client", numero: "N° de commande", echeance: "Échéance (ex. 1/3)", montant: "Montant reçu", suite: "Phrase sur la prochaine échéance" },
+    text: "Bonjour {prenom}, nous avons bien reçu l'échéance {echeance} ({montant}) de votre commande JAMAAL n° {numero}. Merci !{suite}",
+  },
+  commande_a_payer: {
+    group: "Paiement en plusieurs fois",
+    label: "Commande pas encore payée",
+    when: "2 jours après un lien de paiement d'un revendeur (ou une commande en plusieurs fois) resté sans paiement.",
+    vars: { prenom: "Prénom du client", numero: "N° de commande", montant: "Montant", delai: "Délai avant annulation (ex. 5 jours)" },
+    text: "Bonjour {prenom} 🌸\nVotre commande JAMAAL n° {numero} ({montant}) vous attend. Réglez-la en un clic avec Wave ou Orange Money grâce au bouton ci-dessous : elle est préparée dès réception.\nSans paiement d'ici {delai}, elle sera annulée.",
   },
 };
 

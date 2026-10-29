@@ -81,12 +81,13 @@ export default async function TresoreriePage({ searchParams }: { searchParams: S
           <ul className="space-y-2 text-sm">
             <li className="flex justify-between gap-2"><span>Paiements à la livraison attendus ({forecast.codCount})</span><strong className="text-emerald-700">+{fcfa(forecast.codExpected)}</strong></li>
             <li className="flex justify-between gap-2"><span>Soldes de réservations ({forecast.reservationsCount})</span><strong className="text-emerald-700">+{fcfa(forecast.reservationsExpected)}</strong></li>
+            {forecast.installmentsCount > 0 && <li className="flex justify-between gap-2"><span>Échéances à venir ({forecast.installmentsCount})</span><strong className="text-emerald-700">+{fcfa(forecast.installmentsExpected)}</strong></li>}
             <li className="flex justify-between gap-2"><span>Retraits wallet à verser ({forecast.pendingWithdrawalsCount})</span><strong className="text-red-700">−{fcfa(forecast.pendingWithdrawals)}</strong></li>
             <li className="flex justify-between gap-2"><span>Factures fournisseurs à payer ({forecast.unpaidBillsCount})</span><strong className="text-red-700">−{fcfa(forecast.unpaidBills)}</strong></li>
             <li className="flex justify-between gap-2"><span>Clients à rembourser ({forecast.refundsCount})</span><strong className="text-red-700">−{fcfa(forecast.refundsOwed)}</strong></li>
             <li className="flex justify-between gap-2 border-t border-line pt-2 font-semibold">
               <span>Trésorerie prévisible</span>
-              <span>{fcfa(total + forecast.codExpected + forecast.reservationsExpected - forecast.pendingWithdrawals - forecast.unpaidBills - forecast.refundsOwed)}</span>
+              <span>{fcfa(total + forecast.codExpected + forecast.reservationsExpected + forecast.installmentsExpected - forecast.pendingWithdrawals - forecast.unpaidBills - forecast.refundsOwed)}</span>
             </li>
           </ul>
           <p className="mt-3 text-xs text-navy/65">Les soldes des wallets restent retirables à tout moment : gardez de quoi les couvrir (voir le bilan).</p>

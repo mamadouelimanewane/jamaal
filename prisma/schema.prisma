@@ -349,6 +349,8 @@ model Order {
   /// Références des paiements d'échéances déjà comptés (un même paiement n'est jamais compté deux fois).
   installmentRefs         String[]  @default([])
   installmentNextDue      DateTime?
+  /// Date de paiement de chaque échéance réglée (dans l'ordre).
+  installmentPaidDates    DateTime[] @default([])
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
   items         OrderItem[]

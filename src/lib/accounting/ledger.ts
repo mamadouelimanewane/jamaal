@@ -121,10 +121,11 @@ async function buildLedger() {
   const start = await effectiveStart(settings);
   const [orders, returns, walletTx, commissions, earnings, payments, expenses, manuals, consultants, livreurs, periods, stock] = await Promise.all([
     prisma.order.findMany({
-      where: { OR: [{ status: { not: "ANNULEE" } }, { paymentStatus: "PAYE" }, { depositPaidAt: { not: null } }] },
+      where: { OR: [{ status: { not: "ANNULEE" } }, { paymentStatus: "PAYE" }, { depositPaidAt: { not: null } }, { installmentsPaid: { gt: 0 } }] },
       select: {
         id: true, customerName: true, total: true, deliveryFee: true, status: true, paymentMethod: true, paymentStatus: true, paidAt: true,
         deliveredAt: true, updatedAt: true, createdAt: true, isReservation: true, depositAmount: true, depositPaidAt: true, refundedAt: true, refundChannel: true,
+        installmentCount: true, installmentPaidDates: true,
       },
     }),
     prisma.return.findMany({ where: { status: "REMBOURSE" }, select: { id: true, orderId: true, amount: true, reason: true, processedAt: true, createdAt: true, order: { select: { customerName: true, paymentMethod: true } } } }),

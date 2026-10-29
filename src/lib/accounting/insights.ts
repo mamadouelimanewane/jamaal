@@ -2,12 +2,13 @@
 import { prisma } from "../prisma";
 import { balanceOf } from "../reservation";
 import { cashReceived } from "./posting";
+import { splitAmounts } from "../installments";
 
 /** Commandes annulées dont l'argent a été reçu et pas encore rendu au client. */
 export async function refundsOwed() {
   const orders = await prisma.order.findMany({
-    where: { status: "ANNULEE", refundedAt: null, OR: [{ paymentStatus: "PAYE" }, { depositPaidAt: { not: null } }] },
-    select: { id: true, customerName: true, customerPhone: true, total: true, deliveryFee: true, status: true, paymentMethod: true, paymentStatus: true, paidAt: true, deliveredAt: true, updatedAt: true, createdAt: true, isReservation: true, depositAmount: true, depositPaidAt: true, refundedAt: true, refundChannel: true },
+    where: { status: "ANNULEE", refundedAt: null, OR: [{ paymentStatus: "PAYE" }, { depositPaidAt: { not: null } }, { installmentsPaid: { gt: 0 } }] },
+    select: { id: true, customerName: true, customerPhone: true, total: true, deliveryFee: true, status: true, paymentMethod: true, paymentStatus: true, paidAt: true, deliveredAt: true, updatedAt: true, createdAt: true, isReservation: true, depositAmount: true, depositPaidAt: true, refundedAt: true, refundChannel: true, installmentCount: true, installmentPaidDates: true },
     orderBy: { updatedAt: "desc" },
     take: 200,
   });
@@ -26,7 +27,7 @@ export async function unpaidBills() {
 
 /** Ce qui doit rentrer et sortir dans les prochaines semaines. */
 export async function cashForecast() {
-  const [cod, reservations, withdrawals, bills, refunds] = await Promise.all([
+  const [cod, reservations, withdrawals, bills, refunds, installments] = await Promise.all([
     prisma.order.findMany({
       where: { status: { in: ["EN_ATTENTE", "CONFIRMEE", "EXPEDIEE"] }, paymentMethod: "A_LA_LIVRAISON", paymentStatus: { not: "PAYE" }, OR: [{ isReservation: false }, { reservationStatus: "DISPONIBLE" }] },
       select: { total: true, isReservation: true, depositAmount: true, depositPaidAt: true },
@@ -38,6 +39,10 @@ export async function cashForecast() {
     prisma.walletTransaction.aggregate({ _sum: { amount: true }, _count: true, where: { kind: "RETRAIT", status: "EN_ATTENTE" } }),
     prisma.expense.aggregate({ _sum: { amount: true }, _count: true, where: { paid: false } }),
     refundsOwed(),
+    prisma.order.findMany({
+      where: { installmentCount: { gte: 2 }, installmentsPaid: { gt: 0 }, paymentStatus: { not: "PAYE" }, status: { not: "ANNULEE" } },
+      select: { total: true, installmentCount: true, installmentsPaid: true },
+    }),
   ]);
   return {
     codExpected: cod.reduce((s, o) => s + balanceOf(o), 0),
@@ -49,6 +54,8 @@ export async function cashForecast() {
     unpaidBills: bills._sum.amount ?? 0,
     unpaidBillsCount: bills._count,
     refundsOwed: refunds.reduce((s, r) => s + r.owed, 0),
+    installmentsExpected: installments.reduce((s, o) => s + splitAmounts(o.total, o.installmentCount).slice(o.installmentsPaid).reduce((a, b) => a + b, 0), 0),
+    installmentsCount: installments.length,
     refundsCount: refunds.length,
   };
 }

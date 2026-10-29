@@ -17,7 +17,7 @@ import { sweepMissedCommissions } from "@/lib/payouts/engine";
 import { creditLivreurEarnings } from "@/lib/wallet";
 import { alertChallengesAlmostDone } from "@/lib/whatsapp/alerts";
 import { whatsappConfig } from "@/lib/whatsapp";
-import { runInstallmentReminders } from "@/lib/installments-notify";
+import { runInstallmentReminders, runUnpaidPaymentLinks } from "@/lib/installments-notify";
 
 export async function runDailyJobs(origin: string, opts: { budgetMs?: number; now?: Date } = {}) {
   const started = Date.now();
@@ -42,6 +42,7 @@ export async function runDailyJobs(origin: string, opts: { budgetMs?: number; no
   if (whatsappConfig().active) await step("defis80", () => alertChallengesAlmostDone(now));
   await step("relances", () => runRelances(origin, now));
   await step("echeances", () => runInstallmentReminders(now));
+  await step("liensImpayes", () => runUnpaidPaymentLinks(now));
   await step("abonnements", () => runSubscriptions(origin, now));
   await step("prevision", () => weeklyForecastAlert(origin, now));
   // Lundi : chaque Leader et parrain reçoit la liste de ses membres qui décrochent.

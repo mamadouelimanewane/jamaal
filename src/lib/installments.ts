@@ -85,12 +85,19 @@ export function planLabel(total: number, count: number): string {
 }
 
 /** Rappel WhatsApp d'une échéance (avant ou le jour même). */
-export function reminderText(o: { firstName: string; n: number; of: number; amount: number; dueAt: Date; today: boolean; ref: string }): string {
-  const when = o.today ? "aujourd'hui" : `le ${shortDate(o.dueAt)}`;
-  return `Bonjour${o.firstName ? ` ${o.firstName}` : ""} 🌸\nPetit rappel : l'échéance ${o.n}/${o.of} de votre commande JAMAAL n° ${o.ref} (${fcfa(o.amount)}) est à régler ${when}.\nPayez en un clic avec Wave ou Orange Money grâce au bouton ci-dessous. Merci !`;
+export function reminderVars(o: { firstName: string; n: number; of: number; amount: number; dueAt: Date; today: boolean; ref: string }) {
+  return { prenom: o.firstName, numero: o.ref, echeance: `${o.n}/${o.of}`, montant: fcfa(o.amount), quand: o.today ? "aujourd'hui" : `le ${shortDate(o.dueAt)}` };
+}
+export function reminderText(o: Parameters<typeof reminderVars>[0]): string {
+  const v = reminderVars(o);
+  return `Bonjour${v.prenom ? ` ${v.prenom}` : ""} 🌸\nPetit rappel : l'échéance ${v.echeance} de votre commande JAMAAL n° ${v.numero} (${v.montant}) est à régler ${v.quand}.\nPayez en un clic avec Wave ou Orange Money grâce au bouton ci-dessous. Merci !`;
 }
 
 /** Confirmation d'une échéance intermédiaire reçue. */
-export function receivedText(o: { firstName: string; n: number; of: number; amount: number; next: { amount: number; dueAt: Date } | null; ref: string }): string {
-  return `Bonjour${o.firstName ? ` ${o.firstName}` : ""}, nous avons bien reçu l'échéance ${o.n}/${o.of} (${fcfa(o.amount)}) de votre commande JAMAAL n° ${o.ref}. Merci !${o.next ? `\nProchaine échéance : ${fcfa(o.next.amount)} le ${shortDate(o.next.dueAt)}. Nous vous enverrons un rappel.` : ""}`;
+export function receivedVars(o: { firstName: string; n: number; of: number; amount: number; next: { amount: number; dueAt: Date } | null; ref: string }) {
+  return { prenom: o.firstName, numero: o.ref, echeance: `${o.n}/${o.of}`, montant: fcfa(o.amount), suite: o.next ? `\nProchaine échéance : ${fcfa(o.next.amount)} le ${shortDate(o.next.dueAt)}. Nous vous enverrons un rappel.` : "" };
+}
+export function receivedText(o: Parameters<typeof receivedVars>[0]): string {
+  const v = receivedVars(o);
+  return `Bonjour${v.prenom ? ` ${v.prenom}` : ""}, nous avons bien reçu l'échéance ${v.echeance} (${v.montant}) de votre commande JAMAAL n° ${v.numero}. Merci !${v.suite}`;
 }

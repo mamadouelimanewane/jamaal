@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  DEFAULT_POSTING, isBalanced, numberEntries, postCommissionEntry, postExpense, postOrder, postReturn, postStockVariation, postWalletTx, vatOf,
+  DEFAULT_POSTING, cashReceived, isBalanced, numberEntries, postCommissionEntry, postExpense, postOrder, postReturn, postStockVariation, postWalletTx, vatOf,
   type Entry, type OrderInput,
 } from "../accounting/posting";
 import { balanceSheet, cashFlowByMonth, incomeStatement, journalCheck, ledger, totalsBy, trialBalance, vatByMonth } from "../accounting/reports";
@@ -195,4 +195,20 @@ test("réglages, périodes, plan comptable", () => {
   assert.equal(custom.to.toISOString(), "2026-04-01T00:00:00.000Z");
   const prev = previousPeriod({ from: new Date("2026-01-01T00:00:00Z"), to: new Date("2027-01-01T00:00:00Z") });
   assert.equal(prev.from.toISOString().slice(0, 10), "2025-01-01");
+});
+
+test("paiement en 3 fois : chaque échéance encaissée à sa date, vente à la dernière, annulation à rembourser", () => {
+  const base = { total: 30_000, deliveryFee: 0, installmentCount: 3, paymentMethod: "WAVE" };
+  const ongoing = postOrder(order({ ...base, status: "CONFIRMEE", paymentStatus: "EN_ATTENTE", paidAt: null, installmentPaidDates: [d("2026-03-01"), d("2026-03-16")] }), DEFAULT_POSTING);
+  assert.deepEqual(ongoing.map((e) => e.id).sort(), ["ECH1-ord1", "ECH2-ord1"]);
+  assert.equal(sum(ongoing, "411"), -20_000); // avance du client
+  assert.ok(ongoing.every(isBalanced));
+  const done = postOrder(order({ ...base, installmentPaidDates: [d("2026-03-01"), d("2026-03-16"), d("2026-03-31")], paidAt: d("2026-03-31") }), DEFAULT_POSTING);
+  assert.equal(done.filter((e) => e.id.startsWith("ENC-")).length, 0);
+  assert.equal(done.filter((e) => e.id.startsWith("ECH")).length, 3);
+  assert.equal(sum(done, "411"), 0);
+  const cancelled = order({ ...base, status: "ANNULEE", paymentStatus: "EN_ATTENTE", paidAt: null, installmentPaidDates: [d("2026-03-01")] });
+  assert.equal(cashReceived(cancelled), 10_000);
+  const refunded = postOrder({ ...cancelled, refundedAt: d("2026-03-20"), refundChannel: "WAVE" }, DEFAULT_POSTING);
+  assert.equal(sum(refunded, "411"), 0);
 });

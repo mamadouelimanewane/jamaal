@@ -130,7 +130,7 @@ export default async function ComptabiliteDashboard({ searchParams }: { searchPa
             </tbody>
           </table>
           <div className="mt-4 grid gap-2 text-xs sm:grid-cols-2">
-            <p className="rounded-xl bg-emerald-50 p-2.5 text-emerald-900">À encaisser : <strong>{fcfa(forecast.codExpected + forecast.reservationsExpected)}</strong><br />{forecast.codCount} commande(s) à la livraison, {forecast.reservationsCount} solde(s) de réservation</p>
+            <p className="rounded-xl bg-emerald-50 p-2.5 text-emerald-900">À encaisser : <strong>{fcfa(forecast.codExpected + forecast.reservationsExpected + forecast.installmentsExpected)}</strong><br />{forecast.codCount} commande(s) à la livraison, {forecast.reservationsCount} solde(s) de réservation{forecast.installmentsCount ? `, ${forecast.installmentsCount} paiement(s) en plusieurs fois` : ""}</p>
             <p className="rounded-xl bg-red-50 p-2.5 text-red-900">À décaisser : <strong>{fcfa(forecast.pendingWithdrawals + forecast.unpaidBills + forecast.refundsOwed)}</strong><br />retraits wallet, factures, remboursements</p>
           </div>
         </Card>

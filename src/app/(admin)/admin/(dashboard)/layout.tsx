@@ -107,6 +107,7 @@ const adminGroups = [
     links: [
       { href: "/admin/consultants", label: "Consultants", icon: Users },
       { href: "/admin/conditions-speciales", label: "Conditions spéciales", icon: BadgePercent },
+      { href: "/admin/boutiques-stats", label: "Statistiques des boutiques", icon: BarChart3 },
       { href: "/admin/primes-equipe", label: "Primes d'équipe", icon: Banknote },
       { href: "/admin/reseau", label: "Santé du réseau", icon: HeartPulse },
       { href: "/admin/fraude", label: "Contrôle des commissions", icon: ShieldAlert },

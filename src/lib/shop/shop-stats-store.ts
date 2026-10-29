@@ -50,3 +50,33 @@ export async function shopStats(consultantId: string, days: number, now = new Da
 }
 
 export type ShopStats = Awaited<ReturnType<typeof shopStats>>;
+
+/** Toutes les boutiques sur `days` jours (administration) : visiteurs, clics, commandes en ligne, thème. */
+export async function allShopsStats(days: number, now = new Date()) {
+  const from = periodStart(days, now);
+  const [ev, orders, shops] = await Promise.all([
+    prisma.$queryRaw<{ consultantId: string; visitors: number; whatsapp: number; products: number }[]>`
+      SELECT "consultantId",
+        (count(DISTINCT sid) FILTER (WHERE kind = 'visite') + count(*) FILTER (WHERE kind = 'visite' AND sid IS NULL))::int AS visitors,
+        count(*) FILTER (WHERE kind = 'whatsapp')::int AS whatsapp,
+        count(*) FILTER (WHERE kind = 'produit')::int AS products
+      FROM "ShopEvent" WHERE "createdAt" >= ${from} GROUP BY "consultantId"`,
+    prisma.order.groupBy({
+      by: ["consultantId"],
+      where: { consultantId: { not: null }, channel: { not: "REVENDEUR" }, status: { not: "ANNULEE" }, createdAt: { gte: from } },
+      _count: { _all: true },
+      _sum: { total: true },
+    }),
+    prisma.consultant.findMany({ where: { active: true, slug: { not: null } }, select: { id: true, name: true, city: true, slug: true, shopTheme: true, shopPhoto: true, favorites: true } }),
+  ]);
+  const evBy = new Map(ev.map((r) => [r.consultantId, r]));
+  const ordBy = new Map(orders.map((r) => [r.consultantId!, { count: r._count._all, amount: r._sum.total ?? 0 }]));
+  const rows = shops.map((c) => {
+    const e = evBy.get(c.id);
+    const o = ordBy.get(c.id) ?? { count: 0, amount: 0 };
+    return { id: c.id, name: c.name, city: c.city, slug: c.slug!, theme: c.shopTheme, ready: !!c.shopPhoto && c.favorites.length > 0, visitors: e?.visitors ?? 0, whatsapp: e?.whatsapp ?? 0, products: e?.products ?? 0, orders: o.count, amount: o.amount };
+  });
+  rows.sort((a, b) => b.visitors - a.visitors || b.orders - a.orders || a.name.localeCompare(b.name));
+  const sum = (k: "visitors" | "whatsapp" | "products" | "orders" | "amount") => rows.reduce((s, r) => s + r[k], 0);
+  return { rows, totals: { visitors: sum("visitors"), whatsapp: sum("whatsapp"), products: sum("products"), orders: sum("orders"), amount: sum("amount"), active: rows.filter((r) => r.visitors > 0).length } };
+}

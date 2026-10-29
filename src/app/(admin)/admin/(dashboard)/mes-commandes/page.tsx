@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { OrderPayBadges } from "@/components/admin/OrderPayBadges";
 import { repairConsultantLink } from "@/lib/account-link";
 import { NotReseller } from "@/components/admin/NotReseller";
 import { redirect } from "next/navigation";
@@ -79,7 +80,7 @@ export default async function MesCommandesPage() {
             {user.consultant.orders.map((o) => (
               <tr key={o.id} className="border-t border-line hover:bg-cream/20 transition-colors">
                 <td className="px-4 py-3 align-top font-medium text-navy">
-                  <p>{o.customerName}</p>
+                  <p>{o.customerName}<OrderPayBadges o={o} /></p>
                   <p className="text-xs text-navy/60">{o.customerPhone ?? o.customerEmail ?? ""}</p>
                 </td>
                 <td className="px-4 py-3 align-top">

@@ -57,7 +57,7 @@ export async function markOrderPaid(
     const next = dueDates(order.createdAt, order.installmentCount, order.installmentIntervalDays)[k + 1];
     const res = await prisma.order.updateMany({
       where: { id: orderId, installmentsPaid: k, paymentStatus: { not: "PAYE" } },
-      data: { installmentsPaid: k + 1, installmentNextDue: next, ...(opts.externalRef ? { installmentRefs: { push: opts.externalRef } } : {}), ...(order.status === "EN_ATTENTE" ? { status: "CONFIRMEE" } : {}) },
+      data: { installmentsPaid: k + 1, installmentNextDue: next, installmentPaidDates: { push: new Date() }, ...(opts.externalRef ? { installmentRefs: { push: opts.externalRef } } : {}), ...(order.status === "EN_ATTENTE" ? { status: "CONFIRMEE" } : {}) },
     });
     if (res.count) {
       try {
@@ -85,7 +85,7 @@ export async function markOrderPaid(
       ...(opts.externalRef ? { paymentRef: opts.externalRef } : {}),
       ...(order.status === "EN_ATTENTE" ? { status: "CONFIRMEE" } : {}),
       ...(order.isReservation ? { reservationStatus: "SOLDEE" } : {}),
-      ...(lastInstallment ? { installmentsPaid: order.installmentCount, installmentNextDue: null, ...(opts.externalRef ? { installmentRefs: { push: opts.externalRef } } : {}) } : {}),
+      ...(lastInstallment ? { installmentsPaid: order.installmentCount, installmentNextDue: null, installmentPaidDates: { push: new Date() }, ...(opts.externalRef ? { installmentRefs: { push: opts.externalRef } } : {}) } : {}),
     },
   });
   if (res.count === 0) return true; // un autre appel concurrent a déjà traité

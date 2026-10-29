@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getReseller, resellerLinks } from "@/lib/reseller";
 import { resellerCatalog } from "@/lib/reseller-catalog";
 import { NotReseller } from "@/components/admin/NotReseller";
@@ -26,6 +27,7 @@ export default async function MaBoutiquePage() {
           <div className="mt-3 flex flex-wrap gap-2">
             <CopyButton text={links.shop} label="Copier le lien" />
             <a href={links.shop} target="_blank" rel="noopener noreferrer" className="inline-flex items-center rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-navy hover:bg-cream">Voir ma boutique ↗</a>
+            <Link href="/admin/stats-boutique" className="inline-flex items-center rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-navy hover:bg-cream">Mes statistiques</Link>
           </div>
           <p className="mt-3 text-xs text-navy/60">Instagram : Modifier le profil › Liens › Ajouter un lien. TikTok : Modifier le profil › Site web.</p>
         </div>

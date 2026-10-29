@@ -28,7 +28,7 @@ export default async function InstallmentsPage() {
     <div className="max-w-5xl space-y-6">
       <div>
         <h1 className="font-serif-display text-2xl font-semibold text-navy">Paiement en plusieurs fois</h1>
-        <p className="mt-1 text-sm text-navy/75">Le client paie en 2 ou 3 échéances en ligne (Wave ou Orange Money), avec un rappel WhatsApp 2 jours avant et le jour de chaque échéance. La commande est préparée, livrée et commissionnée une fois entièrement payée. À 7 jours de retard, le revendeur et l&apos;équipe sont prévenus ; rien n&apos;est annulé automatiquement.</p>
+        <p className="mt-1 text-sm text-navy/75">Le client paie en 2 ou 3 échéances en ligne (Wave ou Orange Money), avec un rappel WhatsApp 2 jours avant et le jour de chaque échéance. La commande est préparée, livrée et commissionnée une fois entièrement payée. À 7 jours de retard, le revendeur et l&apos;équipe sont prévenus ; une commande déjà en partie payée n&apos;est jamais annulée automatiquement. Une commande dont rien n&apos;a été payé reçoit un rappel à 2 jours et est annulée à 7 jours (produits remis en stock).</p>
       </div>
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">

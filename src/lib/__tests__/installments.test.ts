@@ -39,3 +39,23 @@ test("paiement en plusieurs fois : échéancier, prochaine échéance et montant
   assert.equal(nextInstallment({ ...o, installmentsPaid: 3 }), null);
   assert.match(reminderText({ firstName: "Awa", n: 2, of: 3, amount: 10500, dueAt: n.dueAt, today: false, ref: "AB" }), /échéance 2\/3[\s\S]*10 500 F CFA[\s\S]*13 novembre/);
 });
+
+test("paiement en plusieurs fois : messages modifiables identiques aux envois d'origine", async () => {
+  const { fillTemplate, WA_MESSAGES } = await import("../whatsapp/message-templates-data");
+  const { reminderVars, receivedVars } = await import("../installments");
+  const { unpaidReminderText } = await import("../installments-notify").catch(() => ({ unpaidReminderText: null }));
+  const due = new Date("2026-11-13T10:00:00Z");
+  for (const today of [true, false]) {
+    const o = { firstName: "Awa", n: 2, of: 3, amount: 10500, dueAt: due, today, ref: "AB12" };
+    assert.equal(fillTemplate(WA_MESSAGES.echeance_rappel.text, reminderVars(o)), reminderText(o));
+  }
+  for (const next of [null, { amount: 10500, dueAt: due }]) {
+    const o = { firstName: "Awa", n: 1, of: 3, amount: 10750, next, ref: "AB12" };
+    const { receivedText } = await import("../installments");
+    assert.equal(fillTemplate(WA_MESSAGES.echeance_recue.text, receivedVars(o)), receivedText(o));
+  }
+  if (unpaidReminderText) {
+    const t = unpaidReminderText({ firstName: "Awa", total: 30000, ref: "AB12", days: 5 });
+    assert.equal(fillTemplate(WA_MESSAGES.commande_a_payer.text, { prenom: "Awa", numero: "AB12", montant: "30 000 F CFA", delai: "5 jours" }), t);
+  }
+});

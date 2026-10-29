@@ -12,6 +12,7 @@
  * - Coût des ventes par variation de stock (inventaire valorisé au prix d'achat Chogan).
  */
 import { channelAccount, LEGACY_CATEGORY_ACCOUNT, paymentMethodAccount, walletProviderAccount } from "./chart";
+import { splitAmounts } from "../installments";
 
 export type Line = { account: string; debit: number; credit: number; label?: string; aux?: string };
 export type SourceType = "COMMANDE" | "RETOUR" | "WALLET" | "COMMISSION" | "LIVREUR" | "VERSEMENT" | "DEPENSE" | "MANUELLE" | "STOCK";
@@ -106,7 +107,18 @@ export type OrderInput = {
   cancelledAt: Date | null;
   refundedAt: Date | null;
   refundChannel: string | null;
+  /** Paiement en plusieurs fois : nombre d'échéances (0 = en une fois) et dates des échéances payées. */
+  installmentCount?: number;
+  installmentPaidDates?: Date[];
 };
+
+/** Échéances déjà payées (montant et date), passées chacune en encaissement à sa date. */
+export function installmentReceipts(o: Pick<OrderInput, "total" | "installmentCount" | "installmentPaidDates" | "paidAt" | "updatedAt">): { n: number; amount: number; date: Date }[] {
+  const count = o.installmentCount ?? 0;
+  if (count < 2) return [];
+  const amounts = splitAmounts(o.total, count);
+  return (o.installmentPaidDates ?? []).slice(0, count).map((date, i) => ({ n: i + 1, amount: amounts[i], date: date ?? o.paidAt ?? o.updatedAt }));
+}
 
 /** La commande compte comme une vente (même règle que les commissions). */
 export function isRecognized(o: Pick<OrderInput, "status" | "paymentStatus" | "paymentMethod">) {
@@ -120,8 +132,9 @@ export function recognitionDate(o: OrderInput): Date {
 /** Montant déjà encaissé auprès du client hors wallet (acompte + paiement). */
 export function cashReceived(o: OrderInput): number {
   const deposit = o.isReservation && o.depositPaidAt ? o.depositAmount : 0;
-  const main = o.paymentStatus === "PAYE" && o.paymentMethod !== "WALLET" ? o.total - deposit : 0;
-  return deposit + Math.max(0, main);
+  const inst = installmentReceipts(o).reduce((sum, r) => sum + r.amount, 0);
+  const main = o.paymentStatus === "PAYE" && o.paymentMethod !== "WALLET" ? o.total - deposit - inst : 0;
+  return deposit + inst + Math.max(0, main);
 }
 
 export function postOrder(o: OrderInput, s: PostingSettings): Entry[] {
@@ -135,6 +148,10 @@ export function postOrder(o: OrderInput, s: PostingSettings): Entry[] {
   if (deposit > 0 && o.depositPaidAt) {
     out.push(receipt(`ACP-${o.id}`, o.depositPaidAt, o.paymentMethod, deposit, aux, `Acompte de réservation ${aux}`, o.id, s));
   }
+  // 1 bis. Échéances d'un paiement en plusieurs fois, chacune à sa date.
+  const insts = installmentReceipts(o);
+  for (const r of insts) out.push(receipt(`ECH${r.n}-${o.id}`, r.date, o.paymentMethod, r.amount, aux, `Échéance ${r.n}/${o.installmentCount} ${aux}`, o.id, s));
+  const prepaid = deposit + insts.reduce((sum, r) => sum + r.amount, 0);
 
   // 2. Vente
   const recognized = isRecognized(o);
@@ -157,7 +174,7 @@ export function postOrder(o: OrderInput, s: PostingSettings): Entry[] {
       })
     );
     // 3. Paiement du solde (le paiement par wallet est passé avec le mouvement du wallet)
-    const rest = o.total - deposit;
+    const rest = o.total - prepaid;
     if (rest > 0) {
       if (o.paymentStatus === "PAYE" && o.paymentMethod !== "WALLET") {
         out.push(receipt(`ENC-${o.id}`, o.paidAt ?? R, o.paymentMethod, rest, aux, `Encaissement ${aux}`, o.id, s));
@@ -167,7 +184,7 @@ export function postOrder(o: OrderInput, s: PostingSettings): Entry[] {
     }
   } else if (o.status === "ANNULEE" && o.paymentStatus === "PAYE" && o.paymentMethod !== "WALLET") {
     // Payée puis annulée : l'argent a bien été reçu, il reste dû au client (411 créditeur).
-    const rest = o.total - deposit;
+    const rest = o.total - prepaid;
     if (rest > 0) out.push(receipt(`ENC-${o.id}`, o.paidAt ?? o.updatedAt, o.paymentMethod, rest, aux, `Encaissement ${aux} (commande annulée)`, o.id, s));
   }
 
