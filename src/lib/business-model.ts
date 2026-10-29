@@ -94,7 +94,37 @@ export type BusinessModel = {
   deliveryFreeAbove: number;
   /** Part des frais de livraison reversée au livreur (%). */
   livreurSharePct: number;
+  /** Calcul des frais : forfait + prix au km, ou grille par tranches de distance. */
+  deliveryPricing: "KM" | "GRILLE";
+  /** Grille : tranches de distance (jusqu'à X km) avec le prix client et la commission du livreur (0 = part en %). */
+  deliveryGrid: DeliveryBracket[];
+  /** Commission minimale du livreur par course (FCFA), même livraison offerte. 0 = aucune. */
+  livreurMinPay: number;
 };
+
+export type DeliveryBracket = { upToKm: number; fee: number; livreur: number };
+
+export const DEFAULT_DELIVERY_GRID: DeliveryBracket[] = [
+  { upToKm: 3, fee: 1000, livreur: 700 },
+  { upToKm: 6, fee: 1500, livreur: 1000 },
+  { upToKm: 10, fee: 2000, livreur: 1400 },
+  { upToKm: 15, fee: 2500, livreur: 1800 },
+  { upToKm: 25, fee: 3500, livreur: 2500 },
+  { upToKm: 40, fee: 5000, livreur: 3500 },
+];
+
+/** Grille propre : tranches triées, distances distinctes, montants entiers positifs. */
+export function normalizeGrid(list: unknown[]): DeliveryBracket[] {
+  const rows = list
+    .map((b) => ({
+      upToKm: Math.round(Number((b as DeliveryBracket)?.upToKm) * 10) / 10,
+      fee: Math.max(0, Math.round(Number((b as DeliveryBracket)?.fee) || 0)),
+      livreur: Math.max(0, Math.round(Number((b as DeliveryBracket)?.livreur) || 0)),
+    }))
+    .filter((b) => Number.isFinite(b.upToKm) && b.upToKm > 0 && b.upToKm <= 2000)
+    .sort((a, b) => a.upToKm - b.upToKm);
+  return rows.filter((b, i) => i === 0 || b.upToKm !== rows[i - 1].upToKm).slice(0, 30);
+}
 
 export const DEFAULT_BUSINESS_MODEL: BusinessModel = {
   purchasePct: 65,
@@ -152,6 +182,9 @@ export const DEFAULT_BUSINESS_MODEL: BusinessModel = {
   deliveryMaxKm: 40,
   deliveryFreeAbove: 0,
   livreurSharePct: 70,
+  deliveryPricing: "KM",
+  deliveryGrid: DEFAULT_DELIVERY_GRID,
+  livreurMinPay: 0,
 };
 
 function normalizeTiers(list: unknown[]): PrimeTier[] {
@@ -204,6 +237,12 @@ export function normalizeBusinessModel(raw: unknown): BusinessModel {
   num("deliveryMaxKm", 0, 2000);
   num("deliveryFreeAbove", 0, 100_000_000);
   num("livreurSharePct", 0, 100);
+  num("livreurMinPay", 0, 1_000_000);
+  if (r.deliveryPricing === "KM" || r.deliveryPricing === "GRILLE") base.deliveryPricing = r.deliveryPricing;
+  if (Array.isArray(r.deliveryGrid)) {
+    const g = normalizeGrid(r.deliveryGrid);
+    if (g.length) base.deliveryGrid = g;
+  }
   for (const key of ["primesEnabled", "teamPrimesEnabled", "acceptWave", "acceptOrangeMoney", "acceptCard", "acceptCashOnDelivery", "payoutsEnabled", "payoutWave", "payoutOrangeMoney"] as const) {
     if (typeof r[key] === "boolean") base[key] = r[key] as boolean;
   }

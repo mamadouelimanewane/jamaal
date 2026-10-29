@@ -1,12 +1,13 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { startTransition, useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle2, Lock } from "lucide-react";
+import { Camera, CheckCircle2, FileText, Lock } from "lucide-react";
+import { compressPhoto } from "@/lib/compress-photo";
 import { useInstall } from "@/components/admin/InstallApp";
 import { InstallGuide } from "@/components/admin/InstallGuide";
 import { registerLivreur, type SignupState } from "@/lib/actions/livreur-signup";
-import { PAYOUT_PROVIDERS, VEHICLES } from "@/lib/livreur-signup";
+import { DOC_MAX_BYTES, ID_TYPES, PAYOUT_PROVIDERS, VEHICLES, needsVerso } from "@/lib/livreur-signup";
 
 const field = "mt-1.5 w-full rounded-xl border border-line bg-cream/50 px-4 py-3 text-base text-navy outline-none transition focus:border-rose-dark focus:bg-white focus:ring-4 focus:ring-rose/10";
 const label = "block text-left text-xs font-semibold text-navy/85";
@@ -63,6 +64,21 @@ export function LivreurApp({ loggedIn, initialTab, login }: { loggedIn: boolean;
 function SignupForm({ onLogin }: { onLogin: () => void }) {
   const [state, action, pending] = useActionState<SignupState, FormData>(registerLivreur, null);
   const [provider, setProvider] = useState(state?.values?.walletProvider || "WAVE");
+  const [idType, setIdType] = useState(state?.values?.idType || "CNI");
+  const [recto, setRecto] = useState<File | null>(null);
+  const [verso, setVerso] = useState<File | null>(null);
+  const [localError, setLocalError] = useState<string | null>(null);
+
+  function submit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setLocalError(null);
+    if (!recto) return setLocalError("Ajoutez la photo de votre pièce d'identité (recto).");
+    if (needsVerso(idType) && !verso) return setLocalError("Ajoutez aussi la photo du verso de votre pièce.");
+    const fd = new FormData(e.currentTarget);
+    fd.set("idRecto", recto);
+    if (needsVerso(idType) && verso) fd.set("idVerso", verso);
+    startTransition(() => action(fd));
+  }
 
   if (state?.ok)
     return (
@@ -77,9 +93,9 @@ function SignupForm({ onLogin }: { onLogin: () => void }) {
   const err = (f: string) => (state && !state.ok && state.field === f ? true : undefined);
   const v = (k: string) => state?.values?.[k] ?? "";
   return (
-    <form key={state?.n ?? 0} action={action} className="mt-5 flex flex-col gap-4 text-left" noValidate>
+    <form key={state?.n ?? 0} onSubmit={submit} className="mt-5 flex flex-col gap-4 text-left" noValidate>
       <h1 className="text-center font-serif-display text-xl font-semibold text-navy">Devenir livreur JAMAAL</h1>
-      {state && !state.ok && <p role="alert" className="rounded-xl border border-rose-dark/20 bg-rose/10 px-4 py-3 text-sm text-rose-dark">{state.error}</p>}
+      {(localError || (state && !state.ok)) && <p role="alert" className="rounded-xl border border-rose-dark/20 bg-rose/10 px-4 py-3 text-sm text-rose-dark">{localError ?? state?.error}</p>}
       <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" />
       <div>
         <label htmlFor="lv-name" className={label}>Prénom et nom</label>
@@ -127,10 +143,20 @@ function SignupForm({ onLogin }: { onLogin: () => void }) {
           <input id="lv-wallet" name="walletNumber" defaultValue={v("walletNumber")} type="tel" inputMode="tel" placeholder="Laisser vide = n° WhatsApp" aria-invalid={err("walletNumber")} className={field} />
         </div>
       </div>
-      <div>
-        <label htmlFor="lv-id" className={label}>N° de pièce d&apos;identité <span className="font-normal text-navy/55">(facultatif)</span></label>
-        <input id="lv-id" name="idNumber" defaultValue={v("idNumber")} autoComplete="off" className={field} />
-      </div>
+      <fieldset className="rounded-2xl border border-line p-3">
+        <legend className="px-1 text-sm font-semibold text-navy">Pièce d&apos;identité <span className="font-normal text-rose-dark">(obligatoire)</span></legend>
+        <label htmlFor="lv-idtype" className={label}>Type de pièce</label>
+        <select id="lv-idtype" name="idType" value={idType} onChange={(e) => setIdType(e.target.value)} aria-invalid={err("idType")} className={field}>
+          {ID_TYPES.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
+        </select>
+        <label htmlFor="lv-id" className={`${label} mt-3`}>Numéro de la pièce</label>
+        <input id="lv-id" name="idNumber" required defaultValue={v("idNumber")} autoComplete="off" autoCapitalize="characters" aria-invalid={err("idNumber")} className={field} />
+        <div className={`mt-3 grid gap-3 ${needsVerso(idType) ? "grid-cols-2" : "grid-cols-1"}`}>
+          <DocPicker id="lv-recto" label={needsVerso(idType) ? "Photo du recto" : "Photo de la page d'identité"} file={recto} onFile={setRecto} invalid={err("idRecto")} />
+          {needsVerso(idType) && <DocPicker id="lv-verso" label="Photo du verso" file={verso} onFile={setVerso} invalid={err("idVerso")} />}
+        </div>
+        <p className="mt-2 text-xs text-navy/60">Photo nette, toute la pièce visible. Elle est vue uniquement par l&apos;équipe JAMAAL pour valider votre compte.</p>
+      </fieldset>
       <details className="rounded-xl bg-cream/70 p-3 text-xs leading-5 text-navy/80">
         <summary className="cursor-pointer font-semibold text-navy">Lire la charte du livreur JAMAAL</summary>
         <ul className="mt-2 list-disc space-y-1 pl-4">
@@ -150,5 +176,47 @@ function SignupForm({ onLogin }: { onLogin: () => void }) {
       </button>
       <p className="text-center text-xs text-navy/60">Votre compte s&apos;ouvre après validation par l&apos;équipe JAMAAL.</p>
     </form>
+  );
+}
+
+/** Photo de la pièce : appareil photo ou galerie (PDF accepté), réduite avant l'envoi. */
+function DocPicker({ id, label: text, file, onFile, invalid }: { id: string; label: string; file: File | null; onFile: (f: File | null) => void; invalid?: boolean }) {
+  const [preview, setPreview] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  useEffect(() => () => {
+    if (preview) URL.revokeObjectURL(preview);
+  }, [preview]);
+
+  async function pick(f: File | undefined) {
+    setError(null);
+    if (!f) return;
+    setBusy(true);
+    try {
+      const isImage = f.type.startsWith("image/") && !/heic|heif/.test(f.type);
+      const blob = isImage ? await compressPhoto(f) : f;
+      const out = blob instanceof File ? blob : new File([blob], `${id}.jpg`, { type: blob.type || "image/jpeg" });
+      if (out.size > DOC_MAX_BYTES) {
+        setError("Fichier trop lourd (3 Mo au plus).");
+        onFile(null);
+        return;
+      }
+      onFile(out);
+      setPreview(out.type.startsWith("image/") && !/heic|heif/.test(out.type) ? URL.createObjectURL(out) : null);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div>
+      <label htmlFor={id} className={`flex min-h-28 cursor-pointer flex-col items-center justify-center gap-1.5 overflow-hidden rounded-xl border-2 border-dashed p-2 text-center text-xs font-semibold ${file ? "border-emerald-600 bg-emerald-50 text-emerald-900" : invalid ? "border-rose-dark bg-rose/10 text-rose-dark" : "border-line bg-cream/50 text-navy"}`}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        {preview ? <img src={preview} alt={text} className="h-20 w-full rounded-lg object-cover" /> : file ? <FileText size={26} /> : <Camera size={26} />}
+        <span>{busy ? "Préparation…" : file ? `${text} ✓ (changer)` : text}</span>
+      </label>
+      <input id={id} type="file" accept="image/*,application/pdf" className="sr-only" onChange={(e) => void pick(e.target.files?.[0])} />
+      {error && <p role="alert" className="mt-1 text-xs text-rose-dark">{error}</p>}
+    </div>
   );
 }

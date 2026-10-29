@@ -49,24 +49,41 @@ export function isValidPoint(p: Partial<LatLng> | null | undefined): p is LatLng
 }
 
 export type DeliveryQuote =
-  | { ok: true; distanceKm: number; fee: number; free: boolean; livreurShare: number }
+  | { ok: true; distanceKm: number; fee: number; free: boolean; livreurShare: number; /** Tranche de la grille appliquée. */ bracket?: number }
   | { ok: false; distanceKm: number; error: string };
 
 /** Frais de livraison pour un point de livraison et un montant de produits. */
 export function quoteDelivery(point: LatLng, productsTotal: number, model: BusinessModel): DeliveryQuote {
   const depot = { lat: model.depotLat, lng: model.depotLng };
-  const distanceKm = roadKm(depot, point);
-  if (model.deliveryMaxKm > 0 && distanceKm > model.deliveryMaxKm) {
-    return { ok: false, distanceKm, error: `Adresse trop éloignée (${distanceKm.toLocaleString("fr-FR")} km, maximum ${model.deliveryMaxKm} km). Choisissez le retrait chez votre consultant ou contactez-nous.` };
-  }
+  return quoteForDistance(roadKm(depot, point), productsTotal, model);
+}
+
+/**
+ * Tarif pour une distance routière : grille par tranches (prix client et commission livreur de la tranche)
+ * ou forfait + prix au km (commission = % des frais). Livraison offerte : le livreur reste payé au tarif normal.
+ */
+export function quoteForDistance(distanceKm: number, productsTotal: number, model: BusinessModel): DeliveryQuote {
+  const tooFar = (max: number) => ({ ok: false as const, distanceKm, error: `Adresse trop éloignée (${distanceKm.toLocaleString("fr-FR")} km, maximum ${max.toLocaleString("fr-FR")} km). Choisissez le retrait chez votre consultant ou contactez-nous.` });
+  if (model.deliveryMaxKm > 0 && distanceKm > model.deliveryMaxKm) return tooFar(model.deliveryMaxKm);
   const free = model.deliveryFreeAbove > 0 && productsTotal >= model.deliveryFreeAbove;
-  const extraKm = Math.max(0, distanceKm - model.deliveryIncludedKm);
-  const raw = model.deliveryBaseFee + extraKm * model.deliveryPerKm;
   const step = model.priceRounding > 0 ? model.priceRounding : 100;
-  const fee = free ? 0 : Math.round(raw / step) * step;
-  // Livraison offerte : le livreur reste payé sur le tarif normal (pris sur la marge JAMAAL).
-  const livreurShare = Math.round(((free ? Math.round(raw / step) * step : fee) * model.livreurSharePct) / 100);
-  return { ok: true, distanceKm, fee, free, livreurShare };
+  let normal: number;
+  let pay: number;
+  let bracket: number | undefined;
+  const grid = model.deliveryPricing === "GRILLE" ? model.deliveryGrid ?? [] : [];
+  if (grid.length) {
+    const i = grid.findIndex((b) => distanceKm <= b.upToKm);
+    if (i < 0) return tooFar(grid[grid.length - 1].upToKm);
+    bracket = i;
+    normal = grid[i].fee;
+    pay = grid[i].livreur > 0 ? grid[i].livreur : Math.round((normal * model.livreurSharePct) / 100);
+  } else {
+    const extraKm = Math.max(0, distanceKm - model.deliveryIncludedKm);
+    normal = Math.round((model.deliveryBaseFee + extraKm * model.deliveryPerKm) / step) * step;
+    pay = Math.round((normal * model.livreurSharePct) / 100);
+  }
+  const livreurShare = Math.max(pay, model.livreurMinPay ?? 0);
+  return { ok: true, distanceKm, fee: free ? 0 : normal, free, livreurShare, ...(bracket != null ? { bracket } : {}) };
 }
 
 /** Code de remise à 4 chiffres, donné par le client au livreur pour confirmer la livraison. */

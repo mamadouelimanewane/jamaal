@@ -21,6 +21,7 @@ before(async () => {
 });
 after(async () => {
   if (!enabled) return;
+  await m.prisma.walletTransaction.deleteMany({ where: { ownerType: "LIVREUR", ownerId: `${T}-l` } });
   await m.prisma.order.deleteMany({ where: { id: { startsWith: T } } });
   await m.prisma.livreur.deleteMany({ where: { id: { startsWith: T } } });
 });
@@ -51,4 +52,21 @@ test("trace GPS, alerte d'arrivée unique, preuve de remise et tournée", { skip
   assert.equal(o.deliveryStatus, "LIVREE");
   assert.ok(o.deliveredDistanceM! >= 38 && o.deliveredDistanceM! <= 42);
   assert.ok((await m.prisma.livreurPing.count({ where: { livreurId: L } })) >= 3);
+});
+
+test("paiement à la livraison : commande payée, espèces au débit, part du livreur créditée", { skip: !enabled }, async () => {
+  const L = `${T}-l`;
+  const id = `${T}-cod`;
+  await m.prisma.order.create({ data: { id, customerName: "Client COD", total: 20000, paymentMethod: "A_LA_LIVRAISON", deliveryMode: "LIVRAISON_JAMAAL", deliveryStatus: "EN_ROUTE", livreurId: L, livreurShare: 1400, deliveryLat: DEST.lat, deliveryLng: DEST.lng, deliveryCode: "5678", status: "EXPEDIEE" } });
+  await m.engine.advanceDelivery(id, "LIVREE", { kind: "livreur", livreurId: L }, { ...near(20), code: "5678" });
+  const o = await m.prisma.order.findUniqueOrThrow({ where: { id } });
+  assert.equal(o.paymentStatus, "PAYE");
+  const tx = await m.prisma.walletTransaction.findMany({ where: { ownerType: "LIVREUR", ownerId: L, orderId: id }, orderBy: { amount: "asc" } });
+  assert.deepEqual(tx.map((t) => [t.kind, t.amount]), [["ENCAISSEMENT", -20000], ["LIVRAISON", 1400]]);
+  // Rejouer ne double rien.
+  assert.equal(await m.engine.settleCashOnDelivery(id), 0);
+  const { walletBalance } = await import("../wallet");
+  const w = await walletBalance({ type: "LIVREUR", id: L });
+  // Commande « a » du test précédent (1 000 F, paiement à la livraison par défaut) comprise.
+  assert.equal(w.balance, -20000 + 1400 - 1000);
 });

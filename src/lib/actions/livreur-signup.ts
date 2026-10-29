@@ -10,13 +10,26 @@ import { clientIpFromHeaders, rateLimit } from "@/lib/rate-limit";
 import { accountsByPhone } from "@/lib/staff-accounts";
 import { phoneTail } from "@/lib/phone-match";
 import { notifyTeamWhatsApp } from "@/lib/whatsapp";
-import { LIVREUR_ACTIVE, LIVREUR_PENDING, parseLivreurSignup, vehicleLabel } from "@/lib/livreur-signup";
+import { LIVREUR_ACTIVE, LIVREUR_PENDING, LIVREUR_REFUSED, docFileError, idTypeLabel, needsVerso, parseLivreurSignup, sniffDocType, vehicleLabel } from "@/lib/livreur-signup";
 import { requireAdmin } from "./auth-guard";
 
 export type SignupState = { ok: boolean; error?: string; field?: string; name?: string; values?: Record<string, string>; n?: number } | null;
 
 /** Valeurs renvoyées au formulaire après une erreur (jamais les mots de passe). */
-const KEEP = ["name", "phone", "zone", "vehicle", "walletProvider", "walletNumber", "idNumber"] as const;
+const KEEP = ["name", "phone", "zone", "vehicle", "walletProvider", "walletNumber", "idType", "idNumber"] as const;
+
+type Doc = { side: "RECTO" | "VERSO"; mime: string; data: Uint8Array<ArrayBuffer> };
+
+/** Lit et contrôle une photo de pièce (taille, format annoncé et contenu réel du fichier). */
+async function readDoc(f: FormDataEntryValue | null, side: Doc["side"], what: string): Promise<Doc | string> {
+  const file = f instanceof File ? f : null;
+  const err = docFileError(file, what);
+  if (err) return err;
+  const data = new Uint8Array(await file!.arrayBuffer());
+  const mime = sniffDocType(data);
+  if (!mime) return `Photo ${what} illisible : reprenez la photo (JPEG, PNG ou PDF).`;
+  return { side, mime, data };
+}
 const keepValues = (f: FormData) => Object.fromEntries(KEEP.map((k) => [k, String(f.get(k) ?? "").slice(0, 120)]));
 
 /**
@@ -34,27 +47,44 @@ export async function registerLivreur(prev: SignupState, formData: FormData): Pr
   if (!check.ok) return fail(check.error, check.field);
   const d = check.data;
 
+  const recto = await readDoc(formData.get("idRecto"), "RECTO", "du recto");
+  if (typeof recto === "string") return fail(recto, "idRecto");
+  const docs: Doc[] = [recto];
+  if (needsVerso(d.idType)) {
+    const verso = await readDoc(formData.get("idVerso"), "VERSO", "du verso");
+    if (typeof verso === "string") return fail(verso, "idVerso");
+    docs.push(verso);
+  }
+
   const tail = phoneTail(d.phone);
   const [accounts, sameLivreur] = await Promise.all([
     accountsByPhone(d.phone),
-    prisma.$queryRaw<{ status: string }[]>`SELECT status FROM "Livreur" WHERE right(regexp_replace(phone, '[^0-9]', '', 'g'), 9) = ${tail} LIMIT 1`,
+    prisma.$queryRaw<{ id: string; status: string }[]>`SELECT id, status FROM "Livreur" WHERE right(regexp_replace(phone, '[^0-9]', '', 'g'), 9) = ${tail} LIMIT 1`,
   ]);
   if (sameLivreur[0]?.status === LIVREUR_PENDING) return fail("Une inscription avec ce numéro est déjà en cours de validation. Vous serez prévenu sur WhatsApp.", "phone");
-  if (accounts.length || sameLivreur.length) return fail("Ce numéro a déjà un compte JAMAAL : connectez-vous avec « J'ai déjà un compte ».", "phone");
+  // Inscription refusée auparavant : le livreur peut se réinscrire (l'ancienne demande est effacée).
+  const refusedId = sameLivreur[0]?.status === LIVREUR_REFUSED ? sameLivreur[0].id : null;
+  const others = accounts.filter((a) => !(refusedId && a.role === "LIVREUR"));
+  if (others.length || (sameLivreur.length && !refusedId)) return fail("Ce numéro a déjà un compte JAMAAL : connectez-vous avec « J'ai déjà un compte ».", "phone");
 
   const passwordHash = await bcrypt.hash(d.password, 10);
   try {
     await prisma.$transaction(async (tx) => {
+      if (refusedId) {
+        await tx.user.deleteMany({ where: { livreurId: refusedId } });
+        await tx.livreur.delete({ where: { id: refusedId } });
+      }
       const l = await tx.livreur.create({
-        data: { name: d.name, phone: d.phone, active: false, status: LIVREUR_PENDING, vehicle: d.vehicle, zone: d.zone, idNumber: d.idNumber, walletProvider: d.walletProvider, walletNumber: d.walletNumber },
+        data: { name: d.name, phone: d.phone, active: false, status: LIVREUR_PENDING, vehicle: d.vehicle, zone: d.zone, idType: d.idType, idNumber: d.idNumber, walletProvider: d.walletProvider, walletNumber: d.walletNumber },
       });
       await tx.user.create({ data: { name: d.name, phone: d.phone, passwordHash, role: Role.LIVREUR, active: false, livreurId: l.id } });
-    });
+      await tx.livreurDocument.createMany({ data: docs.map((doc) => ({ livreurId: l.id, kind: d.idType, side: doc.side, mime: doc.mime, size: doc.data.byteLength, data: doc.data })) });
+    }, { timeout: 20_000 });
   } catch {
     return fail("Ce numéro a déjà un compte JAMAAL : connectez-vous avec « J'ai déjà un compte ».", "phone");
   }
 
-  const msg = `${d.name} (${d.phone}) · ${vehicleLabel(d.vehicle)} · ${d.zone}`;
+  const msg = `${d.name} (${d.phone}) · ${vehicleLabel(d.vehicle)} · ${d.zone} · ${idTypeLabel(d.idType)} fournie`;
   const admins = await prisma.user.findMany({ where: { role: "ADMIN", active: true }, select: { id: true }, take: 30 });
   if (admins.length) await prisma.notification.createMany({ data: admins.map((a) => ({ userId: a.id, title: "Nouveau livreur à valider 🛵", message: `${msg}. À valider dans Livraison › Livreurs.` })) }).catch(() => {});
   notifyTeamWhatsApp(`🛵 Nouvelle inscription livreur à valider : ${msg}.`);
@@ -62,25 +92,75 @@ export async function registerLivreur(prev: SignupState, formData: FormData): Pr
   return { ok: true, name: d.name.split(" ")[0] };
 }
 
-/** Validation par l'administrateur : la fiche devient active et le livreur peut se connecter. */
+/** Validation par l'administrateur : pièce d'identité contrôlée, la fiche devient active et le livreur peut se connecter. */
 export async function approveLivreur(id: string) {
   await requireAdmin("livraison");
-  const l = await prisma.livreur.findUnique({ where: { id }, select: { id: true } });
+  const l = await prisma.livreur.findUnique({ where: { id }, select: { id: true, _count: { select: { documents: true } } } });
   if (!l) redirect("/admin/livreurs");
+  if (!l._count.documents) redirect("/admin/livreurs?erreur=piece");
   await prisma.$transaction([
-    prisma.livreur.update({ where: { id }, data: { active: true, status: LIVREUR_ACTIVE } }),
+    prisma.livreur.update({ where: { id }, data: { active: true, status: LIVREUR_ACTIVE, docsVerifiedAt: new Date(), rejectReason: null } }),
     prisma.user.updateMany({ where: { livreurId: id }, data: { active: true } }),
   ]);
   revalidatePath("/admin/livreurs");
   redirect(`/admin/livreurs?valide=${encodeURIComponent(id)}`);
 }
 
-/** Refus : l'inscription est supprimée (le numéro pourra se réinscrire plus tard). */
-export async function rejectLivreur(id: string) {
+/**
+ * Refus avec un motif : le compte reste bloqué, les photos de la pièce sont effacées aussitôt.
+ * Le livreur pourra se réinscrire avec le même numéro.
+ */
+export async function rejectLivreur(id: string, formData: FormData) {
   await requireAdmin("livraison");
-  const l = await prisma.livreur.findUnique({ where: { id }, select: { status: true, _count: { select: { orders: true } } } });
-  if (!l || l.status !== LIVREUR_PENDING || l._count.orders) redirect("/admin/livreurs");
-  await prisma.$transaction([prisma.user.deleteMany({ where: { livreurId: id } }), prisma.livreur.delete({ where: { id } })]);
+  const reason = String(formData.get("reason") ?? "").trim().slice(0, 200) || "Dossier incomplet";
+  const l = await prisma.livreur.findUnique({ where: { id }, select: { status: true } });
+  if (!l || l.status !== LIVREUR_PENDING) redirect("/admin/livreurs");
+  await prisma.$transaction([
+    prisma.livreurDocument.deleteMany({ where: { livreurId: id } }),
+    prisma.livreur.update({ where: { id }, data: { status: LIVREUR_REFUSED, active: false, rejectReason: reason } }),
+    prisma.user.updateMany({ where: { livreurId: id }, data: { active: false } }),
+  ]);
   revalidatePath("/admin/livreurs");
-  redirect("/admin/livreurs?refuse=1");
+  redirect(`/admin/livreurs?refuse=${encodeURIComponent(id)}`);
+}
+
+/** Suspension / réactivation d'un livreur validé (connexion coupée aussitôt). */
+export async function setLivreurSuspended(id: string, suspended: boolean) {
+  await requireAdmin("livraison");
+  const l = await prisma.livreur.findUnique({ where: { id }, select: { status: true, _count: { select: { documents: true } } } });
+  if (!l || l.status !== LIVREUR_ACTIVE) redirect("/admin/livreurs");
+  if (!suspended && !l._count.documents) redirect("/admin/livreurs?erreur=piece");
+  await prisma.$transaction([
+    prisma.livreur.update({ where: { id }, data: { active: !suspended } }),
+    prisma.user.updateMany({ where: { livreurId: id }, data: { active: !suspended } }),
+  ]);
+  revalidatePath("/admin/livreurs");
+  redirect("/admin/livreurs");
+}
+
+export type DocUploadState = { ok: boolean; error?: string } | null;
+
+/** Admin : ajoute la pièce d'identité d'un livreur créé avant l'obligation (ou la remplace). */
+export async function uploadLivreurDocuments(id: string, _prev: DocUploadState, formData: FormData): Promise<DocUploadState> {
+  await requireAdmin("livraison");
+  const kind = String(formData.get("idType") ?? "").toUpperCase();
+  const idNumber = String(formData.get("idNumber") ?? "").trim().toUpperCase().slice(0, 40);
+  if (!["CNI", "PASSEPORT", "PERMIS"].includes(kind)) return { ok: false, error: "Choisissez le type de pièce." };
+  if (idNumber.replace(/[^0-9A-Z]/g, "").length < 5) return { ok: false, error: "Indiquez le numéro de la pièce." };
+  const recto = await readDoc(formData.get("idRecto"), "RECTO", "du recto");
+  if (typeof recto === "string") return { ok: false, error: recto };
+  const docs: Doc[] = [recto];
+  if (needsVerso(kind)) {
+    const verso = await readDoc(formData.get("idVerso"), "VERSO", "du verso");
+    if (typeof verso === "string") return { ok: false, error: verso };
+    docs.push(verso);
+  }
+  await prisma.$transaction([
+    prisma.livreurDocument.deleteMany({ where: { livreurId: id } }),
+    prisma.livreurDocument.createMany({ data: docs.map((doc) => ({ livreurId: id, kind, side: doc.side, mime: doc.mime, size: doc.data.byteLength, data: doc.data })) }),
+    prisma.livreur.update({ where: { id }, data: { idType: kind, idNumber, docsVerifiedAt: new Date() } }),
+  ]);
+  revalidatePath("/admin/livreurs");
+  revalidatePath(`/admin/livreurs/${id}/modifier`);
+  return { ok: true };
 }

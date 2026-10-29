@@ -31,6 +31,8 @@ export const KIND_LABELS: Record<string, string> = {
   PAIEMENT: "Paiement d'une commande",
   ANNULATION: "Annulation",
   AJUSTEMENT: "Ajustement JAMAAL",
+  ENCAISSEMENT: "Espèces encaissées (à reverser)",
+  REVERSEMENT: "Espèces reversées à JAMAAL",
 };
 export const STATUS_LABELS: Record<string, string> = { EN_ATTENTE: "En attente", VALIDE: "Validé", ECHEC: "Échec", ANNULE: "Annulé" };
 

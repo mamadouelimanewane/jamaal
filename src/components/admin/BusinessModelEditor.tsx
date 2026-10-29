@@ -3,11 +3,12 @@
 import { useActionState, useState } from "react";
 import { Banknote, Bike, Calculator, CircleCheck, CircleAlert, CreditCard, Percent, Plus, Tag, Trash2, Trophy, Truck } from "lucide-react";
 import { DeliveryMap } from "@/components/maps/DeliveryMap";
-import { quoteDelivery } from "@/lib/delivery";
+import { quoteForDistance } from "@/lib/delivery";
 import {
   productMargin,
   salePriceFromPublic,
   type BusinessModel,
+  type DeliveryBracket,
   type PrimeTier,
 } from "@/lib/business-model";
 import {
@@ -61,7 +62,8 @@ type NumKey =
   | "deliveryPerKm"
   | "deliveryMaxKm"
   | "deliveryFreeAbove"
-  | "livreurSharePct";
+  | "livreurSharePct"
+  | "livreurMinPay";
 
 function NumberField({
   label,
@@ -98,6 +100,53 @@ function NumberField({
       </div>
       {hint && <span className="mt-1.5 block text-xs font-normal text-navy/75">{hint}</span>}
     </label>
+  );
+}
+
+/** Grille de livraison : une ligne par tranche de distance (prix client, commission livreur, marge JAMAAL). */
+function DeliveryGridEditor({ grid, onChange, sharePct }: { grid: DeliveryBracket[]; onChange: (g: DeliveryBracket[]) => void; sharePct: number }) {
+  const upd = (i: number, k: keyof DeliveryBracket, v: number) => onChange(grid.map((b, j) => (j === i ? { ...b, [k]: v } : b)));
+  const cell = "w-full rounded-lg border border-line bg-white px-2 py-2 text-right text-sm font-medium text-ink outline-none focus:border-navy";
+  return (
+    <div>
+      <div className="overflow-x-auto rounded-xl border border-line">
+        <table className="w-full min-w-[440px] text-sm">
+          <thead className="bg-cream text-left text-xs uppercase text-navy/75">
+            <tr>
+              <th className="px-2 py-2">Jusqu&apos;à (km)</th>
+              <th className="px-2 py-2">Prix client (F)</th>
+              <th className="px-2 py-2">Livreur (F)</th>
+              <th className="px-2 py-2 text-right">JAMAAL</th>
+              <th className="px-1 py-2"><span className="sr-only">Supprimer</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            {grid.map((b, i) => {
+              const pay = b.livreur > 0 ? b.livreur : Math.round((b.fee * sharePct) / 100);
+              const prev = i ? grid[i - 1].upToKm : 0;
+              return (
+                <tr key={i} className="border-t border-line">
+                  <td className="px-2 py-1.5">
+                    <input aria-label={`Tranche ${i + 1} : distance maximale`} type="number" step="0.5" min={0.5} name="gridUpToKm" value={b.upToKm} onChange={(e) => upd(i, "upToKm", Number(e.target.value))} className={cell} />
+                    <span className="mt-0.5 block text-[11px] text-navy/60">de {prev.toLocaleString("fr-FR")} à {b.upToKm.toLocaleString("fr-FR")} km</span>
+                  </td>
+                  <td className="px-2 py-1.5"><input aria-label={`Tranche ${i + 1} : prix client`} type="number" step="100" min={0} name="gridFee" value={b.fee} onChange={(e) => upd(i, "fee", Number(e.target.value))} className={cell} /></td>
+                  <td className="px-2 py-1.5"><input aria-label={`Tranche ${i + 1} : commission livreur`} type="number" step="100" min={0} name="gridLivreur" value={b.livreur} onChange={(e) => upd(i, "livreur", Number(e.target.value))} className={cell} />{b.livreur === 0 && <span className="mt-0.5 block text-[11px] text-navy/60">{sharePct} % = {fcfa(pay)}</span>}</td>
+                  <td className={`px-2 py-1.5 text-right font-semibold ${b.fee - pay < 0 ? "text-red-700" : "text-ink"}`}>{fcfa(b.fee - pay)}</td>
+                  <td className="px-1 py-1.5 text-right">
+                    <button type="button" onClick={() => onChange(grid.filter((_, j) => j !== i))} disabled={grid.length <= 1} aria-label={`Supprimer la tranche ${i + 1}`} className="rounded-lg p-1.5 text-navy/60 hover:bg-cream hover:text-red-700 disabled:opacity-30"><Trash2 size={15} /></button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <button type="button" onClick={() => { const last = grid[grid.length - 1]; onChange([...grid, { upToKm: (last?.upToKm ?? 0) + 5, fee: (last?.fee ?? 1000) + 500, livreur: last?.livreur ? last.livreur + 350 : 0 }]); }} className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-sm font-semibold text-navy hover:bg-cream">
+        <Plus size={15} /> Ajouter une tranche
+      </button>
+      <p className="mt-1.5 text-xs text-navy/70">Au-delà de la dernière tranche, l&apos;adresse est hors zone. Commission livreur à 0 : la part en % s&apos;applique.</p>
+    </div>
   );
 }
 
@@ -610,8 +659,8 @@ export function BusinessModelEditor({
           </div>
         </section>
 
-        <section className={card}>
-          <SectionTitle icon={Bike} title="Livraison" text="Dépôt de départ, frais facturés au client selon la distance, et part reversée au livreur." tone="#9b5c4d" />
+        <section id="livraison" className={`${card} scroll-mt-24`}>
+          <SectionTitle icon={Bike} title="Livraison : tarifs et commission livreur" text="Dépôt de départ, frais facturés au client selon la distance, et part reversée au livreur." tone="#9b5c4d" />
           <div className="mt-5 grid gap-6 lg:grid-cols-2">
             <div>
               <label className="block text-sm font-medium text-ink">
@@ -626,19 +675,64 @@ export function BusinessModelEditor({
               <input type="hidden" name="depotLng" value={model.depotLng} />
               <p className="mt-1 text-xs text-navy/70">{model.depotLat.toFixed(5)}, {model.depotLng.toFixed(5)}</p>
             </div>
-            <div className="grid grid-cols-2 content-start gap-4">
-              <NumberField label="Forfait de livraison" name="deliveryBaseFee" value={model.deliveryBaseFee} onChange={set} suffix="F" step="100" />
-              <NumberField label="Km inclus dans le forfait" name="deliveryIncludedKm" value={model.deliveryIncludedKm} onChange={set} suffix="km" step="0.5" />
-              <NumberField label="Prix par km au-delà" name="deliveryPerKm" value={model.deliveryPerKm} onChange={set} suffix="F" step="50" />
-              <NumberField label="Distance maximale" name="deliveryMaxKm" value={model.deliveryMaxKm} onChange={set} suffix="km" step="1" hint="0 = sans limite" />
-              <NumberField label="Livraison offerte dès" name="deliveryFreeAbove" value={model.deliveryFreeAbove} onChange={set} suffix="F" step="1000" hint="0 = jamais" />
-              <NumberField label="Part du livreur" name="livreurSharePct" value={model.livreurSharePct} onChange={set} suffix="%" step="1" hint="des frais de livraison" />
-              <div className="col-span-2 rounded-xl bg-cream px-4 py-3 text-sm text-navy/85">
-                Exemples (distance par la route) :{" "}
-                {[3, 8, 15].map((km, i) => {
-                  const q = quoteDelivery({ lat: model.depotLat, lng: model.depotLng + km / (111.32 * Math.cos((model.depotLat * Math.PI) / 180) * 1.35) }, 0, live);
-                  return <span key={km}>{i ? " · " : ""}{km} km → <strong>{q.ok ? fcfa(q.fee) : "hors zone"}</strong>{q.ok && q.livreurShare ? ` (livreur ${fcfa(q.livreurShare)})` : ""}</span>;
-                })}
+            <div className="content-start space-y-4">
+              <fieldset>
+                <legend className="text-sm font-medium text-ink">Calcul des frais de livraison</legend>
+                <div className="mt-2 grid grid-cols-2 gap-2">
+                  {([["KM", "Forfait + prix au km"], ["GRILLE", "Grille par distance"]] as const).map(([v, label]) => (
+                    <label key={v} className={`flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-semibold ${model.deliveryPricing === v ? "border-navy bg-navy text-white" : "border-line text-ink"}`}>
+                      <input type="radio" name="deliveryPricing" value={v} checked={model.deliveryPricing === v} onChange={() => setModel((m) => ({ ...m, deliveryPricing: v }))} className="sr-only" />
+                      {label}
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+
+              {model.deliveryPricing === "GRILLE" ? (
+                <DeliveryGridEditor grid={model.deliveryGrid} onChange={(g) => setModel((m) => ({ ...m, deliveryGrid: g }))} sharePct={model.livreurSharePct} />
+              ) : (
+                <>
+                  <div className="grid grid-cols-2 gap-4">
+                    <NumberField label="Forfait de livraison" name="deliveryBaseFee" value={model.deliveryBaseFee} onChange={set} suffix="F" step="100" />
+                    <NumberField label="Km inclus dans le forfait" name="deliveryIncludedKm" value={model.deliveryIncludedKm} onChange={set} suffix="km" step="0.5" />
+                    <NumberField label="Prix par km au-delà" name="deliveryPerKm" value={model.deliveryPerKm} onChange={set} suffix="F" step="50" />
+                  </div>
+                  {/* Grille conservée telle quelle quand on calcule au km */}
+                  {model.deliveryGrid.map((b, i) => (
+                    <span key={i} hidden>
+                      <input type="hidden" name="gridUpToKm" value={b.upToKm} />
+                      <input type="hidden" name="gridFee" value={b.fee} />
+                      <input type="hidden" name="gridLivreur" value={b.livreur} />
+                    </span>
+                  ))}
+                </>
+              )}
+              {model.deliveryPricing === "GRILLE" && (
+                <>
+                  <input type="hidden" name="deliveryBaseFee" value={model.deliveryBaseFee} />
+                  <input type="hidden" name="deliveryIncludedKm" value={model.deliveryIncludedKm} />
+                  <input type="hidden" name="deliveryPerKm" value={model.deliveryPerKm} />
+                </>
+              )}
+              <div className="grid grid-cols-2 gap-4">
+                <NumberField label="Distance maximale" name="deliveryMaxKm" value={model.deliveryMaxKm} onChange={set} suffix="km" step="1" hint="0 = sans limite" />
+                <NumberField label="Livraison offerte dès" name="deliveryFreeAbove" value={model.deliveryFreeAbove} onChange={set} suffix="F" step="1000" hint="0 = jamais (le livreur reste payé)" />
+                <NumberField label="Part du livreur" name="livreurSharePct" value={model.livreurSharePct} onChange={set} suffix="%" step="1" hint={model.deliveryPricing === "GRILLE" ? "si la tranche n'a pas de commission fixe" : "des frais de livraison"} />
+                <NumberField label="Commission minimale livreur" name="livreurMinPay" value={model.livreurMinPay} onChange={set} suffix="F" step="100" hint="par course · 0 = aucune" />
+              </div>
+              <div className="rounded-xl bg-cream px-4 py-3 text-sm text-navy/85">
+                <p className="font-semibold text-ink">Simulation (distance par la route)</p>
+                <ul className="mt-1 grid gap-x-4 gap-y-0.5 sm:grid-cols-2">
+                  {[2, 5, 8, 12, 20, 35].map((km) => {
+                    const q = quoteForDistance(km, 0, live);
+                    return (
+                      <li key={km}>
+                        {km} km → <strong>{q.ok ? fcfa(q.fee) : "hors zone"}</strong>
+                        {q.ok ? ` · livreur ${fcfa(q.livreurShare)} · JAMAAL ${fcfa(q.fee - q.livreurShare)}` : ""}
+                      </li>
+                    );
+                  })}
+                </ul>
               </div>
             </div>
           </div>

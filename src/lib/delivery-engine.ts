@@ -3,6 +3,8 @@
  * Fichier serveur uniquement (appelé par les actions protégées admin / livreur).
  */
 import { creditLivreurEarnings } from "@/lib/wallet";
+import { balanceOf } from "@/lib/reservation";
+import { takeOrderStock } from "@/lib/stock";
 import { after } from "next/server";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
@@ -179,12 +181,37 @@ async function afterStep(orderId: string, to: DeliveryStatus, order: StepOrder) 
   if (to === "LIVREE") {
     // Chaque effet est indépendant : l'échec d'une notification ne bloque pas les versements.
     const safely = (label: string, fn: () => Promise<unknown>) => fn().catch((e) => console.error(`[livraison] ${label}`, orderId, e));
+    // Paiement à la livraison : le livreur a encaissé, la commande est payée et l'argent est à reverser.
+    await safely("encaissement", () => settleCashOnDelivery(orderId));
     await safely("commissions", () => runPayoutsForOrder(orderId));
     await safely("part livreur", () => recordLivreurEarning(orderId));
     await safely("consultant", () => notifyConsultantOfDelivery(orderId));
     // Livré chez le vendeur : il est déjà prévenu par la notification consultant ci-dessus.
     if (!atVendor && contactPhone) await safely("client", () => sendWhatsApp({ to: contactPhone, kind: "client", text: `Merci ${contactName} ! Votre commande JAMAAL a bien été livrée. À très vite.` }));
   }
+}
+
+/**
+ * Commande « paiement à la livraison » remise par le livreur : marquée payée, stock prélevé, et le montant
+ * encaissé est inscrit en débit sur le wallet du livreur (espèces qu'il doit reverser à JAMAAL).
+ * Sa part de livraison est créditée à côté : le solde montre ce qu'il reste à reverser ou à recevoir.
+ */
+export async function settleCashOnDelivery(orderId: string): Promise<number> {
+  const o = await prisma.order.findUnique({
+    where: { id: orderId },
+    select: { paymentMethod: true, paymentStatus: true, total: true, isReservation: true, depositAmount: true, depositPaidAt: true, livreurId: true, deliveryStatus: true, status: true },
+  });
+  if (!o || !o.livreurId || o.paymentStatus === "PAYE" || o.paymentMethod !== "A_LA_LIVRAISON" || o.deliveryStatus !== "LIVREE" || o.status === "ANNULEE") return 0;
+  const amount = balanceOf(o);
+  const res = await prisma.order.updateMany({ where: { id: orderId, paymentStatus: { not: "PAYE" } }, data: { paymentStatus: "PAYE", paidAt: new Date(), paymentRef: `cod:${o.livreurId}` } });
+  if (!res.count || amount <= 0) return 0;
+  await prisma.walletTransaction.upsert({
+    where: { sourceId: `cod:${orderId}` },
+    update: {},
+    create: { ownerType: "LIVREUR", ownerId: o.livreurId, amount: -amount, kind: "ENCAISSEMENT", sourceId: `cod:${orderId}`, orderId, note: `Espèces encaissées · commande ${orderId.slice(-8).toUpperCase()} (à reverser)` },
+  });
+  await takeOrderStock(orderId, null).catch((e) => console.error("[livraison] stock", orderId, e));
+  return amount;
 }
 
 /** Enregistre la part du livreur sur une livraison effectuée, puis la verse sur son wallet. */

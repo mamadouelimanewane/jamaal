@@ -588,8 +588,14 @@ model Livreur {
   vehicle  String?
   /// Quartiers / zone de livraison indiqués à l'inscription.
   zone     String?
-  /// N° de pièce d'identité (facultatif, vérifié par l'administrateur).
+  /// N° de pièce d'identité, vérifié par l'administrateur.
   idNumber String?
+  /// Type de pièce : CNI, PASSEPORT ou PERMIS.
+  idType   String?
+  /// Pièce contrôlée par l'administrateur (date de validation).
+  docsVerifiedAt DateTime?
+  rejectReason   String?
+  documents LivreurDocument[]
 
   user     User?
   orders   Order[]
@@ -959,6 +965,23 @@ model DeliveryEvent {
   createdAt DateTime @default(now())
 
   @@index([orderId])
+}
+
+/// Pièce d'identité d'un livreur (image ou PDF), lue uniquement par les administrateurs.
+model LivreurDocument {
+  id        String   @id @default(cuid())
+  livreurId String
+  livreur   Livreur  @relation(fields: [livreurId], references: [id], onDelete: Cascade)
+  /// CNI, PASSEPORT, PERMIS
+  kind      String
+  /// RECTO ou VERSO
+  side      String   @default("RECTO")
+  mime      String
+  size      Int
+  data      Bytes
+  createdAt DateTime @default(now())
+
+  @@index([livreurId])
 }
 
 /// Trace GPS d'un livreur pendant ses tournées (conservée 30 jours).

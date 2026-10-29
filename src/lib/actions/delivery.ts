@@ -41,8 +41,9 @@ export async function livreurAdvanceDelivery(
 /** L'admin attribue (ou réattribue) un livreur. */
 export async function assignLivreurAction(orderId: string, livreurId: string): Promise<DeliveryActionResult> {
   const session = await requireAdmin("livraison");
-  const livreur = await prisma.livreur.findFirst({ where: { id: livreurId, active: true }, select: { id: true, name: true } });
+  const livreur = await prisma.livreur.findFirst({ where: { id: livreurId, active: true }, select: { id: true, name: true, _count: { select: { documents: true } } } });
   if (!livreur) return { ok: false, error: "Livreur introuvable ou inactif." };
+  if (!livreur._count.documents) return { ok: false, error: `Pièce d'identité de ${livreur.name} manquante : ajoutez-la dans Livreurs › Modifier avant de lui confier une course.` };
   try {
     await advanceDelivery(orderId, "ASSIGNEE", { kind: "admin" }, { livreurId: livreur.id, note: `Attribuée à ${livreur.name}` });
     await logActivity(session, `Livraison attribuée à ${livreur.name}`, "Order", orderId);
@@ -90,4 +91,21 @@ export async function updateLivreurWallet(_prev: LivreurWalletState, formData: F
   await prisma.livreur.update({ where: { id: livreur.id }, data: { walletProvider: provider, walletNumber: number } });
   revalidatePath("/admin/mes-livraisons");
   return { ok: true };
+}
+
+export type CashState = { ok: boolean; error?: string; message?: string } | null;
+
+/** L'admin enregistre les espèces reversées par un livreur (remet son wallet à niveau). */
+export async function recordCashRemittance(livreurId: string, _prev: CashState, formData: FormData): Promise<CashState> {
+  const session = await requireAdmin("livraison");
+  const amount = Math.round(Number(String(formData.get("amount") ?? "").replace(/\s/g, "")));
+  if (!Number.isFinite(amount) || amount <= 0 || amount > 10_000_000) return { ok: false, error: "Montant invalide." };
+  const l = await prisma.livreur.findUnique({ where: { id: livreurId }, select: { name: true } });
+  if (!l) return { ok: false, error: "Livreur introuvable." };
+  const note = String(formData.get("note") ?? "").trim().slice(0, 120);
+  await prisma.walletTransaction.create({ data: { ownerType: "LIVREUR", ownerId: livreurId, amount, kind: "REVERSEMENT", note: note || "Espèces reversées à JAMAAL", createdBy: session.user?.id ?? null } });
+  await logActivity(session, `Espèces reçues de ${l.name} : ${amount} F`, "Livreur", livreurId);
+  revalidatePath("/admin/livreurs");
+  revalidatePath(`/admin/livreurs/${livreurId}/modifier`);
+  return { ok: true, message: `${amount.toLocaleString("fr-FR")} F enregistrés.` };
 }

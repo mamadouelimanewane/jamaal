@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "./auth-guard";
 import { logActivity } from "@/lib/activity-log";
 import { getBusinessModel, saveBusinessModel } from "@/lib/business-model-store";
-import { normalizeBusinessModel, salePriceFromPublic, type BusinessModel, type PrimeTier } from "@/lib/business-model";
+import { normalizeBusinessModel, normalizeGrid, salePriceFromPublic, type BusinessModel, type PrimeTier } from "@/lib/business-model";
 import { invalidateSearchIndex } from "@/lib/search-index";
 
 export type BusinessModelState = { ok: boolean; message?: string; error?: string };
@@ -26,6 +26,8 @@ const PCT_FIELDS = [
   "foreignPartnerPct",
   "localPartnerPct",
 ] as const;
+
+const readNum = (v: FormDataEntryValue | undefined) => Number(String(v ?? "").replace(",", ".").replace(/\s/g, ""));
 
 function readNumber(formData: FormData, name: string): number {
   const raw = String(formData.get(name) ?? "").replace(",", ".").replace(/\s/g, "");
@@ -94,6 +96,19 @@ export async function saveBusinessModelAction(_prev: BusinessModelState, formDat
     const v = readNumber(formData, key);
     if (!Number.isFinite(v) || v < 0 || (key === "livreurSharePct" && v > 100)) return { ok: false, error: "Valeur de livraison invalide." };
     input[key] = v;
+  }
+
+  const minPay = readNumber(formData, "livreurMinPay");
+  input.livreurMinPay = Number.isFinite(minPay) && minPay > 0 ? Math.round(minPay) : 0;
+  input.deliveryPricing = formData.get("deliveryPricing") === "GRILLE" ? "GRILLE" : "KM";
+  {
+    const ups = formData.getAll("gridUpToKm");
+    const fees = formData.getAll("gridFee");
+    const pays = formData.getAll("gridLivreur");
+    const grid = normalizeGrid(ups.map((u, i) => ({ upToKm: readNum(u), fee: readNum(fees[i]), livreur: readNum(pays[i]) })));
+    if (input.deliveryPricing === "GRILLE" && !grid.length) return { ok: false, error: "Grille de livraison vide : ajoutez au moins une tranche." };
+    if (grid.some((b) => b.livreur > b.fee && b.fee > 0)) return { ok: false, error: "Dans la grille, la commission du livreur dépasse le prix d'une tranche : vérifiez les montants." };
+    if (grid.length) input.deliveryGrid = grid;
   }
 
   const thresholds = formData.getAll("tierThreshold");
