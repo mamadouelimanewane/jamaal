@@ -3,6 +3,13 @@ import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/currency";
 import { DELIVERY_LABELS, type DeliveryStatus } from "@/lib/delivery";
 import { DeliveryAdminActions } from "./AssignLivreurForm";
+import { OrderDeliveryMap } from "./OrderDeliveryMap";
+import { getBusinessModel } from "@/lib/business-model-store";
+import { isValidPoint } from "@/lib/delivery";
+import { DELIVERY_FAR_M, ago, distanceM, isFresh } from "@/lib/geo-track";
+import { orderTrail } from "@/lib/livreur-tracking";
+
+const formatDistance = (m: number) => (m < 1000 ? `${m} m` : `${(m / 1000).toLocaleString("fr-FR", { maximumFractionDigits: 1 })} km`);
 
 /** Livraison d'une commande : étape, livreur, code, frais et historique géolocalisé. */
 export async function OrderDeliveryPanel({ orderId }: { orderId: string }) {
@@ -21,13 +28,24 @@ export async function OrderDeliveryPanel({ orderId }: { orderId: string }) {
       deliveryContactPhone: true,
       deliveryApprox: true,
       deliveryPlace: true,
-      livreur: { select: { name: true, phone: true } },
+      deliveryLat: true,
+      deliveryLng: true,
+      deliveredDistanceM: true,
+      livreur: { select: { name: true, phone: true, lastLat: true, lastLng: true, lastSeenAt: true } },
       deliveryEvents: { orderBy: { createdAt: "asc" }, include: { livreur: { select: { name: true } } } },
     },
   });
   if (!order || order.deliveryMode !== "LIVRAISON_JAMAAL" || !order.deliveryStatus) return null;
   const status = order.deliveryStatus as DeliveryStatus;
   const active = !["LIVREE", "A_PREPARER", "ECHEC"].includes(status);
+  const [model, trail] = await Promise.all([getBusinessModel(), orderTrail(orderId, 400).catch(() => [])]);
+  const dest = isValidPoint({ lat: order.deliveryLat ?? NaN, lng: order.deliveryLng ?? NaN }) ? { lat: order.deliveryLat!, lng: order.deliveryLng! } : null;
+  const located = order.deliveryEvents.filter((e) => e.lat != null && e.lng != null);
+  const mapEvents = located.map((e, i) => ({ id: e.id, n: i + 1, lat: e.lat!, lng: e.lng!, label: `${i + 1}. ${DELIVERY_LABELS[e.status as DeliveryStatus] ?? e.status} · ${e.createdAt.toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" })}` }));
+  const eventNo = new Map(located.map((e, i) => [e.id, i + 1]));
+  const l = order.livreur;
+  const livreurPos = active && l?.lastLat != null && l.lastLng != null ? { lat: l.lastLat, lng: l.lastLng, stale: !isFresh(l.lastSeenAt), label: `${l.name} · ${ago(l.lastSeenAt)}` } : null;
+  const far = order.deliveredDistanceM != null && order.deliveredDistanceM > DELIVERY_FAR_M;
 
   return (
     <div className="mt-6 rounded-2xl border border-line bg-white p-5">
@@ -47,6 +65,21 @@ export async function OrderDeliveryPanel({ orderId }: { orderId: string }) {
           <strong>Position approximative</strong>{order.deliveryPlace ? ` (${order.deliveryPlace})` : ""} : estimée à partir d&apos;une adresse écrite. Le livreur doit appeler le destinataire avant de partir.
         </p>
       )}
+      {status === "LIVREE" && (
+        <p className={`mt-3 rounded-xl px-3 py-2 text-sm ${order.deliveredDistanceM == null ? "bg-cream text-navy/80" : far ? "bg-red-50 text-red-900" : "bg-emerald-50 text-emerald-900"}`}>
+          {order.deliveredDistanceM == null
+            ? "Remise sans position GPS (confirmée par l'équipe ou GPS coupé)."
+            : far
+              ? `⚠️ Livraison confirmée à ${(order.deliveredDistanceM / 1000).toLocaleString("fr-FR", { maximumFractionDigits: 1 })} km de l'adresse : à vérifier avec le client.`
+              : `📍 Livraison confirmée sur place (à ${order.deliveredDistanceM} m de l'adresse).`}
+        </p>
+      )}
+      {(dest || mapEvents.length > 0 || livreurPos) && (
+        <div className="mt-4">
+          <OrderDeliveryMap depot={{ lat: model.depotLat, lng: model.depotLng, label: model.depotLabel }} destination={dest} events={mapEvents} trail={trail.map((p) => [p.lat, p.lng] as [number, number])} livreur={livreurPos} />
+          <p className="mt-1.5 text-xs text-navy/65">Repères numérotés : position du livreur à chaque étape · trait vert : trajet suivi pendant la livraison.</p>
+        </div>
+      )}
       {(status === "A_PREPARER" || status === "ECHEC") && (
         <p className="mt-3 text-sm"><Link href="/admin/livraisons" className="font-semibold text-rose-dark hover:underline">Attribuer un livreur dans « Livraisons »</Link></p>
       )}
@@ -62,7 +95,7 @@ export async function OrderDeliveryPanel({ orderId }: { orderId: string }) {
             <span className="text-navy/75">
               {e.createdAt.toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" })}
               {e.lat != null && e.lng != null && (
-                <> · <a href={`https://www.google.com/maps?q=${e.lat},${e.lng}`} target="_blank" rel="noopener noreferrer" className="font-semibold text-rose-dark hover:underline">position</a></>
+                <> · <a href={`https://www.google.com/maps?q=${e.lat},${e.lng}`} target="_blank" rel="noopener noreferrer" className="font-semibold text-rose-dark hover:underline">position {eventNo.get(e.id)}</a>{dest ? ` (${formatDistance(distanceM({ lat: e.lat, lng: e.lng }, dest))} de l'adresse)` : ""}</>
               )}
             </span>
           </li>

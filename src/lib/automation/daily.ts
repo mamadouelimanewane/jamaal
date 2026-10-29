@@ -3,6 +3,7 @@
  * n'arrête pas les suivants) et idempotent (relancer la tâche ne renvoie rien en double).
  * La veille des prix Chogan passe en dernier et utilise le temps restant.
  */
+import { purgeOldPings } from "@/lib/livreur-tracking";
 import { sendDailySummary } from "./summary";
 import { retryPendingWithdrawals } from "@/lib/wallet";
 import { runSubscriptions } from "@/lib/subscriptions/run";
@@ -44,6 +45,7 @@ export async function runDailyJobs(origin: string, opts: { budgetMs?: number; no
   await step("relances", () => runRelances(origin, now));
   await step("echeances", () => runInstallmentReminders(now));
   await step("liensImpayes", () => runUnpaidPaymentLinks(now));
+  await step("traceGps", () => purgeOldPings());
   await step("abonnements", () => runSubscriptions(origin, now));
   await step("prevision", () => weeklyForecastAlert(origin, now));
   // Lundi : chaque Leader et parrain reçoit la liste de ses membres qui décrochent.

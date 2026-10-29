@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { Check, Clock } from "lucide-react";
-import { DeliveryMap, type MapPoint } from "@/components/maps/DeliveryMap";
+import { DeliveryMap, type MapPath, type MapPoint } from "@/components/maps/DeliveryMap";
+import { ago } from "@/lib/geo-track";
 import { DELIVERY_STEPS, DELIVERY_LABELS, type DeliveryStatus } from "@/lib/delivery";
 
 type Track = {
@@ -11,7 +12,9 @@ type Track = {
   deliveredAt: string | null;
   depot: { lat: number; lng: number; label: string };
   destination: { lat: number; lng: number } | null;
-  livreur: { name: string; lat: number | null; lng: number | null; lastSeenAt: string | null } | null;
+  livreur: { name: string; lat: number | null; lng: number | null; lastSeenAt: string | null; heading?: number | null; accuracy?: number | null } | null;
+  route?: { path: [number, number][]; planned: boolean; source: "osrm" | "estimation" } | null;
+  trail?: [number, number][];
   remainingKm: number | null;
   etaMinutes: number | null;
   events: { status: string; label: string; at: string; note: string | null }[];
@@ -54,8 +57,11 @@ export function LiveTracking({ orderId }: { orderId: string }) {
 
   const points: MapPoint[] = [{ id: "depot", kind: "depot", lat: data.depot.lat, lng: data.depot.lng, label: data.depot.label }];
   if (data.destination) points.push({ id: "dest", kind: "destination", ...data.destination, label: "Votre adresse" });
-  if (data.livreur?.lat != null && data.livreur?.lng != null) points.push({ id: "livreur", kind: "livreur", lat: data.livreur.lat, lng: data.livreur.lng, label: data.livreur.name });
+  if (data.livreur?.lat != null && data.livreur?.lng != null) points.push({ id: "livreur", kind: "livreur", lat: data.livreur.lat, lng: data.livreur.lng, label: data.livreur.name, heading: data.livreur.heading, accuracy: data.livreur.accuracy });
   const hasLivreur = points.some((p) => p.id === "livreur");
+  const paths: MapPath[] = [];
+  if (data.trail && data.trail.length > 1) paths.push({ id: "trail", kind: "trail", coords: data.trail });
+  if (data.route) paths.push({ id: "route", kind: data.route.source === "osrm" ? "route" : "plan", coords: data.route.path, ...(data.route.planned ? { color: "#9b5c4d" } : {}) });
 
   return (
     <div className="space-y-5">
@@ -68,12 +74,22 @@ export function LiveTracking({ orderId }: { orderId: string }) {
             <span>Arrivée estimée dans environ <strong>{data.etaMinutes} min</strong> ({data.remainingKm?.toLocaleString("fr-FR")} km)</span>
           </p>
         )}
-        {data.livreur && data.deliveryStatus !== "LIVREE" && <p className="mt-1 text-sm text-navy/75">Votre livreur : {data.livreur.name}</p>}
+        {data.livreur && data.deliveryStatus !== "LIVREE" && (
+          <p className="mt-1 text-sm text-navy/75">
+            Votre livreur : {data.livreur.name}
+            {hasLivreur && data.livreur.lastSeenAt ? ` · position mise à jour ${ago(data.livreur.lastSeenAt)}` : ""}
+          </p>
+        )}
         {failed && failure?.note && <p className="mt-2 text-sm text-red-800">{failure.note}. Notre équipe vous recontacte pour une nouvelle livraison.</p>}
       </div>
 
       {data.destination && data.deliveryStatus !== "LIVREE" && (
-        <DeliveryMap points={points} route={hasLivreur && data.destination ? ["livreur", "dest"] : undefined} height={300} />
+        <div>
+          <DeliveryMap points={points} paths={paths} route={hasLivreur && !data.route ? ["livreur", "dest"] : undefined} height={320} ariaLabel="Carte du suivi de livraison" />
+          <p className="mt-1.5 text-xs text-navy/60">
+            {hasLivreur ? "Trait vert : trajet restant par la route · pointillés gris : trajet déjà fait par le livreur." : "Trajet prévu depuis notre dépôt. La position du livreur apparaît dès qu'il est en route."}
+          </p>
+        </div>
       )}
 
       <ol className="rounded-2xl border border-line bg-white p-5">

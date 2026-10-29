@@ -5,7 +5,8 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/currency";
-import { LiveTrackingToggle } from "@/components/admin/LiveTrackingToggle";
+import { LivreurGps } from "@/components/livreur/LivreurGps";
+import { TourMap } from "@/components/livreur/TourMap";
 import { LivreurDeliveryCard } from "@/components/admin/LivreurDeliveryCard";
 import { LivreurWalletForm } from "@/components/admin/LivreurWalletForm";
 import { LiveRefresh } from "@/components/admin/LiveRefresh";
@@ -51,13 +52,15 @@ export default async function MesLivraisonsPage() {
         <h1 className="font-serif-display text-2xl font-semibold text-navy">Mes livraisons</h1>
         <div className="flex flex-wrap items-center gap-2">
           <LiveRefresh seconds={20} />
-          <LiveTrackingToggle />
         </div>
       </div>
-      <p className="mt-1 text-sm text-navy/75">
-        Activez le suivi en direct pendant vos tournées : le client voit votre position et l&apos;heure d&apos;arrivée estimée.
-        {livreur.lastSeenAt ? ` Dernière position : ${livreur.lastSeenAt.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}.` : ""}
+      <div className="mt-3"><LivreurGps active={orders.length > 0} /></div>
+      <p className="mt-2 text-sm text-navy/75">
+        {orders.length > 0
+          ? "Pendant vos livraisons, votre position est partagée automatiquement : le client suit votre arrivée sur la carte et reçoit un message quand vous êtes tout proche. Gardez l'application ouverte pendant la tournée."
+          : "Votre position est partagée automatiquement dès qu'une livraison vous est attribuée."}
       </p>
+      {orders.length > 0 && <div className="mt-4"><TourMap /></div>}
 
       <div className="mt-5">
         <WalletHero compact href="/admin/mon-wallet" {...(await walletBalance({ type: "LIVREUR", id: livreur.id }))} />

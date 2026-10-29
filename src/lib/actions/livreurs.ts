@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin, requireLivreurProfile } from "./auth-guard";
+import { recordPosition } from "@/lib/livreur-tracking";
 
 function livreurDataFromForm(formData: FormData) {
   return {
@@ -35,10 +36,5 @@ export async function deleteLivreur(id: string) {
 
 export async function shareLivreurPosition(lat: number, lng: number) {
   const { livreur } = await requireLivreurProfile();
-  await prisma.livreur.update({
-    where: { id: livreur.id },
-    data: { lastLat: lat, lastLng: lng, lastSeenAt: new Date() },
-  });
-  revalidatePath("/admin/livreurs");
-  revalidatePath("/admin/mes-livraisons");
+  await recordPosition(livreur.id, { lat, lng });
 }

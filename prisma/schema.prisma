@@ -374,6 +374,10 @@ model Order {
   livreur      Livreur?     @relation(fields: [livreurId], references: [id], onDelete: SetNull)
   deliveryLat  Float?
   deliveryLng  Float?
+  /// Distance (m) entre la position du livreur au moment de « Livrée » et l'adresse de livraison.
+  deliveredDistanceM Int?
+  /// Message « votre livreur arrive » déjà envoyé (une seule fois par livraison).
+  arrivingNotifiedAt DateTime?
 
   deliveryZoneId String?
   deliveryZone   DeliveryZone? @relation(fields: [deliveryZoneId], references: [id], onDelete: SetNull)
@@ -570,6 +574,10 @@ model Livreur {
   lastLat    Float?
   lastLng    Float?
   lastSeenAt DateTime?
+  /// Précision (m), vitesse (m/s) et cap (degrés) de la dernière position.
+  lastAccuracy Float?
+  lastSpeed    Float?
+  lastHeading  Float?
   createdAt  DateTime  @default(now())
   /// Wallet de versement de la part livreur : "WAVE" ou "ORANGE_MONEY".
   walletProvider String?
@@ -587,6 +595,7 @@ model Livreur {
   orders   Order[]
   earnings LivreurEarning[]
   events   DeliveryEvent[]
+  pings    LivreurPing[]
 
   @@index([status])
 }
@@ -950,6 +959,21 @@ model DeliveryEvent {
   createdAt DateTime @default(now())
 
   @@index([orderId])
+}
+
+/// Trace GPS d'un livreur pendant ses tournées (conservée 30 jours).
+model LivreurPing {
+  id        String   @id @default(cuid())
+  livreurId String
+  livreur   Livreur  @relation(fields: [livreurId], references: [id], onDelete: Cascade)
+  lat       Float
+  lng       Float
+  accuracy  Float?
+  speed     Float?
+  heading   Float?
+  createdAt DateTime @default(now())
+
+  @@index([livreurId, createdAt])
 }
 
 /// Part du livreur sur une livraison, versée sur son wallet.

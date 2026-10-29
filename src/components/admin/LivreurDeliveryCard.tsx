@@ -64,7 +64,7 @@ export function LivreurDeliveryCard(props: {
   }
 
   return (
-    <li className="rounded-2xl border border-line bg-white p-4 sm:p-5">
+    <li id={`livraison-${props.id}`} className="scroll-mt-24 rounded-2xl border border-line bg-white p-4 sm:p-5">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
           <p className="text-lg font-semibold text-ink">{props.customerName}</p>
@@ -92,6 +92,11 @@ export function LivreurDeliveryCard(props: {
         {props.lat != null && props.lng != null && (
           <a href={directionsUrl({ lat: props.lat, lng: props.lng })} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-full bg-navy px-4 py-2 text-sm font-semibold text-white hover:bg-navy-light">
             <Navigation size={15} /> Itinéraire
+          </a>
+        )}
+        {props.lat != null && props.lng != null && (
+          <a href={`https://waze.com/ul?ll=${props.lat},${props.lng}&navigate=yes`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink hover:bg-cream">
+            Waze
           </a>
         )}
         {phone && (

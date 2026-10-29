@@ -8,6 +8,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getBusinessModel } from "@/lib/business-model-store";
 import { DELIVERY_LABELS, isValidPoint, type DeliveryStatus } from "@/lib/delivery";
+import { DELIVERY_FAR_M, distanceM } from "@/lib/geo-track";
 import { runPayoutsForOrder } from "@/lib/payouts/engine";
 import { isWalletProvider, payoutProvidersConfig, sendPayout } from "@/lib/payouts/providers";
 import { notifyConsultantOfDelivery } from "@/lib/notifications";
@@ -57,7 +58,7 @@ export async function advanceDelivery(
 ) {
   const order = await prisma.order.findUnique({
     where: { id: orderId },
-    select: { id: true, status: true, deliveryStatus: true, deliveryCode: true, livreurId: true, deliveryMode: true, customerName: true, customerPhone: true, deliveryContactName: true, deliveryContactPhone: true, deliveryTarget: true, livreurShare: true },
+    select: { id: true, status: true, deliveryStatus: true, deliveryCode: true, livreurId: true, deliveryMode: true, deliveryLat: true, deliveryLng: true, customerName: true, customerPhone: true, deliveryContactName: true, deliveryContactPhone: true, deliveryTarget: true, livreurShare: true },
   });
   if (!order || order.deliveryMode !== "LIVRAISON_JAMAAL") throw new DeliveryError("Cette commande n'est pas une livraison JAMAAL.");
   if (order.status === "ANNULEE") throw new DeliveryError("Commande annulée.");
@@ -83,6 +84,9 @@ export async function advanceDelivery(
   const hasPoint = isValidPoint(point);
   const orderStatus = ORDER_STATUS[to];
   const now = new Date();
+  // Preuve de remise : distance entre le livreur et l'adresse au moment de « Livrée ».
+  const dest = { lat: order.deliveryLat ?? NaN, lng: order.deliveryLng ?? NaN };
+  const deliveredDistanceM = to === "LIVREE" && hasPoint && actor.kind === "livreur" && isValidPoint(dest) ? distanceM(point, dest) : null;
 
   await prisma.$transaction([
     prisma.order.update({
@@ -91,19 +95,25 @@ export async function advanceDelivery(
         deliveryStatus: to,
         ...(to === "ASSIGNEE" ? { livreurId } : {}),
         ...(orderStatus && !(orderStatus === "CONFIRMEE" && order.status !== "EN_ATTENTE") ? { status: orderStatus } : {}),
-        ...(to === "LIVREE" ? { deliveredAt: now } : {}),
+        ...(to === "LIVREE" ? { deliveredAt: now, deliveredDistanceM } : {}),
       },
     }),
     prisma.deliveryEvent.create({
       data: { orderId, livreurId, status: to, lat: hasPoint ? point.lat : null, lng: hasPoint ? point.lng : null, note: opts.note?.trim().slice(0, 300) || null },
     }),
     ...(orderStatus && orderStatus !== order.status ? [prisma.orderStatusHistory.create({ data: { orderId, status: orderStatus } })] : []),
-    ...(hasPoint && actor.kind === "livreur" ? [prisma.livreur.update({ where: { id: actor.livreurId }, data: { lastLat: point.lat, lastLng: point.lng, lastSeenAt: now } })] : []),
+    ...(hasPoint && actor.kind === "livreur"
+      ? [
+          prisma.livreur.update({ where: { id: actor.livreurId }, data: { lastLat: point.lat, lastLng: point.lng, lastSeenAt: now } }),
+          prisma.livreurPing.create({ data: { livreurId: actor.livreurId, lat: point.lat, lng: point.lng } }),
+        ]
+      : []),
   ]);
 
   // Effets après la réponse : messages au client, commissions, part du livreur.
   const effects = async () => {
     try {
+      if (deliveredDistanceM != null && deliveredDistanceM > DELIVERY_FAR_M) await alertFarDelivery(orderId, deliveredDistanceM);
       await afterStep(orderId, to, order);
     } catch (error) {
       console.error("[livraison]", orderId, to, error);
@@ -116,6 +126,13 @@ export async function advanceDelivery(
     await effects();
   }
   refresh(orderId);
+}
+
+/** Livraison confirmée loin de l'adresse : l'équipe est prévenue (à vérifier avec le client). */
+async function alertFarDelivery(orderId: string, meters: number) {
+  const admins = await prisma.user.findMany({ where: { role: "ADMIN", active: true }, select: { id: true }, take: 30 });
+  const km = (meters / 1000).toLocaleString("fr-FR", { maximumFractionDigits: 1 });
+  if (admins.length) await prisma.notification.createMany({ data: admins.map((a) => ({ userId: a.id, orderId, title: "Livraison loin de l'adresse 📍", message: `Commande n° ${orderId.slice(-8).toUpperCase()} confirmée à ${km} km de l'adresse de livraison. À vérifier avec le client.` })) });
 }
 
 type StepOrder = {
