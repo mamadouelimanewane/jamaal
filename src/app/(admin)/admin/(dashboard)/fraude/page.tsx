@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { requireAdminPage } from "@/lib/admin-page-guard";
 import { prisma } from "@/lib/prisma";
-import { decideFraudFlag, scanFraudNow } from "@/lib/actions/fraud";
+import { decideFraudFlag, releaseAllHeldAction, scanFraudNow, setFraudControlAction } from "@/lib/actions/fraud";
+import { fraudControlEnabled } from "@/lib/fraud/settings";
 import { RowAction } from "@/components/admin/RowAction";
 import { formatPrice } from "@/lib/currency";
 
@@ -14,7 +15,8 @@ const STATUS: Record<string, string> = { OUVERT: "À vérifier", VALIDE: "Pas de
 /** Signalements de fraude possible : commissions bloquées en vérification jusqu'à la décision de l'admin. */
 export default async function FraudePage() {
   await requireAdminPage("comptabilite");
-  const [open, closed, held] = await Promise.all([
+  const [active, open, closed, held] = await Promise.all([
+    fraudControlEnabled(),
     prisma.fraudFlag.findMany({ where: { status: "OUVERT" }, orderBy: { createdAt: "desc" }, take: 200 }),
     prisma.fraudFlag.findMany({ where: { status: { not: "OUVERT" } }, orderBy: { resolvedAt: "desc" }, take: 30 }),
     prisma.commissionEntry.findMany({ where: { status: "EN_REVUE" }, select: { consultantId: true, orderId: true, amount: true } }),
@@ -29,7 +31,20 @@ export default async function FraudePage() {
           <h1 className="font-serif-display text-2xl font-semibold text-navy">Contrôle des commissions</h1>
           <p className="mt-1 max-w-3xl text-sm text-navy/75">Chaque vente est contrôlée avant que les commissions soient créditées : auto-achats, achats du parrain via son filleul, faux filleuls (coordonnées partagées), ventes toutes au même client, retours anormaux. Les commissions concernées restent <strong>en vérification</strong> : rien n&apos;est versé avant votre décision.</p>
         </div>
-        <RowAction label="Analyser maintenant" run={scanFraudNow} />
+        {active && <RowAction label="Analyser maintenant" run={scanFraudNow} />}
+      </div>
+      <div className={`flex flex-wrap items-center justify-between gap-3 rounded-2xl border p-4 ${active ? "border-emerald-200 bg-emerald-50 text-emerald-950" : "border-amber-200 bg-amber-50 text-amber-950"}`}>
+        <p className="max-w-3xl text-sm">
+          {active ? (
+            <><strong>Contrôle actif.</strong> Les ventes suspectes sont créditées sur le wallet mais bloquées au retrait jusqu&apos;à votre décision.</>
+          ) : (
+            <><strong>Contrôle suspendu.</strong> Aucune vente n&apos;est mise en vérification : toutes les commissions sont créditées et retirables dès le paiement du client. L&apos;analyse quotidienne est aussi en pause.</>
+          )}
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {heldTotal > 0 && <RowAction label={`Libérer tout (${formatPrice(heldTotal)})`} run={releaseAllHeldAction} />}
+          {active ? <RowAction label="Suspendre le contrôle" run={setFraudControlAction.bind(null, false)} /> : <RowAction label="Réactiver le contrôle" run={setFraudControlAction.bind(null, true)} />}
+        </div>
       </div>
       <div className="grid gap-3 sm:grid-cols-3">
         {[["Cas à vérifier", String(open.length)], ["Commissions en vérification", formatPrice(heldTotal)], ["Cas traités (récents)", String(closed.length)]].map(([l, v]) => <div key={l} className="rounded-2xl border border-line bg-white p-4"><p className="text-xs text-navy/60">{l}</p><p className="text-xl font-semibold text-navy">{v}</p></div>)}

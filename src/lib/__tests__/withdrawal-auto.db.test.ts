@@ -117,6 +117,9 @@ test("arrêt d'urgence : rien ne part, la demande attend puis repart à la repri
 test("anti-fraude : vente suspecte créditée tout de suite sur le wallet, mais retirable seulement après validation", { skip: !enabled }, async () => {
   const { runPayoutsForOrder } = await import("../payouts/engine");
   const { resolveFlag } = await import("../fraud/run");
+  const { setFraudControl, fraudControlEnabled } = await import("../fraud/settings");
+  const wasOn = await fraudControlEnabled();
+  await setFraudControl(true);
   const b0 = await m.w.walletBalance(owner());
   const o = await m.prisma.order.create({ data: { customerName: "Retrait Auto", customerPhone: "770000001", total: 20000, consultantId: T, status: "LIVREE", paymentStatus: "PAYE", paidAt: new Date(), items: { create: [{ productName: "Test", volumeLabel: "50 ml", price: 20000, quantity: 1 }] } } });
   await runPayoutsForOrder(o.id);
@@ -152,4 +155,15 @@ test("anti-fraude : vente suspecte créditée tout de suite sur le wallet, mais 
   assert.equal(b4.balance, b2.balance, "commission reprise");
   assert.equal(b4.held, 0);
   await m.prisma.fraudFlag.deleteMany({ where: { consultantId: T } });
+
+  // Contrôle suspendu : la même vente suspecte est créditée et retirable tout de suite.
+  await setFraudControl(false);
+  const o3 = await m.prisma.order.create({ data: { customerName: "Retrait Auto", customerPhone: "770000001", total: 10000, consultantId: T, status: "LIVREE", paymentStatus: "PAYE", paidAt: new Date(), items: { create: [{ productName: "Test", volumeLabel: "50 ml", price: 10000, quantity: 1 }] } } });
+  await runPayoutsForOrder(o3.id);
+  const b5 = await m.w.walletBalance(owner());
+  assert.ok(b5.balance > b4.balance, "crédité");
+  assert.equal(b5.held, 0, "rien en vérification");
+  assert.ok((await m.prisma.commissionEntry.findMany({ where: { orderId: o3.id, consultantId: T } })).every((e) => e.status === "WALLET"));
+  assert.equal(await m.prisma.fraudFlag.count({ where: { orderId: o3.id } }), 0);
+  await setFraudControl(wasOn);
 });

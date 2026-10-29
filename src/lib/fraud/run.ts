@@ -2,6 +2,7 @@
  * Détection de fraude (serveur) : contrôle de chaque vente avant que les commissions soient créditées, recherche
  * quotidienne des membres suspects, et décision de l'admin (libérer ou annuler les commissions bloquées).
  */
+import { fraudControlEnabled } from "./settings";
 import { prisma } from "@/lib/prisma";
 import { notifyTeamWhatsApp } from "@/lib/whatsapp";
 import { duplicateMembers, HOLD_SCORE, orderSignals, RETURN_RATE_LIMIT, returnRate, score, singleCustomer, tail } from "./rules";
@@ -32,6 +33,8 @@ async function raise(data: { key: string; kind: string; consultantId: string; or
  */
 export async function screenOrder(orderId: string): Promise<number> {
   try {
+    // Contrôle suspendu par l'administrateur : les commissions sont créditées et retirables tout de suite.
+    if (!(await fraudControlEnabled())) return 0;
     const order = await prisma.order.findUnique({
       where: { id: orderId },
       select: {
@@ -140,4 +143,14 @@ export async function resolveFlag(flagId: string, decision: "VALIDE" | "FRAUDE",
     await creditCommissionEntries({ ...where, status: "A_VERSER" });
   }
   return { ok: true, count: r.count };
+}
+
+/** Libère toutes les commissions en vérification (cas ouverts levés comme « pas de fraude ») et les crédite. */
+export async function releaseAllHeld(by: string | null) {
+  const flags = await prisma.fraudFlag.findMany({ where: { status: "OUVERT" }, select: { id: true } });
+  if (flags.length) await prisma.fraudFlag.updateMany({ where: { id: { in: flags.map((f) => f.id) } }, data: { status: "VALIDE", resolvedAt: new Date(), resolvedBy: by } });
+  const r = await prisma.commissionEntry.updateMany({ where: { status: "EN_REVUE" }, data: { status: "A_VERSER" } });
+  const { creditCommissionEntries } = await import("@/lib/wallet");
+  if (r.count) await creditCommissionEntries({ status: "A_VERSER" });
+  return { flags: flags.length, count: r.count };
 }

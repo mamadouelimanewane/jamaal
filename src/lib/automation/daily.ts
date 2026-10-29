@@ -9,6 +9,7 @@ import { runSubscriptions } from "@/lib/subscriptions/run";
 import { weeklyForecastAlert } from "@/lib/forecast/run";
 import { alertManagers } from "@/lib/health/run";
 import { scanMembers } from "@/lib/fraud/run";
+import { fraudControlEnabled } from "@/lib/fraud/settings";
 import { runRelances } from "./relances";
 import { requestReviews } from "./reviews";
 import { awardChallenges } from "./challenges";
@@ -34,7 +35,7 @@ export async function runDailyJobs(origin: string, opts: { budgetMs?: number; no
   };
   // Commissions et parts de livraison : rattrape tout ce qui n'aurait pas été crédité dans les wallets JAMAAL.
   // Contrôle anti-fraude des membres d'abord : un membre signalé voit ses nouvelles commissions mises en vérification.
-  await step("fraude", () => scanMembers(now));
+  await step("fraude", async () => ((await fraudControlEnabled()) ? scanMembers(now) : "suspendu"));
   await step("commissions", async () => ({ ...(await sweepMissedCommissions(now)), livraisonsCreditees: await creditLivreurEarnings() }));
   // Retraits des membres : renvoi des demandes en attente et relecture des versements Wave en cours.
   await step("retraits", () => retryPendingWithdrawals());
