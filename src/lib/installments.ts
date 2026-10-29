@@ -14,6 +14,10 @@ export interface InstallmentSettings {
   intervalDays: number;
 }
 
+/** Commande à payer en ligne restée sans aucun paiement : rappel, puis annulation (jours). */
+export const UNPAID_REMIND_DAYS = 2;
+export const UNPAID_CANCEL_DAYS = 7;
+
 export const DEFAULT_INSTALLMENTS: InstallmentSettings = { enabled: true, minTotal: 30_000, maxParts: 3, intervalDays: 15 };
 
 export function normalizeInstallments(raw: unknown): InstallmentSettings {

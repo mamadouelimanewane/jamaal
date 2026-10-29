@@ -7,7 +7,7 @@ import { getSiteUrl } from "@/lib/site-url";
 import { automationEnabled, claimAutomation } from "@/lib/automation-settings";
 import { phoneOptedOut } from "@/lib/phone-match";
 import { sendWhatsApp } from "@/lib/whatsapp";
-import { nextInstallment, receivedText, receivedVars, reminderText, reminderVars, fcfa, splitAmounts } from "@/lib/installments";
+import { nextInstallment, receivedText, receivedVars, reminderText, reminderVars, fcfa, splitAmounts, UNPAID_CANCEL_DAYS, UNPAID_REMIND_DAYS } from "@/lib/installments";
 import { messageText } from "@/lib/whatsapp/message-templates";
 
 const DAY = 86_400_000;
@@ -81,8 +81,7 @@ export async function runInstallmentReminders(now = new Date()) {
 }
 
 /** Lien de paiement jamais payé : relance à 2 jours, annulation (stock remis en vente) à 7 jours. */
-export const UNPAID_REMIND_DAYS = 2;
-export const UNPAID_CANCEL_DAYS = 7;
+export { UNPAID_CANCEL_DAYS, UNPAID_REMIND_DAYS };
 
 /**
  * Tâche quotidienne : commandes d'un revendeur à payer en ligne, et commandes en plusieurs fois,
