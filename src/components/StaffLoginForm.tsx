@@ -19,7 +19,7 @@ export interface LoginNotice {
  * /espace-revendeur : numéro WhatsApp ou e-mail + mot de passe, OU lien de connexion reçu sur
  * WhatsApp (sans mot de passe). Messages explicites à chaque échec.
  */
-export function StaffLoginForm({ from, next, notice }: { from: "/admin/login" | "/espace-revendeur"; next?: string; notice: LoginNotice }) {
+export function StaffLoginForm({ from, next, notice }: { from: "/admin/login" | "/espace-revendeur" | "/admin/livreur"; next?: string; notice: LoginNotice }) {
   const id = (notice.id ?? "").slice(0, 80);
   const help = `https://wa.me/${WHATSAPP_CONTACTS[0].number}?text=${encodeURIComponent(`Bonjour JAMAAL, je n'arrive pas à me connecter à mon espace revendeur.${id ? ` Mon numéro / identifiant : ${id}` : ""}`)}`;
   const msg =
@@ -27,6 +27,8 @@ export function StaffLoginForm({ from, next, notice }: { from: "/admin/login" | 
       ? { tone: "err", text: "Votre compte est suspendu. Contactez l'administrateur JAMAAL pour le réactiver." }
       : notice.session
         ? { tone: "err", text: "Vos droits ont changé : reconnectez-vous pour les appliquer." }
+        : notice.erreur === "attente"
+      ? { tone: "ok", text: "Votre inscription de livreur est en cours de validation par l'équipe JAMAAL. Vous serez prévenu sur WhatsApp dès qu'elle est acceptée." }
         : notice.erreur === "bloque"
       ? { tone: "err", text: "Trop d'essais : par sécurité, la connexion par mot de passe est bloquée 15 minutes pour ce compte. Pas besoin d'attendre : recevez un lien de connexion sur WhatsApp ci-dessous." }
       : notice.erreur

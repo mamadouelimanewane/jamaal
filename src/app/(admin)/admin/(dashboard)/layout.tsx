@@ -51,6 +51,7 @@ import { prisma } from "@/lib/prisma";
 import { ResponsiveSidebar } from "@/components/admin/ResponsiveSidebar";
 import { SIDEBAR_COOKIE } from "@/lib/sidebar-pref";
 import { TopBar } from "@/components/admin/TopBar";
+import { LivreurInstallGate } from "@/components/livreur/LivreurInstallGate";
 import { InstallBanner } from "@/components/admin/InstallBanner";
 import { topBarRank } from "@/lib/topbar-rank";
 import { SidebarNavLink } from "@/components/admin/SidebarNavLink";
@@ -335,7 +336,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
       )}
       <Suspense fallback={null}><FormErrorBanner /></Suspense>
       <AutoTableLabels />
-      {(role === "CONSULTANT" || role === "LIVREUR") && <InstallBanner />}
+      {role === "CONSULTANT" && <InstallBanner />}
+      {role === "LIVREUR" && <LivreurInstallGate />}
       {children}
       {geminiConfigured() && role && <AssistantLauncher role={role} />}
     </ResponsiveSidebar>

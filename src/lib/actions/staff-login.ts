@@ -11,15 +11,24 @@ import { clientIpFromHeaders, rateLimit } from "@/lib/rate-limit";
 import { canonicalizePhone } from "@/lib/phone";
 import { getSiteUrl } from "@/lib/site-url";
 import { staffAccountByPhone } from "@/lib/staff-accounts";
+import { phoneTail } from "@/lib/phone-match";
 import { sendWhatsApp, whatsappConfig } from "@/lib/whatsapp";
 
 /** Pages de connexion autorisées (retour avec message). */
-const BASES = new Set(["/admin/login", "/espace-revendeur"]);
-const NEXTS = new Set(["/admin", "/livreur"]);
+const BASES = new Set(["/admin/login", "/espace-revendeur", "/admin/livreur"]);
+const NEXTS = new Set(["/admin", "/livreur", "/admin/mes-livraisons"]);
 
 function base(formData: FormData) {
   const b = String(formData.get("from") ?? "");
   return BASES.has(b) ? b : "/admin/login";
+}
+
+/** Inscription livreur pas encore validée pour ce numéro (message clair au lieu de « mot de passe incorrect »). */
+async function pendingLivreur(login: string) {
+  const tail = phoneTail(login);
+  if (!tail) return false;
+  const rows = await prisma.$queryRaw<{ n: number }[]>`SELECT 1 AS n FROM "Livreur" WHERE status = 'EN_ATTENTE' AND right(regexp_replace(phone, '[^0-9]', '', 'g'), 9) = ${tail} LIMIT 1`.catch(() => []);
+  return rows.length > 0;
 }
 
 /** Connexion par identifiant (numéro WhatsApp ou e-mail) et mot de passe, messages clairs. */
@@ -40,7 +49,7 @@ export async function passwordLogin(formData: FormData) {
   try {
     await signIn("credentials", { login, password, redirectTo });
   } catch (error) {
-    if (error instanceof AuthError) redirect(`${from}?erreur=${(await lockedNow()) ? "bloque" : "1"}${keep}`);
+    if (error instanceof AuthError) redirect(`${from}?erreur=${(await lockedNow()) ? "bloque" : (await pendingLivreur(login)) ? "attente" : "1"}${keep}`);
     throw error;
   }
 }

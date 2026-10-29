@@ -574,11 +574,21 @@ model Livreur {
   /// Wallet de versement de la part livreur : "WAVE" ou "ORANGE_MONEY".
   walletProvider String?
   walletNumber   String?
+  /// "ACTIF", ou "EN_ATTENTE" pour une inscription faite depuis l'application Livreur (à valider).
+  status   String  @default("ACTIF")
+  /// Moyen de déplacement : MOTO, SCOOTER, VELO, VOITURE, PIED.
+  vehicle  String?
+  /// Quartiers / zone de livraison indiqués à l'inscription.
+  zone     String?
+  /// N° de pièce d'identité (facultatif, vérifié par l'administrateur).
+  idNumber String?
 
   user     User?
   orders   Order[]
   earnings LivreurEarning[]
   events   DeliveryEvent[]
+
+  @@index([status])
 }
 
 model Customer {
