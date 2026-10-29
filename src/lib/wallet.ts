@@ -60,7 +60,16 @@ export async function walletBalance(owner: Owner, db: Tx | typeof prisma = prism
       pendingOut += -s;
     } else if (r.kind === "DEPOT") pendingIn += s;
   }
-  return { balance, pendingOut, pendingIn, earned };
+  // Commissions créditées dont la vente est en vérification anti-fraude : visibles dans le solde, retirables après validation.
+  let held = 0;
+  if (owner.type === "CONSULTANT") {
+    const review = await db.commissionEntry.findMany({ where: { consultantId: owner.id, status: "EN_REVUE" }, select: { id: true } });
+    if (review.length) {
+      const t = await db.walletTransaction.aggregate({ _sum: { amount: true }, where: { status: "VALIDE", sourceId: { in: review.map((r) => `ce:${r.id}`) } } });
+      held = Math.max(0, t._sum.amount ?? 0);
+    }
+  }
+  return { balance, pendingOut, pendingIn, earned, held, available: balance - held };
 }
 
 /** Coordonnées de versement du titulaire. */
@@ -75,13 +84,39 @@ export async function ownerWallet(owner: Owner) {
 
 /** Crédite les commissions et primes enregistrées mais pas encore créditées (idempotent). */
 export async function creditCommissionEntries(where: Prisma.CommissionEntryWhereInput = {}) {
-  const entries = await prisma.commissionEntry.findMany({ where: { ...where, status: "A_VERSER", payoutId: null, amount: { gt: 0 } } });
+  // À verser, et aussi en vérification anti-fraude : le wallet est crédité dès le paiement du client ; une commission
+  // en vérification est seulement bloquée au retrait (voir walletBalance) jusqu'à la décision de l'admin.
+  const entries = await prisma.commissionEntry.findMany({ where: { ...where, status: where.status ?? { in: ["A_VERSER", "EN_REVUE"] }, payoutId: null, amount: { gt: 0 } } });
+  const already = new Set(
+    entries.length ? (await prisma.walletTransaction.findMany({ where: { sourceId: { in: entries.map((e) => `ce:${e.id}`) } }, select: { sourceId: true } })).map((t) => t.sourceId) : []
+  );
   const credited: { consultantId: string; amount: number; prime: boolean; level: string; orderId: string | null }[] = [];
   const notices: WalletCreditNotice[] = [];
   for (const e of entries) {
+    const wasCredited = already.has(`ce:${e.id}`);
+    if (e.status === "EN_REVUE") {
+      if (wasCredited) continue;
+      await prisma.walletTransaction.upsert({
+        where: { sourceId: `ce:${e.id}` },
+        update: {},
+        create: {
+          ownerType: "CONSULTANT",
+          ownerId: e.consultantId,
+          amount: e.amount,
+          kind: e.level.startsWith("PRIME_") ? "PRIME" : "COMMISSION",
+          sourceId: `ce:${e.id}`,
+          orderId: e.orderId.startsWith("PRIME-") ? null : e.orderId,
+          note: `${e.rate} % de ${e.base.toLocaleString("fr-FR")} F · en vérification avant retrait`,
+        },
+      });
+      notices.push({ ownerType: "CONSULTANT", ownerId: e.consultantId, amount: e.amount, level: e.level, orderId: e.orderId, rate: e.rate, base: e.base, held: true });
+      continue;
+    }
     await prisma.$transaction(async (tx) => {
       const claim = await tx.commissionEntry.updateMany({ where: { id: e.id, status: "A_VERSER", payoutId: null }, data: { status: "WALLET" } });
       if (!claim.count) return;
+      // Déjà crédité pendant la vérification : la validation libère simplement le retrait (pas de second message).
+      if (wasCredited) return;
       credited.push({ consultantId: e.consultantId, amount: e.amount, prime: e.level.startsWith("PRIME_"), level: e.level, orderId: e.orderId.startsWith("PRIME-") ? null : e.orderId });
       notices.push({ ownerType: "CONSULTANT", ownerId: e.consultantId, amount: e.amount, level: e.level, orderId: e.orderId, rate: e.rate, base: e.base });
       await tx.walletTransaction.upsert({
@@ -129,6 +164,8 @@ export async function creditLivreurEarnings(where: Prisma.LivreurEarningWhereInp
 export async function reverseWalletCreditsForOrder(orderId: string) {
   const credits = await prisma.walletTransaction.findMany({ where: { orderId, kind: { in: ["COMMISSION", "LIVRAISON"] }, status: "VALIDE", amount: { gt: 0 } } });
   for (const c of credits) {
+    // Déjà reprise après une fraude confirmée : pas de seconde reprise.
+    if (c.sourceId?.startsWith("ce:") && (await prisma.walletTransaction.findUnique({ where: { sourceId: `ce-annul:${c.sourceId.slice(3)}` }, select: { id: true } }))) continue;
     await prisma.walletTransaction.upsert({
       where: { sourceId: `annul:${c.id}` },
       update: {},
@@ -171,8 +208,8 @@ export async function requestWithdrawal(owner: Owner, amount: number, by: string
   if (!channels.includes(w.provider)) throw new WalletError(`Les retraits vers ${WALLET_LABELS[w.provider]} ne sont plus proposés : enregistrez un compte ${channels.map((c) => WALLET_LABELS[c]).join(" ou ")} ci-dessous.`);
   const tx = await prisma.$transaction(async (db) => {
     await lockOwner(db, owner);
-    const { balance } = await walletBalance(owner, db);
-    if (amount > balance) throw new WalletError(`Solde insuffisant : ${balance.toLocaleString("fr-FR")} F disponibles.`);
+    const { available, held } = await walletBalance(owner, db);
+    if (amount > available) throw new WalletError(`Solde insuffisant : ${available.toLocaleString("fr-FR")} F disponibles${held ? ` (${held.toLocaleString("fr-FR")} F en vérification, retirables après validation)` : ""}.`);
     return db.walletTransaction.create({
       data: { ownerType: owner.type, ownerId: owner.id, amount: -amount, kind: "RETRAIT", status: "EN_ATTENTE", provider: w.provider, phone: w.number, createdBy: by, note: `Vers ${WALLET_LABELS[w.provider as WalletProvider]} ${w.number}` },
     });
@@ -284,7 +321,7 @@ export async function markDepositPaid(txId: string, opts: { externalRef?: string
 /** Paie une commande avec le wallet (dans la transaction de création de la commande). */
 export async function debitForOrder(db: Tx, owner: Owner, orderId: string, amount: number, by: string | null) {
   await lockOwner(db, owner);
-  const { balance } = await walletBalance(owner, db);
+  const { available: balance } = await walletBalance(owner, db);
   if (amount > balance) throw new WalletError(`Solde du wallet insuffisant : ${balance.toLocaleString("fr-FR")} F disponibles pour ${amount.toLocaleString("fr-FR")} F.`);
   await db.walletTransaction.create({ data: { ownerType: owner.type, ownerId: owner.id, amount: -amount, kind: "PAIEMENT", orderId, sourceId: `pay:${orderId}`, createdBy: by, note: `Commande ${orderId.slice(-8).toUpperCase()}` } });
 }
@@ -295,7 +332,7 @@ export async function debitForOrder(db: Tx, owner: Owner, orderId: string, amoun
  */
 export async function debitCollectedForOrder(db: Tx, owner: Owner, orderId: string, amount: number, method: CollectMethod, creditLimit: number, by: string | null) {
   await lockOwner(db, owner);
-  const { balance } = await walletBalance(owner, db);
+  const { available: balance } = await walletBalance(owner, db);
   const refusal = collectRefusal(balance, amount, creditLimit);
   if (refusal) throw new WalletError(refusal);
   await db.walletTransaction.create({ data: { ownerType: owner.type, ownerId: owner.id, amount: -amount, kind: "PAIEMENT", orderId, sourceId: `pay:${orderId}`, createdBy: by, note: `Encaissé (${COLLECT_LABELS[method]}) · commande ${orderId.slice(-8).toUpperCase()}` } });

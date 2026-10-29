@@ -122,7 +122,19 @@ export async function resolveFlag(flagId: string, decision: "VALIDE" | "FRAUDE",
     const openOrders = (await prisma.fraudFlag.findMany({ where: { status: "OUVERT", orderId: { not: null } }, select: { orderId: true } })).map((f) => f.orderId!);
     where = { status: "EN_REVUE", consultantId: flag.consultantId, orderId: { notIn: openOrders } };
   }
+  const ids = decision === "FRAUDE" ? (await prisma.commissionEntry.findMany({ where, select: { id: true, consultantId: true, amount: true, orderId: true } })) : [];
   const r = await prisma.commissionEntry.updateMany({ where, data: { status: decision === "VALIDE" ? "A_VERSER" : "ANNULE" } });
+  // Fraude confirmée : les montants déjà crédités (et bloqués) sur le wallet sont repris.
+  for (const e of ids) {
+    const credit = await prisma.walletTransaction.findUnique({ where: { sourceId: `ce:${e.id}` }, select: { id: true, amount: true, status: true } });
+    if (!credit || credit.status !== "VALIDE") continue;
+    if (await prisma.walletTransaction.findUnique({ where: { sourceId: `annul:${credit.id}` }, select: { id: true } })) continue; // déjà repris (commande annulée)
+    await prisma.walletTransaction.upsert({
+      where: { sourceId: `ce-annul:${e.id}` },
+      update: {},
+      create: { ownerType: "CONSULTANT", ownerId: e.consultantId, amount: -credit.amount, kind: "ANNULATION", sourceId: `ce-annul:${e.id}`, orderId: e.orderId, note: "Commission reprise : fraude confirmée" },
+    });
+  }
   if (decision === "VALIDE" && r.count) {
     const { creditCommissionEntries } = await import("@/lib/wallet");
     await creditCommissionEntries({ ...where, status: "A_VERSER" });

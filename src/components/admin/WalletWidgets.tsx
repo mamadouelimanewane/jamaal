@@ -23,14 +23,14 @@ export function WalletPill({ balance, tone = "dark", href = "/admin/mon-wallet" 
  */
 export const walletPath = (ownerType: "CONSULTANT" | "LIVREUR") => (ownerType === "CONSULTANT" ? "/admin/mes-gains" : "/admin/mon-wallet");
 
-export function WalletHero({ balance, pendingOut, pendingIn, earned, compact = false, href = "/admin/mes-gains" }: { balance: number; pendingOut: number; pendingIn: number; earned: number; compact?: boolean; href?: string }) {
+export function WalletHero({ balance, pendingOut, pendingIn, earned, held = 0, compact = false, href = "/admin/mes-gains" }: { balance: number; pendingOut: number; pendingIn: number; earned: number; held?: number; compact?: boolean; href?: string }) {
   return (
     <section aria-label="Mon wallet JAMAAL" className="overflow-hidden rounded-2xl bg-gradient-to-br from-[#123c2e] via-[#17513d] to-[#1f6b50] p-5 text-white shadow-lg sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-emerald-100/90"><Wallet size={16} /> Mon wallet JAMAAL</p>
           <p className="mt-2 font-serif-display text-4xl font-semibold tracking-tight sm:text-5xl">{fcfa(balance)}</p>
-          <p className="mt-1 text-sm text-emerald-100/85">disponible · commissions, primes et gains crédités automatiquement</p>
+          <p className="mt-1 text-sm text-emerald-100/85">{held > 0 ? `dont ${fcfa(held)} en vérification, retirables dès la validation par JAMAAL` : "disponible · commissions, primes et gains crédités automatiquement"}</p>
         </div>
         <div className="flex w-full flex-wrap gap-2 sm:w-auto">
           <Link href={`${href}#retirer`} className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-[#123c2e] hover:bg-emerald-50 sm:flex-none">

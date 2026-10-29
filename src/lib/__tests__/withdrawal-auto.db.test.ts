@@ -114,14 +114,42 @@ test("arrêt d'urgence : rien ne part, la demande attend puis repart à la repri
   }
 });
 
-test("anti-fraude : un auto-achat n'est pas crédité sur le wallet (commission en vérification)", { skip: !enabled }, async () => {
+test("anti-fraude : vente suspecte créditée tout de suite sur le wallet, mais retirable seulement après validation", { skip: !enabled }, async () => {
   const { runPayoutsForOrder } = await import("../payouts/engine");
-  const b0 = await bal();
+  const { resolveFlag } = await import("../fraud/run");
+  const b0 = await m.w.walletBalance(owner());
   const o = await m.prisma.order.create({ data: { customerName: "Retrait Auto", customerPhone: "770000001", total: 20000, consultantId: T, status: "LIVREE", paymentStatus: "PAYE", paidAt: new Date(), items: { create: [{ productName: "Test", volumeLabel: "50 ml", price: 20000, quantity: 1 }] } } });
   await runPayoutsForOrder(o.id);
-  const entries = await m.prisma.commissionEntry.findMany({ where: { orderId: o.id } });
+  const entries = await m.prisma.commissionEntry.findMany({ where: { orderId: o.id, consultantId: T } });
   assert.ok(entries.length > 0, "commission enregistrée");
   assert.ok(entries.every((e) => e.status === "EN_REVUE"), entries.map((e) => e.status).join(","));
-  assert.equal(await bal(), b0, "rien de crédité");
+  const gain = entries.reduce((s, e) => s + e.amount, 0);
+  const b1 = await m.w.walletBalance(owner());
+  assert.equal(b1.balance, b0.balance + gain, "crédité tout de suite");
+  assert.equal(b1.held, gain, "bloqué au retrait");
+  assert.equal(b1.available, b0.available);
+  await assert.rejects(() => m.w.requestWithdrawal(owner(), b0.available + 100, null), /en vérification/);
+  // Relancer le crédit ne double rien.
+  await m.w.creditCommissionEntries({ orderId: o.id });
+  assert.equal((await m.w.walletBalance(owner())).balance, b1.balance);
+  // Validation : le montant devient retirable, sans second crédit.
+  const flag = await m.prisma.fraudFlag.findFirstOrThrow({ where: { orderId: o.id, status: "OUVERT" } });
+  await resolveFlag(flag.id, "VALIDE", null);
+  const b2 = await m.w.walletBalance(owner());
+  assert.equal(b2.balance, b1.balance);
+  assert.equal(b2.held, 0);
+  assert.equal(b2.available, b1.balance);
+  assert.ok((await m.prisma.commissionEntry.findMany({ where: { orderId: o.id, consultantId: T } })).every((e) => e.status === "WALLET"));
+
+  // Fraude confirmée sur une autre vente : le montant crédité est repris.
+  const o2 = await m.prisma.order.create({ data: { customerName: "Retrait Auto", customerPhone: "770000001", total: 10000, consultantId: T, status: "LIVREE", paymentStatus: "PAYE", paidAt: new Date(), items: { create: [{ productName: "Test", volumeLabel: "50 ml", price: 10000, quantity: 1 }] } } });
+  await runPayoutsForOrder(o2.id);
+  const b3 = await m.w.walletBalance(owner());
+  assert.ok(b3.held > 0);
+  const flag2 = await m.prisma.fraudFlag.findFirstOrThrow({ where: { orderId: o2.id, status: "OUVERT" } });
+  await resolveFlag(flag2.id, "FRAUDE", null);
+  const b4 = await m.w.walletBalance(owner());
+  assert.equal(b4.balance, b2.balance, "commission reprise");
+  assert.equal(b4.held, 0);
   await m.prisma.fraudFlag.deleteMany({ where: { consultantId: T } });
 });

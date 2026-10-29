@@ -17,6 +17,8 @@ export interface WalletCreditNotice {
   base?: number;
   /** Produits vendus et acheteur (ajoutés à l'envoi). */
   sale?: SaleDetail;
+  /** Vente en vérification anti-fraude : créditée, retirable après validation par JAMAAL. */
+  held?: boolean;
 }
 
 const fcfa = (n: number) => `${n.toLocaleString("fr-FR")} FCFA`;
@@ -38,7 +40,8 @@ export function creditNotice(n: WalletCreditNotice): { title: string; message: s
   const pct = n.rate ? `${n.rate} %${n.base ? ` de ${fcfa(n.base)}` : ""}, ` : "";
   const own = !d?.sellerId || d.sellerId === n.ownerId;
   const what = d ? ` : ${d.products}, acheteur ${own ? d.buyer : shortName(d.buyer)}${own ? "" : `, vendu par ${d.sellerName ?? "votre équipe"}`}` : "";
-  return { title: "Commission créditée", message: `${fcfa(n.amount)} ont été crédités sur votre wallet : ${pct}pour ${ROLE[n.level] ?? "une vente"}${what}${order}. Retrait possible depuis « Mon wallet ».` };
+  const after = n.held ? " Cette vente est en vérification : le montant sera retirable dès sa validation par JAMAAL." : " Retrait possible depuis « Mon wallet ».";
+  return { title: "Commission créditée", message: `${fcfa(n.amount)} ont été crédités sur votre wallet : ${pct}pour ${ROLE[n.level] ?? "une vente"}${what}${order}.${after}` };
 }
 
 export async function notifyWalletCredits(notices: WalletCreditNotice[]): Promise<void> {

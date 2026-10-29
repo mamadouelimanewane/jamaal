@@ -1,4 +1,4 @@
-import { walletBalance } from "@/lib/wallet";
+import { walletBalance, creditCommissionEntries } from "@/lib/wallet";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/currency";
@@ -21,6 +21,8 @@ export async function LiveEarnings({ consultantId }: { consultantId: string }) {
   const today = startOfToday();
   const month = new Date(today.getFullYear(), today.getMonth(), 1);
 
+  // Rattrapage : une commission d'une vente payée qui ne serait pas encore sur le wallet y est créditée tout de suite.
+  await creditCommissionEntries({ consultantId }).catch((e) => console.error("[wallet] rattrapage", e));
   const [todayOrders, todayEntries, monthEntries, pending, , entries, payouts, member] = await Promise.all([
     prisma.order.findMany({ where: { consultantId, createdAt: { gte: today }, status: { not: "ANNULEE" } }, select: { total: true, deliveryFee: true } }),
     prisma.commissionEntry.aggregate({ where: { consultantId, createdAt: { gte: today }, status: { not: "ANNULE" } }, _sum: { amount: true } }),
@@ -50,7 +52,7 @@ export async function LiveEarnings({ consultantId }: { consultantId: string }) {
         detail: e.level.startsWith("PRIME_") ? `CA de l'équipe : ${formatPrice(e.base)} (${e.orderId.replace("PRIME-EQUIPE-", "")})` : `${e.rate} % de ${formatPrice(e.base)}`,
         amount: `+ ${formatPrice(e.amount)}`,
         tone: e.status === "ANNULE" ? "text-navy/60 line-through" : "text-emerald-700",
-        status: e.status === "VERSE" ? "versé" : e.status === "WALLET" ? "sur le wallet" : e.status === "ANNULE" ? "annulé" : e.status === "EN_REVUE" ? "en vérification" : "à verser",
+        status: e.status === "VERSE" ? "versé" : e.status === "WALLET" ? "sur le wallet" : e.status === "ANNULE" ? "annulé" : e.status === "EN_REVUE" ? "crédité · en vérification" : "à verser",
       };
     }),
     ...payouts.map((p) => ({
@@ -70,7 +72,7 @@ export async function LiveEarnings({ consultantId }: { consultantId: string }) {
     { label: "Ventes aujourd'hui", value: `${todayOrders.length}`, sub: `${formatPrice(todayOrders.reduce((s, o) => s + commissionBase(o), 0))} · ${paidToday} payée(s)` },
     { label: "Gagné aujourd'hui", value: formatPrice(todayEntries._sum.amount ?? 0), sub: "commissions des ventes payées" },
     { label: "Gagné ce mois-ci", value: formatPrice(monthEntries._sum.amount ?? 0), sub: "crédité sur votre wallet" },
-    { label: "Solde du wallet", value: formatPrice(pending.balance), sub: member?.walletNumber ? "à retirer quand vous voulez" : "indiquez votre compte Wave / Orange Money" },
+    { label: "Solde du wallet", value: formatPrice(pending.balance), sub: pending.held > 0 ? `dont ${formatPrice(pending.held)} en vérification` : member?.walletNumber ? "à retirer quand vous voulez" : "indiquez votre compte Wave / Orange Money" },
   ];
 
   return (

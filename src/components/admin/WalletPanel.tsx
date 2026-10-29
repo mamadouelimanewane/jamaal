@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { KIND_LABELS, minWithdrawal, STATUS_LABELS, walletBalance, walletHistory, type Owner } from "@/lib/wallet";
+import { creditCommissionEntries, KIND_LABELS, minWithdrawal, STATUS_LABELS, walletBalance, walletHistory, type Owner } from "@/lib/wallet";
 import { getDepositNumbers } from "@/lib/wallet-settings";
 import { getBusinessModel } from "@/lib/business-model-store";
 import { getAvailablePaymentProviders } from "@/lib/payment";
@@ -15,6 +15,8 @@ import { LivreurWalletForm } from "@/components/admin/LivreurWalletForm";
  * versement. Affiché dans « Mes gains » (revendeur) et « Mon wallet » (livreur).
  */
 export async function WalletPanel({ owner, viewAs, depot, historyLimit = 100 }: { owner: Owner; viewAs: boolean; depot?: string; historyLimit?: number }) {
+  // Rattrapage : une commission d'une vente payée qui ne serait pas encore sur le wallet y est créditée tout de suite.
+  if (owner.type === "CONSULTANT") await creditCommissionEntries({ consultantId: owner.id }).catch((e) => console.error("[wallet] rattrapage", e));
   const [bal, history, min, numbers, model] = await Promise.all([walletBalance(owner), walletHistory(owner, historyLimit), minWithdrawal(), getDepositNumbers(), getBusinessModel()]);
   const acct =
     owner.type === "CONSULTANT"
@@ -34,7 +36,7 @@ export async function WalletPanel({ owner, viewAs, depot, historyLimit = 100 }: 
       ) : (
         <>
           <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">Vos commissions et primes sont créditées automatiquement dans ce wallet JAMAAL. Vous pouvez retirer tout ou partie du solde vers votre compte Wave ou Orange Money.</p>
-          <WalletActions balance={bal.balance} min={min} account={account} depositNumbers={numbers} onlineDeposit={{ WAVE: online.includes("wave"), ORANGE_MONEY: online.includes("orange_money") }} />
+          <WalletActions balance={bal.available} min={min} account={account} depositNumbers={numbers} onlineDeposit={{ WAVE: online.includes("wave"), ORANGE_MONEY: online.includes("orange_money") }} />
         </>
       )}
 
