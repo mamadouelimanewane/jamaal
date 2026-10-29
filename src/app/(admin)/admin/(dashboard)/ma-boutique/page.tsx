@@ -37,6 +37,7 @@ export default async function MaBoutiquePage() {
       <div className="mt-6 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <MyShopForm
           photo={me.shopPhoto ?? null}
+          logo={me.shopLogo ?? null}
           bio={me.shopBio ?? null}
           tagline={me.shopTagline ?? null}
           theme={me.shopTheme ?? null}

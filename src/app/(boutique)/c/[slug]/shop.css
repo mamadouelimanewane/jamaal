@@ -49,3 +49,5 @@ a.sh-card:hover, .sh-product:hover { transform: translateY(-2px); box-shadow: 0 
 .sh-decor { height: 6px; }
 .sh-wordmark { font-family: var(--s-display); letter-spacing: 0.34em; padding-left: 0.34em; line-height: 1; }
 .sh-stars { color: var(--s-acc); letter-spacing: 3px; }
+.sh-mark { background: var(--s-soft); border: 1px solid var(--s-acc); color: var(--s-ink); }
+.sh-avatar { border: 3px solid var(--s-surface); box-shadow: 0 0 0 1px var(--s-line); }

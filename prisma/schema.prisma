@@ -510,6 +510,8 @@ model Consultant {
   kitMatin Boolean @default(true)
   /// Boutique personnelle (/c/<slug>) : photo, présentation, coups de cœur (identifiants produits, dans l'ordre).
   shopPhoto String?
+  /// Logo du revendeur, affiché en haut de sa boutique (PNG, JPEG ou WebP).
+  shopLogo  String?
   shopBio   String?
   favorites String[] @default([])
   /// Thème visuel choisi pour la boutique (/c/<slug>) parmi la bibliothèque de thèmes JAMAAL.

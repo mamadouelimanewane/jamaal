@@ -37,7 +37,7 @@ async function topSoldIds(consultantId: string | null, take: number): Promise<st
 export async function getConsultantShop(slug: string) {
   const c = await prisma.consultant.findFirst({
     where: { slug: slug.trim().toLowerCase(), active: true },
-    select: { id: true, name: true, city: true, whatsapp: true, slug: true, rank: true, shopPhoto: true, shopBio: true, shopTheme: true, shopTagline: true, shopAccent: true, shopHero: true, shopTypo: true, shopHidden: true, favorites: true, titleForm: true, createdAt: true, sponsorId: true, sponsor: { select: { sponsorId: true } } },
+    select: { id: true, name: true, city: true, whatsapp: true, slug: true, rank: true, shopPhoto: true, shopLogo: true, shopBio: true, shopTheme: true, shopTagline: true, shopAccent: true, shopHero: true, shopTypo: true, shopHidden: true, favorites: true, titleForm: true, createdAt: true, sponsorId: true, sponsor: { select: { sponsorId: true } } },
   });
   if (!c) return null;
 
@@ -75,7 +75,7 @@ export async function getConsultantShop(slug: string) {
 
   return {
     badges,
-    consultant: { id: c.id, name: c.name, city: c.city, whatsapp: c.whatsapp, slug: c.slug!, photo: c.shopPhoto, bio: c.shopBio, tagline: c.shopTagline, themeId: c.shopTheme, look: { accent: c.shopAccent, hero: c.shopHero, typo: c.shopTypo, hidden: c.shopHidden }, title: effectiveTitle(c.rank, depthFromLoaded(c)), since: c.createdAt },
+    consultant: { id: c.id, name: c.name, city: c.city, whatsapp: c.whatsapp, slug: c.slug!, photo: c.shopPhoto, logo: c.shopLogo, bio: c.shopBio, tagline: c.shopTagline, themeId: c.shopTheme, look: { accent: c.shopAccent, hero: c.shopHero, typo: c.shopTypo, hidden: c.shopHidden }, title: effectiveTitle(c.rank, depthFromLoaded(c)), since: c.createdAt },
     products,
     chosen,
     reviews,

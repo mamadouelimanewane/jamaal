@@ -96,24 +96,44 @@ export default async function ConsultantShopPage({ params }: Props) {
       </a>
     ) : null;
 
-  const portrait = (
-    <div className="relative mx-auto w-full max-w-[420px]">
-      <div className="sh-portrait flex aspect-[4/5] items-center justify-center overflow-hidden">
-        {c.photo ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={c.photo} alt={c.name} className="h-full w-full object-cover" />
-        ) : (
-          <span className="sh-display text-[88px] leading-none" aria-hidden="true">{initials(c.name)}</span>
-        )}
-      </div>
-      {star && (
-        <Link href={`/produits/${star.slug}${ref}`} data-track="produit" data-product={star.id} className="sh-card absolute -bottom-5 left-3 max-w-[80%] rounded-2xl px-4 py-3 shadow-lg sm:-left-6 sm:bottom-10">
-          <span className="sh-eyebrow block text-[10px]">{shop.chosen ? "Son conseil" : "À découvrir"}</span>
-          <span className="sh-display mt-1 block text-lg leading-snug">{star.name}</span>
-        </Link>
-      )}
+  // Page de garde : le logo du revendeur en haut (sinon sa photo, sinon ses initiales), le reste en dessous.
+  const mark = c.logo ? (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={c.logo} alt={`Logo de ${c.name}`} className="mx-auto block max-h-[120px] w-auto max-w-[min(320px,80%)] object-contain sm:max-h-[150px]" />
+  ) : c.photo ? (
+    <div className="sh-portrait mx-auto h-[168px] w-[136px] overflow-hidden sm:h-[200px] sm:w-[162px]">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={c.photo} alt={c.name} className="h-full w-full object-cover" />
+    </div>
+  ) : (
+    <div className="sh-mark mx-auto flex h-[132px] w-[132px] items-center justify-center rounded-full sm:h-[150px] sm:w-[150px]" aria-hidden="true">
+      <span className="sh-display text-[54px] leading-none sm:text-[62px]">{initials(c.name)}</span>
     </div>
   );
+  // Logo et photo : la photo reste visible, en petit, sous le logo (haut de page « portrait »).
+  const avatar = c.logo && c.photo && hero === "portrait" ? (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={c.photo} alt={c.name} className="sh-avatar mx-auto mt-6 h-20 w-20 rounded-full object-cover" />
+  ) : null;
+
+  const starCard = hero === "showcase" && star ? (
+    <Link href={`/produits/${star.slug}${ref}`} data-track="produit" data-product={star.id} className="sh-card sh-product mx-auto mt-12 flex max-w-[640px] flex-col overflow-hidden rounded-[24px] text-left sm:flex-row">
+      <div className="flex aspect-square items-center justify-center p-6 sm:w-[46%]" style={{ background: tint(0) }}>
+        {star.photo ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={star.photo} alt={star.name} className="h-full w-full object-contain" />
+        ) : (
+          <Sparkles size={48} aria-hidden="true" />
+        )}
+      </div>
+      <div className="flex flex-1 flex-col justify-center p-6">
+        <span className="sh-eyebrow text-[11px]">{shop.chosen ? `Le conseil de ${first}` : "À découvrir"}</span>
+        <span className="sh-display mt-2 block text-3xl leading-tight">{star.name}</span>
+        {star.inspiredBy && <span className="sh-muted mt-1 block text-sm">Inspiration : {star.inspiredBy}</span>}
+        <span className="mt-3 block text-lg font-medium tabular-nums">{price(star)}</span>
+      </div>
+    </Link>
+  ) : null;
 
   return (
     <div className="sh-root min-h-screen" style={look.vars as CSSProperties}>
@@ -149,11 +169,12 @@ export default async function ConsultantShopPage({ params }: Props) {
         {theme.decor && <div className="sh-decor" style={{ background: theme.decor }} aria-hidden="true" />}
       </header>
 
-      {/* Haut de page : portrait, produit vedette ou bannière, au choix du revendeur. */}
+      {/* Page de garde : logo en haut, puis nom, accroche, présentation, boutons ; bannière ou produit vedette au choix. */}
       {hero === "banner" ? (
         <section aria-label="Votre conseiller" className="mx-auto max-w-[1240px] px-4 pb-14 pt-6 sm:px-6 sm:pt-12">
-          <div className="sh-accent-bg rounded-[28px] px-6 py-14 text-center sm:px-12 sm:py-20">
-            <p className="text-xs uppercase tracking-[0.26em]">Votre conseiller JAMAAL · {c.city}</p>
+          <div className="sh-accent-bg rounded-[28px] px-6 py-12 text-center sm:px-12 sm:py-16">
+            <div className={c.logo ? "mx-auto inline-block rounded-2xl bg-white px-6 py-4" : ""}>{mark}</div>
+            <p className="mt-8 text-xs uppercase tracking-[0.26em]">Votre conseiller JAMAAL · {c.city}</p>
             <h1 className="sh-display mt-4 text-[clamp(40px,7vw,80px)] leading-[1]">{c.name}</h1>
             <p className="sh-display mt-4 text-xl italic sm:text-2xl">{tagline}</p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
@@ -164,47 +185,26 @@ export default async function ConsultantShopPage({ params }: Props) {
           {c.bio && <p className="sh-muted mx-auto mt-8 max-w-2xl text-center text-base leading-relaxed sm:text-[17px]">{c.bio}</p>}
         </section>
       ) : (
-        <section aria-label="Votre conseiller" className="mx-auto flex max-w-[1240px] flex-wrap items-center gap-12 px-4 pb-16 pt-10 sm:px-6 sm:pb-20 sm:pt-16 lg:gap-14">
-          <div className="min-w-0 flex-[1_1_440px]">
-            <p className="sh-eyebrow">La boutique de votre conseiller JAMAAL · {c.city}</p>
-            <h1 className="sh-display mt-4 text-[clamp(44px,8vw,88px)] leading-[0.98]">{c.name}</h1>
-            <p className="sh-display sh-acc mt-4 text-xl italic sm:text-2xl">{tagline}</p>
-            <p className="sh-muted mt-5 max-w-[34rem] text-base leading-relaxed sm:text-[17px]">
-              {c.bio || `Conseiller·e JAMAAL à ${c.city}. Dites-moi ce que vous aimez porter : je vous guide vers le parfum qui vous ressemble, et je vous le fais livrer.`}
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              {waButton(`Échanger avec ${first}`)}
-              <Link href={`/parfum-adn${ref}`} className="sh-btn sh-btn-ghost">Trouver mon parfum en 1 minute</Link>
-            </div>
-            <div className="sh-line sh-muted mt-10 flex flex-wrap gap-x-6 gap-y-2 border-t pt-6 text-sm">
-              <span>{c.title} JAMAAL</span>
-              <span>Livraison à domicile ou retrait</span>
-              <span>Wave · Orange Money · à la livraison</span>
-              {myReviews.length > 0 && stats.rating ? <span>★ {stats.rating.toFixed(1)} · {myReviews.length} avis</span> : null}
-            </div>
+        <section aria-label="Votre conseiller" className="mx-auto max-w-[920px] px-4 pb-16 pt-10 text-center sm:px-6 sm:pb-20 sm:pt-14">
+          {mark}
+          {avatar}
+          <p className="sh-eyebrow mt-8">La boutique de votre conseiller JAMAAL · {c.city}</p>
+          <h1 className="sh-display mt-4 text-[clamp(42px,8vw,84px)] leading-[0.98]">{c.name}</h1>
+          <p className="sh-display sh-acc mt-4 text-xl italic sm:text-2xl">{tagline}</p>
+          <p className="sh-muted mx-auto mt-5 max-w-[38rem] text-base leading-relaxed sm:text-[17px]">
+            {c.bio || `Conseiller·e JAMAAL à ${c.city}. Dites-moi ce que vous aimez porter : je vous guide vers le parfum qui vous ressemble, et je vous le fais livrer.`}
+          </p>
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            {waButton(`Échanger avec ${first}`)}
+            <Link href={`/parfum-adn${ref}`} className="sh-btn sh-btn-ghost">Trouver mon parfum en 1 minute</Link>
           </div>
-          <div className="min-w-0 flex-[1_1_340px]">
-            {hero === "showcase" && star ? (
-              <Link href={`/produits/${star.slug}${ref}`} data-track="produit" data-product={star.id} className="sh-card sh-product mx-auto block max-w-[440px] overflow-hidden rounded-[24px]">
-                <div className="flex aspect-square items-center justify-center p-8" style={{ background: tint(0) }}>
-                  {star.photo ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={star.photo} alt={star.name} className="h-full w-full object-contain" />
-                  ) : (
-                    <Sparkles size={48} aria-hidden="true" />
-                  )}
-                </div>
-                <div className="p-6">
-                  <span className="sh-eyebrow text-[11px]">{shop.chosen ? `Le conseil de ${first}` : "À découvrir"}</span>
-                  <span className="sh-display mt-2 block text-3xl">{star.name}</span>
-                  {star.inspiredBy && <span className="sh-muted mt-1 block text-sm">Inspiration : {star.inspiredBy}</span>}
-                  <span className="mt-3 block text-lg font-medium tabular-nums">{price(star)}</span>
-                </div>
-              </Link>
-            ) : (
-              portrait
-            )}
+          <div className="sh-line sh-muted mx-auto mt-10 flex max-w-[44rem] flex-wrap justify-center gap-x-6 gap-y-2 border-t pt-6 text-sm">
+            <span>{c.title} JAMAAL</span>
+            <span>Livraison à domicile ou retrait</span>
+            <span>Wave · Orange Money · à la livraison</span>
+            {myReviews.length > 0 && stats.rating ? <span>★ {stats.rating.toFixed(1)} · {myReviews.length} avis</span> : null}
           </div>
+          {starCard}
         </section>
       )}
 

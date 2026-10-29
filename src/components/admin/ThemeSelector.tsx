@@ -27,6 +27,7 @@ export interface ThemeSelectorProps {
   initialHidden?: string[] | null;
   consultantName: string;
   avatarUrl: string | null;
+  logoUrl?: string | null;
 }
 
 const pill = (on: boolean) =>
@@ -36,7 +37,7 @@ const pill = (on: boolean) =>
  * Apparence de la boutique (/c/<slug>) : thème, accent, mise en avant, typographie et sections.
  * Les choix partent avec le formulaire de Ma boutique (champs cachés) ; l'aperçu se met à jour en direct.
  */
-export function ThemeSelector({ initialTheme, initialAccent, initialHero, initialTypo, initialHidden, consultantName, avatarUrl }: ThemeSelectorProps) {
+export function ThemeSelector({ initialTheme, initialAccent, initialHero, initialTypo, initialHidden, consultantName, avatarUrl, logoUrl = null }: ThemeSelectorProps) {
   const [themeId, setThemeId] = useState<ShopThemeId>(normalizeThemeId(initialTheme));
   const [accent, setAccent] = useState<0 | 1 | 2>(normalizeAccent(initialAccent));
   const [hero, setHero] = useState<ShopHero>(normalizeHero(initialHero));
@@ -49,6 +50,21 @@ export function ThemeSelector({ initialTheme, initialAccent, initialHero, initia
   const body = typo === "classique" ? "'Poppins', system-ui, sans-serif" : `'${t.bodyName}', system-ui, sans-serif`;
   const first = consultantName.split(/\s+/)[0] || "Moi";
   const initials = consultantName.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase()).join("");
+  // Comme sur la boutique : le logo en haut, sinon la photo, sinon les initiales.
+  const previewMark = (small = false) =>
+    logoUrl ? (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img src={logoUrl} alt="" className={`mx-auto block w-auto object-contain ${small ? "max-h-10 max-w-[140px]" : "max-h-14 max-w-[160px]"}`} />
+    ) : avatarUrl ? (
+      <div className="mx-auto h-[72px] w-[58px] overflow-hidden" style={{ borderRadius: t.portrait, border: `1px solid ${t.line}` }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
+      </div>
+    ) : (
+      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full" style={{ background: t.soft, border: `1px solid ${acc}`, color: t.ink }}>
+        <span style={{ fontFamily: display, fontSize: 20 }}>{initials}</span>
+      </div>
+    );
   const toggle = (s: ShopSection) => setHidden((h) => (h.includes(s) ? h.filter((x) => x !== s) : [...h, s]));
   const show = (s: ShopSection) => !hidden.includes(s);
 
@@ -155,28 +171,25 @@ export function ThemeSelector({ initialTheme, initialAccent, initialHero, initia
             {t.decor && <div style={{ height: 4, background: t.decor }} />}
             <div className="max-h-[430px] overflow-hidden">
               {hero === "banner" ? (
-                <div className="m-3 rounded-2xl px-3 py-6 text-center text-white" style={{ background: acc }}>
-                  <div className="text-[8px] uppercase tracking-[0.2em]">Votre conseiller</div>
-                  <div className="mt-1" style={{ fontFamily: display, fontSize: 24, lineHeight: 1.05 }}>{consultantName}</div>
+                <div className="m-3 rounded-2xl px-3 py-5 text-center text-white" style={{ background: acc }}>
+                  <div className={logoUrl ? "mx-auto inline-block rounded-lg bg-white px-2 py-1.5" : ""}>{previewMark(true)}</div>
+                  <div className="mt-2 text-[8px] uppercase tracking-[0.2em]">Votre conseiller</div>
+                  <div className="mt-1" style={{ fontFamily: display, fontSize: 22, lineHeight: 1.05 }}>{consultantName}</div>
                 </div>
               ) : (
-                <div className="px-3 pb-3 pt-4">
-                  {hero === "showcase" ? (
-                    <div className="flex items-center gap-2.5 rounded-xl p-2.5" style={{ background: t.surface, border: `1px solid ${t.line}` }}>
-                      <div className="h-16 w-12 rounded-lg" style={{ background: t.tints[0], border: `1px solid ${t.line}` }} />
-                      <div>
-                        <div className="text-[8px] uppercase tracking-[0.18em]" style={{ color: acc }}>Le conseil de {first}</div>
-                        <div style={{ fontFamily: display, fontSize: 15 }}>Mon coup de cœur</div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="mx-auto flex h-[120px] w-[96px] items-center justify-center overflow-hidden" style={{ borderRadius: t.portrait, background: t.soft, border: `1px solid ${t.line}` }}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      {avatarUrl ? <img src={avatarUrl} alt="" className="h-full w-full object-cover" /> : <span style={{ fontFamily: display, fontSize: 32 }}>{initials}</span>}
-                    </div>
-                  )}
+                <div className="px-3 pb-3 pt-4 text-center">
+                  {previewMark()}
                   <div className="mt-3 text-[8px] uppercase tracking-[0.2em]" style={{ color: acc }}>La boutique de votre conseiller</div>
                   <div className="mt-1" style={{ fontFamily: display, fontSize: 22, lineHeight: 1.05 }}>{consultantName}</div>
+                  {hero === "showcase" && (
+                    <div className="mt-2.5 flex items-center gap-2.5 rounded-xl p-2 text-left" style={{ background: t.surface, border: `1px solid ${t.line}` }}>
+                      <div className="h-12 w-10 rounded-lg" style={{ background: t.tints[0], border: `1px solid ${t.line}` }} />
+                      <div>
+                        <div className="text-[8px] uppercase tracking-[0.18em]" style={{ color: acc }}>Le conseil de {first}</div>
+                        <div style={{ fontFamily: display, fontSize: 13 }}>Mon coup de cœur</div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
               <div className="px-3"><div className="rounded-full py-2 text-center text-[10px] font-semibold text-white" style={{ background: "#128C4B" }}>Échanger avec {first}</div></div>

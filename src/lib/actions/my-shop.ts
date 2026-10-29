@@ -39,6 +39,18 @@ export async function updateMyShop(_prev: ShopState, fd: FormData): Promise<Shop
     shopPhoto = blob.url;
   }
 
+  // Logo : affiché en haut de la boutique ; la transparence (PNG, WebP) est conservée.
+  let shopLogo: string | null | undefined;
+  if (fd.get("removeLogo") === "1") shopLogo = null;
+  const logo = fd.get("logo");
+  if (logo instanceof File && logo.size > 0) {
+    if (!TYPES.includes(logo.type) || logo.size > 2 * 1024 * 1024) return { ok: false, error: "Logo : PNG, JPG ou WebP, 2 Mo au plus." };
+    if (!process.env.BLOB_READ_WRITE_TOKEN) return { ok: false, error: "L'envoi d'image n'est pas encore activé : réessayez plus tard." };
+    const ext = logo.type === "image/png" ? "png" : logo.type === "image/webp" ? "webp" : "jpg";
+    const blob = await put(`consultants/logo-${me.id}-${Date.now()}.${ext}`, Buffer.from(await logo.arrayBuffer()), { access: "public", addRandomSuffix: true, contentType: logo.type });
+    shopLogo = blob.url;
+  }
+
   const tf = fd.get("titleForm");
   const titleForm = tf === "m" || tf === "f" ? tf : null;
 
@@ -55,6 +67,7 @@ export async function updateMyShop(_prev: ShopState, fd: FormData): Promise<Shop
       favorites: ordered,
       titleForm,
       ...(shopPhoto !== undefined ? { shopPhoto } : {}),
+      ...(shopLogo !== undefined ? { shopLogo } : {}),
     },
   });
 

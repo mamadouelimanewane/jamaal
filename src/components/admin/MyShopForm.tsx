@@ -2,15 +2,16 @@
 
 import { useActionState, useRef, useState } from "react";
 import Link from "next/link";
-import { Camera, Loader2 } from "lucide-react";
+import { Camera, ImageIcon, Loader2 } from "lucide-react";
 import { updateMyShop, type ShopState } from "@/lib/actions/my-shop";
-import { compressPhoto } from "@/lib/compress-photo";
+import { compressLogo, compressPhoto } from "@/lib/compress-photo";
 import { ProductPicker, type PickerProduct } from "./GrowthWidgets";
 import { ThemeSelector } from "./ThemeSelector";
 
 /** Réglages de la boutique personnelle : photo, thème, slogan, présentation, coups de cœur (8 au plus). */
 export function MyShopForm({
   photo,
+  logo = null,
   bio,
   tagline,
   theme,
@@ -22,6 +23,7 @@ export function MyShopForm({
   badges,
 }: {
   photo: string | null;
+  logo?: string | null;
   bio: string | null;
   tagline?: string | null;
   theme?: string | null;
@@ -39,6 +41,20 @@ export function MyShopForm({
   const [text, setText] = useState(bio ?? "");
   const [taglineText, setTaglineText] = useState(tagline ?? "");
   const input = useRef<HTMLInputElement>(null);
+  const logoInput = useRef<HTMLInputElement>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(logo);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoRemoved, setLogoRemoved] = useState(false);
+
+  async function pickLogo(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.currentTarget.files?.[0];
+    e.currentTarget.value = "";
+    if (!f) return;
+    const small = await compressLogo(f);
+    setLogoFile(small);
+    setLogoRemoved(false);
+    setLogoPreview(URL.createObjectURL(small));
+  }
 
   async function pick(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.currentTarget.files?.[0];
@@ -56,6 +72,8 @@ export function MyShopForm({
       action={(fd) => {
         if (file) fd.set("photo", file);
         if (removed) fd.set("removePhoto", "1");
+        if (logoFile) fd.set("logo", logoFile);
+        if (logoRemoved) fd.set("removeLogo", "1");
         action(fd);
       }}
       className="space-y-7"
@@ -101,8 +119,33 @@ export function MyShopForm({
         </div>
       </div>
 
+      {/* 1 bis. Logo, en haut de la boutique */}
+      <div className="flex flex-wrap items-center gap-4 rounded-2xl border border-line bg-cream/40 p-4">
+        <div className="flex h-24 w-40 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-line bg-[length:16px_16px] bg-[linear-gradient(45deg,#f1ece6_25%,transparent_25%,transparent_75%,#f1ece6_75%),linear-gradient(45deg,#f1ece6_25%,#fff_25%,#fff_75%,#f1ece6_75%)] bg-[position:0_0,8px_8px]">
+          {logoPreview && !logoRemoved ? (
+            // eslint-disable-next-line @next/next/no-img-element -- aperçu
+            <img src={logoPreview} alt="Mon logo" className="max-h-20 max-w-36 object-contain" />
+          ) : (
+            <span className="px-2 text-center text-xs text-navy/60">Pas encore de logo</span>
+          )}
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-semibold text-navy">Mon logo</p>
+          <p className="text-xs text-navy/70">Affiché en haut de votre boutique, au-dessus de vos informations. PNG à fond transparent conseillé, 2 Mo au plus. Sans logo, votre photo (ou vos initiales) prend sa place.</p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <button type="button" onClick={() => logoInput.current?.click()} className="inline-flex items-center gap-2 rounded-full bg-navy px-4 py-2 text-sm font-semibold text-white transition hover:bg-navy-light">
+              <ImageIcon size={15} /> {logoPreview && !logoRemoved ? "Changer mon logo" : "Ajouter mon logo"}
+            </button>
+            {logoPreview && !logoRemoved && (
+              <button type="button" onClick={() => setLogoRemoved(true)} className="text-xs font-semibold text-navy/60 hover:text-rose-dark">Retirer le logo</button>
+            )}
+          </div>
+          <input ref={logoInput} type="file" accept="image/png,image/jpeg,image/webp" onChange={pickLogo} className="sr-only" tabIndex={-1} aria-hidden="true" />
+        </div>
+      </div>
+
       {/* 2. Bibliothèque de Thèmes */}
-      <ThemeSelector initialTheme={theme} initialAccent={look?.accent} initialHero={look?.hero} initialTypo={look?.typo} initialHidden={look?.hidden} consultantName={name} avatarUrl={preview && !removed ? preview : null} />
+      <ThemeSelector initialTheme={theme} initialAccent={look?.accent} initialHero={look?.hero} initialTypo={look?.typo} initialHidden={look?.hidden} consultantName={name} avatarUrl={preview && !removed ? preview : null} logoUrl={logoPreview && !logoRemoved ? logoPreview : null} />
 
       {/* 3. Slogan / Phrase d'accroche */}
       <label className="block text-sm font-medium text-navy">
