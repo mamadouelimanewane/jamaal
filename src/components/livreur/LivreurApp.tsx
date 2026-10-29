@@ -6,62 +6,109 @@ import { Camera, CheckCircle2, FileText, Lock } from "lucide-react";
 import { compressPhoto } from "@/lib/compress-photo";
 import { useInstall } from "@/components/admin/InstallApp";
 import { InstallGuide } from "@/components/admin/InstallGuide";
+import { QRCodeSVG } from "qrcode.react";
+import { installEnv, type InstallEnv } from "@/lib/install-env";
 import { registerLivreur, type SignupState } from "@/lib/actions/livreur-signup";
 import { DOC_MAX_BYTES, ID_TYPES, PAYOUT_PROVIDERS, VEHICLES, needsVerso } from "@/lib/livreur-signup";
 
 const field = "mt-1.5 w-full rounded-xl border border-line bg-cream/50 px-4 py-3 text-base text-navy outline-none transition focus:border-rose-dark focus:bg-white focus:ring-4 focus:ring-rose/10";
 const label = "block text-left text-xs font-semibold text-navy/85";
 
+/** « 221771234567 » → « 77 123 45 67 » (affichage de l'identifiant). */
+export function prettyPhone(p: string) {
+  const d = p.replace(/\D/g, "");
+  const local = d.startsWith("221") && d.length === 12 ? d.slice(3) : d;
+  return local.length === 9 ? `${local.slice(0, 2)} ${local.slice(2, 5)} ${local.slice(5, 7)} ${local.slice(7)}` : p;
+}
+
 /**
- * Application JAMAAL Livreur. Installation obligatoire : dans le navigateur, seul le guide d'installation
- * s'affiche. Ouverte depuis l'icône (mode application) : inscription ou connexion ; un livreur déjà
- * connecté part directement sur ses livraisons.
+ * Application JAMAAL Livreur, à l'adresse d'inscription des livreurs.
+ * - Sur téléphone, dans le navigateur : 1. installation directe de l'icône « JAMAAL Livreur »,
+ *   2. inscription complète (le numéro WhatsApp sert d'identifiant), 3. validation par l'équipe JAMAAL.
+ * - Sur ordinateur : code QR pour ouvrir la page sur le téléphone (l'inscription reste possible).
+ * - Ouverte depuis l'icône : inscription ou connexion ; un livreur connecté part sur ses livraisons.
+ * Les livraisons elles-mêmes ne s'utilisent que dans l'application installée.
  */
 export function LivreurApp({ loggedIn, initialTab, login }: { loggedIn: boolean; initialTab: "signup" | "login"; login: React.ReactNode }) {
   const { installed } = useInstall();
-  const [ready, setReady] = useState(false);
+  const [env, setEnv] = useState<InstallEnv | null>(null);
   const [tab, setTab] = useState(initialTab);
+  const [url, setUrl] = useState("");
   const router = useRouter();
 
   useEffect(() => {
-    const t = setTimeout(() => setReady(true), 0);
+    const e = installEnv(navigator.userAgent, navigator.maxTouchPoints, navigator.platform);
+    const t = setTimeout(() => {
+      setEnv(e);
+      setUrl(`${window.location.origin}/livreur`);
+    }, 0);
     return () => clearTimeout(t);
   }, []);
   useEffect(() => {
-    if (ready && installed && loggedIn) router.replace("/admin/mes-livraisons");
-  }, [ready, installed, loggedIn, router]);
+    if (env && installed && loggedIn) router.replace("/admin/mes-livraisons");
+  }, [env, installed, loggedIn, router]);
 
-  if (!ready) return <div className="h-40" aria-hidden="true" />;
+  if (!env) return <div className="h-40" aria-hidden="true" />;
+  const mobile = env !== "desktop";
 
-  if (!installed)
+  if (loggedIn && !installed)
     return (
       <div>
         <h1 className="font-serif-display text-2xl font-semibold text-navy">Installez l&apos;application Livreur</h1>
-        <p className="mt-2 text-sm leading-6 text-navy/75">
-          Pour livrer avec JAMAAL, l&apos;application est obligatoire : vos courses, l&apos;itinéraire, la confirmation de livraison et vos gains, sur votre téléphone.
-        </p>
-        <p className="mx-auto mt-3 flex w-fit items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-900">
-          <Lock size={13} /> {loggedIn ? "Installez l'application pour accéder à vos livraisons" : "L'inscription s'ouvre dans l'application"}
-        </p>
-        <div className="mt-5"><InstallGuide next="/admin/livreur" compact /></div>
-        <p className="mt-4 text-xs text-navy/60">Ensuite, ouvrez <strong>JAMAAL Livreur</strong> depuis l&apos;icône de votre écran d&apos;accueil. Gratuit, sans Play Store ni App Store.</p>
+        <p className="mx-auto mt-3 flex w-fit items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-900"><Lock size={13} /> Obligatoire pour accéder à vos livraisons</p>
+        <div className="mt-5"><InstallGuide next="/admin/livreur" compact appName="JAMAAL Livreur" /></div>
+        <p className="mt-4 text-xs text-navy/60">Ensuite, ouvrez <strong>JAMAAL Livreur</strong> depuis l&apos;icône de votre écran d&apos;accueil.</p>
       </div>
     );
-
   if (loggedIn) return <p className="py-10 text-sm text-navy/70">Ouverture de vos livraisons…</p>;
 
   return (
     <div>
-      <div role="tablist" aria-label="Inscription ou connexion" className="grid grid-cols-2 gap-1 rounded-full bg-cream p-1 text-sm font-semibold">
-        <button type="button" role="tab" aria-selected={tab === "signup"} onClick={() => setTab("signup")} className={`rounded-full px-3 py-2.5 ${tab === "signup" ? "bg-navy text-white" : "text-navy"}`}>Je m&apos;inscris</button>
+      {!installed && (
+        <>
+          <h1 className="font-serif-display text-2xl font-semibold text-navy">Devenez livreur JAMAAL</h1>
+          <ol className="mt-4 grid grid-cols-3 gap-2 text-left text-[11px] font-semibold leading-4 text-navy/80" aria-label="Étapes">
+            {["Installer l'application", "S'inscrire avec son numéro", "Validation par JAMAAL"].map((t, i) => (
+              <li key={t} className="flex items-start gap-1.5 rounded-xl bg-cream/70 p-2">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-navy text-[11px] text-white">{i + 1}</span>
+                {t}
+              </li>
+            ))}
+          </ol>
+          {mobile ? (
+            <section className="mt-4 rounded-2xl border border-line bg-[#fdfbfa] p-4 text-left" aria-labelledby="lv-install-title">
+              <div className="flex items-center gap-3">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/icons/livreur-192.png" alt="" width={52} height={52} className="rounded-xl border border-line" />
+                <div>
+                  <h2 id="lv-install-title" className="font-semibold text-navy">1. Installez JAMAAL Livreur</h2>
+                  <p className="text-xs text-navy/70">L&apos;icône s&apos;ajoute sur votre écran d&apos;accueil, comme une application. Gratuit, sans Play Store.</p>
+                </div>
+              </div>
+              <div className="mt-3"><InstallGuide next="/admin/livreur" compact appName="JAMAAL Livreur" /></div>
+            </section>
+          ) : (
+            <section className="mt-4 flex flex-col items-center gap-3 rounded-2xl border border-line bg-[#fdfbfa] p-4 sm:flex-row sm:text-left" aria-labelledby="lv-qr-title">
+              {url && <QRCodeSVG value={url} size={128} level="M" className="shrink-0 rounded-lg bg-white p-1.5" aria-label="Code QR de l'inscription livreur" />}
+              <div>
+                <h2 id="lv-qr-title" className="font-semibold text-navy">Ouvrez cette page sur votre téléphone</h2>
+                <p className="mt-1 text-sm text-navy/75">Scannez le code avec l&apos;appareil photo : l&apos;application JAMAAL Livreur s&apos;installe directement sur le téléphone. Vous pouvez aussi remplir l&apos;inscription ici.</p>
+              </div>
+            </section>
+          )}
+        </>
+      )}
+
+      <div role="tablist" aria-label="Inscription ou connexion" className="mt-5 grid grid-cols-2 gap-1 rounded-full bg-cream p-1 text-sm font-semibold">
+        <button type="button" role="tab" aria-selected={tab === "signup"} onClick={() => setTab("signup")} className={`rounded-full px-3 py-2.5 ${tab === "signup" ? "bg-navy text-white" : "text-navy"}`}>{installed ? "Je m'inscris" : "2. Je m'inscris"}</button>
         <button type="button" role="tab" aria-selected={tab === "login"} onClick={() => setTab("login")} className={`rounded-full px-3 py-2.5 ${tab === "login" ? "bg-navy text-white" : "text-navy"}`}>J&apos;ai déjà un compte</button>
       </div>
-      {tab === "signup" ? <SignupForm onLogin={() => setTab("login")} /> : <div className="text-left">{login}</div>}
+      {tab === "signup" ? <SignupForm onLogin={() => setTab("login")} installed={installed} /> : <div className="text-left">{login}</div>}
     </div>
   );
 }
 
-function SignupForm({ onLogin }: { onLogin: () => void }) {
+function SignupForm({ onLogin, installed }: { onLogin: () => void; installed: boolean }) {
   const [state, action, pending] = useActionState<SignupState, FormData>(registerLivreur, null);
   const [provider, setProvider] = useState(state?.values?.walletProvider || "WAVE");
   const [idType, setIdType] = useState(state?.values?.idType || "CNI");
@@ -82,11 +129,25 @@ function SignupForm({ onLogin }: { onLogin: () => void }) {
 
   if (state?.ok)
     return (
-      <div className="mt-6 rounded-2xl bg-emerald-50 p-5 text-sm text-emerald-900">
-        <CheckCircle2 className="mx-auto" size={32} />
-        <p className="mt-2 text-base font-semibold">Merci{state.name ? ` ${state.name}` : ""}, inscription reçue !</p>
-        <p className="mt-1 leading-6">L&apos;équipe JAMAAL vérifie votre dossier. Vous serez prévenu sur WhatsApp dès la validation, puis vous vous connecterez avec votre numéro et votre mot de passe.</p>
-        <button type="button" onClick={onLogin} className="mt-4 rounded-full border border-emerald-800/30 px-5 py-2.5 font-semibold">Se connecter</button>
+      <div className="mt-6 space-y-4 text-left">
+        <div className="rounded-2xl bg-emerald-50 p-5 text-sm text-emerald-900">
+          <CheckCircle2 className="mx-auto" size={32} />
+          <p className="mt-2 text-center text-base font-semibold">Merci{state.name ? ` ${state.name}` : ""}, inscription reçue !</p>
+          {state.phone && (
+            <p className="mt-3 rounded-xl bg-white/70 px-3 py-2 text-center">
+              Votre identifiant : <strong className="text-base tracking-wide">{prettyPhone(state.phone)}</strong>
+              <span className="block text-xs text-emerald-900/80">avec le mot de passe que vous venez de choisir</span>
+            </p>
+          )}
+          <p className="mt-3 leading-6"><strong>3. Validation :</strong> l&apos;équipe JAMAAL vérifie votre pièce d&apos;identité. Vous recevez un message WhatsApp dès que votre compte est activé.</p>
+        </div>
+        {!installed ? (
+          <p className="rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-950">
+            <strong>Dernière étape :</strong> si ce n&apos;est pas encore fait, ajoutez l&apos;icône <strong>JAMAAL Livreur</strong> sur votre téléphone (étape 1 ci-dessus). C&apos;est avec elle que vous vous connecterez après la validation.
+          </p>
+        ) : (
+          <button type="button" onClick={onLogin} className="w-full rounded-full border border-emerald-800/30 px-5 py-2.5 font-semibold text-emerald-900">Se connecter</button>
+        )}
       </div>
     );
 
@@ -102,7 +163,7 @@ function SignupForm({ onLogin }: { onLogin: () => void }) {
         <input id="lv-name" name="name" defaultValue={v("name")} required autoComplete="name" aria-invalid={err("name")} className={field} />
       </div>
       <div>
-        <label htmlFor="lv-phone" className={label}>Numéro WhatsApp</label>
+        <label htmlFor="lv-phone" className={label}>Numéro WhatsApp <span className="font-normal text-navy/60">· ce sera votre identifiant de connexion</span></label>
         <input id="lv-phone" name="phone" defaultValue={v("phone")} type="tel" inputMode="tel" required placeholder="77 123 45 67" autoComplete="tel" aria-invalid={err("phone")} className={field} />
       </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

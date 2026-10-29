@@ -17,6 +17,8 @@ export default function AdminRootLayout({ children }: { children: React.ReactNod
   return (
     <html lang="fr" className="h-full antialiased">
       <body className="min-h-full bg-cream font-sans text-foreground">
+        {/* L'invite d'installation peut arriver avant le chargement de la page : on la garde pour le bouton « Installer ». */}
+        <script dangerouslySetInnerHTML={{ __html: "window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();window.__jamaalInstall=e;window.dispatchEvent(new Event('jamaal-install-ready'));});" }} />
         {children}
         <PwaRegister />
       </body>

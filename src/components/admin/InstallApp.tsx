@@ -20,6 +20,13 @@ export function useInstall() {
     };
     const onInstalled = () => setInstalled(true);
     window.addEventListener("beforeinstallprompt", onPrompt);
+    // Invite reçue avant le montage du composant (gardée par le script de la page).
+    const early = () => {
+      const e = (window as { __jamaalInstall?: Event }).__jamaalInstall;
+      if (e) setEvt(e as InstallEvent);
+    };
+    window.addEventListener("jamaal-install-ready", early);
+    queueMicrotask(early);
     window.addEventListener("appinstalled", onInstalled);
     queueMicrotask(() => {
       setInstalled(standalone);
@@ -27,11 +34,20 @@ export function useInstall() {
     });
     return () => {
       window.removeEventListener("beforeinstallprompt", onPrompt);
+      window.removeEventListener("jamaal-install-ready", early);
       window.removeEventListener("appinstalled", onInstalled);
     };
   }, []);
 
-  return { evt, ios, installed, clear: () => setEvt(null) };
+  return {
+    evt,
+    ios,
+    installed,
+    clear: () => {
+      (window as { __jamaalInstall?: Event }).__jamaalInstall = undefined;
+      setEvt(null);
+    },
+  };
 }
 
 /**

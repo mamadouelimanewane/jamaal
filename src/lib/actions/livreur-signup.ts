@@ -13,7 +13,7 @@ import { notifyTeamWhatsApp } from "@/lib/whatsapp";
 import { LIVREUR_ACTIVE, LIVREUR_PENDING, LIVREUR_REFUSED, docFileError, idTypeLabel, needsVerso, parseLivreurSignup, sniffDocType, vehicleLabel } from "@/lib/livreur-signup";
 import { requireAdmin } from "./auth-guard";
 
-export type SignupState = { ok: boolean; error?: string; field?: string; name?: string; values?: Record<string, string>; n?: number } | null;
+export type SignupState = { ok: boolean; error?: string; field?: string; name?: string; phone?: string; values?: Record<string, string>; n?: number } | null;
 
 /** Valeurs renvoyées au formulaire après une erreur (jamais les mots de passe). */
 const KEEP = ["name", "phone", "zone", "vehicle", "walletProvider", "walletNumber", "idType", "idNumber"] as const;
@@ -89,7 +89,7 @@ export async function registerLivreur(prev: SignupState, formData: FormData): Pr
   if (admins.length) await prisma.notification.createMany({ data: admins.map((a) => ({ userId: a.id, title: "Nouveau livreur à valider 🛵", message: `${msg}. À valider dans Livraison › Livreurs.` })) }).catch(() => {});
   notifyTeamWhatsApp(`🛵 Nouvelle inscription livreur à valider : ${msg}.`);
   revalidatePath("/admin/livreurs");
-  return { ok: true, name: d.name.split(" ")[0] };
+  return { ok: true, name: d.name.split(" ")[0], phone: d.phone };
 }
 
 /** Validation par l'administrateur : pièce d'identité contrôlée, la fiche devient active et le livreur peut se connecter. */
