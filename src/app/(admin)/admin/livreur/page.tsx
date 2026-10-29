@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 
 async function logout() {
   "use server";
-  await signOut({ redirectTo: "/admin/livreur" });
+  await signOut({ redirectTo: "/admin/livreur?mode=connexion" });
 }
 
 /**
@@ -33,9 +33,9 @@ export default async function LivreurAppPage({ searchParams }: { searchParams: P
     return (
       <Shell>
         <h1 className="font-serif-display text-2xl font-semibold text-navy">Application Livreur</h1>
-        <p className="mt-3 text-sm leading-6 text-navy/75">Le compte {session.user?.phone ?? session.user?.email} n&apos;est pas un compte livreur. Déconnectez-vous pour vous inscrire ou vous connecter comme livreur.</p>
-        <form action={logout} className="mt-6"><button className="rounded-full bg-navy px-6 py-3 text-sm font-semibold text-white">Se déconnecter</button></form>
-        <Link href="/admin" className="mt-4 block text-sm font-semibold text-rose-dark">Retour à mon espace</Link>
+        <p className="mt-3 text-sm leading-6 text-navy/75">Vous êtes connecté à votre <strong>espace {role === "ADMIN" ? "administrateur" : "revendeur"}</strong>. Votre compte livreur est séparé : déconnectez-vous ici pour vous connecter (ou vous inscrire) comme livreur.</p>
+        <form action={logout} className="mt-6"><button className="w-full rounded-full bg-navy px-6 py-3 text-sm font-semibold text-white">Se connecter comme livreur</button></form>
+        <Link href="/admin" className="mt-4 block text-sm font-semibold text-rose-dark">Retour à mon espace {role === "ADMIN" ? "administrateur" : "revendeur"}</Link>
       </Shell>
     );
   }

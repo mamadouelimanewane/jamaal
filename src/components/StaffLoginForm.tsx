@@ -27,6 +27,8 @@ export function StaffLoginForm({ from, next, notice }: { from: "/admin/login" | 
       ? { tone: "err", text: "Votre compte est suspendu. Contactez l'administrateur JAMAAL pour le réactiver." }
       : notice.session
         ? { tone: "err", text: "Vos droits ont changé : reconnectez-vous pour les appliquer." }
+        : notice.erreur === "pas-livreur"
+      ? { tone: "err", text: "Ce numéro n'a pas encore de compte livreur (votre compte revendeur reste à part). Inscrivez-vous avec l'onglet « Je m'inscris » : l'équipe JAMAAL validera votre compte livreur." }
         : notice.erreur === "attente"
       ? { tone: "ok", text: "Votre inscription de livreur est en cours de validation par l'équipe JAMAAL. Vous serez prévenu sur WhatsApp dès qu'elle est acceptée." }
         : notice.erreur === "bloque"

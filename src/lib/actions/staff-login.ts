@@ -31,6 +31,14 @@ async function pendingLivreur(login: string) {
   return rows.length > 0;
 }
 
+/** Ce numéro a-t-il un compte livreur (validé ou non) ? */
+async function hasLivreurAccount(login: string) {
+  const tail = phoneTail(login);
+  if (!tail) return false;
+  const rows = await prisma.$queryRaw<{ n: number }[]>`SELECT 1 AS n FROM "Livreur" l JOIN "User" u ON u."livreurId" = l.id WHERE right(regexp_replace(l.phone, '[^0-9]', '', 'g'), 9) = ${tail} LIMIT 1`.catch(() => []);
+  return rows.length > 0;
+}
+
 /** Connexion par identifiant (numéro WhatsApp ou e-mail) et mot de passe, messages clairs. */
 export async function passwordLogin(formData: FormData) {
   const from = base(formData);
@@ -46,10 +54,14 @@ export async function passwordLogin(formData: FormData) {
     return !!a?.lockedUntil && a.lockedUntil > new Date();
   };
   if (await lockedNow()) redirect(`${from}?erreur=bloque${keep}`);
+  const livreurSpace = from === "/admin/livreur" || redirectTo === "/admin/mes-livraisons" || redirectTo === "/livreur";
   try {
-    await signIn("credentials", { login, password, redirectTo, space: from === "/admin/livreur" || redirectTo === "/admin/mes-livraisons" || redirectTo === "/livreur" ? "livreur" : "" });
+    await signIn("credentials", { login, password, redirectTo, space: livreurSpace ? "livreur" : "" });
   } catch (error) {
-    if (error instanceof AuthError) redirect(`${from}?erreur=${(await lockedNow()) ? "bloque" : (await pendingLivreur(login)) ? "attente" : "1"}${keep}`);
+    if (error instanceof AuthError) {
+      const why = (await lockedNow()) ? "bloque" : (await pendingLivreur(login)) ? "attente" : livreurSpace && !(await hasLivreurAccount(login)) ? "pas-livreur" : "1";
+      redirect(`${from}?erreur=${why}${keep}`);
+    }
     throw error;
   }
 }

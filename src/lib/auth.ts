@@ -73,7 +73,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         // Tolérance smartphone : une espace ajoutée en fin de mot de passe par le clavier.
         const tries = password !== password.trim() ? [password, password.trim()] : [password];
         const wantLivreur = String(credentials?.space ?? "") === "livreur";
-        const ordered = [...candidates].sort((a, b) => Number(wantLivreur ? b.role === "LIVREUR" : a.role === "LIVREUR") - Number(wantLivreur ? a.role === "LIVREUR" : b.role === "LIVREUR"));
+        // Application Livreur : uniquement le compte livreur du numéro (jamais le compte revendeur, même mot de passe).
+        // Espace revendeur / admin : les autres comptes d'abord, le compte livreur en dernier recours.
+        const ordered = wantLivreur ? candidates.filter((c) => c.role === "LIVREUR") : [...candidates].sort((a, b) => Number(a.role === "LIVREUR") - Number(b.role === "LIVREUR"));
         const matching: (typeof candidates)[number][] = [];
         for (const c of ordered) {
           for (const t of tries) if (!matching.includes(c) && (await bcrypt.compare(t, c.passwordHash))) matching.push(c);
