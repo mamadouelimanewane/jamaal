@@ -69,3 +69,12 @@ test("pièce d'identité : fichier contrôlé, verso selon le type", async () =>
   assert.equal(needsVerso("PASSEPORT"), false);
   assert.equal(needsVerso("PERMIS"), true);
 });
+
+test("code secret à 6 chiffres accepté, codes trop simples refusés", async () => {
+  const { secretError } = await import("../livreur-signup");
+  assert.equal(secretError("482915"), null);
+  assert.equal(secretError("livreur123"), null);
+  for (const bad of ["123456", "654321", "111111", "121212", "123123", "901234", "12345", "abcdefgh"]) assert.ok(secretError(bad), bad);
+  const r = parseLivreurSignup(form({ password: "482915", confirm: "482915" }));
+  assert.ok(r.ok);
+});

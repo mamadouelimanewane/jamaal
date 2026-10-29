@@ -1,5 +1,4 @@
 import { balanceOf } from "@/lib/reservation";
-import { WalletHero } from "@/components/admin/WalletWidgets";
 import { walletBalance } from "@/lib/wallet";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
@@ -7,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/currency";
 import { LivreurGps } from "@/components/livreur/LivreurGps";
 import { TourMap } from "@/components/livreur/TourMap";
+import { ListenButton } from "@/components/livreur/Listen";
 import { LivreurDeliveryCard } from "@/components/admin/LivreurDeliveryCard";
 import { LivreurWalletForm } from "@/components/admin/LivreurWalletForm";
 import { LiveRefresh } from "@/components/admin/LiveRefresh";
@@ -48,43 +48,49 @@ export default async function MesLivraisonsPage() {
 
   const wallet = await walletBalance({ type: "LIVREUR", id: livreur.id });
 
+  const owed = Math.max(0, -wallet.balance);
+  const first = (user?.name ?? livreur.name).split(/\s+/)[0];
+  const sayHello = `Bonjour ${first}. ${orders.length ? `Vous avez ${orders.length} livraison${orders.length > 1 ? "s" : ""} à faire.` : "Pas de livraison pour le moment."} Ce mois, vous avez gagné ${earnedMonth._sum.amount ?? 0} francs.${owed ? ` Vous devez rendre ${owed} francs à JAMAAL.` : ""}`;
+
   return (
     <div className="max-w-3xl">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="font-serif-display text-2xl font-semibold text-navy">Mes livraisons</h1>
-        <div className="flex flex-wrap items-center gap-2">
-          <LiveRefresh seconds={20} />
+      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#1d2f4f] via-[#6D4AFF] to-[#BE185D] p-5 text-white">
+        <span className="pointer-events-none absolute -right-2 -top-3 text-8xl opacity-20" aria-hidden="true">🛵</span>
+        <div className="relative flex flex-wrap items-start justify-between gap-2">
+          <div>
+            <h1 className="text-2xl font-extrabold">Bonjour {first} 👋</h1>
+            <p className="text-base font-semibold text-white/90">{orders.length ? `${orders.length} livraison${orders.length > 1 ? "s" : ""} à faire` : "Pas de livraison pour le moment"}</p>
+          </div>
+          <ListenButton text={sayHello} tone="dark" />
         </div>
+        <div className="relative mt-4 grid grid-cols-3 gap-2 text-center">
+          <div className="rounded-2xl bg-white/15 p-2.5"><span className="block text-2xl" aria-hidden="true">📦</span><span className="block text-2xl font-extrabold">{orders.length}</span><span className="text-xs font-bold">à livrer</span></div>
+          <div className="rounded-2xl bg-white/15 p-2.5"><span className="block text-2xl" aria-hidden="true">✅</span><span className="block text-2xl font-extrabold">{earnedMonth._count}</span><span className="text-xs font-bold">livrées ce mois</span></div>
+          <div className="rounded-2xl bg-white/15 p-2.5"><span className="block text-2xl" aria-hidden="true">🪙</span><span className="block text-lg font-extrabold leading-8">{formatPrice(earnedMonth._sum.amount ?? 0)}</span><span className="text-xs font-bold">gagnés ce mois</span></div>
+        </div>
+      </section>
+
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+        <LivreurGps active={orders.length > 0} />
+        <LiveRefresh seconds={20} />
       </div>
-      <div className="mt-3"><LivreurGps active={orders.length > 0} /></div>
-      <p className="mt-2 text-sm text-navy/75">
-        {orders.length > 0
-          ? "Pendant vos livraisons, votre position est partagée automatiquement : le client suit votre arrivée sur la carte et reçoit un message quand vous êtes tout proche. Gardez l'application ouverte pendant la tournée."
-          : "Votre position est partagée automatiquement dès qu'une livraison vous est attribuée."}
-      </p>
+      {orders.length > 0 && <p className="mt-2 rounded-2xl bg-[#EFF6FF] px-4 py-2.5 text-sm font-semibold text-[#1E3A8A]">📍 Gardez l&apos;application ouverte pendant la tournée : le client voit où vous êtes.</p>}
+
+      <a href="/admin/mon-wallet" className={`mt-3 flex items-center justify-between gap-3 rounded-3xl p-4 ${owed ? "bg-[#FEF3C7] text-[#78350F]" : "bg-[#CCFBF1] text-[#134E4A]"}`}>
+        <span className="flex items-center gap-3">
+          <span className="text-4xl" aria-hidden="true">{owed ? "💵" : "👛"}</span>
+          <span>
+            <span className="block text-sm font-bold">{owed ? "Argent à rendre à JAMAAL" : "Mon wallet"}</span>
+            <span className="block text-2xl font-extrabold">{formatPrice(owed || wallet.available)}</span>
+            {owed > 0 && <span className="block text-xs font-semibold">Argent encaissé chez les clients, moins vos gains. Remettez-le au dépôt.</span>}
+          </span>
+        </span>
+        <span className="text-2xl" aria-hidden="true">›</span>
+      </a>
+
       {orders.length > 0 && <div className="mt-4"><TourMap /></div>}
 
-      {(() => {
-        const owed = Math.max(0, -wallet.balance);
-        return (
-          <div className="mt-5">
-            <WalletHero compact href="/admin/mon-wallet" {...wallet} />
-            {owed > 0 && (
-              <p className="mt-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-950">
-                <strong>{formatPrice(owed)} d&apos;espèces à reverser</strong> à JAMAAL (paiements encaissés à la livraison, moins vos gains). Remettez-les au dépôt ou faites un dépôt Wave depuis « Mon wallet ».
-              </p>
-            )}
-          </div>
-        );
-      })()}
-
-      <div className="mt-5 grid grid-cols-3 gap-3">
-        <div className="rounded-xl border border-line bg-white px-4 py-3"><p className="text-sm text-navy/80">Livrées ce mois</p><p className="text-xl font-semibold text-ink">{earnedMonth._count}</p></div>
-        <div className="rounded-xl border border-line bg-white px-4 py-3"><p className="text-sm text-navy/80">Gagné ce mois</p><p className="text-xl font-semibold text-ink">{formatPrice(earnedMonth._sum.amount ?? 0)}</p><p className="text-xs text-navy/75">dont {formatPrice(paid._sum.amount ?? 0)} sur le wallet</p></div>
-        <div className="rounded-xl border border-line bg-white px-4 py-3"><p className="text-sm text-navy/80">À recevoir</p><p className="text-xl font-semibold text-ink">{formatPrice(pending._sum.amount ?? 0)}</p></div>
-      </div>
-
-      <h2 className="mb-3 mt-6 text-lg font-semibold text-ink">À livrer ({orders.length})</h2>
+      <h2 className="mb-3 mt-6 text-xl font-extrabold text-ink">📦 Mes courses ({orders.length})</h2>
       <ul className="flex flex-col gap-4">
         {orders.map((o) => (
           <LivreurDeliveryCard
@@ -106,11 +112,11 @@ export default async function MesLivraisonsPage() {
             orderedBy={o.deliveryTarget !== "VENDEUR" && o.deliveryContactName && o.deliveryContactName !== o.customerName ? o.customerName : null}
           />
         ))}
-        {orders.length === 0 && <p className="rounded-2xl border border-line bg-white p-5 text-[15px] text-navy/80">Aucune livraison en cours. Les nouvelles livraisons attribuées apparaissent ici automatiquement.</p>}
+        {orders.length === 0 && <p className="rounded-3xl bg-white p-6 text-center text-lg font-bold text-navy/80"><span className="block text-5xl" aria-hidden="true">😴</span>Pas de course pour le moment. Elles arrivent ici toutes seules.</p>}
       </ul>
 
       <section className="mt-8 rounded-2xl border border-line bg-white p-5">
-        <h2 className="text-lg font-semibold text-ink">Mon compte Wave / Orange Money</h2>
+        <h2 className="text-lg font-extrabold text-ink">💳 Où je reçois mon argent</h2>
         <p className="mt-1 text-sm text-navy/80">
           Votre part de chaque livraison est créditée sur votre wallet JAMAAL.{" "}
           {livreur.walletNumber
@@ -122,13 +128,13 @@ export default async function MesLivraisonsPage() {
 
       {done.length > 0 && (
         <section className="mt-8">
-          <h2 className="mb-3 text-lg font-semibold text-ink">Dernières livraisons</h2>
+          <h2 className="mb-3 text-lg font-extrabold text-ink">🕑 Mes dernières courses</h2>
           <ul className="divide-y divide-line rounded-2xl border border-line bg-white">
             {done.map((o) => (
               <li key={o.id} className="flex items-center justify-between gap-3 px-5 py-3 text-[15px]">
                 <span className="text-ink">{o.customerName}<span className="block text-sm text-navy/75">{(o.deliveredAt ?? o.updatedAt).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" })}</span></span>
-                <span className={`text-sm font-semibold ${o.deliveryStatus === "LIVREE" ? "text-emerald-800" : "text-red-700"}`}>
-                  {DELIVERY_LABELS[o.deliveryStatus as DeliveryStatus]}{o.deliveryStatus === "LIVREE" && o.livreurShare > 0 ? ` · +${formatPrice(o.livreurShare)}` : ""}
+                <span className={`text-sm font-bold ${o.deliveryStatus === "LIVREE" ? "text-emerald-800" : "text-red-700"}`}>
+                  {o.deliveryStatus === "LIVREE" ? "✅ " : "⚠️ "}{DELIVERY_LABELS[o.deliveryStatus as DeliveryStatus]}{o.deliveryStatus === "LIVREE" && o.livreurShare > 0 ? ` · +${formatPrice(o.livreurShare)}` : ""}
                 </span>
               </li>
             ))}

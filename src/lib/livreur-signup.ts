@@ -56,6 +56,24 @@ export function sniffDocType(b: Uint8Array): string | null {
   return null;
 }
 
+/**
+ * Code secret du livreur : 6 chiffres (facile à taper et à retenir), ou un mot de passe classique
+ * (8 caractères, lettres et chiffres). Les codes trop simples (123456, 111111…) sont refusés ;
+ * le blocage après plusieurs essais protège la connexion.
+ */
+export function secretError(pw: string): string | null {
+  if (/^\d{6}$/.test(pw)) {
+    const d = pw.split("").map(Number);
+    const same = d.every((x) => x === d[0]);
+    const up = d.every((x, i) => i === 0 || x === (d[i - 1] + 1) % 10);
+    const down = d.every((x, i) => i === 0 || x === (d[i - 1] + 9) % 10);
+    if (same || up || down || /^(\d{2})\1\1$|^(\d{3})\2$/.test(pw)) return "Code trop simple : évitez 123456, 111111 ou 121212. Choisissez 6 chiffres mélangés.";
+    return null;
+  }
+  if (pw.length >= 8 && /\d/.test(pw) && /[a-z]/i.test(pw)) return null;
+  return "Code secret : 6 chiffres (ou un mot de passe de 8 caractères avec lettres et chiffres).";
+}
+
 export const PAYOUT_PROVIDERS = [
   { id: "WAVE", label: "Wave" },
   { id: "ORANGE_MONEY", label: "Orange Money" },
@@ -94,7 +112,8 @@ export function parseLivreurSignup(f: FormData): SignupCheck {
   if (name.length < 3 || !/\s/.test(name)) return { ok: false, field: "name", error: "Indiquez votre prénom et votre nom." };
   const phone = phoneRaw.replace(/\D/g, "").length >= 9 ? canonicalizePhone(phoneRaw) : "";
   if (!phone || !isMobile(phone)) return { ok: false, field: "phone", error: "Numéro WhatsApp invalide : tapez par exemple 77 123 45 67." };
-  if (password.length < 8 || !/\d/.test(password) || !/[a-z]/i.test(password)) return { ok: false, field: "password", error: "Mot de passe : au moins 8 caractères, avec des lettres et au moins un chiffre." };
+  const pinError = secretError(password);
+  if (pinError) return { ok: false, field: "password", error: pinError };
   if (password !== confirm) return { ok: false, field: "confirm", error: "Les deux mots de passe ne sont pas identiques." };
   if (zone.length < 2) return { ok: false, field: "zone", error: "Indiquez vos quartiers ou votre zone de livraison." };
   if (!VEHICLES.some((v) => v.id === vehicle)) return { ok: false, field: "vehicle", error: "Choisissez votre moyen de déplacement." };

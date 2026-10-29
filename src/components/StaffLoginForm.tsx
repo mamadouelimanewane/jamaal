@@ -58,19 +58,33 @@ export function StaffLoginForm({ from, next, notice }: { from: "/admin/login" | 
         </p>
       )}
 
+      {from === "/admin/livreur" ? (
+        <form action={passwordLogin} className="mt-5 flex flex-col gap-4">
+          <input type="hidden" name="from" value={from} />
+          <input type="hidden" name="next" value={next ?? "/admin"} />
+          <label htmlFor="login" className="text-base font-bold text-navy">📱 Mon numéro WhatsApp
+            <input id="login" type="tel" inputMode="tel" name="login" defaultValue={id} placeholder="77 123 45 67" autoComplete="username" required className="mt-1 w-full rounded-2xl border-2 border-line bg-white px-4 py-4 text-center text-3xl font-semibold tracking-wider text-navy outline-none focus:border-navy" />
+          </label>
+          <label htmlFor="password" className="text-base font-bold text-navy">🔒 Mon code secret
+            <input id="password" type="password" name="password" autoComplete="current-password" placeholder="● ● ● ● ● ●" required className="mt-1 w-full rounded-2xl border-2 border-line bg-white px-4 py-4 text-center text-3xl font-semibold tracking-[0.4em] text-navy outline-none focus:border-navy" />
+          </label>
+          <button type="submit" className="min-h-16 rounded-2xl bg-[#15803D] text-xl font-extrabold text-white shadow-lg">Entrer 🛵</button>
+        </form>
+      ) : (
       <form action={passwordLogin} className="mt-7 flex flex-col gap-5">
-        <input type="hidden" name="from" value={from} />
-        <input type="hidden" name="next" value={next ?? "/admin"} />
-        <div>
-          <label htmlFor="login" className="text-xs font-semibold text-navy/85">Numéro WhatsApp ou e-mail</label>
-          <input id="login" type="text" name="login" defaultValue={id} placeholder="77 123 45 67" autoComplete="username" autoCapitalize="none" autoCorrect="off" spellCheck={false} required className={field} />
-        </div>
-        <div>
-          <label htmlFor="password" className="text-xs font-semibold text-navy/85">Mot de passe</label>
-          <input id="password" type="password" name="password" autoComplete="current-password" required className={field} />
-        </div>
-        <button type="submit" className="rounded-full bg-navy px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-navy-light">Se connecter</button>
-      </form>
+          <input type="hidden" name="from" value={from} />
+          <input type="hidden" name="next" value={next ?? "/admin"} />
+          <div>
+            <label htmlFor="login" className="text-xs font-semibold text-navy/85">Numéro WhatsApp ou e-mail</label>
+            <input id="login" type="text" name="login" defaultValue={id} placeholder="77 123 45 67" autoComplete="username" autoCapitalize="none" autoCorrect="off" spellCheck={false} required className={field} />
+          </div>
+          <div>
+            <label htmlFor="password" className="text-xs font-semibold text-navy/85">Mot de passe</label>
+            <input id="password" type="password" name="password" autoComplete="current-password" required className={field} />
+          </div>
+          <button type="submit" className="rounded-full bg-navy px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-navy-light">Se connecter</button>
+        </form>
+      )}
 
       <div className="my-7 flex items-center gap-3 text-[11px] uppercase tracking-[0.2em] text-navy/40"><span className="h-px flex-1 bg-line" />ou, sans mot de passe<span className="h-px flex-1 bg-line" /></div>
 
