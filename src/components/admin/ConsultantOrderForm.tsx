@@ -165,6 +165,10 @@ export function ConsultantOrderForm({
             <label className={labelClass}>Adresse du client</label>
             <textarea name="address" rows={2} placeholder="Quartier, rue, repère" className={inputClass} />
           </div>
+          <div>
+            <label className={labelClass}>Code promo (facultatif)</label>
+            <input name="couponCode" autoCapitalize="characters" placeholder="Ex. VEN-7KQ2MX" className={`${inputClass} uppercase`} />
+          </div>
 
           <ConsultantDeliveryFields productsTotal={total} depot={depot} vendor={vendor} customerPhone={customerPhone} zones={special?.zones ?? []} />
 

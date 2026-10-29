@@ -43,7 +43,7 @@ export type CartDiscounts = {
  * Remises affichées au panier, calculées comme à la commande : offre de fêtes (coffret complet)
  * puis code promo. Les prix sont ceux du serveur, jamais ceux du navigateur.
  */
-export async function previewCartDiscounts(lines: CartDiscountLine[], couponCode: string): Promise<CartDiscounts> {
+export async function previewCartDiscounts(lines: CartDiscountLine[], couponCode: string, ctx: { consultantId?: string | null } = {}): Promise<CartDiscounts> {
   const { offerDiscount, codeDiscount, resolveDiscountCode } = await import("@/lib/offers");
   const list = (Array.isArray(lines) ? lines : []).slice(0, 50);
   const prices = await getCartPrices(list.map((l) => ({ productId: String(l.productId), volumeLabel: String(l.volumeLabel) })));
@@ -58,7 +58,7 @@ export async function previewCartDiscounts(lines: CartDiscountLine[], couponCode
   let code: CartDiscounts["code"] = null;
   const typed = typeof couponCode === "string" ? couponCode.trim().slice(0, 40) : "";
   if (typed) {
-    const ref = await resolveDiscountCode(typed);
+    const ref = await resolveDiscountCode(typed, { consultantId: typeof ctx?.consultantId === "string" ? ctx.consultantId.slice(0, 40) || null : null });
     if (!ref) code = { error: "Code promo inconnu." };
     else if ("error" in ref) code = ref;
     else code = { code: ref.code, discount: codeDiscount(ref.kind, ref.value, base), label: ref.source === "giftcard" ? `carte cadeau (solde ${ref.value.toLocaleString("fr-FR")} FCFA, livraison comprise)` : ref.kind === "PERCENT" ? `−${ref.value} %` : `−${ref.value.toLocaleString("fr-FR")} FCFA` };

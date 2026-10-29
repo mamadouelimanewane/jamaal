@@ -8,9 +8,29 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "./auth-guard";
 import { logActivity } from "@/lib/activity-log";
 import type { CouponType } from "@prisma/client";
+import { generateCode, isAudience, phoneTail } from "@/lib/coupon-audience";
 
-function couponDataFromForm(formData: FormData, usedCount = 0) {
-  const code = String(formData.get("code") ?? "").trim().toUpperCase();
+async function targetFromForm(formData: FormData) {
+  const audienceRaw = String(formData.get("audience") ?? "TOUS_CLIENTS");
+  const audience = isAudience(audienceRaw) ? audienceRaw : "TOUS_CLIENTS";
+  const targetName = String(formData.get("targetName") ?? "").trim().slice(0, 80) || null;
+  const targetPhone = String(formData.get("targetPhone") ?? "").trim().slice(0, 30) || null;
+  const targetConsultantId = String(formData.get("targetConsultantId") ?? "").trim() || null;
+  if (audience === "CLIENT" && !phoneTail(targetPhone)) throw new Error("Indiquez le téléphone du client (9 chiffres au moins).");
+  if (audience === "VENDEUR") {
+    if (!targetConsultantId || !(await prisma.consultant.findUnique({ where: { id: targetConsultantId }, select: { id: true } }))) throw new Error("Choisissez le vendeur.");
+  }
+  return {
+    audience,
+    targetName: audience === "CLIENT" ? targetName : null,
+    targetPhone: audience === "CLIENT" ? targetPhone : null,
+    targetConsultantId: audience === "VENDEUR" ? targetConsultantId : null,
+    note: String(formData.get("note") ?? "").trim().slice(0, 160) || null,
+  };
+}
+
+function couponDataFromForm(formData: FormData, usedCount = 0, fixedCode?: string) {
+  const code = fixedCode ?? String(formData.get("code") ?? "").trim().toUpperCase();
   const typeRaw = String(formData.get("type") ?? "POURCENTAGE");
   const value = Number(formData.get("value") ?? 0);
   const expiresRaw = String(formData.get("expiresAt") ?? "");
@@ -27,16 +47,21 @@ function couponDataFromForm(formData: FormData, usedCount = 0) {
 
 async function createCouponImpl(formData: FormData) {
   const session = await requireAdmin("marketing");
-  const coupon = await prisma.coupon.create({ data: couponDataFromForm(formData) });
-  await logActivity(session, "Création code promo", "Coupon", coupon.id);
+  const target = await targetFromForm(formData);
+  // Le code est créé par le système (unique, lisible, préfixe selon la cible).
+  let code = generateCode(target.audience);
+  for (let i = 0; i < 5 && (await prisma.coupon.findUnique({ where: { code }, select: { id: true } })); i++) code = generateCode(target.audience);
+  const coupon = await prisma.coupon.create({ data: { ...couponDataFromForm(formData, 0, code), ...target } });
+  await logActivity(session, `Création code promo ${coupon.code} (${target.audience})`, "Coupon", coupon.id);
   revalidatePath("/admin/coupons");
-  redirect("/admin/coupons");
+  redirect(`/admin/coupons?nouveau=${coupon.id}`);
 }
 
 async function updateCouponImpl(id: string, formData: FormData) {
   const session = await requireAdmin("marketing");
   const existing = await prisma.coupon.findUniqueOrThrow({ where: { id }, select: { usedCount: true } });
-  await prisma.coupon.update({ where: { id }, data: couponDataFromForm(formData, existing.usedCount) });
+  const current = await prisma.coupon.findUniqueOrThrow({ where: { id }, select: { code: true } });
+  await prisma.coupon.update({ where: { id }, data: { ...couponDataFromForm(formData, existing.usedCount, current.code), ...(await targetFromForm(formData)) } });
   await logActivity(session, "Modification code promo", "Coupon", id);
   revalidatePath("/admin/coupons");
   redirect("/admin/coupons");

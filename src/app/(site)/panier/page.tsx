@@ -81,7 +81,7 @@ export default function CartPage() {
     if (!items.length) return;
     let cancelled = false;
     const t = setTimeout(() => {
-      previewCartDiscounts(items.map((i) => ({ productId: i.productId, volumeLabel: i.volumeLabel, price: i.price, quantity: i.quantity })), couponCode)
+      previewCartDiscounts(items.map((i) => ({ productId: i.productId, volumeLabel: i.volumeLabel, price: i.price, quantity: i.quantity })), couponCode, { consultantId: consultantId || null })
         .then((d) => !cancelled && setDiscounts(d))
         .catch(() => {});
     }, 300);
@@ -90,7 +90,21 @@ export default function CartPage() {
       clearTimeout(t);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- cartKey résume les articles
-  }, [cartKey, couponCode]);
+  }, [cartKey, couponCode, consultantId]);
+
+  // Lien de code promo (…/panier?code=XXX) : le code s'applique tout seul.
+  useEffect(() => {
+    let fromLink = "";
+    try {
+      fromLink = new URLSearchParams(window.location.search).get("code")?.trim().toUpperCase().slice(0, 40) ?? "";
+    } catch {}
+    if (!fromLink) return;
+    const t = setTimeout(() => {
+      setCouponInput(fromLink);
+      setCouponCode(fromLink);
+    }, 0);
+    return () => clearTimeout(t);
+  }, []);
 
   // Panier commencé (nom + téléphone) : gardé pour un rappel WhatsApp s'il n'est pas commandé.
   useEffect(() => {

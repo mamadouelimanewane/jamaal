@@ -2,11 +2,27 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { updateCoupon } from "@/lib/actions/coupons";
+import { CouponForm } from "@/components/admin/CouponForm";
+
+const local = (d: Date | null) => (d ? new Date(d.getTime() - d.getTimezoneOffset() * 60_000).toISOString().slice(0, 16) : null);
 
 export default async function EditCouponPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const coupon = await prisma.coupon.findUnique({ where: { id } });
+  const [coupon, consultants] = await Promise.all([
+    prisma.coupon.findUnique({ where: { id } }),
+    prisma.consultant.findMany({ where: { active: true }, select: { id: true, name: true, city: true }, orderBy: { name: "asc" } }),
+  ]);
   if (!coupon) notFound();
-  const action = updateCoupon.bind(null, id);
-  return <div className="max-w-2xl"><Link href="/admin/coupons" className="text-xs text-navy/75 hover:underline">← Codes promotionnels</Link><h1 className="mt-3 font-serif-display text-2xl font-semibold text-navy">Modifier {coupon.code}</h1><form action={action} className="mt-6 grid gap-4 rounded-2xl border border-line bg-white p-5 sm:grid-cols-2"><label className="text-xs font-semibold text-navy/85">Code<input name="code" required minLength={3} maxLength={32} pattern="[A-Za-z0-9_-]+" defaultValue={coupon.code} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm uppercase" /></label><label className="text-xs font-semibold text-navy/85">Type<select name="type" defaultValue={coupon.type} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm"><option value="POURCENTAGE">Pourcentage</option><option value="MONTANT_FIXE">Montant fixe (FCFA)</option></select></label><label className="text-xs font-semibold text-navy/85">Valeur<input name="value" type="number" required min={1} max={10000000} defaultValue={coupon.value} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm" /></label><label className="text-xs font-semibold text-navy/85">Limite d’utilisation<input name="usageLimit" type="number" min={coupon.usedCount || 1} defaultValue={coupon.usageLimit ?? ""} placeholder="Illimitée" className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm" /><span className="mt-1 block font-normal text-navy/70">Déjà utilisé {coupon.usedCount} fois.</span></label><label className="text-xs font-semibold text-navy/85 sm:col-span-2">Expiration<input name="expiresAt" type="datetime-local" defaultValue={coupon.expiresAt?.toISOString().slice(0,16) ?? ""} className="mt-1 block w-full rounded-lg border border-line px-3 py-2 text-sm sm:max-w-sm" /></label><label className="flex items-center gap-2 text-sm text-navy/85 sm:col-span-2"><input type="checkbox" name="active" defaultChecked={coupon.active} /> Code activé</label><div className="flex gap-2 sm:col-span-2"><button className="rounded-full bg-navy px-5 py-2.5 text-sm font-semibold text-white">Enregistrer</button><Link href="/admin/coupons" className="rounded-full border border-line px-5 py-2.5 text-sm">Annuler</Link></div></form></div>;
+  return (
+    <div className="max-w-2xl">
+      <Link href="/admin/coupons" className="text-xs text-navy/75 hover:underline">← Codes promotionnels</Link>
+      <h1 className="mt-3 font-serif-display text-2xl font-semibold text-navy">Modifier {coupon.code}</h1>
+      <CouponForm
+        action={updateCoupon.bind(null, id)}
+        consultants={consultants}
+        submitLabel="Enregistrer"
+        initial={{ ...coupon, expiresAt: local(coupon.expiresAt) }}
+      />
+    </div>
+  );
 }

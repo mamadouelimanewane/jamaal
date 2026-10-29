@@ -9,7 +9,7 @@ import { upsertCustomerFromOrder } from "@/lib/customers";
 import { notifySponsorOnSale } from "@/lib/sponsor-notifications";
 import { notifyResellerWhatsApp, notifyTeamWhatsApp } from "@/lib/whatsapp";
 import { notifyOrderUpdate } from "@/lib/whatsapp/order-notify";
-import { reserveStock, resolveStockRef, sendLowStockAlerts, UNIQUE_FORMAT } from "@/lib/stock";
+import { reserveStock, resolveStockRef, sendLowStockAlerts, UNIQUE_FORMAT, checkStockAvailable, STOCK_PENDING } from "@/lib/stock";
 import { createOrderSchema } from "@/lib/validations/order";
 import { rateLimit, clientIpFromHeaders } from "@/lib/rate-limit";
 import { getBusinessModel } from "@/lib/business-model-store";
@@ -203,7 +203,7 @@ export async function placeOrder(
   // Une carte cadeau est déduite plus loin, livraison comprise.
   let codeRef: Awaited<ReturnType<typeof resolveDiscountCode>> = null;
   if (!reservation && opts.couponCode?.trim()) {
-    codeRef = await resolveDiscountCode(opts.couponCode);
+    codeRef = await resolveDiscountCode(opts.couponCode, { phone: data.customer.phone || null, consultantId: data.consultantId ?? null });
     if (!codeRef || "error" in codeRef) throw new Error(codeRef && "error" in codeRef ? codeRef.error : "Code promo inconnu.");
   }
   if (codeRef && !("error" in codeRef) && codeRef.source !== "giftcard") {
@@ -215,7 +215,7 @@ export async function placeOrder(
         offerTitle: [offerData.offerTitle, `code ${codeRef.code}`].filter(Boolean).join(" · "),
         ...(codeRef.source === "coupon" ? { couponId: codeRef.id } : {}),
       };
-      if (codeRef.source === "promo" && codeRef.consultantId && !data.consultantId) data.consultantId = codeRef.consultantId;
+      if ((codeRef.source === "promo" || codeRef.source === "coupon") && codeRef.consultantId && !data.consultantId) data.consultantId = codeRef.consultantId;
     }
   }
 
@@ -386,7 +386,16 @@ export async function placeOrder(
     if (!debit.count) throw new Error("Le solde de la carte cadeau vient de changer : réessayez.");
     await tx.giftCard.updateMany({ where: { id: giftCardId, balance: { lte: 0 } }, data: { status: "EPUISEE" } });
   }
-  const stockAlerts = reservation ? [] : await reserveStock(tx, serverItems, true, { orderId: order.id });
+  // Stock : il ne bouge qu'au paiement effectif. Commande déjà réglée (carte cadeau) : prélevé tout de suite ;
+  // sinon disponibilité vérifiée et commande « à prélever » (takeOrderStock au paiement ou à la livraison payée).
+  let stockAlerts: Awaited<ReturnType<typeof reserveStock>> = [];
+  if (!reservation) {
+    if (order.paymentStatus === "PAYE") stockAlerts = await reserveStock(tx, serverItems, true, { orderId: order.id });
+    else {
+      await checkStockAvailable(tx, serverItems);
+      await tx.order.update({ where: { id: order.id }, data: { stockState: STOCK_PENDING } });
+    }
+  }
   return { order, stockAlerts };
   });
 

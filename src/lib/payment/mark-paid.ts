@@ -7,6 +7,7 @@ import { awardLoyaltyForOrder } from "@/lib/loyalty-award";
 import { amountDue } from "@/lib/reservation";
 import { DEPOSIT_PREFIX, markDepositPaid as markWalletDepositPaid } from "@/lib/wallet";
 import { GIFT_PREFIX } from "@/lib/gift/gift";
+import { takeOrderStock } from "@/lib/stock";
 import { dueDates, isInstallmentOrder } from "@/lib/installments";
 import { notifyInstallmentReceived } from "@/lib/installments-notify";
 
@@ -60,6 +61,8 @@ export async function markOrderPaid(
       data: { installmentsPaid: k + 1, installmentNextDue: next, installmentPaidDates: { push: new Date() }, ...(opts.externalRef ? { installmentRefs: { push: opts.externalRef } } : {}), ...(order.status === "EN_ATTENTE" ? { status: "CONFIRMEE" } : {}) },
     });
     if (res.count) {
+      // 1re échéance reçue : les produits sont mis de côté (sortie du stock).
+      await takeOrderStock(orderId).catch((e) => console.error("[stock] échéance", orderId, e));
       try {
         after(() => notifyInstallmentReceived(orderId, k + 1));
       } catch {
@@ -89,6 +92,9 @@ export async function markOrderPaid(
     },
   });
   if (res.count === 0) return true; // un autre appel concurrent a déjà traité
+
+  // Paiement effectif : les articles sortent du stock maintenant (une seule fois).
+  await takeOrderStock(orderId).catch((e) => console.error("[stock] paiement", orderId, e));
 
   // Lien de paiement d'un revendeur : la livraison part en préparation maintenant, et le revendeur est prévenu.
   if (order.channel === "REVENDEUR" || isInstallmentOrder(order)) {

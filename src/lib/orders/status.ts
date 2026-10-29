@@ -10,7 +10,7 @@ import { prisma } from "@/lib/prisma";
 import { notifyConsultantOfDelivery } from "@/lib/notifications";
 import { cancelCommissionsForOrder, runPayoutsForOrder } from "@/lib/payouts/engine";
 import { recordLivreurEarning } from "@/lib/delivery-engine";
-import { syncOrderStock } from "@/lib/stock";
+import { syncOrderStock, takeOrderStock } from "@/lib/stock";
 import { notifyOrderUpdate } from "@/lib/whatsapp/order-notify";
 
 function later(task: () => Promise<unknown>) {
@@ -36,6 +36,8 @@ async function onOrderStatusChanged(id: string, status: OrderStatus) {
     });
   }
   if (status === "ANNULEE") await cancelCommissionsForOrder(id);
+  // Paiement à la livraison : livrée = payée, les articles sortent du stock.
+  if (status === "LIVREE") await takeOrderStock(id);
   // Stock : remis à l'annulation, repris si la commande est réactivée (une seule fois).
   await syncOrderStock(id);
 }

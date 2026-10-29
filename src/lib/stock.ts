@@ -183,6 +183,65 @@ export async function reserveStock(tx: Tx, items: SaleItem[], strict = true, ctx
   return alerts;
 }
 
+/** Commande enregistrée mais pas encore payée : le stock n'a pas bougé (prélevé au paiement effectif). */
+export const STOCK_PENDING = "A_PRELEVER";
+
+/**
+ * Vérifie, sans rien retirer, que les articles sont disponibles (commande pas encore payée).
+ * Même message au client que reserveStock en cas de manque.
+ */
+export async function checkStockAvailable(tx: Tx, items: SaleItem[]): Promise<void> {
+  const need = new Map<string, { ref: StockRef; qty: number }>();
+  for (const item of items) {
+    if (!item.productId || item.quantity <= 0) continue;
+    const ref = await resolveStockRef(tx, item.productId, item.volumeLabel);
+    if (!ref) continue;
+    const k = ref.variantId ?? ref.productId;
+    need.set(k, { ref, qty: (need.get(k)?.qty ?? 0) + item.quantity });
+  }
+  for (const { ref, qty } of need.values()) {
+    const row = ref.variantId
+      ? await tx.productVariant.findUnique({ where: { id: ref.variantId }, select: { stock: true } })
+      : await tx.product.findUnique({ where: { id: ref.productId }, select: { stock: true } });
+    const available = Math.max(0, row?.stock ?? 0);
+    if (available >= qty) continue;
+    const name = `« ${await productName(tx, ref.productId)} »${ref.variantId ? ` (${ref.label})` : ""}`;
+    if (available === 0) throw Object.assign(new StockError(`${name} : produit en cours de commande. Retirez-le du panier ou réservez-le depuis sa fiche.`), { available: 0 });
+    throw Object.assign(new StockError(`${name} : il n'en reste que ${available}. Merci d'ajuster la quantité dans votre panier.`), { available });
+  }
+}
+
+/**
+ * Paiement effectif (en ligne, wallet, encaissement, paiement reçu, livraison payée) : les articles d'une commande
+ * « à prélever » sortent du stock, une seule fois. En cas de manque (vendu entre-temps), le stock descend à 0,
+ * l'écart est tracé et l'équipe prévenue.
+ */
+export async function takeOrderStock(orderId: string, userId?: string | null): Promise<boolean> {
+  const alerts: LowStockAlert[] = [];
+  let shortfalls: string[] = [];
+  const done = await prisma.$transaction(async (tx) => {
+    const claim = await tx.order.updateMany({ where: { id: orderId, stockState: STOCK_PENDING, status: { not: "ANNULEE" } }, data: { stockState: "RESERVE" } });
+    if (!claim.count) return false;
+    const order = await tx.order.findUnique({ where: { id: orderId }, select: { items: { select: { productId: true, variantId: true, volumeLabel: true, quantity: true } } } });
+    for (const item of order?.items ?? []) {
+      if (!item.productId || item.quantity <= 0) continue;
+      const ref = item.variantId ? { productId: item.productId, variantId: item.variantId, label: item.volumeLabel } : await resolveStockRef(tx, item.productId, item.volumeLabel);
+      if (!ref) continue;
+      const r = await moveStock(tx, ref, -item.quantity, { kind: "VENTE", strict: false, orderId, userId, reason: `Vente payée · commande ${orderId.slice(-8).toUpperCase()}` });
+      if (r.applied !== -item.quantity) shortfalls.push(`${await productName(tx, ref.productId)}${ref.variantId ? ` (${ref.label})` : ""} : il manquait ${item.quantity + r.applied}`);
+      if (r.crossed) alerts.push({ name: `${await productName(tx, ref.productId)}${ref.variantId ? ` — ${ref.label}` : ""}`, newStock: r.nextStock });
+    }
+    return true;
+  });
+  await sendLowStockAlerts(alerts);
+  if (shortfalls.length) {
+    const admins = await prisma.user.findMany({ where: { role: "ADMIN" }, select: { id: true } }).catch(() => []);
+    if (admins.length) await prisma.notification.createMany({ data: admins.map((a) => ({ userId: a.id, orderId, title: "Commande payée : stock insuffisant", message: `Commande ${orderId.slice(-8).toUpperCase()} payée mais vendue entre-temps : ${shortfalls.join(" ; ")}. À réapprovisionner ou à rembourser.` })) }).catch(() => {});
+    shortfalls = [];
+  }
+  return done;
+}
+
 /**
  * Met le stock d'une commande en accord avec son statut : annulée → articles remis en stock,
  * de nouveau active → articles repris. Sans effet si c'est déjà le cas (idempotent).
@@ -196,6 +255,8 @@ export async function syncOrderStock(orderId: string, userId?: string | null) {
       select: { status: true, stockState: true, items: { select: { productId: true, variantId: true, volumeLabel: true, quantity: true } } },
     });
     if (!order) return;
+    // Pas encore payée : rien n'a été retiré, rien à remettre (le stock sera prélevé au paiement).
+    if (order.stockState === STOCK_PENDING) return;
     const reserved = order.stockState !== "LIBERE";
     const refOf = async (item: (typeof order.items)[number]) =>
       item.variantId ? { productId: item.productId!, variantId: item.variantId, label: item.volumeLabel } : resolveStockRef(tx, item.productId!, item.volumeLabel);

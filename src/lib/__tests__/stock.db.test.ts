@@ -143,3 +143,31 @@ test("tableau des stocks : une ligne par format avec ventes et état", opts, asy
   assert.equal(r70.sold30, 4, "2 + 2 vendus, l'annulation compensée");
   assert.equal(r70.status, "bas");
 });
+
+test("commande pas encore payée : le stock ne bouge pas ; il sort une seule fois au paiement ; annulée avant : rien à remettre", opts, async () => {
+  await m.prisma.product.update({ where: { id: U }, data: { stock: 3 } });
+  const before = 3;
+  const items = [{ productId: U, volumeLabel: "", quantity: 1 }];
+  const ok = await m.prisma.$transaction(async (tx) => {
+    await m.stock.checkStockAvailable(tx, items);
+    return true;
+  });
+  assert.ok(ok);
+  await assert.rejects(() => m.prisma.$transaction((tx) => m.stock.checkStockAvailable(tx, [{ productId: U, volumeLabel: "", quantity: before + 1 }])), /il n'en reste que/);
+  const o = await newOrder(items);
+  await m.prisma.order.update({ where: { id: o.id }, data: { stockState: m.stock.STOCK_PENDING } });
+  assert.equal((await m.prisma.product.findUniqueOrThrow({ where: { id: U } })).stock, before, "rien ne bouge à la commande");
+  assert.equal(await m.stock.takeOrderStock(o.id), true);
+  assert.equal(await m.stock.takeOrderStock(o.id), false, "une seule fois");
+  assert.equal((await m.prisma.product.findUniqueOrThrow({ where: { id: U } })).stock, before - 1);
+  // Annulée avant paiement : rien à remettre, et un paiement tardif ne prélève plus rien.
+  const o2 = await newOrder(items);
+  await m.prisma.order.update({ where: { id: o2.id }, data: { stockState: m.stock.STOCK_PENDING, status: "ANNULEE" } });
+  await m.stock.syncOrderStock(o2.id);
+  assert.equal(await m.stock.takeOrderStock(o2.id), false);
+  assert.equal((await m.prisma.product.findUniqueOrThrow({ where: { id: U } })).stock, before - 1);
+  // Payée puis annulée : remise en stock.
+  await m.prisma.order.update({ where: { id: o.id }, data: { status: "ANNULEE" } });
+  await m.stock.syncOrderStock(o.id);
+  assert.equal((await m.prisma.product.findUniqueOrThrow({ where: { id: U } })).stock, before);
+});

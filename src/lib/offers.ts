@@ -1,9 +1,11 @@
+
 /**
  * Offres de fêtes (coffrets à prix spécial) : calcul pur de la remise d'un panier.
  * Un coffret s'applique quand le panier contient au moins une unité de chacun de ses produits ;
  * il compte autant de fois que le produit le moins présent. La valeur d'un produit est son format
  * le moins cher du panier. Une seule offre (la plus avantageuse) par commande.
  */
+import { audienceRefusal, type CouponCtx } from "./coupon-audience";
 export interface OfferRule {
   id: string;
   title: string;
@@ -55,7 +57,7 @@ export function codeDiscount(kind: "PERCENT" | "FIXED", value: number, base: num
 }
 
 export type DiscountCodeRef =
-  | { source: "coupon"; id: string; code: string; kind: "PERCENT" | "FIXED"; value: number; consultantId: null }
+  | { source: "coupon"; id: string; code: string; kind: "PERCENT" | "FIXED"; value: number; consultantId: string | null }
   | { source: "promo"; id: string; code: string; kind: "PERCENT"; value: number; consultantId: string }
   /** Carte cadeau : value = solde restant, déduit des produits ET de la livraison. */
   | { source: "giftcard"; id: string; code: string; kind: "FIXED"; value: number; consultantId: string | null }
@@ -65,7 +67,7 @@ export type DiscountCodeRef =
  * Code saisi au panier : code JAMAAL (Admin > Codes promo, codes anniversaire) ou code d'un
  * revendeur (Mon marketing). Vérifie activité, date d'expiration et nombre d'utilisations.
  */
-export async function resolveDiscountCode(raw: string): Promise<DiscountCodeRef | null> {
+export async function resolveDiscountCode(raw: string, ctx: CouponCtx = {}): Promise<DiscountCodeRef | null> {
   const { prisma } = await import("@/lib/prisma");
   const code = raw.trim().toUpperCase().slice(0, 40);
   if (!code) return null;
@@ -75,7 +77,10 @@ export async function resolveDiscountCode(raw: string): Promise<DiscountCodeRef 
     if (!coupon.active) return { error: "Ce code n'est plus actif." };
     if (coupon.expiresAt && coupon.expiresAt.getTime() < now) return { error: "Ce code a expiré." };
     if (coupon.usageLimit != null && coupon.usedCount >= coupon.usageLimit) return { error: "Ce code a déjà été utilisé." };
-    return { source: "coupon", id: coupon.id, code: coupon.code, kind: coupon.type === "POURCENTAGE" ? "PERCENT" : "FIXED", value: coupon.value, consultantId: null };
+    const refusal = audienceRefusal(coupon, ctx);
+    if (refusal) return { error: refusal };
+    // Code d'un vendeur : la vente lui est attribuée (comme son code personnel).
+    return { source: "coupon", id: coupon.id, code: coupon.code, kind: coupon.type === "POURCENTAGE" ? "PERCENT" : "FIXED", value: coupon.value, consultantId: coupon.audience === "VENDEUR" ? coupon.targetConsultantId : null };
   }
   const promo = await prisma.promoCode.findFirst({ where: { code: { equals: code, mode: "insensitive" } }, include: { consultant: { select: { active: true } } } });
   if (promo) {

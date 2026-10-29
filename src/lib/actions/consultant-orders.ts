@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { requireConsultantProfile } from "./auth-guard";
 import { upsertCustomerFromOrder } from "@/lib/customers";
 import { notifySponsorOnFirstSale } from "@/lib/sponsor-notifications";
-import { decrementStockAndAlert } from "@/lib/stock";
+import { decrementStockAndAlert, STOCK_PENDING } from "@/lib/stock";
 
 import { LOYALTY_REDEEM_VALUE_FCFA } from "@/lib/loyalty";
 import { priceItemsFromCatalog } from "@/lib/order-pricing";
@@ -158,6 +158,22 @@ async function placeConsultantOrder(formData: FormData): Promise<string> {
       await prisma.customer.update({ where: { id: customerId }, data: { loyaltyPoints: { decrement: pointsToDeduct } } });
     }
   }
+  // Code promo (code JAMAAL ciblé ou code personnel du vendeur) : sur le montant des produits.
+  const typedCode = String(formData.get("couponCode") ?? "").trim().toUpperCase().slice(0, 40);
+  let coupon: { source: "coupon" | "promo"; id: string; code: string } | null = null;
+  if (typedCode) {
+    const { resolveDiscountCode, codeDiscount } = await import("@/lib/offers");
+    const r = await resolveDiscountCode(typedCode, { phone: customerPhone || null, consultantId: consultant.id });
+    if (!r) throw new Error("Code promo inconnu.");
+    if ("error" in r) throw new Error(r.error);
+    if (r.source === "giftcard") throw new Error("Une carte cadeau s'utilise sur le site, au panier du client.");
+    if (r.source === "promo" && r.consultantId !== consultant.id) throw new Error("Ce code appartient à un autre conseiller.");
+    const off = codeDiscount(r.kind, r.value, Math.max(0, productsTotal - discountAmount));
+    if (off > 0) {
+      discountAmount += off;
+      coupon = { source: r.source, id: r.id, code: r.code };
+    }
+  }
   const total = productsTotal - discountAmount + Number(deliveryData.deliveryFee ?? 0);
 
   // Paiement en 2 ou 3 fois (uniquement avec le lien de paiement au client).
@@ -179,6 +195,7 @@ async function placeConsultantOrder(formData: FormData): Promise<string> {
       customerId,
       consultantId: consultant.id,
       channel: "REVENDEUR",
+      ...(coupon ? { offerTitle: `code ${coupon.code}`, ...(coupon.source === "coupon" ? { couponId: coupon.id } : {}) } : {}),
       ...deliveryData,
       status: "CONFIRMEE",
       statusHistory: { create: { status: "CONFIRMEE" } },
@@ -201,9 +218,15 @@ async function placeConsultantOrder(formData: FormData): Promise<string> {
   // Payée (wallet ou encaissée par le revendeur) : les commissions de la chaîne sont enregistrées tout de suite.
   if (payWithWallet || collect) after(() => runPayoutsForOrder(order.id));
 
+  if (coupon) {
+    if (coupon.source === "coupon") await prisma.coupon.update({ where: { id: coupon.id }, data: { usedCount: { increment: 1 } } }).catch(() => {});
+    else await prisma.promoCode.update({ where: { id: coupon.id }, data: { usedCount: { increment: 1 } } }).catch(() => {});
+  }
   await notifySponsorOnFirstSale(consultant.id);
   notifyOrderUpdate(order.id, "CREEE");
-  await decrementStockAndAlert(items, { orderId: order.id, userId: null });
+  // Stock : prélevé tout de suite si la commande est déjà payée (wallet, encaissée) ; sinon au paiement effectif.
+  if (payWithWallet || collect) await decrementStockAndAlert(items, { orderId: order.id, userId: null });
+  else await prisma.order.update({ where: { id: order.id }, data: { stockState: STOCK_PENDING } });
 
   revalidatePath("/admin/mes-commandes");
   revalidatePath("/admin/commandes");

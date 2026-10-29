@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { OrderPayBadges } from "@/components/admin/OrderPayBadges";
+import { OrderQuickActions } from "@/components/admin/OrderQuickActions";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/currency";
 import { OrderDetailCell } from "@/components/admin/OrderDetailCell";
@@ -90,6 +91,7 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
               <th className="px-4 py-3">Livraison</th>
               <th className="px-4 py-3">Statut</th>
               <th className="px-4 py-3">Date</th>
+              <th className="px-4 py-3">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -123,11 +125,14 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
                   </span>
                 </td>
                 <td className="px-4 py-3 align-top text-navy/75">{o.createdAt.toLocaleDateString("fr-FR")}</td>
+                <td className="px-4 py-3 align-top">
+                  <OrderQuickActions o={{ id: o.id, status: o.status, paymentStatus: o.paymentStatus, installmentCount: o.installmentCount, isReservation: o.isReservation }} />
+                </td>
               </tr>
             ))}
             {orders.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-4 py-6 text-center text-navy/70">
+                <td colSpan={8} className="px-4 py-6 text-center text-navy/70">
                   Aucune commande pour le moment.
                 </td>
               </tr>

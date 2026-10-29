@@ -271,6 +271,12 @@ model Coupon {
   usageLimit Int?
   usedCount  Int        @default(0)
   createdAt  DateTime   @default(now())
+  /// Pour qui : TOUS_CLIENTS, CLIENT (un client : targetName, targetPhone), VENDEUR (targetConsultantId), TOUS_VENDEURS.
+  audience           String  @default("TOUS_CLIENTS")
+  targetName         String?
+  targetPhone        String?
+  targetConsultantId String?
+  note               String?
 
   orders Order[]
 }
