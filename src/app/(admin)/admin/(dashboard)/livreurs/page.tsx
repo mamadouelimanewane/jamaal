@@ -149,11 +149,11 @@ export default async function AdminLivreursPage({ searchParams }: { searchParams
                       <span className="text-xs text-navy/65">Jamais localisé</span>
                     )}
                   </td>
-                  <td className="px-4 py-3">{l.active ? <span className="text-xs font-semibold text-green-700">Actif</span> : <span className="text-xs font-semibold text-red-700">Suspendu</span>}</td>
+                  <td className="px-4 py-3">{l.active ? <span className="text-xs font-semibold text-green-700">Actif</span> : <span className="text-xs font-semibold text-red-700">Désactivé</span>}</td>
                   <td className="whitespace-nowrap px-4 py-3 text-right">
                     <Link href={`/admin/livreurs/${l.id}/modifier`} className="mr-3 text-xs font-semibold text-navy hover:underline">Modifier</Link>
                     <form action={setLivreurSuspended.bind(null, l.id, l.active)} className="mr-3 inline">
-                      <button className="text-xs font-semibold text-navy hover:underline">{l.active ? "Suspendre" : "Réactiver"}</button>
+                      <button title={l.active ? "Le livreur ne peut plus se connecter ni recevoir de course" : "Le livreur peut de nouveau se connecter"} className={`rounded-full px-3 py-1 text-xs font-semibold ${l.active ? "border border-red-300 text-red-700 hover:bg-red-50" : "bg-emerald-700 text-white hover:bg-emerald-800"}`}>{l.active ? "Désactiver" : "Réactiver"}</button>
                     </form>
                     {l._count.orders === 0 && (
                       <form action={deleteLivreur.bind(null, l.id)} className="inline">
