@@ -98,7 +98,7 @@ export function NotificationAlerts({ unread, onCount }: { unread: number; onCoun
       setToast(latest);
       if (document.visibilityState !== "visible" && "Notification" in window && Notification.permission === "granted") {
         const reg = await navigator.serviceWorker?.getRegistration("/admin/").catch(() => undefined);
-        const opts = { body: latest.message.slice(0, 180), icon: "/icons/icon-192.png", badge: "/icons/icon-192.png", tag: latest.id, data: { url: "/admin/notifications" } };
+        const opts = { body: latest.message.slice(0, 180), icon: "/icons/v2/jamaal-192.png", badge: "/icons/v2/jamaal-192.png", tag: latest.id, data: { url: "/admin/notifications" } };
         if (reg) await reg.showNotification(latest.title, opts);
         else new Notification(latest.title, opts);
       }

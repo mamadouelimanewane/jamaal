@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
   // Application installable (écran d'accueil) pour les consultants et livreurs
   manifest: "/revendeur.webmanifest",
-  icons: { apple: "/icons/apple-touch-icon.png" },
+  icons: { apple: "/icons/v2/jamaal-apple-180.png" },
   appleWebApp: { capable: true, title: "JAMAAL", statusBarStyle: "default" },
 };
 

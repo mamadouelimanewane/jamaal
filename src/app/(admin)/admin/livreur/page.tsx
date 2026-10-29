@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   title: "JAMAAL Livreur",
   description: "L'application des livreurs JAMAAL : inscription, tournées et livraisons.",
   manifest: "/livreur.webmanifest",
-  icons: { icon: "/icons/livreur-192.png", apple: "/icons/livreur-apple-touch-icon.png" },
+  icons: { icon: "/icons/v2/livreur-192.png", apple: "/icons/v2/livreur-apple-180.png" },
   appleWebApp: { capable: true, title: "JAMAAL Livreur", statusBarStyle: "default" },
 };
 
@@ -52,7 +52,7 @@ function Shell({ children }: { children: React.ReactNode }) {
   return (
     <main className="flex min-h-screen items-start justify-center bg-[#f8f1ee] p-4 sm:items-center">
       <section className="w-full max-w-md rounded-3xl border border-line bg-white p-6 text-center shadow-xl shadow-navy/10 sm:p-7">
-        <Image src="/icons/livreur-192.png" alt="Icône JAMAAL Livreur" width={72} height={72} className="mx-auto rounded-[18px] shadow-md" priority />
+        <Image src="/icons/v2/livreur-192.png" alt="Icône JAMAAL Livreur" width={72} height={72} className="mx-auto rounded-[18px] shadow-md" priority />
         <p className="mt-3 text-xs font-semibold uppercase tracking-[0.24em] text-rose-dark">JAMAAL Livreur</p>
         <div className="mt-3">{children}</div>
       </section>

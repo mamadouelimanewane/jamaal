@@ -63,7 +63,7 @@ export function LivreurApp({ loggedIn, initialTab, login }: { loggedIn: boolean;
             <section className="mt-4 rounded-3xl border-2 border-[#6D4AFF] bg-[#F5F3FF] p-4 text-left" aria-labelledby="lv-install-title">
               <div className="flex items-center gap-3">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/icons/livreur-192.png" alt="" width={60} height={60} className="rounded-2xl border border-line bg-white" />
+                <img src="/icons/v2/livreur-192.png" alt="" width={60} height={60} className="rounded-2xl border border-line bg-white" />
                 <div>
                   <h2 id="lv-install-title" className="text-lg font-extrabold text-[#4C1D95]">1. Mettez l&apos;icône sur votre téléphone</h2>
                   <p className="text-sm text-navy/75">Gratuit, sans Play Store.</p>

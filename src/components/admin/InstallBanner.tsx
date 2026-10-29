@@ -41,7 +41,7 @@ export function InstallBanner() {
   return (
     <div className="mb-5 rounded-2xl border border-rose/40 bg-gradient-to-r from-[#fdf3ef] to-white p-4">
       <div className="flex items-start gap-3">
-        <Image src="/icons/icon-192.png" alt="" width={48} height={48} className="shrink-0 rounded-xl shadow" />
+        <Image src="/icons/v2/jamaal-192.png" alt="" width={48} height={48} className="shrink-0 rounded-xl shadow" />
         <div className="min-w-0 flex-1">
           <p className="font-semibold text-navy">Installez l&apos;application JAMAAL sur votre téléphone</p>
           <p className="mt-0.5 text-sm text-navy/70">Votre espace s&apos;ouvre d&apos;un geste avec l&apos;icône JAMAAL, comme une application.</p>
