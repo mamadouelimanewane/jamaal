@@ -8,6 +8,12 @@ export const LIVREUR_PENDING = "EN_ATTENTE";
 export const LIVREUR_ACTIVE = "ACTIF";
 export const LIVREUR_REFUSED = "REFUSE";
 
+/**
+ * Adresse technique du compte livreur quand son numéro est déjà celui d'un compte revendeur ou client
+ * (un compte = un rôle). Domaine réservé « .invalid » : jamais d'envoi ; la connexion se fait par le numéro.
+ */
+export const livreurLoginEmail = (canonicalPhone: string) => `livreur-${canonicalPhone.replace(/\D/g, "")}@jamaal.invalid`;
+
 export const VEHICLES = [
   { id: "MOTO", label: "Moto" },
   { id: "SCOOTER", label: "Scooter" },

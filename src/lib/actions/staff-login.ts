@@ -47,7 +47,7 @@ export async function passwordLogin(formData: FormData) {
   };
   if (await lockedNow()) redirect(`${from}?erreur=bloque${keep}`);
   try {
-    await signIn("credentials", { login, password, redirectTo });
+    await signIn("credentials", { login, password, redirectTo, space: from === "/admin/livreur" || redirectTo === "/admin/mes-livraisons" || redirectTo === "/livreur" ? "livreur" : "" });
   } catch (error) {
     if (error instanceof AuthError) redirect(`${from}?erreur=${(await lockedNow()) ? "bloque" : (await pendingLivreur(login)) ? "attente" : "1"}${keep}`);
     throw error;
@@ -71,7 +71,7 @@ export async function whatsappLoginLink(formData: FormData) {
     rateLimit(`login-link:${canonicalizePhone(phone)}`, { limit: 3, windowMs: 3_600_000 }),
   ]);
   if (!byIp.ok || !byPhone.ok) redirect(`${from}?lien=attente${keep}`);
-  const account = await staffAccountByPhone(phone);
+  const account = await staffAccountByPhone(phone, from === "/admin/livreur" ? "LIVREUR" : undefined);
   if (account?.whatsapp) {
     const token = randomBytes(32).toString("base64url");
     await prisma.passwordResetToken.create({

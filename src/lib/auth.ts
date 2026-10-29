@@ -50,6 +50,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       credentials: {
         login: { label: "E-mail ou téléphone", type: "text" },
         password: { label: "Mot de passe", type: "password" },
+        /** « livreur » depuis l'application Livreur : avec un même numéro revendeur + livreur, le compte livreur passe d'abord. */
+        space: { label: "Espace", type: "text" },
       },
       authorize: async (credentials) => {
         const identifier = parseLoginIdentifier(String(credentials?.login ?? ""));
@@ -70,10 +72,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             : await accountsByPhone(identifiant);
         // Tolérance smartphone : une espace ajoutée en fin de mot de passe par le clavier.
         const tries = password !== password.trim() ? [password, password.trim()] : [password];
-        let user: (typeof candidates)[number] | null = null;
-        for (const c of candidates) {
-          for (const t of tries) if (!user && (await bcrypt.compare(t, c.passwordHash))) user = c;
+        const wantLivreur = String(credentials?.space ?? "") === "livreur";
+        const ordered = [...candidates].sort((a, b) => Number(wantLivreur ? b.role === "LIVREUR" : a.role === "LIVREUR") - Number(wantLivreur ? a.role === "LIVREUR" : b.role === "LIVREUR"));
+        const matching: (typeof candidates)[number][] = [];
+        for (const c of ordered) {
+          for (const t of tries) if (!matching.includes(c) && (await bcrypt.compare(t, c.passwordHash))) matching.push(c);
         }
+        // Plusieurs comptes au même mot de passe (revendeur et livreur) : le premier compte actif dans l'ordre voulu.
+        let user: (typeof candidates)[number] | null = null;
+        if (matching.length > 1) {
+          const active = await prisma.user.findMany({ where: { id: { in: matching.map((m) => m.id) }, active: true }, select: { id: true } });
+          user = matching.find((m) => active.some((a) => a.id === m.id)) ?? matching[0];
+        } else user = matching[0] ?? null;
         if (!candidates.length) await bcrypt.compare(password, DUMMY_HASH);
         if (!user) {
           if (!candidates.length) return null;

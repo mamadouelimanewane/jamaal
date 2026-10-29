@@ -43,7 +43,8 @@ export async function accountsByPhone(raw: string): Promise<StaffCandidate[]> {
     .map((r) => ({ id: r.id, name: r.name, email: r.email, phone: r.phone, role: r.role, passwordHash: r.passwordHash, whatsapp: r.whatsapp }));
 }
 
-/** Compte de l'équipe (hors clients) pour ce numéro. */
-export async function staffAccountByPhone(raw: string): Promise<StaffCandidate | null> {
-  return (await accountsByPhone(raw)).find((a) => a.role !== "CLIENT") ?? null;
+/** Compte de l'équipe (hors clients) pour ce numéro ; `prefer` : rôle à choisir d'abord (même numéro revendeur + livreur). */
+export async function staffAccountByPhone(raw: string, prefer?: string): Promise<StaffCandidate | null> {
+  const staff = (await accountsByPhone(raw)).filter((a) => a.role !== "CLIENT");
+  return (prefer ? staff.find((a) => a.role === prefer) : undefined) ?? staff[0] ?? null;
 }

@@ -8,9 +8,10 @@ import { Role } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { clientIpFromHeaders, rateLimit } from "@/lib/rate-limit";
 import { accountsByPhone } from "@/lib/staff-accounts";
+import { phoneLookupVariants } from "@/lib/phone";
 import { phoneTail } from "@/lib/phone-match";
 import { notifyTeamWhatsApp } from "@/lib/whatsapp";
-import { LIVREUR_ACTIVE, LIVREUR_PENDING, LIVREUR_REFUSED, docFileError, idTypeLabel, needsVerso, parseLivreurSignup, sniffDocType, vehicleLabel } from "@/lib/livreur-signup";
+import { LIVREUR_ACTIVE, LIVREUR_PENDING, LIVREUR_REFUSED, docFileError, livreurLoginEmail, idTypeLabel, needsVerso, parseLivreurSignup, sniffDocType, vehicleLabel } from "@/lib/livreur-signup";
 import { requireAdmin } from "./auth-guard";
 
 export type SignupState = { ok: boolean; error?: string; field?: string; name?: string; phone?: string; values?: Record<string, string>; n?: number } | null;
@@ -64,8 +65,12 @@ export async function registerLivreur(prev: SignupState, formData: FormData): Pr
   if (sameLivreur[0]?.status === LIVREUR_PENDING) return fail("Une inscription avec ce numéro est déjà en cours de validation. Vous serez prévenu sur WhatsApp.", "phone");
   // Inscription refusée auparavant : le livreur peut se réinscrire (l'ancienne demande est effacée).
   const refusedId = sameLivreur[0]?.status === LIVREUR_REFUSED ? sameLivreur[0].id : null;
-  const others = accounts.filter((a) => !(refusedId && a.role === "LIVREUR"));
-  if (others.length || (sameLivreur.length && !refusedId)) return fail("Ce numéro a déjà un compte JAMAAL : connectez-vous avec « J'ai déjà un compte ».", "phone");
+  // Un revendeur (ou un client) peut aussi devenir livreur avec le même numéro : seul un compte LIVREUR existant bloque.
+  const livreurAccount = accounts.some((a) => a.role === "LIVREUR" && !refusedId);
+  if (livreurAccount || (sameLivreur.length && !refusedId)) return fail("Ce numéro a déjà un compte livreur JAMAAL : connectez-vous avec « J'ai déjà un compte ».", "phone");
+  // Le numéro est déjà celui d'un autre compte (revendeur, client) : le compte livreur est séparé, retrouvé
+  // par le numéro de sa fiche livreur à la connexion (voir staff-accounts.ts).
+  const phoneTaken = !!(await prisma.user.findFirst({ where: { phone: { in: phoneLookupVariants(d.phone) } }, select: { id: true } }));
 
   const passwordHash = await bcrypt.hash(d.password, 10);
   try {
@@ -77,11 +82,12 @@ export async function registerLivreur(prev: SignupState, formData: FormData): Pr
       const l = await tx.livreur.create({
         data: { name: d.name, phone: d.phone, active: false, status: LIVREUR_PENDING, vehicle: d.vehicle, zone: d.zone, idType: d.idType, idNumber: d.idNumber, walletProvider: d.walletProvider, walletNumber: d.walletNumber },
       });
-      await tx.user.create({ data: { name: d.name, phone: d.phone, passwordHash, role: Role.LIVREUR, active: false, livreurId: l.id } });
+      await tx.user.create({ data: { name: d.name, ...(phoneTaken ? { phone: null, email: livreurLoginEmail(d.phone) } : { phone: d.phone }), passwordHash, role: Role.LIVREUR, active: false, livreurId: l.id } });
       await tx.livreurDocument.createMany({ data: docs.map((doc) => ({ livreurId: l.id, kind: d.idType, side: doc.side, mime: doc.mime, size: doc.data.byteLength, data: doc.data })) });
     }, { timeout: 20_000 });
-  } catch {
-    return fail("Ce numéro a déjà un compte JAMAAL : connectez-vous avec « J'ai déjà un compte ».", "phone");
+  } catch (e) {
+    console.error("[inscription livreur]", e);
+    return fail("Ce numéro a déjà un compte livreur JAMAAL : connectez-vous avec « J'ai déjà un compte ».", "phone");
   }
 
   const msg = `${d.name} (${d.phone}) · ${vehicleLabel(d.vehicle)} · ${d.zone} · ${idTypeLabel(d.idType)} fournie`;
