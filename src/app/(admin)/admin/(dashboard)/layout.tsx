@@ -225,6 +225,19 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const isReseller = role === "CONSULTANT" || !!viewingAs;
   const roleLabel = viewingAs ? `Vue de ${viewingAs.name}` : role === "ADMIN" ? "Administrateur" : role === "LIVREUR" ? "Livreur" : rank?.title ?? "Consultant";
 
+  // Pages du menu proposées par la recherche : exactement celles que ce membre voit dans son menu.
+  const systemPages = [
+    ["/admin/notifications", "Notifications"], ["/admin/utilisateurs", "Utilisateurs"], ["/admin/wallets", "Wallets des membres"], ["/admin/versements", "Versements"],
+    ["/admin/modele-economique", "Modèle économique"], ["/admin/reglages", "Réglages & Fidélité"], ["/admin/historique", "Journal des actions"], ["/admin/protection", "Protection anti-aspiration"],
+  ].filter(([href]) => href === "/admin/notifications" || canSee(href)).map(([href, label]) => ({ href, label, group: "Système" }));
+  const searchPages =
+    role === "ADMIN" && !viewingAs
+      ? [{ href: "/admin", label: "Tableau de bord", group: "Aperçu" }, ...visibleGroups.flatMap((g) => g.links.map((l) => ({ href: l.href, label: l.label, group: g.title ?? undefined }))), ...systemPages]
+      : isReseller
+        ? consultantGroups.flatMap((g) => g.links.map((l) => ({ href: l.href, label: l.label, group: g.title ?? undefined })))
+        : livreurLinks.map((l) => ({ href: l.href, label: l.label }));
+  const uniquePages = [...new Map(searchPages.map((p) => [p.href, p])).values()];
+
   const sidebarContent = (
     <>
       <Link href="/admin" className="flex items-center gap-2 px-2" title="Tableau de bord">
@@ -236,7 +249,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       </Link>
 
       <div className="side-full mt-4 px-1 md:hidden">
-        <GlobalSearch />
+        <GlobalSearch pages={uniquePages} />
       </div>
 
       <nav aria-label="Menu principal" className="mt-6 flex flex-1 flex-col gap-5 overflow-y-auto overflow-x-hidden">
@@ -306,6 +319,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       rank={rank}
       unread={unreadCount}
       logout={logoutAction}
+      pages={uniquePages}
     />
   );
 

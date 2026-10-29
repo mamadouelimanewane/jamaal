@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Bell, ChevronDown, Eye, EyeOff, FileSignature, KeyRound, LogOut, Trophy, UserCircle, Wallet, Globe } from "lucide-react";
-import { GlobalSearch } from "./GlobalSearch";
+import { GlobalSearch, type SearchPage } from "./GlobalSearch";
 import { InstallAppButton } from "./InstallApp";
 import { NotificationAlerts } from "./NotificationAlerts";
 
@@ -24,6 +24,7 @@ export function TopBar({
   rank,
   unread,
   logout,
+  pages = [],
 }: {
   role: "ADMIN" | "CONSULTANT" | "LIVREUR";
   user: { name: string; detail: string };
@@ -32,6 +33,7 @@ export function TopBar({
   rank: TopBarRank | null;
   unread: number;
   logout: () => Promise<void>;
+  pages?: SearchPage[];
 }) {
   const [hidden, setHidden] = useState(false);
   // Nombre de notifications non lues tenu à jour par la sonnerie (le nombre du serveur reprend la main à chaque page).
@@ -83,7 +85,7 @@ export function TopBar({
   return (
     <div className="ml-auto flex min-w-0 flex-1 items-center justify-end gap-1.5 sm:gap-2.5">
       <div className="mr-auto hidden min-w-0 max-w-sm flex-1 md:block">
-        <GlobalSearch tone="light" />
+        <GlobalSearch tone="light" pages={pages} shortcut />
       </div>
 
       {balance !== null && (
