@@ -1,68 +1,17 @@
-import { NextRequest, NextResponse } from "next/server";
-import { timingSafeEqual } from "crypto";
-import { markOrderPaid } from "@/lib/payment/mark-paid";
-import { alertPaymentFailed } from "@/lib/whatsapp/alerts";
+import { NextResponse } from "next/server";
 
 /**
- * Webhook / notification Orange Money Web Payment
- * URL à configurer : ORANGE_MONEY_NOTIF_URL
- *   https://votre-domaine/api/payment/orange/webhook
- *
- * Le format exact dépend du contrat Sonatel / Max It.
- * Ce handler accepte les formes les plus courantes :
- *   - JSON { order_id, status: "SUCCESS" | "SUCCESSFUL" | "FAILED" }
- *   - form-urlencoded order_id + status
- *
- * En production : valider la signature / token selon la doc fournie.
+ * Fail closed until the Kwingo 2 contract has been implemented. A shared query-string token
+ * and a caller-provided "SUCCESS" status do not prove that Orange received the order amount.
  */
-export async function POST(req: NextRequest) {
-  // Fail closed : secret partagé obligatoire (ajouté en ?token= à ORANGE_MONEY_NOTIF_URL).
-  const secret = process.env.ORANGE_MONEY_WEBHOOK_SECRET;
-  if (!secret) {
-    return NextResponse.json({ error: "webhook non configuré" }, { status: 503 });
-  }
-  const provided = req.nextUrl.searchParams.get("token") ?? "";
-  const a = Buffer.from(provided);
-  const b = Buffer.from(secret);
-  if (a.length !== b.length || !timingSafeEqual(a, b)) {
-    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-  }
-
-  const contentType = req.headers.get("content-type") || "";
-
-  let orderId: string | undefined;
-  let status: string | undefined;
-
-  try {
-    if (contentType.includes("application/json")) {
-      const body = (await req.json()) as Record<string, unknown>;
-      orderId = String(
-        body.order_id || body.orderId || body.client_reference || body.order_id_merchant || ""
-      );
-      status = String(body.status || body.payment_status || body.txnstatus || "").toUpperCase();
-    } else {
-      const form = await req.formData();
-      orderId = String(form.get("order_id") || form.get("orderId") || "");
-      status = String(form.get("status") || form.get("payment_status") || "").toUpperCase();
-    }
-  } catch {
-    return NextResponse.json({ error: "invalid body" }, { status: 400 });
-  }
-
-  if (!orderId) {
-    return NextResponse.json({ error: "missing order_id" }, { status: 400 });
-  }
-
-  if (["SUCCESS", "SUCCESSFUL", "PAID", "0", "SUCCESSFULL"].includes(status || "")) {
-    await markOrderPaid(orderId, { method: "ORANGE_MONEY" });
-  } else if (["FAILED", "FAILURE", "CANCELLED", "EXPIRED", "REJECTED"].includes(status || "")) {
-    alertPaymentFailed(orderId, "Orange Money");
-  }
-
-  return NextResponse.json({ received: true });
+export async function POST() {
+  return NextResponse.json(
+    { error: "Orange Money n’est pas encore activé. Notification non traitée." },
+    { status: 503 }
+  );
 }
 
-/** Certaines configs OM appellent en GET sur return_url — on ne traite pas ici. */
+/** Sonde informative uniquement ; aucun paiement Orange n’est actif via ce endpoint. */
 export async function GET() {
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ active: false, provider: "orange_money" }, { status: 503 });
 }

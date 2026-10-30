@@ -1,4 +1,3 @@
-import { auth } from "@/lib/auth";
 import { getReseller } from "@/lib/reseller";
 import { OfficialCatalogueView } from "@/components/admin/OfficialCatalogueView";
 

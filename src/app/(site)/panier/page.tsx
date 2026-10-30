@@ -75,6 +75,8 @@ export default function CartPage() {
     const params = new URLSearchParams(window.location.search);
     const sharedCoupon = params.get("coupon");
     if (sharedCoupon && /^[A-Z0-9_-]{4,32}$/i.test(sharedCoupon)) {
+      // Initial URL prefill is intentionally synchronized once on mount before the URL is cleared.
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- consume the shared coupon link.
       setCouponInput(sharedCoupon.toUpperCase());
       setCouponCode(sharedCoupon.toUpperCase());
       window.history.replaceState(null, "", "/panier");

@@ -6,9 +6,13 @@ import { ReconciliationCsv } from "@/components/admin/AdminOperationsActions";
 
 export const dynamic = "force-dynamic";
 
+function ninetyDaysAgo() {
+  return new Date(Date.now() - 90 * 86_400_000);
+}
+
 export default async function ReconciliationPage() {
   await requireAdminPage("comptabilite");
-  const since = new Date(Date.now() - 90 * 86_400_000);
+  const since = ninetyDaysAgo();
   const [entries, pending, failed, paidOrdersWithoutCommission] = await Promise.all([
     prisma.commissionEntry.findMany({ where: { createdAt: { gte: since } }, orderBy: { createdAt: "desc" }, take: 500, include: { consultant: { select: { name: true } }, payout: { select: { id: true, status: true, provider: true, providerRef: true } } } }),
     prisma.commissionEntry.aggregate({ where: { status: "A_VERSER", amount: { gt: 0 } }, _sum: { amount: true }, _count: { _all: true } }),

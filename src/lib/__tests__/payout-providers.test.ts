@@ -54,6 +54,26 @@ test("en cours : accepté par Wave, confirmé plus tard", async () => {
   assert.deepEqual(await sendPayout("WAVE", req), { status: "EN_COURS", providerRef: "pt-4" });
 });
 
+test("Orange Cash-In générique ne déclenche aucun versement, même si les anciens paramètres existent", async () => {
+  const url = process.env.ORANGE_PAYOUT_URL;
+  const token = process.env.ORANGE_PAYOUT_TOKEN;
+  try {
+    process.env.ORANGE_PAYOUT_URL = "https://example.invalid/payout";
+    process.env.ORANGE_PAYOUT_TOKEN = "legacy-token";
+    assert.equal(payoutProvidersConfig().ORANGE_MONEY, false);
+    assert.deepEqual(await sendPayout("ORANGE_MONEY", req), {
+      status: "BLOQUE",
+      error: "Les versements Orange Money sont désactivés jusqu’à la validation de l’intégration Cash-In Kwingo 2.",
+    });
+    assert.equal(calls.length, 0, "aucun appel au prestataire avant validation du contrat");
+  } finally {
+    if (url === undefined) delete process.env.ORANGE_PAYOUT_URL;
+    else process.env.ORANGE_PAYOUT_URL = url;
+    if (token === undefined) delete process.env.ORANGE_PAYOUT_TOKEN;
+    else process.env.ORANGE_PAYOUT_TOKEN = token;
+  }
+});
+
 test("solde Wave Business et fin de clé", async () => {
   const { waveBusinessBalance, wavePayoutKeyTail } = await import("../payouts/providers");
   process.env.WAVE_PAYOUT_API_KEY = "wave_sn_prod_abcdlTmA";

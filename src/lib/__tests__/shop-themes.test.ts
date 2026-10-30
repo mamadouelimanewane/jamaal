@@ -4,7 +4,6 @@ import {
   SHOP_THEMES,
   DEFAULT_THEME_ID,
   getShopTheme,
-  type ShopThemeId,
 } from "../shop/themes";
 
 test("thèmes de boutique : au moins 6 thèmes définis avec identifiants uniques", () => {

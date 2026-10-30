@@ -3,9 +3,8 @@
  *
  * - Wave : API « Payout » de Wave Business. Clé WAVE_PAYOUT_API_KEY, ou à défaut la clé de paiement
  *   WAVE_API_KEY si l'accès « Payout » y a été coché dans Wave Business > Développeurs.
- * - Orange Money : l'accès aux transferts dépend du contrat (Sonatel ou agrégateur : PayDunya,
- *   CinetPay, InTouch…). Connecteur générique : ORANGE_PAYOUT_URL + ORANGE_PAYOUT_TOKEN, à
- *   adapter au format de l'agrégateur retenu.
+ * - Orange Money : désactivé en attendant l'intégration vérifiée du contrat Cash-In Kwingo 2
+ *   (authentification, signature, statut et idempotence selon la documentation officielle).
  *
  * Sans configuration, les commissions restent créditées dans le wallet JAMAAL ; seul le retrait externe attend.
  * Fichier serveur uniquement (jamais importé côté navigateur).
@@ -62,7 +61,7 @@ export function isWalletProvider(v: unknown): v is WalletProvider {
 export function payoutProvidersConfig() {
   return {
     WAVE: !!waveKey(),
-    ORANGE_MONEY: !!(process.env.ORANGE_PAYOUT_URL && process.env.ORANGE_PAYOUT_TOKEN),
+    ORANGE_MONEY: false,
   } satisfies Record<WalletProvider, boolean>;
 }
 
@@ -119,38 +118,12 @@ export async function refreshWave(providerRef: string): Promise<PayoutResult> {
   return { status: "EN_COURS", providerRef };
 }
 
-async function sendOrange(req: PayoutRequest): Promise<PayoutResult> {
-  const res = await fetch(process.env.ORANGE_PAYOUT_URL!, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${process.env.ORANGE_PAYOUT_TOKEN}`,
-      "Content-Type": "application/json",
-      "Idempotency-Key": req.reference,
-    },
-    body: JSON.stringify({
-      amount: req.amount,
-      currency: "XOF",
-      recipient: req.mobile,
-      recipientName: req.name,
-      reference: req.reference,
-      description: "Commissions JAMAAL",
-    }),
-  });
-  const data = (await res.json().catch(() => ({}))) as { id?: string; reference?: string; status?: string; message?: string };
-  if (!res.ok) {
-    const msg = data.message ?? `Orange Money a répondu ${res.status}`;
-    return accountProblem(res.status, msg) ? { status: "BLOQUE", error: msg } : { status: "ECHEC", error: msg };
-  }
-  const status = String(data.status ?? "").toLowerCase();
-  const ref = data.id ?? data.reference;
-  if (["success", "succeeded", "successful", "completed"].includes(status)) return { status: "VERSE", providerRef: ref };
-  if (["failed", "failure", "rejected", "error"].includes(status)) return { status: "ECHEC", providerRef: ref, error: data.message ?? "Versement refusé" };
-  return { status: "EN_COURS", providerRef: ref };
-}
-
 export async function sendPayout(provider: WalletProvider, req: PayoutRequest): Promise<PayoutResult> {
+  if (provider === "ORANGE_MONEY") {
+    return { status: "BLOQUE", error: "Les versements Orange Money sont désactivés jusqu’à la validation de l’intégration Cash-In Kwingo 2." };
+  }
   try {
-    return provider === "WAVE" ? await sendWave(req) : await sendOrange(req);
+    return await sendWave(req);
   } catch (error) {
     return { status: "ECHEC", error: error instanceof Error ? error.message : "Erreur réseau" };
   }

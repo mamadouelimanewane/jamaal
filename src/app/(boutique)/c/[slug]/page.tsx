@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import {
   Gift,
-  MapPin,
   MessageCircle,
   Search,
   ShieldCheck,
@@ -16,9 +15,7 @@ import {
   Award,
   ChevronRight,
   ShoppingBag,
-  Clock,
   CheckCircle2,
-  HelpCircle,
   ArrowRight,
 } from "lucide-react";
 import { getConsultantShop, shopWhatsAppLink } from "@/lib/shop/consultant-shop";
