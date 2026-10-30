@@ -9,6 +9,8 @@ import { formatPrice } from "@/lib/currency";
 import { ConsultantDeliveryFields } from "./ConsultantDeliveryFields";
 import { COLLECT_LABELS, type CollectMethod, type SpecialZone } from "@/lib/special-terms";
 
+type PayMode = "livraison" | "wallet" | "wave" | "orange_money" | "lien";
+
 interface LineItem {
   productId: string;
   productName: string;
@@ -28,20 +30,24 @@ export function ConsultantOrderForm({
   special,
   onlinePay = [],
   installments = null,
+  me = null,
 }: {
   depot: { lat: number; lng: number; label: string };
   vendor: { address: string | null; lat: number | null; lng: number | null };
   walletBalance?: number;
   /** Conditions spéciales du revendeur : encaissement direct et zones de livraison propres. */
   special?: { collect: CollectMethod[]; creditLimit: number; zones: SpecialZone[] } | null;
-  /** Moyens de paiement en ligne actifs (lien de paiement envoyé au client), vide si aucun. */
-  onlinePay?: string[];
+  /** Moyens de paiement en ligne actifs (Wave, Orange Money…), vide si aucun. */
+  onlinePay?: { id: string; label: string }[];
+  /** Le vendeur lui-même (commande pour son propre compte). */
+  me?: { name: string; phone: string | null } | null;
   /** Paiement en plusieurs fois (réglages JAMAAL), proposé avec le lien de paiement. */
   installments?: InstallmentSettings | null;
 }) {
   const [collect, setCollect] = useState<"NON" | CollectMethod>("NON");
-  const [payLink, setPayLink] = useState(false);
-  const [payWallet, setPayWallet] = useState(false);
+  const [forSelf, setForSelf] = useState(false);
+  const [payModeRaw, setPayMode] = useState<PayMode>("livraison");
+  const [fee, setFee] = useState(0);
   const [parts, setParts] = useState(1);
   const owed = Math.max(0, -walletBalance);
   const [query, setQuery] = useState("");
@@ -74,7 +80,19 @@ export function ConsultantOrderForm({
   }
 
   const total = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  const due = total + fee;
+  const walletShort = Math.max(0, due - walletBalance);
+  // Encaissement direct : pas d'autre paiement ; « lien au client » n'existe pas pour soi-même.
+  const payMode: PayMode = collect !== "NON" ? "livraison" : forSelf && payModeRaw === "lien" ? "livraison" : payModeRaw === "wallet" && (walletBalance <= 0 || (items.length > 0 && walletShort > 0)) ? "livraison" : payModeRaw;
+  const payLink = payMode === "lien";
   const partsOk = (n: number) => n === 1 || (!!installments && offeredCounts(total, installments).includes(n));
+
+  const payOption = (mode: PayMode, emoji: string, title: string, hint: string, disabled: boolean) => (
+    <button key={mode} type="button" role="radio" aria-checked={payMode === mode} disabled={disabled} onClick={() => setPayMode(mode)} className={`flex w-full items-start gap-3 rounded-xl border px-4 py-3 text-left text-sm ${payMode === mode ? "border-navy bg-navy/5 ring-2 ring-navy/20" : "border-line bg-white hover:border-navy/40"} disabled:cursor-not-allowed disabled:opacity-50`}>
+      <span className="text-xl" aria-hidden="true">{emoji}</span>
+      <span><strong className="text-navy">{title}</strong><span className="block text-xs text-navy/75">{hint}</span></span>
+    </button>
+  );
 
   return (
     <form
@@ -151,28 +169,46 @@ export function ConsultantOrderForm({
       </div>
 
       <div>
-        <h2 className="mb-3 text-sm font-semibold text-navy">2. Informations client</h2>
+        <h2 className="mb-3 text-sm font-semibold text-navy">2. Pour qui ?</h2>
+        <div className="mb-3 grid grid-cols-2 gap-2" role="radiogroup" aria-label="Commande pour">
+          {([[true, "Pour moi-même"], [false, "Pour un client"]] as const).map(([v, label]) => (
+            <button key={label} type="button" role="radio" aria-checked={forSelf === v} onClick={() => setForSelf(v)} disabled={v && !me} className={`rounded-xl border px-3 py-2.5 text-sm font-semibold ${forSelf === v ? "border-navy bg-navy text-white" : "border-line bg-white text-navy hover:bg-cream"} disabled:opacity-40`}>
+              {label}
+            </button>
+          ))}
+        </div>
         <div className="grid gap-3">
-          <div>
-            <label className={labelClass}>Nom du client</label>
-            <input name="customerName" required className={inputClass} />
-          </div>
-          <div>
-            <label className={labelClass}>Téléphone (WhatsApp)</label>
-            <input name="customerPhone" required value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} className={inputClass} />
-          </div>
-          <div>
-            <label className={labelClass}>Adresse du client</label>
-            <textarea name="address" rows={2} placeholder="Quartier, rue, repère" className={inputClass} />
-          </div>
+          {forSelf && me ? (
+            <div className="rounded-xl border border-line bg-cream/60 px-4 py-3 text-sm text-navy">
+              <input type="hidden" name="forSelf" value="on" />
+              <input type="hidden" name="customerName" value={me.name} />
+              <input type="hidden" name="customerPhone" value={me.phone ?? ""} />
+              Commande à votre nom : <strong>{me.name}</strong>{me.phone ? ` · ${me.phone}` : ""}
+            </div>
+          ) : (
+            <>
+              <div>
+                <label className={labelClass}>Nom du client</label>
+                <input name="customerName" required className={inputClass} />
+              </div>
+              <div>
+                <label className={labelClass}>Téléphone (WhatsApp)</label>
+                <input name="customerPhone" required value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} className={inputClass} />
+              </div>
+              <div>
+                <label className={labelClass}>Adresse du client</label>
+                <textarea name="address" rows={2} placeholder="Quartier, rue, repère" className={inputClass} />
+              </div>
+            </>
+          )}
           <div>
             <label className={labelClass}>Code promo (facultatif)</label>
             <input name="couponCode" autoCapitalize="characters" placeholder="Ex. VEN-7KQ2MX" className={`${inputClass} uppercase`} />
           </div>
 
-          <ConsultantDeliveryFields productsTotal={total} depot={depot} vendor={vendor} customerPhone={customerPhone} zones={special?.zones ?? []} />
+          <ConsultantDeliveryFields productsTotal={total} depot={depot} vendor={vendor} customerPhone={customerPhone} zones={special?.zones ?? []} forSelf={forSelf} onFee={setFee} />
 
-          {special && special.collect.length > 0 && (
+          {!forSelf && special && special.collect.length > 0 && (
             <fieldset className="rounded-xl border border-ia/30 bg-ia-light/60 px-4 py-3 text-sm text-navy">
               <legend className="px-1 text-sm font-semibold">Mon client m&apos;a déjà payé ?</legend>
               <input type="hidden" name="collect" value={collect} />
@@ -200,16 +236,22 @@ export function ConsultantOrderForm({
             </fieldset>
           )}
 
-          {onlinePay.length > 0 && (
-            <label className={`flex items-start gap-3 rounded-xl border px-4 py-3 text-sm ${collect === "NON" && !payWallet ? "border-sky-200 bg-sky-50 text-sky-950" : "border-line bg-cream/50 text-navy/70"}`}>
-              <input type="checkbox" name="payLink" checked={payLink} onChange={(e) => setPayLink(e.target.checked)} disabled={collect !== "NON" || payWallet} className="mt-0.5 h-4 w-4 accent-sky-700" />
-              <span>
-                <strong>Envoyer un lien de paiement à mon client</strong> · {onlinePay.join(" ou ")}
-                <span className="block text-xs">Après l&apos;enregistrement, vous envoyez le lien sur son WhatsApp en un clic. Il paie en ligne : la commande, la livraison et vos commissions se confirment automatiquement.</span>
-              </span>
-            </label>
-          )}
-          {payLink && installments && offeredCounts(total, installments).length > 0 && (
+          <fieldset className="space-y-2" disabled={collect !== "NON"}>
+            <legend className="text-sm font-semibold text-navy">4. Paiement</legend>
+            {payMode === "wallet" && <input type="hidden" name="payWithWallet" value="on" />}
+            {payMode === "lien" && <input type="hidden" name="payLink" value="on" />}
+            {(payMode === "wave" || payMode === "orange_money") && <input type="hidden" name="payNow" value={payMode} />}
+            {collect !== "NON" && <p className="text-xs text-navy/70">Votre client vous a déjà payé : rien d&apos;autre à régler.</p>}
+            {payOption("wallet", "👛", "Payer avec mon wallet", walletBalance > 0
+              ? walletShort > 0 && items.length > 0
+                ? `Solde ${formatPrice(walletBalance)} : il manque ${formatPrice(walletShort)}. Rechargez votre wallet ou choisissez un autre paiement.`
+                : `Solde ${formatPrice(walletBalance)} · vos commissions paient la commande, sans retrait.`
+              : "Solde à 0 F pour le moment.", walletBalance <= 0 || (items.length > 0 && walletShort > 0))}
+            {onlinePay.filter((o) => o.id === "wave" || o.id === "orange_money").map((o) => payOption(o.id as PayMode, o.id === "wave" ? "💙" : "🧡", `Je paie maintenant avec ${o.label}`, "Vous êtes envoyé vers la page de paiement ; la commande est confirmée dès le paiement reçu.", false))}
+            {!forSelf && onlinePay.length > 0 && payOption("lien", "📲", "Envoyer un lien de paiement à mon client", `${onlinePay.map((o) => o.label).join(" ou ")} : il paie en ligne, la commande et vos commissions se confirment toutes seules.`, false)}
+            {payOption("livraison", "💵", forSelf ? "Payer à la livraison" : "Le client paie à la livraison", "Le livreur encaisse à la remise du colis.", false)}
+          </fieldset>
+          {payMode === "lien" && installments && offeredCounts(total, installments).length > 0 && (
             <fieldset className="-mt-2 rounded-xl border border-sky-200 bg-white px-4 py-3 text-sm text-navy">
               <legend className="px-1 text-xs font-semibold">Mon client paie</legend>
               <input type="hidden" name="installments" value={partsOk(parts) ? parts : 1} />
@@ -226,20 +268,13 @@ export function ConsultantOrderForm({
             </fieldset>
           )}
 
-          <label className={`flex items-start gap-3 rounded-xl border px-4 py-3 text-sm ${walletBalance > 0 && collect === "NON" && !payLink ? "border-emerald-200 bg-emerald-50 text-emerald-950" : "border-line bg-cream/50 text-navy/70"}`}>
-            <input type="checkbox" name="payWithWallet" checked={payWallet} onChange={(e) => setPayWallet(e.target.checked)} disabled={walletBalance <= 0 || collect !== "NON" || payLink} className="mt-0.5 h-4 w-4 accent-emerald-700" />
-            <span>
-              <strong>Payer avec mon wallet</strong> · solde {walletBalance.toLocaleString("fr-FR")} F
-              <span className="block text-xs">La commande est réglée tout de suite (produits{" "}+ livraison) : votre client n&apos;a rien à payer à la livraison.</span>
-            </span>
-          </label>
           {state.error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-800">{state.error}</p>}
           <button
             type="submit"
             disabled={items.length === 0 || submitting}
             className="mt-2 w-fit rounded-full bg-navy px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-navy-light disabled:opacity-50"
           >
-            {submitting ? "Enregistrement…" : "Enregistrer la commande"}
+            {submitting ? "Enregistrement…" : payMode === "wave" || payMode === "orange_money" ? `Commander et payer ${formatPrice(due)}` : payMode === "wallet" ? `Commander et payer avec mon wallet (${formatPrice(due)})` : "Enregistrer la commande"}
           </button>
         </div>
       </div>

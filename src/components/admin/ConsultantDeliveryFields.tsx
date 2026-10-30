@@ -23,6 +23,8 @@ export function ConsultantDeliveryFields({
   vendor,
   customerPhone = "",
   zones = [],
+  forSelf = false,
+  onFee,
 }: {
   productsTotal: number;
   depot: { lat: number; lng: number; label: string };
@@ -30,9 +32,14 @@ export function ConsultantDeliveryFields({
   customerPhone?: string;
   /** Zones de livraison propres au revendeur (conditions spéciales) : tarif fixe. */
   zones?: { name: string; fee: number }[];
+  /** Commande pour le vendeur lui-même : livraison chez lui ou retrait, jamais « chez le client ». */
+  forSelf?: boolean;
+  /** Frais de livraison connus (pour vérifier le solde du wallet avant l'envoi). */
+  onFee?: (fee: number) => void;
 }) {
   const savedPoint: Point = vendor.lat != null && vendor.lng != null ? { lat: vendor.lat, lng: vendor.lng } : null;
-  const [target, setTarget] = useState<Target>("CLIENT");
+  const [chosen, setTarget] = useState<Target>("CLIENT");
+  const target: Target = forSelf && chosen === "CLIENT" ? "VENDEUR" : chosen;
   const [clientPoint, setClientPoint] = useState<Point>(null);
   const [vendorPoint, setVendorPoint] = useState<Point>(savedPoint);
   const [quote, setQuote] = useState<DeliveryQuote | null>(null);
@@ -47,8 +54,14 @@ export function ConsultantDeliveryFields({
   useEffect(() => {
     if (!point) return;
     const id = ++seq.current;
-    quoteDeliveryForCart(point.lat, point.lng, productsTotal).then((q) => id === seq.current && setQuote(q)).catch(() => {});
-  }, [point, productsTotal]);
+    quoteDeliveryForCart(point.lat, point.lng, productsTotal)
+      .then((q) => {
+        if (id !== seq.current) return;
+        setQuote(q);
+        onFee?.(q.ok ? q.fee : 0);
+      })
+      .catch(() => {});
+  }, [point, productsTotal, onFee]);
 
   function locate() {
     if (!navigator.geolocation) return setGeoError("Géolocalisation indisponible : touchez la carte.");
@@ -68,17 +81,17 @@ export function ConsultantDeliveryFields({
       <input type="hidden" name="deliveryTarget" value={target} />
       {point && <><input type="hidden" name="deliveryLat" value={point.lat} /><input type="hidden" name="deliveryLng" value={point.lng} /><input type="hidden" name="deliveryApprox" value={point.approx ? "1" : ""} /><input type="hidden" name="deliveryPlace" value={point.place ?? ""} /></>}
 
-      <label className={option("CLIENT")}>
-        <input type="radio" checked={target === "CLIENT"} onChange={() => { setTarget("CLIENT"); setQuote(null); }} className="mt-1" />
+      {!forSelf && <label className={option("CLIENT")}>
+        <input type="radio" checked={target === "CLIENT"} onChange={() => { setTarget("CLIENT"); setQuote(null); onFee?.(0); }} className="mt-1" />
         <span><span className="flex items-center gap-1.5 font-semibold text-navy"><UserRound size={15} /> JAMAAL livre mon client</span><span className="text-navy/75">À l&apos;adresse du client ; le livreur l&apos;appelle et lui demande son code.</span></span>
-      </label>
+      </label>}
       <label className={option("VENDEUR")}>
-        <input type="radio" checked={target === "VENDEUR"} onChange={() => { setTarget("VENDEUR"); setQuote(null); }} className="mt-1" />
-        <span><span className="flex items-center gap-1.5 font-semibold text-navy"><House size={15} /> JAMAAL me livre (j&apos;achète pour mon client)</span><span className="text-navy/75">À mon adresse ; c&apos;est moi que le livreur contacte.</span></span>
+        <input type="radio" checked={target === "VENDEUR"} onChange={() => { setTarget("VENDEUR"); setQuote(null); onFee?.(0); }} className="mt-1" />
+        <span><span className="flex items-center gap-1.5 font-semibold text-navy"><House size={15} /> {forSelf ? "JAMAAL me livre" : "JAMAAL me livre (j'achète pour mon client)"}</span><span className="text-navy/75">À mon adresse ; c&apos;est moi que le livreur contacte.</span></span>
       </label>
       <label className={option("RETRAIT")}>
-        <input type="radio" checked={target === "RETRAIT"} onChange={() => { setTarget("RETRAIT"); setQuote(null); }} className="mt-1" />
-        <span><span className="flex items-center gap-1.5 font-semibold text-navy"><Store size={15} /> Je remets moi-même le colis</span><span className="text-navy/75">Sans livraison JAMAAL, sans frais.</span></span>
+        <input type="radio" checked={target === "RETRAIT"} onChange={() => { setTarget("RETRAIT"); setQuote(null); onFee?.(0); }} className="mt-1" />
+        <span><span className="flex items-center gap-1.5 font-semibold text-navy"><Store size={15} /> {forSelf ? "Sans livraison" : "Je remets moi-même le colis"}</span><span className="text-navy/75">{forSelf ? "Je récupère ma commande moi-même, sans frais." : "Sans livraison JAMAAL, sans frais."}</span></span>
       </label>
 
       {target === "VENDEUR" && (

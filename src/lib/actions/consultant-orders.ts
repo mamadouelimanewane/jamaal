@@ -18,6 +18,7 @@ import { runPayoutsForOrder } from "@/lib/payouts/engine";
 import { after } from "next/server";
 import { getAvailablePaymentProviders } from "@/lib/payment";
 import { PAY_LINK_REF } from "@/lib/pay-link";
+import { initiatePayment } from "./payment";
 import { getInstallmentSettings } from "@/lib/installments-store";
 import { offeredCounts } from "@/lib/installments";
 import { notifyOrderUpdate } from "@/lib/whatsapp/order-notify";
@@ -47,8 +48,21 @@ export async function createConsultantOrder(_prev: ConsultantOrderState, formDat
     if (internal) console.error("[commande vendeur]", e);
     return { ok: false, error: internal ? "La commande n'a pas pu être enregistrée, réessayez." : e.message };
   }
+  // Le vendeur paie lui-même maintenant (Wave / Orange Money) : direction la page de paiement du prestataire.
+  const payNow = payNowMethod(formData);
+  if (payNow) {
+    const r = await initiatePayment(orderId, payNow);
+    if (r.redirect && r.url) redirect(r.url);
+    // Paiement pas démarré : la commande attend, payable depuis sa fiche (lien de paiement).
+    redirect(`/admin/mes-commandes/${orderId}?lien=1&paiement=erreur`);
+  }
   redirect(`/admin/mes-commandes/${orderId}${formData.get("payLink") === "on" ? "?lien=1" : ""}`);
 }
+
+const payNowMethod = (f: FormData) => {
+  const v = String(f.get("payNow") ?? "");
+  return v === "wave" || v === "orange_money" ? v : null;
+};
 
 async function placeConsultantOrder(formData: FormData): Promise<string> {
   const { consultant } = await requireConsultantProfile();
@@ -63,8 +77,10 @@ async function placeConsultantOrder(formData: FormData): Promise<string> {
   }
   const { items, total: productsTotal } = await priceItemsFromCatalog(rawItems);
 
-  const customerName = String(formData.get("customerName") ?? "").trim().slice(0, 120);
-  const customerPhone = String(formData.get("customerPhone") ?? "").trim().slice(0, 30);
+  // Commande pour le vendeur lui-même : son nom et son WhatsApp, jamais ceux tapés dans le formulaire.
+  const forSelf = formData.get("forSelf") === "on";
+  const customerName = forSelf ? consultant.name : String(formData.get("customerName") ?? "").trim().slice(0, 120);
+  const customerPhone = forSelf ? consultant.whatsapp ?? "" : String(formData.get("customerPhone") ?? "").trim().slice(0, 30);
   if (customerName.length < 2) throw new Error("Indiquez le nom du client.");
   const clientAddress = String(formData.get("address") ?? "").trim().slice(0, 500) || null;
   const useLoyaltyPoints = formData.get("useLoyaltyPoints") === "on";
@@ -73,7 +89,8 @@ async function placeConsultantOrder(formData: FormData): Promise<string> {
 
   // Où livrer : retrait (le consultant remet lui-même), chez le client, ou chez le consultant
   // quand il achète pour le compte de son client.
-  const target = String(formData.get("deliveryTarget") ?? "RETRAIT");
+  const targetRaw = String(formData.get("deliveryTarget") ?? "RETRAIT");
+  const target = forSelf && targetRaw === "CLIENT" ? "VENDEUR" : targetRaw;
   const point = { lat: Number(formData.get("deliveryLat")), lng: Number(formData.get("deliveryLng")) };
   let deliveryData: Record<string, unknown> = { deliveryMode: "RETRAIT_CONSULTANT" };
   let address = clientAddress;
@@ -88,10 +105,10 @@ async function placeConsultantOrder(formData: FormData): Promise<string> {
     } else {
       const myAddress = String(formData.get("vendorAddress") ?? "").trim().slice(0, 500) || consultant.deliveryAddress;
       if (!myAddress) throw new Error("Indiquez votre adresse de livraison.");
-      address = `${myAddress} (chez ${consultant.name}, consultant·e, pour ${customerName})`;
+      address = forSelf ? myAddress : `${myAddress} (chez ${consultant.name}, consultant·e, pour ${customerName})`;
       contactName = consultant.name;
       contactPhone = consultant.whatsapp;
-      deliveryNote = `Livraison chez ${consultant.name} (achat pour le client)`;
+      deliveryNote = forSelf ? `Livraison chez ${consultant.name} (commande pour lui-même)` : `Livraison chez ${consultant.name} (achat pour le client)`;
       if (formData.get("saveVendorAddress") === "on") {
         await prisma.consultant.update({ where: { id: consultant.id }, data: { deliveryAddress: myAddress, deliveryLat: point.lat, deliveryLng: point.lng } });
       }
@@ -131,17 +148,22 @@ async function placeConsultantOrder(formData: FormData): Promise<string> {
   if (collect && (!isCollectMethod(collect) || !allowedCollect(terms).includes(collect))) throw new Error("Ce moyen d'encaissement n'est pas autorisé pour votre compte.");
   if (collect && payWithWallet) throw new Error("Choisissez soit « payer avec mon wallet », soit « mon client m'a payé ».");
   // Lien de paiement : le client règle lui-même en ligne (Wave ou Orange Money) ; livraison et commissions après paiement.
-  const payLink = formData.get("payLink") === "on";
-  if (payLink && (payWithWallet || collect)) throw new Error("Choisissez un seul mode de paiement : lien au client, wallet ou client déjà payé.");
-  if (payLink) {
+  const payNow = payNowMethod(formData);
+  const payLinkAsked = formData.get("payLink") === "on";
+  if ([payWithWallet, !!collect, payLinkAsked, !!payNow].filter(Boolean).length > 1) throw new Error("Choisissez un seul mode de paiement : wallet, Wave / Orange Money, lien au client ou client déjà payé.");
+  if (payLinkAsked && forSelf) throw new Error("Pour vous-même, payez avec votre wallet, Wave ou Orange Money.");
+  if (payNow && !getAvailablePaymentProviders(await getBusinessModel()).some((p) => p.id === payNow)) throw new Error("Ce moyen de paiement n'est pas disponible pour le moment.");
+  // Paiement maintenant par le vendeur : même parcours qu'un lien de paiement (livraison et commissions au paiement reçu).
+  const payLink = payLinkAsked || !!payNow;
+  if (payLinkAsked) {
     const online = getAvailablePaymentProviders(await getBusinessModel()).filter((p) => p.id !== "cod");
     if (!online.length) throw new Error("Le paiement en ligne n'est pas encore activé : choisissez un autre mode de paiement.");
     if (!customerPhone) throw new Error("Indiquez le WhatsApp du client pour lui envoyer le lien de paiement.");
   }
   if (payWithWallet) {
-    const { balance } = await walletBalance({ type: "CONSULTANT", id: consultant.id });
+    const { available } = await walletBalance({ type: "CONSULTANT", id: consultant.id });
     const max = productsTotal + Number(deliveryData.deliveryFee ?? 0);
-    if (balance < max) throw new WalletError(`Solde du wallet insuffisant : ${balance.toLocaleString("fr-FR")} F pour ${max.toLocaleString("fr-FR")} F. Rechargez votre wallet ou choisissez un autre paiement.`);
+    if (available < max) throw new WalletError(`Solde du wallet insuffisant : ${available.toLocaleString("fr-FR")} F pour ${max.toLocaleString("fr-FR")} F. Rechargez votre wallet ou choisissez un autre paiement.`);
   }
 
   let discountAmount = 0;
@@ -202,7 +224,7 @@ async function placeConsultantOrder(formData: FormData): Promise<string> {
       items: { create: items },
       ...(deliveryData.deliveryStatus && !payLink ? { deliveryEvents: { create: { status: "A_PREPARER", note: `${deliveryNote} · ${deliveryData.deliveryDistanceKm} km du dépôt` } } } : {}),
       // Lien de paiement : la livraison ne part en préparation qu'une fois le paiement reçu (markOrderPaid).
-      ...(payLink ? { deliveryStatus: null, paymentMethod: "WAVE" as const, paymentStatus: "EN_ATTENTE" as const, paymentRef: PAY_LINK_REF } : {}),
+      ...(payLink ? { deliveryStatus: null, paymentMethod: payNow === "orange_money" ? ("ORANGE_MONEY" as const) : ("WAVE" as const), paymentStatus: "EN_ATTENTE" as const, paymentRef: PAY_LINK_REF } : {}),
       ...installmentData,
       ...(payWithWallet ? { paymentMethod: "WALLET" as const, paymentStatus: "PAYE" as const, paidAt: new Date(), paymentRef: "wallet" } : {}),
       ...(collect && isCollectMethod(collect) ? { paymentMethod: "WALLET" as const, paymentStatus: "PAYE" as const, paidAt: new Date(), paymentRef: collectRef(collect) } : {}),
