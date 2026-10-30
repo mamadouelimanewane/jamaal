@@ -9,6 +9,9 @@ import { ProductPicker, type PickerProduct } from "./GrowthWidgets";
 import { ThemeSelector } from "./ThemeSelector";
 
 /** Réglages de la boutique personnelle : photo, thème, slogan, présentation, coups de cœur (8 au plus). */
+/** Longueur maximale de la présentation (environ 8 à 10 lignes sur la boutique). */
+const BIO_MAX = 600;
+
 export function MyShopForm({
   photo,
   logo = null,
@@ -162,15 +165,17 @@ export function MyShopForm({
 
       {/* 4. Bio / Présentation */}
       <label className="block text-sm font-medium text-navy">
-        Ma présentation <span className="text-navy/50">({text.length}/220)</span>
+        Ma présentation <span className="text-navy/50">({text.length}/{BIO_MAX})</span>
         <textarea
           name="bio"
           value={text}
-          onChange={(e) => setText(e.target.value.slice(0, 220))}
-          rows={3}
+          onChange={(e) => setText(e.target.value.slice(0, BIO_MAX))}
+          rows={7}
+          maxLength={BIO_MAX}
           placeholder="Ex. Passionnée de parfums depuis 5 ans, je vous conseille et je livre à Dakar et Thiès. Écrivez-moi !"
           className="mt-1.5 w-full rounded-xl border border-line bg-white px-3 py-2 text-sm text-navy outline-none focus:border-navy"
         />
+        <span className="mt-1 block text-xs text-navy/55">Jusqu&apos;à {BIO_MAX} caractères ; vous pouvez aller à la ligne pour faire des paragraphes.</span>
       </label>
 
       {/* 5. Badges de l'Académie */}

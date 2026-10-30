@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!shop) return { title: "Boutique JAMAAL" };
   const first = shop.consultant.name.split(/\s+/)[0];
   const description =
-    shop.consultant.bio ||
+    (shop.consultant.bio ? shop.consultant.bio.replace(/\s+/g, " ").slice(0, 160) : "") ||
     shop.consultant.tagline ||
     `La boutique de ${first}, conseiller·e JAMAAL à ${shop.consultant.city} : conseil parfum, commande sur WhatsApp et livraison.`;
   return {
@@ -182,7 +182,7 @@ export default async function ConsultantShopPage({ params }: Props) {
               <Link href={`/parfum-adn${ref}`} className="sh-btn sh-btn-light">Trouver mon parfum</Link>
             </div>
           </div>
-          {c.bio && <p className="sh-muted mx-auto mt-8 max-w-2xl text-center text-base leading-relaxed sm:text-[17px]">{c.bio}</p>}
+          {c.bio && <p className="sh-muted mx-auto mt-8 max-w-2xl whitespace-pre-line text-center text-base leading-relaxed sm:text-[17px]">{c.bio}</p>}
         </section>
       ) : (
         <section aria-label="Votre conseiller" className="mx-auto max-w-[920px] px-4 pb-16 pt-10 text-center sm:px-6 sm:pb-20 sm:pt-14">
@@ -191,7 +191,7 @@ export default async function ConsultantShopPage({ params }: Props) {
           <p className="sh-eyebrow mt-8">La boutique de votre conseiller JAMAAL · {c.city}</p>
           <h1 className="sh-display mt-4 text-[clamp(42px,8vw,84px)] leading-[0.98]">{c.name}</h1>
           <p className="sh-display sh-acc mt-4 text-xl italic sm:text-2xl">{tagline}</p>
-          <p className="sh-muted mx-auto mt-5 max-w-[38rem] text-base leading-relaxed sm:text-[17px]">
+          <p className="sh-muted mx-auto mt-5 max-w-[38rem] whitespace-pre-line text-base leading-relaxed sm:text-[17px]">
             {c.bio || `Conseiller·e JAMAAL à ${c.city}. Dites-moi ce que vous aimez porter : je vous guide vers le parfum qui vous ressemble, et je vous le fais livrer.`}
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">

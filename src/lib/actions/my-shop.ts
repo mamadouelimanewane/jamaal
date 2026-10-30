@@ -16,7 +16,16 @@ export async function updateMyShop(_prev: ShopState, fd: FormData): Promise<Shop
   if (!me) return { ok: false, error: "Session invalide." };
   if (me.viewAs) return { ok: false, error: "Mode consultation : modification impossible." };
 
-  const bio = String(fd.get("bio") ?? "").trim().replace(/\s+/g, " ").slice(0, 220) || null;
+  // Paragraphes gardés (au plus une ligne vide entre deux), espaces en trop retirés.
+  const bio =
+    String(fd.get("bio") ?? "")
+      .replace(/\r/g, "")
+      .split("\n")
+      .map((l) => l.replace(/[ \t]+/g, " ").trim())
+      .join("\n")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim()
+      .slice(0, 600) || null;
   const tagline = String(fd.get("tagline") ?? "").trim().replace(/\s+/g, " ").slice(0, 100) || null;
 
   const shopTheme = normalizeThemeId(String(fd.get("theme") ?? ""));
