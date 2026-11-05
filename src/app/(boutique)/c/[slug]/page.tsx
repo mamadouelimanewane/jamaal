@@ -99,7 +99,7 @@ export default async function ConsultantShopPage({ params }: Props) {
   // Page de garde : le logo du revendeur en haut (sinon sa photo, sinon ses initiales), le reste en dessous.
   const mark = c.logo ? (
     // eslint-disable-next-line @next/next/no-img-element
-    <img src={c.logo} alt={`Logo de ${c.name}`} className="mx-auto block max-h-[120px] w-auto max-w-[min(320px,80%)] object-contain sm:max-h-[150px]" />
+    <img src={c.logo} alt={`Logo de ${c.name}`} className="mx-auto block h-[180px] w-auto max-w-[min(460px,92%)] object-contain sm:h-[240px]" />
   ) : c.photo ? (
     <div className="sh-portrait mx-auto h-[168px] w-[136px] overflow-hidden sm:h-[200px] sm:w-[162px]">
       {/* eslint-disable-next-line @next/next/no-img-element */}

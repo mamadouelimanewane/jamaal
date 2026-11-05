@@ -113,6 +113,7 @@ export function ShareStudio({
   const [channel, setChannel] = useState<App | null>(null);
   const [statusHelp, setStatusHelp] = useState<null | "after" | "manual" | "desktop">(null);
   const [saved, setSaved] = useState(false);
+  const [attempt, setAttempt] = useState(0);
   const defaultText = useMemo(() => shareMessage(items, origin, refSlug), [items, origin, refSlug]);
   const [edited, setEdited] = useState<{ base: string; text: string } | null>(null);
   const text = edited?.base === defaultText ? edited.text : defaultText;
@@ -157,17 +158,25 @@ export function ShareStudio({
       setPrepared({ key, files: ok, failed: files.length - ok.length });
     });
     return () => ctrl.abort();
-  }, [key, refSlug]);
+  }, [key, refSlug, attempt]);
 
   if (!items.length) return null;
 
   const canShareFiles = (files: File[]) =>
     typeof navigator !== "undefined" && !!navigator.canShare && files.length > 0 && navigator.canShare({ files });
   const touch = typeof navigator !== "undefined" && navigator.maxTouchPoints > 0;
+  /** Vrai téléphone ou tablette (un ordinateur à écran tactile n'a pas WhatsApp « Statut » dans son partage). */
+  const phoneDevice = touch && (isIos() || /android|mobile/i.test(navigator.userAgent));
 
-  async function shareFiles(files: File[], shareText: string | undefined): Promise<"ok" | "cancel" | "fail"> {
+  /**
+   * Ouvre la liste de partage du téléphone. Le partage est lancé en premier, tant que le geste de l'utilisateur
+   * est encore « frais » (Safari le refuse sinon), puis le texte est copié.
+   */
+  async function shareFiles(files: File[], shareText: string | undefined, clip?: string): Promise<"ok" | "cancel" | "fail"> {
     try {
-      await navigator.share(shareText ? { files, text: shareText } : { files });
+      const done = navigator.share(!files.length ? { text: shareText } : shareText ? { files, text: shareText } : { files });
+      if (clip) copy(clip);
+      await done;
       return "ok";
     } catch (e) {
       return e instanceof DOMException && e.name === "AbortError" ? "cancel" : "fail";
@@ -262,19 +271,51 @@ export function ShareStudio({
     openChannel("whatsapp");
   }
 
+  /**
+   * Statut WhatsApp.
+   * - Téléphone : liste de partage avec l'image (et, sur Android, le texte en légende) → WhatsApp → « Mon statut ».
+   *   Sans partage d'images (certains navigateurs) : l'image est enregistrée et WhatsApp s'ouvre, consignes à l'écran.
+   * - Ordinateur : l'image est téléchargée et WhatsApp Web s'ouvre (onglet Statut), ou code QR pour le téléphone.
+   */
   async function onStatus() {
     setMsg(null);
     setGuide(null);
     setChannel(null);
-    copy(text);
     const files = ready?.files ?? [];
-    if (!touch) return setStatusHelp("desktop");
+    if (!files.length) setAttempt((a) => a + 1);
+
+    if (!phoneDevice) {
+      copy(text);
+      if (files.length) {
+        files.forEach(download);
+        setSaved(true);
+      }
+      window.open("https://web.whatsapp.com/", "_blank", "noopener");
+      return setStatusHelp("desktop");
+    }
+
     if (canShareFiles(files)) {
       setBusy(true);
-      const r = await shareFiles(files, undefined);
+      const r = await shareFiles(files, isIos() ? undefined : text, text);
+      setBusy(false);
+      if (r === "ok") return setStatusHelp("after");
+      if (r === "cancel") {
+        setStatusHelp(null);
+        return setMsg("Partage annulé. Touchez à nouveau « Mettre en statut WhatsApp », puis WhatsApp → « Mon statut ».");
+      }
+    } else if (!files.length && typeof navigator.share === "function") {
+      // Images indisponibles : statut texte avec le lien de la boutique.
+      setBusy(true);
+      const r = await shareFiles([], text);
       setBusy(false);
       if (r === "ok") return setStatusHelp("after");
       if (r === "cancel") return setStatusHelp(null);
+    }
+
+    copy(text);
+    if (files.length) {
+      files.forEach(download);
+      setSaved(true);
     }
     setStatusHelp("manual");
   }
@@ -1062,20 +1103,39 @@ function StatusSteps({
             <QRCodeSVG value={continueUrl || "https://www.jamaal.sn"} size={132} />
           </div>
           <div>
-            <p>
-              Le statut WhatsApp se publie <strong>depuis votre téléphone</strong>.
+            <p className="font-medium">Depuis l&apos;ordinateur (WhatsApp Web, ouvert dans un nouvel onglet) :</p>
+            <ol className="mt-1 list-decimal space-y-1 pl-5 text-navy/80">
+              <li>
+                {count ? (
+                  <>
+                    {count > 1 ? "Les images sont" : "L'image est"} dans <strong>Téléchargements</strong> (
+                    <button type="button" onClick={onSave} className="font-semibold text-rose-dark underline cursor-pointer">
+                      télécharger à nouveau
+                    </button>
+                    ).
+                  </>
+                ) : (
+                  <>Préparation de {img}… touchez à nouveau le bouton dans un instant.</>
+                )}
+              </li>
+              <li>
+                Dans WhatsApp Web, cliquez l&apos;icône <strong>Statut</strong> (le cercle, à gauche), puis <strong>+</strong> →{" "}
+                <strong>Photos et vidéos</strong> et choisissez {img}.
+              </li>
+              <li>Collez le texte en légende (il est déjà copié, avec votre lien), puis envoyez.</li>
+            </ol>
+            <p className="mt-2 text-xs text-navy/60">
+              Plus simple sur le téléphone : scannez ce code avec l&apos;appareil photo, le même produit s&apos;ouvre dans
+              votre espace, touchez alors « Mettre en statut WhatsApp ».
             </p>
-            <p className="mt-1 text-navy/70">
-              Scannez ce code avec l&apos;appareil photo du téléphone : le même produit s&apos;ouvre dans votre espace,
-              touchez alors « Mettre en statut WhatsApp ».
-            </p>
-            <p className="mt-1 text-xs text-navy/60">
-              Texte déjà copié. Autre solution :{" "}
-              <button type="button" onClick={onSave} className="font-semibold text-rose-dark underline cursor-pointer">
-                téléchargez {img}
-              </button>{" "}
-              et envoyez-{count > 1 ? "les" : "la"} sur votre téléphone.
-            </p>
+            <a
+              href="https://web.whatsapp.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 inline-flex rounded-full bg-[#25D366] px-4 py-2 text-sm font-semibold text-white"
+            >
+              Ouvrir WhatsApp Web
+            </a>
           </div>
         </div>
       )}
