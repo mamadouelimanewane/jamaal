@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowRight, ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 import { SLIDE_THEMES, type HeroSlide } from "@/lib/home-slides";
+import { isVideoUrl } from "@/lib/media";
 
 type Slide = HeroSlide & { resolvedImage: string | null };
 
@@ -109,7 +110,10 @@ export function HomeCarousel({ slides }: { slides: Slide[] }) {
                   </div>
                 </div>
                 <Link href={s.href} tabIndex={-1} aria-hidden className="group relative mx-4 mb-20 block min-h-[180px] overflow-hidden sm:mx-8 lg:mx-0 lg:mb-0 lg:min-h-full">
-                  {s.resolvedImage && s.image ? (
+                  {s.resolvedImage && s.image && isVideoUrl(s.resolvedImage) ? (
+                    // Vidéo envoyée dans le back-office : pleine largeur, lecture automatique sans son, en boucle.
+                    <video src={s.resolvedImage} autoPlay muted loop playsInline preload={i === 0 ? "auto" : "metadata"} className="absolute inset-0 h-full w-full object-cover object-center" aria-hidden="true" />
+                  ) : s.resolvedImage && s.image ? (
                     // Visuel envoyé dans le back-office : pleine largeur.
                     <Image
                       src={s.resolvedImage}

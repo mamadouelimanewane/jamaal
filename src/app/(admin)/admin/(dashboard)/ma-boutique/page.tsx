@@ -38,6 +38,7 @@ export default async function MaBoutiquePage() {
         <MyShopForm
           photo={me.shopPhoto ?? null}
           logo={me.shopLogo ?? null}
+          media={me.shopMedia ?? []}
           bio={me.shopBio ?? null}
           tagline={me.shopTagline ?? null}
           theme={me.shopTheme ?? null}

@@ -3,6 +3,8 @@ import { resellerCatalog } from "@/lib/reseller-catalog";
 import { MessageCircle } from "lucide-react";
 import { getReseller, resellerLinks } from "@/lib/reseller";
 import { KitMarketingList } from "@/components/admin/KitMarketingList";
+import { MediaShareCard } from "@/components/admin/MediaShareCard";
+import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +18,7 @@ export default async function KitMarketingPage() {
   const links = await resellerLinks(me?.slug ?? null);
   // Tout le catalogue (parfums compris) : la recherche trouve chaque produit par nom, code ou catégorie.
   const products = await resellerCatalog();
+  const assets = await prisma.marketingAsset.findMany({ orderBy: { createdAt: "desc" }, take: 60 });
 
   return (
     <div className="max-w-5xl">
@@ -27,6 +30,18 @@ export default async function KitMarketingPage() {
       <p className="mt-1 text-sm text-navy/75">
         Téléchargez les visuels officiels et utilisez nos textes de vente optimisés pour vos statuts WhatsApp et Facebook.
       </p>
+
+      {assets.length > 0 && (
+        <section className="mt-6" aria-labelledby="kit-media">
+          <h2 id="kit-media" className="font-semibold text-navy">Photos et vidéos de JAMAAL</h2>
+          <p className="text-sm text-navy/70">Touchez « Partager » puis WhatsApp → « Mon statut » (ou TikTok, Instagram…). Le texte est copié : collez-le en légende.</p>
+          <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            {assets.map((a) => (
+              <MediaShareCard key={a.id} src={a.fileUrl} title={a.title} text={a.caption ? `${a.caption}${links.shop ? `\n\n${links.shop}` : ""}` : links.shop ?? undefined} />
+            ))}
+          </div>
+        </section>
+      )}
 
       <KitMarketingList
         products={products}

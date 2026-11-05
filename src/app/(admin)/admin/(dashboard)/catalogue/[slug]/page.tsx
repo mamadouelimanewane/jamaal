@@ -8,6 +8,8 @@ import { mySellerRate, startingPrice } from "@/lib/reseller-catalog";
 import { getCategories } from "@/lib/db-categories";
 import { estimatedGainLabel } from "@/lib/share-text";
 import { ShareStudio } from "@/components/admin/ShareStudio";
+import { MediaShareCard } from "@/components/admin/MediaShareCard";
+import { isVideoUrl } from "@/lib/media";
 
 export const dynamic = "force-dynamic";
 
@@ -23,7 +25,9 @@ export default async function CatalogueProductPage({ params }: { params: Promise
   const category = categories.find((c) => c.slug === product.category);
   const volumes = ((product.volumes as { label?: string; price?: number }[] | null) ?? []).filter((v) => v.label && (v.price ?? 0) > 0) as { label: string; price: number }[];
   const price = startingPrice(product.regularPrice, product.volumes);
-  const photos = [product.photo, ...product.gallery].filter((p): p is string => !!p).slice(0, 6);
+  const media = [product.photo, ...product.gallery].filter((p): p is string => !!p);
+  const photos = media.filter((p) => !isVideoUrl(p)).slice(0, 6);
+  const videos = media.filter(isVideoUrl);
   const notes = [
     ["Tête", product.topNotes],
     ["Cœur", product.heartNotes],
@@ -46,6 +50,16 @@ export default async function CatalogueProductPage({ params }: { params: Promise
                   <Image src={src} alt="" fill sizes="80px" className="object-contain p-1" />
                 </a>
               ))}
+            </div>
+          )}
+          {videos.length > 0 && (
+            <div>
+              <p className="mb-2 text-sm font-semibold text-navy">Vidéos du produit, prêtes à publier</p>
+              <div className="grid grid-cols-2 gap-3">
+                {videos.map((v, i) => (
+                  <MediaShareCard key={v} src={v} title={`${product.name}${videos.length > 1 ? ` — vidéo ${i + 1}` : ""}`} />
+                ))}
+              </div>
             </div>
           )}
           <div className="rounded-2xl border border-line bg-white p-5">

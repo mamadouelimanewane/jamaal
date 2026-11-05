@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getReseller } from "@/lib/reseller";
 import { MAX_FAVORITES } from "@/lib/shop/consultant-shop";
+import { SHOP_MEDIA_MAX, parseMediaList } from "@/lib/media";
 import { normalizeAccent, normalizeHero, normalizeHidden, normalizeThemeId, normalizeTypo } from "@/lib/shop/themes";
 
 export type ShopState = { ok: boolean; message?: string; error?: string };
@@ -37,6 +38,20 @@ export async function updateMyShop(_prev: ShopState, fd: FormData): Promise<Shop
   const ids = fd.getAll("productIds").map(String).filter(Boolean).slice(0, MAX_FAVORITES);
   const favorites = ids.length ? (await prisma.product.findMany({ where: { id: { in: ids } }, select: { id: true } })).map((p) => p.id) : [];
   const ordered = ids.filter((id) => favorites.includes(id));
+
+  // Galerie photos et vidéos : fichiers déjà envoyés sur le stockage du site (ou déjà présents).
+  let shopMedia: string[] | undefined;
+  if (fd.has("shopMedia")) {
+    try {
+      shopMedia = parseMediaList(fd.get("shopMedia"), SHOP_MEDIA_MAX);
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : "Photos et vidéos illisibles." };
+    }
+    const known = new Set(me.shopMedia ?? []);
+    if (shopMedia.some((u) => !known.has(u) && !/^https:\/\/[\w-]+\.public\.blob\.vercel-storage\.com\//.test(u))) {
+      return { ok: false, error: "Ajoutez vos photos et vidéos avec le bouton « Ajouter », depuis votre galerie." };
+    }
+  }
 
   let shopPhoto: string | null | undefined;
   if (fd.get("removePhoto") === "1") shopPhoto = null;
@@ -77,6 +92,7 @@ export async function updateMyShop(_prev: ShopState, fd: FormData): Promise<Shop
       titleForm,
       ...(shopPhoto !== undefined ? { shopPhoto } : {}),
       ...(shopLogo !== undefined ? { shopLogo } : {}),
+      ...(shopMedia !== undefined ? { shopMedia } : {}),
     },
   });
 

@@ -3,6 +3,9 @@
 import { useRef, useState, useTransition } from "react";
 import { ArrowDown, ArrowUp, Eye, EyeOff, ImageUp, Loader2, Plus, RotateCcw, Trash2 } from "lucide-react";
 import { HomeCarousel } from "@/components/HomeCarousel";
+import { MediaView } from "@/components/MediaView";
+import { isVideoFile } from "@/lib/media";
+import { uploadMedia } from "@/lib/media-upload";
 import { saveHomeCarouselAction, resetHomeCarouselAction } from "@/lib/actions/home-carousel";
 import { categoryFromHref, MAX_SLIDES, SLIDE_THEMES, type HeroSlide, type SlideTheme } from "@/lib/home-slides";
 
@@ -23,6 +26,7 @@ export function HomeCarouselEditor({
   const [dirty, setDirty] = useState(false);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [uploading, setUploading] = useState<string | null>(null);
+  const [progress, setProgress] = useState<number | null>(null);
   const [pending, start] = useTransition();
   const fileFor = useRef<string | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
@@ -58,6 +62,16 @@ export function HomeCarouselEditor({
     setUploading(id);
     setMsg(null);
     try {
+      if (isVideoFile(file)) {
+        // Vidéo : envoi direct vers le stockage (100 Mo au plus), avec la progression.
+        setProgress(0);
+        try {
+          update(id, { image: await uploadMedia(file, "accueil", setProgress) });
+        } catch (e) {
+          setMsg({ ok: false, text: e instanceof Error ? e.message : "Envoi impossible." });
+        }
+        return;
+      }
       const body = new FormData();
       body.set("file", file);
       const r = await fetch("/api/admin/visuel-accueil", { method: "POST", body });
@@ -66,6 +80,7 @@ export function HomeCarouselEditor({
       else update(id, { image: data.url });
     } finally {
       setUploading(null);
+      setProgress(null);
       if (fileInput.current) fileInput.current.value = "";
     }
   }
@@ -97,7 +112,7 @@ export function HomeCarouselEditor({
 
   return (
     <div className="space-y-6">
-      <input ref={fileInput} type="file" accept="image/jpeg,image/png,image/webp,image/avif" className="hidden" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
+      <input ref={fileInput} type="file" accept="image/jpeg,image/png,image/webp,image/avif,video/mp4,video/quicktime,video/webm" className="hidden" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
 
       <section className="overflow-hidden rounded-2xl border border-line">
         <p className="flex items-center gap-2 bg-cream px-4 py-2 text-sm font-semibold text-navy"><Eye size={15} /> Aperçu</p>
@@ -125,12 +140,11 @@ export function HomeCarouselEditor({
               <div className="mt-3 grid gap-4 md:grid-cols-[180px_1fr]">
                 <div>
                   <div className="relative aspect-[4/3] overflow-hidden rounded-xl" style={{ background: `linear-gradient(120deg, ${SLIDE_THEMES[s.theme].from}, ${SLIDE_THEMES[s.theme].to})` }}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    {img && <img src={img} alt="" className="h-full w-full object-cover" />}
-                    {uploading === s.id && <span className="absolute inset-0 flex items-center justify-center bg-black/40 text-white"><Loader2 className="animate-spin" /></span>}
+                    {img && <MediaView src={img} className="h-full w-full" autoPlay />}
+                    {uploading === s.id && <span className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-black/40 text-sm font-semibold text-white"><Loader2 className="animate-spin" />{progress !== null && `${progress} %`}</span>}
                   </div>
                   <button type="button" onClick={() => { fileFor.current = s.id; fileInput.current?.click(); }} className="mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-navy px-3 py-1.5 text-xs font-semibold text-navy hover:bg-navy hover:text-white">
-                    <ImageUp size={14} /> Envoyer un visuel
+                    <ImageUp size={14} /> Photo ou vidéo
                   </button>
                   {s.image ? (
                     <button type="button" onClick={() => update(s.id, { image: "" })} className="mt-1 w-full text-xs text-navy/70 hover:underline">Utiliser la photo de la gamme</button>

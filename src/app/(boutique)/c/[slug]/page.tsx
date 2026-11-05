@@ -1,4 +1,5 @@
 ﻿import type { Metadata } from "next";
+import { MediaView } from "@/components/MediaView";
 import type { CSSProperties } from "react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -207,6 +208,19 @@ export default async function ConsultantShopPage({ params }: Props) {
           {starCard}
         </section>
       )}
+
+      {c.media?.length ? (
+        <section id="galerie" aria-label="Photos et vidéos" className="mx-auto max-w-[1240px] px-4 pb-14 sm:px-6 sm:pb-16">
+          <h2 className="sh-display text-center text-3xl sm:text-[40px]">En photos et en vidéos</h2>
+          <ul className={`mt-8 grid gap-3 sm:gap-4 ${c.media.length === 1 ? "mx-auto max-w-md grid-cols-1" : "grid-cols-2 lg:grid-cols-3"}`}>
+            {c.media.map((m, i) => (
+              <li key={m} className="sh-card overflow-hidden rounded-[20px]">
+                <MediaView src={m} alt={`${c.name} — ${i + 1}`} className="aspect-[4/5] h-auto w-full bg-black/5" />
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       {show("services") && (
         <section id="univers" aria-label="Services" className="sh-soft sh-line border-y">

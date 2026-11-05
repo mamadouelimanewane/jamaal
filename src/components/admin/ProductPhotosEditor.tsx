@@ -2,11 +2,14 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, HardDriveUpload, ImagePlus, Link2, Loader2, Star, Trash2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Film, HardDriveUpload, ImagePlus, Link2, Loader2, Star, Trash2 } from "lucide-react";
+import { MediaView } from "@/components/MediaView";
+import { isImageFile, isVideoFile, isVideoUrl } from "@/lib/media";
+import { uploadMedia } from "@/lib/media-upload";
 import { compressImage } from "@/lib/image-compress";
 import { MAX_PRODUCT_PHOTOS, isAcceptablePhotoUrl } from "@/lib/product-photos";
 
-type Pending = { key: string; label: string };
+type Pending = { key: string; label: string; percent?: number };
 
 /** Champ invisible et invalide tant qu'une photo s'envoie : le navigateur bloque l'envoi du formulaire avec ce message. */
 function UploadGuard() {
@@ -38,11 +41,11 @@ export function ProductPhotosEditor({ initial }: { initial: string[] }) {
 
   const room = MAX_PRODUCT_PHOTOS - photos.length - pending.length;
   const add = (u: string) => setPhotos((ps) => (ps.includes(u) ? ps : [...ps, u]));
-  const track = async (label: string, job: () => Promise<string>) => {
+  const track = async (label: string, job: (progress: (percent: number) => void) => Promise<string>, video = false) => {
     const key = `${Date.now()}-${Math.random()}`;
-    setPending((p) => [...p, { key, label }]);
+    setPending((p) => [...p, { key, label, percent: video ? 0 : undefined }]);
     try {
-      add(await job());
+      add(await job((percent) => setPending((p) => p.map((x) => (x.key === key ? { ...x, percent } : x)))));
     } catch (e) {
       setErrors((es) => [...es, `${label} : ${e instanceof Error ? e.message : "échec"}`]);
     } finally {
@@ -52,12 +55,16 @@ export function ProductPhotosEditor({ initial }: { initial: string[] }) {
 
   async function onFiles(files: FileList | null) {
     setErrors([]);
-    const images = [...(files ?? [])].filter((f) => f.type.startsWith("image/") || /\.(jpe?g|png|webp|gif|heic|heif|avif)$/i.test(f.name));
-    if (files && images.length < files.length) setErrors(["Seules les images sont acceptées : les autres fichiers sont ignorés."]);
+    const images = [...(files ?? [])].filter((f) => isImageFile(f) || isVideoFile(f));
+    if (files && images.length < files.length) setErrors(["Seules les photos et les vidéos sont acceptées : les autres fichiers sont ignorés."]);
     const list = images.slice(0, Math.max(0, room));
     if (images.length > list.length) setErrors([`${MAX_PRODUCT_PHOTOS} photos au plus par fiche : les suivantes sont ignorées.`]);
     // Une à la fois : l'ordre choisi est conservé et le téléphone n'est pas saturé.
     for (const f of list) {
+      if (isVideoFile(f)) {
+        await track(f.name, (progress) => uploadMedia(f, "produit", progress), true);
+        continue;
+      }
       await track(f.name, async () => {
         const small = await compressImage(f);
         const fd = new FormData();
@@ -97,6 +104,8 @@ export function ProductPhotosEditor({ initial }: { initial: string[] }) {
       return next;
     });
   const makeMain = (i: number) => setPhotos((ps) => [ps[i], ...ps.filter((_, k) => k !== i)]);
+  /** Rang de la photo principale : la première qui n'est pas une vidéo. */
+  const mainIndex = photos.findIndex((p) => !isVideoUrl(p));
   const remove = (i: number) => setPhotos((ps) => ps.filter((_, k) => k !== i));
 
   const busy = pending.length > 0;
@@ -109,7 +118,7 @@ export function ProductPhotosEditor({ initial }: { initial: string[] }) {
 
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-xs font-medium text-navy/85">
-          Photos ({photos.length}/{MAX_PRODUCT_PHOTOS}) — la première est la photo principale
+          Photos et vidéos ({photos.length}/{MAX_PRODUCT_PHOTOS}) — la première photo est la photo principale
         </p>
         {busy && (
           <span className="flex items-center gap-1.5 text-xs text-navy/70">
@@ -121,16 +130,23 @@ export function ProductPhotosEditor({ initial }: { initial: string[] }) {
       {photos.length > 0 ? (
         <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
           {photos.map((p, i) => (
-            <li key={p} className={`overflow-hidden rounded-lg border ${i === 0 ? "border-navy ring-2 ring-navy/15" : "border-line"}`}>
+            <li key={p} className={`overflow-hidden rounded-lg border ${i === mainIndex ? "border-navy ring-2 ring-navy/15" : "border-line"}`}>
               <div className="relative aspect-square bg-cream/40">
-                <Image src={p} alt={i === 0 ? "Photo principale" : `Photo ${i + 1}`} fill unoptimized sizes="160px" className="object-contain" />
-                {i === 0 && <span className="absolute left-1.5 top-1.5 rounded-full bg-navy px-2 py-0.5 text-[10px] font-semibold text-white">Principale</span>}
+                {isVideoUrl(p) ? (
+                  <>
+                    <MediaView src={p} alt={`Vidéo ${i + 1}`} fit="contain" className="h-full w-full" />
+                    <span className="pointer-events-none absolute left-1.5 top-1.5 inline-flex items-center gap-1 rounded-full bg-black/70 px-2 py-0.5 text-[10px] font-semibold text-white"><Film size={11} /> Vidéo</span>
+                  </>
+                ) : (
+                  <Image src={p} alt={i === mainIndex ? "Photo principale" : `Photo ${i + 1}`} fill unoptimized sizes="160px" className="object-contain" />
+                )}
+                {i === mainIndex && <span className="absolute left-1.5 top-1.5 rounded-full bg-navy px-2 py-0.5 text-[10px] font-semibold text-white">Principale</span>}
               </div>
               <div className="flex items-center justify-between gap-1 border-t border-line px-1.5 py-1">
                 <button type="button" onClick={() => move(i, -1)} disabled={i === 0} aria-label={`Avancer la photo ${i + 1}`} className="rounded p-1 text-navy/70 hover:bg-cream disabled:opacity-30">
                   <ArrowLeft size={15} />
                 </button>
-                {i > 0 && (
+                {i !== mainIndex && !isVideoUrl(p) && (
                   <button type="button" onClick={() => makeMain(i)} aria-label={`Mettre la photo ${i + 1} en photo principale`} title="Photo principale" className="rounded p-1 text-navy/70 hover:bg-cream">
                     <Star size={15} />
                   </button>
@@ -148,6 +164,7 @@ export function ProductPhotosEditor({ initial }: { initial: string[] }) {
             <li key={p.key} className="flex aspect-square flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-line bg-cream/30 p-2 text-center text-[11px] text-navy/70">
               <Loader2 size={18} className="animate-spin" />
               <span className="line-clamp-2 break-all">{p.label}</span>
+              {p.percent !== undefined && <span className="font-semibold">{p.percent} %</span>}
             </li>
           ))}
         </ul>
@@ -155,7 +172,7 @@ export function ProductPhotosEditor({ initial }: { initial: string[] }) {
         !busy && <p className="mt-3 rounded-lg bg-cream/50 px-3 py-4 text-center text-sm text-navy/70">Aucune photo : le site affichera le flacon illustré.</p>
       )}
 
-      <input ref={fileRef} id="photo-files" type="file" accept="image/*" multiple className="sr-only" onChange={(e) => onFiles(e.target.files)} disabled={room <= 0} />
+      <input ref={fileRef} id="photo-files" type="file" accept="image/*,video/*" multiple className="sr-only" onChange={(e) => onFiles(e.target.files)} disabled={room <= 0} />
       <label
         htmlFor="photo-files"
         onDragOver={(e) => {
@@ -173,11 +190,11 @@ export function ProductPhotosEditor({ initial }: { initial: string[] }) {
         <span className="flex h-12 w-12 items-center justify-center rounded-full bg-navy text-white">
           <ImagePlus size={24} />
         </span>
-        <span className="text-base font-semibold text-navy">Ajouter des photos</span>
+        <span className="text-base font-semibold text-navy">Ajouter des photos ou des vidéos</span>
         <span className="max-w-md text-sm text-navy/70">
-          Cliquez ici : la fenêtre de votre ordinateur s&apos;ouvre, allez dans le dossier de vos images et choisissez-en une ou plusieurs. Vous pouvez aussi faire glisser les photos ici.
+          Cliquez ici : la fenêtre de votre ordinateur s&apos;ouvre, allez dans le dossier de vos images ou vidéos et choisissez-en une ou plusieurs. Vous pouvez aussi les faire glisser ici.
         </span>
-        <span className="text-xs text-navy/55">Sur téléphone : galerie, appareil photo ou Google Drive.</span>
+        <span className="text-xs text-navy/55">Sur téléphone : galerie, appareil photo ou Google Drive. Vidéo : 100 Mo au plus (MP4, MOV, WebM).</span>
       </label>
 
       <details className="mt-3 rounded-lg border border-line px-3 py-2 text-sm">

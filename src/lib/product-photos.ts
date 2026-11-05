@@ -1,3 +1,5 @@
+import { isVideoUrl } from "./media";
+
 /**
  * Liste ordonnée des photos d'une fiche produit, telle qu'envoyée par le formulaire (champ caché
  * « photos », JSON). La première est la photo principale, les suivantes la galerie. Seules des
@@ -28,5 +30,8 @@ export function parsePhotoList(raw: FormDataEntryValue | null): { photo: string 
   const bad = clean.find((u) => !isAcceptablePhotoUrl(u));
   if (bad) throw new Error(`Adresse de photo refusée : ${bad.slice(0, 80)}`);
   if (clean.length > MAX_PRODUCT_PHOTOS) throw new Error(`${MAX_PRODUCT_PHOTOS} photos au plus par fiche.`);
-  return { photo: clean[0] ?? null, gallery: clean.slice(1) };
+  // La photo principale (cartes, partage, visuels) est toujours une image : une vidéo passe après.
+  const main = clean.find((u) => !isVideoUrl(u));
+  if (!main && clean.length) throw new Error("Ajoutez au moins une photo : la vidéo s'affiche après la photo principale.");
+  return { photo: main ?? null, gallery: clean.filter((u) => u !== main) };
 }

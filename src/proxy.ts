@@ -28,6 +28,7 @@ const ADMIN_ONLY_PREFIXES = [
   "/admin/historique",
   "/admin/stocks",
   "/admin/accueil",
+  "/admin/kit-marketing",
   "/admin/reservations",
   "/admin/primes-equipe",
   "/admin/protocole",

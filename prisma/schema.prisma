@@ -522,6 +522,8 @@ model Consultant {
   shopPhoto String?
   /// Logo du revendeur, affiché en haut de sa boutique (PNG, JPEG ou WebP).
   shopLogo  String?
+  /// Photos et vidéos de la galerie de la boutique (adresses publiques, dans l'ordre).
+  shopMedia String[] @default([])
   shopBio   String?
   favorites String[] @default([])
   /// Thème visuel choisi pour la boutique (/c/<slug>) parmi la bibliothèque de thèmes JAMAAL.
@@ -769,6 +771,8 @@ model MarketingAsset {
   id        String   @id @default(cuid())
   title     String
   fileUrl   String
+  /// Texte proposé aux revendeurs avec ce visuel ou cette vidéo.
+  caption   String?
   category  String   @default("Général")
   createdAt DateTime @default(now())
 }

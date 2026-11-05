@@ -1,5 +1,7 @@
 "use client";
 
+import { MediaListEditor } from "@/components/admin/MediaListEditor";
+import { SHOP_MEDIA_MAX } from "@/lib/media";
 import { useActionState, useRef, useState } from "react";
 import Link from "next/link";
 import { Camera, ImageIcon, Loader2 } from "lucide-react";
@@ -15,6 +17,7 @@ const BIO_MAX = 600;
 export function MyShopForm({
   photo,
   logo = null,
+  media = [],
   bio,
   tagline,
   theme,
@@ -27,6 +30,8 @@ export function MyShopForm({
 }: {
   photo: string | null;
   logo?: string | null;
+  /** Photos et vidéos de la galerie de la boutique. */
+  media?: string[];
   bio: string | null;
   tagline?: string | null;
   theme?: string | null;
@@ -177,6 +182,16 @@ export function MyShopForm({
         />
         <span className="mt-1 block text-xs text-navy/55">Jusqu&apos;à {BIO_MAX} caractères ; vous pouvez aller à la ligne pour faire des paragraphes.</span>
       </label>
+
+      {/* 4 bis. Galerie photos et vidéos */}
+      <MediaListEditor
+        name="shopMedia"
+        initial={media}
+        scope="boutique"
+        max={SHOP_MEDIA_MAX}
+        title="Mes photos et vidéos"
+        hint="Montrées sur votre boutique, sous « Mes photos et vidéos » : vos livraisons, vos clients ravis, vos parfums en vidéo… Choisissez-les dans la galerie de votre téléphone."
+      />
 
       {/* 5. Badges de l'Académie */}
       <fieldset className="rounded-2xl bg-cream/60 p-4 border border-line/60">

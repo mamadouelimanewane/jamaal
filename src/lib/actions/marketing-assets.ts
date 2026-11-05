@@ -15,16 +15,18 @@ async function createMarketingAssetImpl(formData: FormData) {
   const category = String(formData.get("category") ?? "Général").trim() || "Général";
   const file = formData.get("file") as File | null;
   const urlInput = String(formData.get("fileUrl") ?? "").trim();
+  const caption = String(formData.get("caption") ?? "").replace(/\r/g, "").trim().slice(0, 1000) || null;
 
-  if (!title) throw new Error("Titre requis");
+  if (!title) throw new Error("Donnez un titre à la photo ou à la vidéo.");
+  if (urlInput && !/^https:\/\/\S{4,1000}$/.test(urlInput)) throw new Error("Adresse du fichier refusée.");
 
   let fileUrl = urlInput;
   if (file && file.size > 0) {
     fileUrl = await uploadMarketingAsset(file);
   }
-  if (!fileUrl) throw new Error("Un fichier ou une URL est requis");
+  if (!fileUrl) throw new Error("Ajoutez une photo ou une vidéo depuis la galerie.");
 
-  const asset = await prisma.marketingAsset.create({ data: { title, category, fileUrl } });
+  const asset = await prisma.marketingAsset.create({ data: { title: title.slice(0, 120), category: category.slice(0, 40), caption, fileUrl } });
   await logActivity(session, "Ajout document marketing", "MarketingAsset", asset.id);
   revalidatePath("/admin/kit-marketing");
   revalidatePath("/admin/mon-kit-marketing");
