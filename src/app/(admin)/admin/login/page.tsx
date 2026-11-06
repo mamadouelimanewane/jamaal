@@ -23,7 +23,9 @@ export default async function AdminLoginPage({
   const isLivreurEntry = redirectTo === "/livreur";
 
   const session = await auth();
-  if (session) redirect(redirectTo);
+  // Connecté comme livreur sur ce navigateur et venu pour l'espace revendeur : connexion revendeur proposée.
+  const asLivreur = session?.user?.role === "LIVREUR" && !isLivreurEntry;
+  if (session && !asLivreur) redirect(redirectTo);
 
   return (
     <main className="min-h-screen bg-[#f8f1ee] p-4 sm:p-8">
@@ -65,7 +67,7 @@ export default async function AdminLoginPage({
               Revendeurs et livreurs : votre numéro WhatsApp et votre mot de passe, ou un lien reçu sur WhatsApp.
             </p>
 
-            <StaffLoginForm from="/admin/login" next={redirectTo} notice={notice} />
+            <StaffLoginForm from="/admin/login" next={redirectTo} notice={asLivreur && !notice.erreur && !notice.espace ? { ...notice, espace: "livreur-connecte" } : notice} />
             {(notice as { reset?: string }).reset === "1" ? (
               <div className="mt-6 rounded-2xl border border-line bg-[#fdfbfa] p-4">
                 <p className="text-sm font-semibold text-navy">📲 Gardez JAMAAL sur votre téléphone</p>

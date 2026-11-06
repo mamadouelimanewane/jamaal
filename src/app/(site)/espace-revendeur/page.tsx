@@ -13,7 +13,10 @@ export const metadata: Metadata = {
 export default async function EspaceRevendeurPage({ searchParams }: { searchParams: Promise<LoginNotice> }) {
   const notice = await searchParams;
   const session = await auth();
-  if (session) redirect("/admin");
+  // Connecté comme livreur sur ce navigateur : on montre quand même la connexion revendeur (même numéro,
+  // compte à part) au lieu de renvoyer vers l'écran livreur.
+  const asLivreur = session?.user?.role === "LIVREUR";
+  if (session && !asLivreur) redirect("/admin");
 
   return (
     <div className="mx-auto max-w-md px-4 py-14 sm:px-6">
@@ -24,7 +27,7 @@ export default async function EspaceRevendeurPage({ searchParams }: { searchPara
         Retrouvez vos commandes, votre lien de vente personnel, vos commissions, votre équipe et vos outils de vente.
       </p>
       <div className="mt-2 rounded-2xl border border-line bg-white p-6">
-        <StaffLoginForm from="/espace-revendeur" notice={notice} />
+        <StaffLoginForm from="/espace-revendeur" notice={asLivreur && !notice.erreur ? { ...notice, espace: "livreur-connecte" } : notice} />
       </div>
       <p className="mt-6 text-center text-sm text-navy/60">
         Pas encore consultant·e ?{" "}

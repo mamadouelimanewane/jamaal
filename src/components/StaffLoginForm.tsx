@@ -49,7 +49,9 @@ export function StaffLoginForm({ from, next, notice }: { from: "/admin/login" | 
                   ? { tone: "ok", text: "Mot de passe enregistré. Connectez-vous avec votre numéro WhatsApp (ou e-mail) et ce mot de passe." }
                   : notice.espace === "revendeur"
                     ? { tone: "ok", text: "Compte livreur fermé sur ce navigateur (l'application JAMAAL Livreur reste à part). Connectez-vous à votre espace revendeur : votre numéro WhatsApp et votre mot de passe revendeur." }
-                    : null;
+                    : notice.espace === "livreur-connecte"
+                      ? { tone: "ok", text: "Vous êtes connecté comme livreur sur ce navigateur. Pour votre espace consultant (revendeur), connectez-vous ici avec votre numéro WhatsApp et votre mot de passe revendeur." }
+                      : null;
 
   return (
     <div>
