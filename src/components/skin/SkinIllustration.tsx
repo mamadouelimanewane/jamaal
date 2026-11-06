@@ -1,10 +1,12 @@
+import { getT } from "@/lib/i18n/server";
 /**
  * Illustration originale du Skin Advisor (en attendant des photos) : trois femmes africaines aux peaux
  * foncées, style éditorial épuré, sur fond sable. Aucun visuel de marque.
  */
-export function SkinIllustration({ className = "" }: { className?: string }) {
+export async function SkinIllustration({ className = "" }: { className?: string }) {
+  const t = await getT();
   return (
-    <svg viewBox="0 0 400 500" role="img" aria-label="Trois femmes africaines à la peau éclatante" className={className}>
+    <svg viewBox="0 0 400 500" role="img" aria-label={t("Trois femmes africaines à la peau éclatante")} className={className}>
       <defs>
         <linearGradient id="si-bg" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0" stopColor="#efe2d6" />

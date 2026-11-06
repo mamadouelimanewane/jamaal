@@ -1,14 +1,20 @@
+import { getT } from "@/lib/i18n/server";
+import type { Metadata } from "next";
 import { getConsultants } from "@/lib/db-content";
 import { getConsultantRankings } from "@/lib/ranking";
 import { RankBadge } from "@/components/admin/RankBadge";
 
-export const metadata = { title: "Nos consultants", description: "Trouvez un consultant JAMAAL près de chez vous, revendeur officiel Chogan au Sénégal." };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return { title: t("Nos consultants"), description: t("Trouvez un consultant JAMAAL près de chez vous, revendeur officiel Chogan au Sénégal.") };
+}
 
 export const dynamic = "force-dynamic";
 
 const rankOrder = { GOLD: 0, SILVER: 1, BRONZE: 2 } as const;
 
 export default async function ConsultantsPage() {
+  const t = await getT();
   const [consultants, rankings] = await Promise.all([getConsultants(), getConsultantRankings()]);
   const rankById = new Map(rankings.map((r) => [r.consultantId, r.rank]));
 
@@ -23,10 +29,10 @@ export default async function ConsultantsPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
       <h1 className="font-serif-display text-3xl font-semibold text-navy">
-        Nos consultant·es JAMAAL
+        {t("Nos consultant·es JAMAAL")}
       </h1>
       <p className="mt-3 text-sm text-navy/70">
-        Retrouvez un·e consultant·e près de chez vous pour un conseil personnalisé.
+        {t("Retrouvez un·e consultant·e près de chez vous pour un conseil personnalisé.")}
       </p>
       <ul className="mt-8 flex flex-col gap-3">
         {sorted.map((c) => (
@@ -42,7 +48,7 @@ export default async function ConsultantsPage() {
               <p className="text-xs text-navy/60">{c.city}</p>
             </div>
             <a href={c.whatsapp} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-rose-dark">
-              Contacter →
+              {t("Contacter →")}
             </a>
           </li>
         ))}

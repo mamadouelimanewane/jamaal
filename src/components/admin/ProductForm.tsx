@@ -101,6 +101,19 @@ export async function ProductForm({
         />
       </div>
 
+      <details className="rounded-xl border border-line bg-cream/30 p-4" open={!!(product?.shortDescriptionIt || product?.longDescriptionIt?.length)}>
+        <summary className="cursor-pointer text-sm font-semibold text-navy">🇮🇹 Textes en italien (site www.jamaal.sn/it)</summary>
+        <p className="mt-1 text-xs text-navy/60">Laissés vides, la version italienne du site montre le texte français. Le nom, les notes olfactives et la famille sont traduits automatiquement.</p>
+        <div className="mt-3">
+          <label className={labelClass}>Descrizione breve (italien)</label>
+          <textarea name="shortDescriptionIt" rows={2} maxLength={1000} defaultValue={product?.shortDescriptionIt ?? ""} className={inputClass} lang="it" />
+        </div>
+        <div className="mt-3">
+          <label className={labelClass}>Descrizione lunga (italien, une phrase par ligne)</label>
+          <textarea name="longDescriptionIt" rows={4} defaultValue={product?.longDescriptionIt?.join("\n") ?? ""} className={inputClass} lang="it" />
+        </div>
+      </details>
+
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div>
           <label className={labelClass}>Notes de tête (séparées par virgule)</label>

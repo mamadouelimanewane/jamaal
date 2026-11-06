@@ -1,3 +1,4 @@
+import { getT } from "@/lib/i18n/server";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/currency";
@@ -11,6 +12,7 @@ export default async function TrackingPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const t = await getT();
   const { id } = await params;
   const order = await prisma.order.findUnique({
     where: { id },
@@ -20,18 +22,18 @@ export default async function TrackingPage({
 
   return (
     <div className="mx-auto max-w-xl px-4 py-12 sm:px-6">
-      <h1 className="font-serif-display text-2xl font-semibold text-navy">Suivi de votre commande</h1>
+      <h1 className="font-serif-display text-2xl font-semibold text-navy">{t("Suivi de votre commande")}</h1>
       <p className="mt-1 text-sm text-navy/60">
-        Commande passée le {order.createdAt.toLocaleDateString("fr-FR")}
+        {t("Commande passée le")} {order.createdAt.toLocaleDateString("fr-FR")}
       </p>
 
       {order.deliveryMode === "LIVRAISON_JAMAAL" && order.deliveryStatus ? (
         <>
           {order.deliveryCode && order.deliveryStatus !== "LIVREE" && order.status !== "ANNULEE" && (
             <div className="mt-6 rounded-2xl border-2 border-dashed border-navy/30 bg-cream p-5 text-center">
-              <p className="text-sm text-navy/80">Code de livraison à donner au livreur à la remise du colis</p>
+              <p className="text-sm text-navy/80">{t("Code de livraison à donner au livreur à la remise du colis")}</p>
               <p className="mt-1 font-serif-display text-4xl font-semibold tracking-[0.3em] text-navy">{order.deliveryCode}</p>
-              <p className="mt-1 text-xs text-navy/70">Ne le communiquez qu&apos;au moment de recevoir votre commande.</p>
+              <p className="mt-1 text-xs text-navy/70">{t("Ne le communiquez qu'au moment de recevoir votre commande.")}</p>
             </div>
           )}
           <div className="mt-6">
@@ -46,17 +48,17 @@ export default async function TrackingPage({
 
       {order.deliveryMode === "LIVRAISON_JAMAAL" && order.livreur && order.status !== "LIVREE" && (
         <p className="mt-4 text-center text-sm text-navy/60">
-          Votre colis est livré directement par notre équipe JAMAAL.
+          {t("Votre colis est livré directement par notre équipe JAMAAL.")}
         </p>
       )}
       {order.deliveryMode === "RETRAIT_CONSULTANT" && order.consultant && (
         <p className="mt-4 text-center text-sm text-navy/60">
-          Votre colis est remis par votre consultant·e {order.consultant.name}.
+          {t("Votre colis est remis par votre consultant·e")} {order.consultant.name}.
         </p>
       )}
 
       <div className="mt-8 rounded-2xl border border-line bg-white p-5">
-        <h2 className="mb-3 text-sm font-semibold text-navy">Articles</h2>
+        <h2 className="mb-3 text-sm font-semibold text-navy">{t("Articles")}</h2>
         <ul className="flex flex-col gap-2">
           {order.items.map((item) => (
             <li key={item.id} className="flex justify-between text-sm">
@@ -68,7 +70,7 @@ export default async function TrackingPage({
           ))}
         </ul>
         <div className="mt-3 flex justify-between border-t border-line pt-3 text-base font-semibold text-navy">
-          <span>Total</span>
+          <span>{t("Total")}</span>
           <span>{formatPrice(order.total)}</span>
         </div>
       </div>

@@ -106,6 +106,8 @@ async function productDataFromForm(formData: FormData) {
     baseNotes: splitList(formData.get("baseNotes")),
     shortDescription: String(formData.get("shortDescription") ?? "").trim(),
     longDescription: splitLines(formData.get("longDescription")),
+    ...(formData.has("shortDescriptionIt") ? { shortDescriptionIt: String(formData.get("shortDescriptionIt") ?? "").trim().slice(0, 1000) || null } : {}),
+    ...(formData.has("longDescriptionIt") ? { longDescriptionIt: splitLines(formData.get("longDescriptionIt")) } : {}),
     testerPrice: testerPrice ? Number(testerPrice) : null,
 
     regularPrice: regularPrice ? Number(regularPrice) : null,

@@ -1,3 +1,4 @@
+import { getT } from "@/lib/i18n/server";
 import { Check } from "lucide-react";
 import type { OrderStatus } from "@prisma/client";
 
@@ -8,11 +9,12 @@ const steps: { key: OrderStatus; label: string }[] = [
   { key: "LIVREE", label: "Livrée" },
 ];
 
-export function DeliveryTimeline({ status }: { status: OrderStatus }) {
+export async function DeliveryTimeline({ status }: { status: OrderStatus }) {
+  const t = await getT();
   if (status === "ANNULEE") {
     return (
       <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-700">
-        Cette commande a été annulée.
+        {t("Cette commande a été annulée.")}
       </div>
     );
   }
@@ -35,7 +37,7 @@ export function DeliveryTimeline({ status }: { status: OrderStatus }) {
                 {done ? <Check size={14} /> : i + 1}
               </div>
               <span className={`mt-2 max-w-[80px] text-center text-[11px] ${done ? "text-navy" : "text-navy/40"}`}>
-                {step.label}
+                {t(step.label)}
               </span>
             </div>
             {!isLast && (

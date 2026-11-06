@@ -1,6 +1,7 @@
 "use client";
 
-import Link from "next/link";
+import { useT } from "@/components/i18n/LocaleProvider";
+import Link from "@/components/i18n/Link";
 import { useWishlistStore } from "@/lib/wishlist-store";
 
 /**
@@ -8,31 +9,32 @@ import { useWishlistStore } from "@/lib/wishlist-store";
  * Route : /wishlist
  */
 export default function WishlistPage() {
+  const t = useT();
   const { items, remove, clear } = useWishlistStore();
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
       <div className="flex items-center justify-between gap-3">
-        <h1 className="font-serif-display text-2xl font-semibold text-navy">Mes favoris</h1>
+        <h1 className="font-serif-display text-2xl font-semibold text-navy">{t("Mes favoris")}</h1>
         {items.length > 0 && (
           <button
             type="button"
             onClick={clear}
             className="text-xs font-semibold text-rose-dark hover:underline"
           >
-            Tout vider
+            {t("Tout vider")}
           </button>
         )}
       </div>
 
       {items.length === 0 ? (
         <div className="mt-12 text-center">
-          <p className="text-sm text-navy/60">Aucun produit dans vos favoris pour le moment.</p>
+          <p className="text-sm text-navy/60">{t("Aucun produit dans vos favoris pour le moment.")}</p>
           <Link href="/" className="mt-4 inline-block text-sm font-semibold text-rose-dark">
-            Découvrir les parfums →
+            {t("Découvrir les parfums →")}
           </Link>
           <Link href="/parfum-adn" className="mt-2 block text-sm text-navy/50 hover:underline">
-            Ou faire le quiz signature
+            {t("Ou faire le quiz signature")}
           </Link>
         </div>
       ) : (
@@ -61,14 +63,14 @@ export default function WishlistPage() {
                 href={`/produits/${item.slug}`}
                 className="rounded-full bg-navy px-3 py-1.5 text-xs font-semibold text-white"
               >
-                Voir
+                {t("Voir")}
               </Link>
               <button
                 type="button"
                 onClick={() => remove(item.productId)}
                 className="text-xs font-semibold text-rose-dark"
               >
-                Retirer
+                {t("Retirer")}
               </button>
             </li>
           ))}

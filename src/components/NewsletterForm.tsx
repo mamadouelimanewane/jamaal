@@ -1,8 +1,10 @@
 "use client";
 
+import { useT } from "@/components/i18n/LocaleProvider";
 import { useState } from "react";
 
 export function NewsletterForm() {
+  const t = useT();
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
 
@@ -13,7 +15,7 @@ export function NewsletterForm() {
   }
 
   if (sent) {
-    return <p className="text-sm text-rose-light">Merci ! Vous êtes inscrit·e à la newsletter JAMAAL.</p>;
+    return <p className="text-sm text-rose-light">{t("Merci ! Vous êtes inscrit·e à la newsletter JAMAAL.")}</p>;
   }
 
   return (
@@ -23,7 +25,7 @@ export function NewsletterForm() {
         required
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        placeholder="Votre e-mail"
+        placeholder={t("Votre e-mail")}
         className="w-full rounded-full border border-white/20 bg-white/5 px-4 py-2 text-sm text-white placeholder:text-white/40 outline-none focus:border-rose"
       />
       <button

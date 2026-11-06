@@ -1,19 +1,23 @@
+import { getT } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import { ContactForm } from "@/components/ContactForm";
 import { WHATSAPP_CONTACTS, whatsappLink } from "@/lib/contact";
 
-export const metadata: Metadata = {
-  title: "Contact",
-  description: "Une question sur un produit, une commande ou notre réseau de consultant·es ? Écrivez-nous ou contactez-nous sur WhatsApp.",
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return {
+  title: t("Contact"),
+  description: t("Une question sur un produit, une commande ou notre réseau de consultant·es ? Écrivez-nous ou contactez-nous sur WhatsApp."),
 };
+}
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const t = await getT();
   return (
     <div className="mx-auto max-w-2xl px-4 py-14 sm:px-6">
-      <h1 className="font-serif-display text-3xl font-semibold text-navy">Contactez-nous</h1>
+      <h1 className="font-serif-display text-3xl font-semibold text-navy">{t("Contactez-nous")}</h1>
       <p className="mt-3 text-sm text-navy/70">
-        Une question sur un produit, une commande ou notre réseau de consultant·es ? Écrivez-nous,
-        nous vous répondons rapidement.
+        {t("Une question sur un produit, une commande ou notre réseau de consultant·es ? Écrivez-nous, nous vous répondons rapidement.")}
       </p>
 
       <div className="mt-6 flex flex-wrap gap-3">

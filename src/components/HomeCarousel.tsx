@@ -1,7 +1,8 @@
 "use client";
 
+import { useT } from "@/components/i18n/LocaleProvider";
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/i18n/Link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowRight, ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 import { SLIDE_THEMES, type HeroSlide } from "@/lib/home-slides";
@@ -32,6 +33,7 @@ function Title({ text, accent }: { text: string; accent: string }) {
 
 /** Grand carrousel d'accueil : une diapositive par gamme, défilement automatique. */
 export function HomeCarousel({ slides }: { slides: Slide[] }) {
+  const tr = useT();
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(true);
   const [hover, setHover] = useState(false);
@@ -52,7 +54,7 @@ export function HomeCarousel({ slides }: { slides: Slide[] }) {
   return (
     <section
       aria-roledescription="carrousel"
-      aria-label="À la une chez JAMAAL"
+      aria-label={tr("À la une chez JAMAAL")}
       className="relative isolate overflow-hidden"
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
@@ -79,7 +81,7 @@ export function HomeCarousel({ slides }: { slides: Slide[] }) {
               key={s.id}
               role="group"
               aria-roledescription="diapositive"
-              aria-label={`${i + 1} sur ${count}`}
+              aria-label={tr("{v0} sur {count}", { v0: i + 1, count })}
               aria-hidden={!current}
               inert={!current}
               className={`absolute inset-0 transition-opacity duration-700 ease-out ${current ? "z-10 opacity-100" : "z-0 opacity-0"}`}
@@ -87,17 +89,17 @@ export function HomeCarousel({ slides }: { slides: Slide[] }) {
             >
               <div className="mx-auto grid h-full max-w-[1600px] grid-rows-[auto_1fr] lg:grid-cols-[0.92fr_1.08fr] lg:grid-rows-1">
                 <div className="relative z-10 flex flex-col justify-center px-6 pb-6 pt-10 sm:px-10 sm:pt-12 lg:px-16 lg:pb-16 xl:px-24">
-                  {s.eyebrow && <p className="luxury-eyebrow" style={{ color: th.accent }}>{s.eyebrow}</p>}
+                  {s.eyebrow && <p className="luxury-eyebrow" style={{ color: th.accent }}>{tr(s.eyebrow)}</p>}
                   {i === 0 ? (
                     <h1 className="mt-5 max-w-2xl font-serif-display text-[2.5rem] font-normal leading-[1.05] tracking-[-0.03em] sm:text-6xl xl:text-[5rem]">
-                      <Title text={s.title} accent={th.accent} />
+                      <Title text={tr(s.title)} accent={th.accent} />
                     </h1>
                   ) : (
                     <h2 className="mt-5 max-w-2xl font-serif-display text-[2.5rem] font-normal leading-[1.05] tracking-[-0.03em] sm:text-6xl xl:text-[5rem]">
-                      <Title text={s.title} accent={th.accent} />
+                      <Title text={tr(s.title)} accent={th.accent} />
                     </h2>
                   )}
-                  {s.subtitle && <p className="mt-6 max-w-lg text-sm leading-7 opacity-75 sm:text-base sm:leading-8">{s.subtitle}</p>}
+                  {s.subtitle && <p className="mt-6 max-w-lg text-sm leading-7 opacity-75 sm:text-base sm:leading-8">{tr(s.subtitle)}</p>}
                   <div className="mt-9">
                     <Link
                       href={s.href}
@@ -105,7 +107,7 @@ export function HomeCarousel({ slides }: { slides: Slide[] }) {
                       className="inline-flex min-h-12 items-center justify-center gap-3 px-7 text-[11px] font-semibold uppercase tracking-[0.16em] transition hover:opacity-90"
                       style={{ background: th.accent, color: th.from }}
                     >
-                      {s.ctaLabel} <ArrowRight size={15} />
+                      {tr(s.ctaLabel)} <ArrowRight size={15} />
                     </Link>
                   </div>
                 </div>
@@ -144,7 +146,7 @@ export function HomeCarousel({ slides }: { slides: Slide[] }) {
 
       {count > 1 && (
         <div className="absolute inset-x-0 bottom-6 z-20 mx-auto flex max-w-[1600px] items-center justify-between gap-4 px-6 sm:px-10 lg:px-16 xl:px-24">
-          <div className="flex items-center gap-2" role="tablist" aria-label="Choisir une diapositive">
+          <div className="flex items-center gap-2" role="tablist" aria-label={tr("Choisir une diapositive")}>
             {slides.map((s, i) => (
               <button
                 key={s.id}
@@ -158,13 +160,13 @@ export function HomeCarousel({ slides }: { slides: Slide[] }) {
             ))}
           </div>
           <div className="flex items-center gap-2 text-white">
-            <button type="button" onClick={() => setPlaying((p) => !p)} aria-label={playing ? "Mettre en pause" : "Lire le défilement"} className="flex h-10 w-10 items-center justify-center rounded-full border border-white/40 transition hover:bg-white/10">
+            <button type="button" onClick={() => setPlaying((p) => !p)} aria-label={playing ? tr("Mettre en pause") : tr("Lire le défilement")} className="flex h-10 w-10 items-center justify-center rounded-full border border-white/40 transition hover:bg-white/10">
               {playing ? <Pause size={15} /> : <Play size={15} />}
             </button>
-            <button type="button" onClick={() => go(index - 1)} aria-label="Diapositive précédente" className="flex h-10 w-10 items-center justify-center rounded-full border border-white/40 transition hover:bg-white/10">
+            <button type="button" onClick={() => go(index - 1)} aria-label={tr("Diapositive précédente")} className="flex h-10 w-10 items-center justify-center rounded-full border border-white/40 transition hover:bg-white/10">
               <ChevronLeft size={18} />
             </button>
-            <button type="button" onClick={() => go(index + 1)} aria-label="Diapositive suivante" className="flex h-10 w-10 items-center justify-center rounded-full border border-white/40 transition hover:bg-white/10">
+            <button type="button" onClick={() => go(index + 1)} aria-label={tr("Diapositive suivante")} className="flex h-10 w-10 items-center justify-center rounded-full border border-white/40 transition hover:bg-white/10">
               <ChevronRight size={18} />
             </button>
           </div>

@@ -170,6 +170,9 @@ model Product {
   baseNotes         String[]
   shortDescription  String
   longDescription   String[]
+  /// Site en italien : description courte et longue (vides = texte français).
+  shortDescriptionIt String?
+  longDescriptionIt  String[]        @default([])
   testerPrice       Int?
   volumes           Json?
   regularPrice      Int?

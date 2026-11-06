@@ -1,3 +1,6 @@
+"use client";
+
+import { useT } from "@/components/i18n/LocaleProvider";
 const CATEGORY_SHAPE: Record<string, "perfume" | "jar" | "bottle" | "tube" | "box" | "candle" | "jewel"> = {
   "parfum-femme": "perfume",
   "parfum-homme": "perfume",
@@ -26,6 +29,7 @@ export function ProductBottle({
   className?: string;
   id?: string;
 }) {
+  const t = useT();
   const shape = CATEGORY_SHAPE[category] ?? "perfume";
   const safeId = (id || `${category}-${number ?? "item"}-${colorFrom}-${colorTo}`).replace(/[^a-zA-Z0-9_-]/g, "");
   const gradId = `grad-${safeId}`;
@@ -35,7 +39,7 @@ export function ProductBottle({
       viewBox="0 0 200 260"
       className={className}
       role="img"
-      aria-label={number ? `Flacon JAMAAL n°${number}` : "Produit JAMAAL"}
+      aria-label={number ? t("Flacon JAMAAL n°{number}", { number }) : t("Produit JAMAAL")}
     >
       <defs>
         <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="1">

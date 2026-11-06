@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/components/i18n/LocaleProvider";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -35,6 +36,7 @@ export function ReservationForm({
   initialQty: number;
   settings: ReservationSettings;
 }) {
+  const tr = useT();
   const router = useRouter();
   const [format, setFormat] = useState(initialFormat);
   const [qty, setQty] = useState(initialQty);
@@ -153,36 +155,36 @@ export function ReservationForm({
           </div>
           <div className="min-w-0">
             <p className="font-semibold text-navy">{product.name}</p>
-            <p className="mt-1 text-sm text-navy/70">Produit en cours de commande · disponible sous <strong>{settings.delayLabel}</strong></p>
+            <p className="mt-1 text-sm text-navy/70">{tr("Produit en cours de commande · disponible sous")} <strong>{settings.delayLabel}</strong></p>
             {formats.length > 1 ? (
-              <select value={format} onChange={(e) => setFormat(e.target.value)} aria-label="Format" className={`mt-2 max-w-xs ${field}`}>
-                {formats.map((f) => <option key={f.label} value={f.label}>{f.label} — {formatPrice(f.price)}</option>)}
+              <select value={format} onChange={(e) => setFormat(e.target.value)} aria-label={tr("Format")} className={`mt-2 max-w-xs ${field}`}>
+                {formats.map((f) => <option key={f.label} value={f.label}>{tr(f.label)} — {formatPrice(f.price)}</option>)}
               </select>
             ) : (
               <p className="mt-2 text-sm text-navy">{format} — {formatPrice(unit)}</p>
             )}
             <div className="mt-3 flex items-center gap-3">
-              <span className="text-xs text-navy/70">Quantité</span>
-              <button type="button" onClick={() => setQty((q) => Math.max(1, q - 1))} aria-label="Réduire la quantité" className="flex h-8 w-8 items-center justify-center border border-line"><Minus size={13} /></button>
+              <span className="text-xs text-navy/70">{tr("Quantité")}</span>
+              <button type="button" onClick={() => setQty((q) => Math.max(1, q - 1))} aria-label={tr("Réduire la quantité")} className="flex h-8 w-8 items-center justify-center border border-line"><Minus size={13} /></button>
               <span aria-live="polite" className="w-5 text-center text-sm">{qty}</span>
-              <button type="button" onClick={() => setQty((q) => Math.min(20, q + 1))} aria-label="Augmenter la quantité" className="flex h-8 w-8 items-center justify-center border border-line"><Plus size={13} /></button>
+              <button type="button" onClick={() => setQty((q) => Math.min(20, q + 1))} aria-label={tr("Augmenter la quantité")} className="flex h-8 w-8 items-center justify-center border border-line"><Plus size={13} /></button>
             </div>
           </div>
         </div>
 
         <fieldset className="grid gap-3 rounded-2xl border border-line bg-white p-4 sm:grid-cols-2">
-          <legend className="px-1 text-sm font-semibold text-navy">Vos coordonnées</legend>
-          <input required placeholder="Nom et prénom" value={customer.name} onChange={(e) => setCustomer((c) => ({ ...c, name: e.target.value }))} className={field} />
-          <input required placeholder="Téléphone (WhatsApp)" inputMode="tel" value={customer.phone} onChange={(e) => setCustomer((c) => ({ ...c, phone: e.target.value }))} className={field} />
+          <legend className="px-1 text-sm font-semibold text-navy">{tr("Vos coordonnées")}</legend>
+          <input required placeholder={tr("Nom et prénom")} value={customer.name} onChange={(e) => setCustomer((c) => ({ ...c, name: e.target.value }))} className={field} />
+          <input required placeholder={tr("Téléphone (WhatsApp)")} inputMode="tel" value={customer.phone} onChange={(e) => setCustomer((c) => ({ ...c, phone: e.target.value }))} className={field} />
           {prefilled && (
             <p className="text-xs text-navy/65 sm:col-span-2">
-              Informations pré-remplies, modifiables si vous réservez pour quelqu&apos;un d&apos;autre.{" "}
-              <button type="button" onClick={() => { forgetCheckoutMemory(); setCustomer((c) => ({ ...c, name: "", phone: "" })); setPrefilled(false); }} className="font-semibold text-rose-dark underline">Effacer</button>
+              {tr("Informations pré-remplies, modifiables si vous réservez pour quelqu'un d'autre.")}{" "}
+              <button type="button" onClick={() => { forgetCheckoutMemory(); setCustomer((c) => ({ ...c, name: "", phone: "" })); setPrefilled(false); }} className="font-semibold text-rose-dark underline">{tr("Effacer")}</button>
             </p>
           )}
           {consultants.length > 0 && (
             <select value={consultantId} onChange={(e) => setConsultantId(e.target.value)} disabled={refLocked} className={`${field} sm:col-span-2 disabled:bg-navy/5`}>
-              <option value="">Consultant·e qui vous a recommandé JAMAAL (optionnel)</option>
+              <option value="">{tr("Consultant·e qui vous a recommandé JAMAAL (optionnel)")}</option>
               {consultants.map((c) => <option key={c.id} value={c.id}>{c.name} ({c.city})</option>)}
             </select>
           )}
@@ -190,35 +192,35 @@ export function ReservationForm({
 
         <div className="rounded-2xl border border-line bg-white p-4">
           <DeliveryChooser productsTotal={productsTotal} value={delivery} onChange={setDelivery} recipientPhone={customer.phone} onAddressText={(t) => setCustomer((c) => ({ ...c, address: t }))} />
-          <p className="mt-2 text-xs text-navy/70">La livraison est faite à l&apos;arrivée du produit ; les frais s&apos;ajoutent au solde.</p>
+          <p className="mt-2 text-xs text-navy/70">{tr("La livraison est faite à l'arrivée du produit ; les frais s'ajoutent au solde.")}</p>
         </div>
       </div>
 
       <aside className="h-fit space-y-4 rounded-2xl border border-line bg-white p-5 lg:sticky lg:top-24">
-        <p className="flex items-center gap-2 font-semibold text-navy"><CalendarClock size={17} className="text-[#9c6254]" /> Votre réservation</p>
+        <p className="flex items-center gap-2 font-semibold text-navy"><CalendarClock size={17} className="text-[#9c6254]" /> {tr("Votre réservation")}</p>
         <dl className="space-y-1.5 text-sm">
-          <div className="flex justify-between"><dt className="text-navy/70">Produits</dt><dd>{formatPrice(productsTotal)}</dd></div>
-          {delivery.mode === "LIVRAISON" && <div className="flex justify-between"><dt className="text-navy/70">Livraison</dt><dd>{delivery.quote?.ok ? (delivery.quote.free ? "Offerte" : formatPrice(fee)) : "—"}</dd></div>}
-          <div className="flex justify-between border-t border-line pt-2 text-base font-semibold text-navy"><dt>Acompte à payer maintenant ({settings.depositPercent} %)</dt><dd>{formatPrice(deposit)}</dd></div>
-          <div className="flex justify-between text-navy/80"><dt>Solde à l&apos;arrivée</dt><dd>{formatPrice(balance)}</dd></div>
+          <div className="flex justify-between"><dt className="text-navy/70">{tr("Produits")}</dt><dd>{formatPrice(productsTotal)}</dd></div>
+          {delivery.mode === "LIVRAISON" && <div className="flex justify-between"><dt className="text-navy/70">{tr("Livraison")}</dt><dd>{delivery.quote?.ok ? (delivery.quote.free ? tr("Offerte") : formatPrice(fee)) : "—"}</dd></div>}
+          <div className="flex justify-between border-t border-line pt-2 text-base font-semibold text-navy"><dt>{tr("Acompte à payer maintenant (")}{settings.depositPercent} %)</dt><dd>{formatPrice(deposit)}</dd></div>
+          <div className="flex justify-between text-navy/80"><dt>{tr("Solde à l'arrivée")}</dt><dd>{formatPrice(balance)}</dd></div>
         </dl>
         <ul className="list-disc space-y-1 pl-5 text-xs leading-5 text-navy/75">
-          <li>Délai annoncé : {settings.delayLabel} après la réservation.</li>
-          <li>Nous vous prévenons sur WhatsApp dès l&apos;arrivée ; vous réglez alors le solde en ligne, à la livraison ou au retrait.</li>
-          <li>{settings.refundable ? "Acompte remboursé si vous annulez avant l'arrivée du produit." : "L'acompte n'est pas remboursable en cas d'annulation."}</li>
+          <li>{tr("Délai annoncé :")} {settings.delayLabel} {tr("après la réservation.")}</li>
+          <li>{tr("Nous vous prévenons sur WhatsApp dès l'arrivée ; vous réglez alors le solde en ligne, à la livraison ou au retrait.")}</li>
+          <li>{settings.refundable ? tr("Acompte remboursé si vous annulez avant l'arrivée du produit.") : tr("L'acompte n'est pas remboursable en cas d'annulation.")}</li>
         </ul>
         {options && options.length > 0 && method ? (
           <PaymentMethodSelector options={options} value={method} onChange={setMethod} />
         ) : options ? (
-          <p className="rounded-xl bg-amber-50 px-3 py-2 text-xs text-amber-950">Le paiement en ligne n&apos;est pas encore ouvert : votre réservation est enregistrée et JAMAAL vous contacte pour l&apos;acompte (Wave ou Orange Money).</p>
+          <p className="rounded-xl bg-amber-50 px-3 py-2 text-xs text-amber-950">{tr("Le paiement en ligne n'est pas encore ouvert : votre réservation est enregistrée et JAMAAL vous contacte pour l'acompte (Wave ou Orange Money).")}</p>
         ) : null}
         <label className="flex items-start gap-2 text-xs text-navy/80">
           <input type="checkbox" checked={accept} onChange={(e) => setAccept(e.target.checked)} className="mt-0.5" />
-          <span>J&apos;accepte les conditions de réservation ci-dessus et les <a href="/cgv" target="_blank" className="underline">Conditions Générales de Vente</a>.</span>
+          <span>{tr("J'accepte les conditions de réservation ci-dessus et les")} <a href="/cgv" target="_blank" className="underline">{tr("Conditions Générales de Vente")}</a>.</span>
         </label>
-        {error && <p role="alert" className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-800">{error}</p>}
+        {error && <p role="alert" className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-800">{tr(error)}</p>}
         <button disabled={submitting} className="w-full rounded-full bg-[#9c6254] px-6 py-3 text-sm font-semibold text-white hover:bg-[#7f4d42] disabled:opacity-60">
-          {submitting ? "Enregistrement…" : options?.length ? `Réserver et payer ${formatPrice(deposit)}` : "Réserver"}
+          {submitting ? tr("Enregistrement…") : options?.length ? tr("Réserver et payer {v0}", { v0: formatPrice(deposit) }) : tr("Réserver")}
         </button>
       </aside>
     </form>

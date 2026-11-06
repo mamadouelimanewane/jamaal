@@ -1,17 +1,22 @@
+import { getT } from "@/lib/i18n/server";
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/i18n/Link";
 import { notFound } from "next/navigation";
 import { getProductBySlug } from "@/lib/db-products";
 import { getReservationSettings } from "@/lib/reservation-store";
 import { ReservationForm } from "@/components/ReservationForm";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Réserver un produit", robots: { index: false } };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return { title: t("Réserver un produit"), robots: { index: false } };
+}
 
 type Props = { params: Promise<{ slug: string }>; searchParams: Promise<{ format?: string; qte?: string }> };
 
 /** Réservation d'un format en rupture : acompte maintenant, solde à l'arrivée du produit. */
 export default async function ReservePage({ params, searchParams }: Props) {
+  const t = await getT();
   const { slug } = await params;
   const sp = await searchParams;
   const [product, settings] = await Promise.all([getProductBySlug(slug), getReservationSettings()]);
@@ -24,12 +29,12 @@ export default async function ReservePage({ params, searchParams }: Props) {
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 sm:py-14">
       <Link href={`/produits/${product.slug}`} className="text-sm font-semibold text-rose-dark hover:underline">← {product.name}</Link>
-      <h1 className="mt-3 font-serif-display text-3xl font-semibold text-navy">Réserver</h1>
+      <h1 className="mt-3 font-serif-display text-3xl font-semibold text-navy">{t("Réserver")}</h1>
       {!settings.enabled ? (
-        <p className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900">La réservation n&apos;est pas proposée pour le moment. Contactez-nous sur WhatsApp pour ce produit.</p>
+        <p className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900">{t("La réservation n'est pas proposée pour le moment. Contactez-nous sur WhatsApp pour ce produit.")}</p>
       ) : !chosen ? (
         <p className="mt-4 rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
-          Bonne nouvelle : ce produit est disponible. <Link href={`/produits/${product.slug}`} className="font-semibold underline">Ajoutez-le directement au panier.</Link>
+          {t("Bonne nouvelle : ce produit est disponible.")} <Link href={`/produits/${product.slug}`} className="font-semibold underline">{t("Ajoutez-le directement au panier.")}</Link>
         </p>
       ) : (
         <ReservationForm

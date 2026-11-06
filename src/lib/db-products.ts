@@ -2,6 +2,8 @@ import { prisma } from "./prisma";
 import { Product, VolumeOption, CategorySlug } from "@/data/types";
 import { Prisma } from "@prisma/client";
 import type { Product as DbProduct } from "@prisma/client";
+import { getLocale } from "@/lib/i18n/server";
+import { localizeProduct } from "@/lib/i18n/product";
 
 function toUiProduct(p: DbProduct): Product {
   return {
@@ -19,6 +21,8 @@ function toUiProduct(p: DbProduct): Product {
     baseNotes: p.baseNotes.length ? p.baseNotes : undefined,
     shortDescription: p.shortDescription,
     longDescription: p.longDescription,
+    shortDescriptionIt: p.shortDescriptionIt ?? undefined,
+    longDescriptionIt: p.longDescriptionIt?.length ? p.longDescriptionIt : undefined,
     testerPrice: p.testerPrice ?? undefined,
     volumes: (p.volumes as unknown as VolumeOption[] | null) ?? undefined,
     regularPrice: p.regularPrice ?? undefined,
@@ -33,12 +37,18 @@ function toUiProduct(p: DbProduct): Product {
   };
 }
 
+/** Textes du produit dans la langue de la page (italien : champs italiens, notes et famille traduites). */
+async function localizeAll(list: Product[]): Promise<Product[]> {
+  const locale = await getLocale();
+  return locale === "fr" ? list : list.map((p) => localizeProduct(p, locale));
+}
+
 export async function getProductsByCategory(category: string): Promise<Product[]> {
   const rows = await prisma.product.findMany({
     where: { category },
     orderBy: { reviewCount: "desc" },
   });
-  return rows.map(toUiProduct);
+  return localizeAll(rows.map(toUiProduct));
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
@@ -50,7 +60,7 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
   product.availability = Object.fromEntries(
     labels.map((label) => [label, row.variants.length ? Math.max(0, row.variants.find((v) => v.volumeLabel === label)?.stock ?? 0) : Math.max(0, row.stock)])
   );
-  return product;
+  return (await localizeAll([product]))[0];
 }
 
 /** Parfums proposés en petit format (30 ml ou 15 ml recharge) : le plus petit format et son prix, du moins cher au plus cher. */
@@ -65,7 +75,8 @@ export async function getSmallFormatPerfumes(): Promise<{ product: Product; labe
       .sort((a, b) => a.ml - b.ml)[0];
     if (small) out.push({ product, label: small.v.label, price: small.v.price });
   }
-  return out.sort((a, b) => a.price - b.price || a.product.name.localeCompare(b.product.name, "fr"));
+  const locale = await getLocale();
+  return out.map((x) => ({ ...x, product: localizeProduct(x.product, locale) })).sort((a, b) => a.price - b.price || a.product.name.localeCompare(b.product.name, "fr"));
 }
 
 /** Coffrets, kits et sets du catalogue Chogan (pour la page Coffrets). */
@@ -77,7 +88,7 @@ export async function getGiftSets(): Promise<Product[]> {
     orderBy: { name: "asc" },
     take: 60,
   });
-  return rows.map(toUiProduct);
+  return localizeAll(rows.map(toUiProduct));
 }
 
 export async function getBestsellers(category?: string, count = 3): Promise<Product[]> {
@@ -86,7 +97,7 @@ export async function getBestsellers(category?: string, count = 3): Promise<Prod
     orderBy: { reviewCount: "desc" },
     take: count,
   });
-  return rows.map(toUiProduct);
+  return localizeAll(rows.map(toUiProduct));
 }
 
 export async function searchProducts(query: string): Promise<Product[]> {
@@ -103,7 +114,7 @@ export async function searchProducts(query: string): Promise<Product[]> {
     ],
   };
   const rows = await prisma.product.findMany({ where, take: 40 });
-  return rows.map(toUiProduct);
+  return localizeAll(rows.map(toUiProduct));
 }
 
 /** Produits dans l'ordre des identifiants donnés (résultats de recherche). */
@@ -111,5 +122,5 @@ export async function getProductsByIds(ids: string[]): Promise<Product[]> {
   if (!ids.length) return [];
   const rows = await prisma.product.findMany({ where: { id: { in: ids } } });
   const byId = new Map(rows.map((r) => [r.id, toUiProduct(r)]));
-  return ids.map((id) => byId.get(id)).filter((p): p is Product => !!p);
+  return localizeAll(ids.map((id) => byId.get(id)).filter((p): p is Product => !!p));
 }

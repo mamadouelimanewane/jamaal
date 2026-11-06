@@ -1,11 +1,13 @@
 "use client";
 
-import Link from "next/link";
+import { useT } from "@/components/i18n/LocaleProvider";
+import Link from "@/components/i18n/Link";
 import { X, Minus, Plus, Trash2 } from "lucide-react";
 import { useCartStore } from "@/lib/cart-store";
 import { formatPrice } from "@/lib/currency";
 
 export function CartDrawer() {
+  const t = useT();
   const { items, isOpen, close, removeItem, updateQuantity, total } = useCartStore();
 
   if (!isOpen) return null;
@@ -13,21 +15,21 @@ export function CartDrawer() {
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
       <button
-        aria-label="Fermer le panier"
+        aria-label={t("Fermer le panier")}
         onClick={close}
         className="absolute inset-0 bg-navy/40"
       />
       <div className="relative flex h-full w-full max-w-md flex-col bg-white shadow-2xl animate-fade-in">
         <div className="flex items-center justify-between border-b border-line px-5 py-4">
-          <h2 className="font-serif-display text-lg font-semibold text-navy">Votre panier</h2>
-          <button onClick={close} aria-label="Fermer">
+          <h2 className="font-serif-display text-lg font-semibold text-navy">{t("Votre panier")}</h2>
+          <button onClick={close} aria-label={t("Fermer")}>
             <X size={20} className="text-navy" />
           </button>
         </div>
 
         <div className="flex-1 overflow-y-auto px-5 py-4">
           {items.length === 0 ? (
-            <p className="mt-10 text-center text-sm text-navy/60">Votre panier est vide.</p>
+            <p className="mt-10 text-center text-sm text-navy/60">{t("Votre panier est vide.")}</p>
           ) : (
             <ul className="flex flex-col gap-4">
               {items.map((item) => (
@@ -58,7 +60,7 @@ export function CartDrawer() {
                       <button
                         onClick={() => removeItem(item.productId, item.volumeLabel)}
                         className="ml-auto text-rose-dark"
-                        aria-label="Retirer"
+                        aria-label={t("Retirer")}
                       >
                         <Trash2 size={14} />
                       </button>
@@ -75,7 +77,7 @@ export function CartDrawer() {
 
         <div className="border-t border-line px-5 py-4">
           <div className="mb-3 flex items-center justify-between text-sm font-semibold text-navy">
-            <span>Total</span>
+            <span>{t("Total")}</span>
             <span>{formatPrice(total())}</span>
           </div>
           <Link
@@ -83,7 +85,7 @@ export function CartDrawer() {
             onClick={close}
             className="block w-full rounded-full bg-navy py-3 text-center text-sm font-semibold text-white transition hover:bg-navy-light"
           >
-            {items.length ? "Commander" : "Découvrir les produits"}
+            {items.length ? t("Commander") : t("Découvrir les produits")}
           </Link>
         </div>
       </div>

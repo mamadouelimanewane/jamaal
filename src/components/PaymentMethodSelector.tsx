@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/components/i18n/LocaleProvider";
 import type { PaymentProviderId } from "@/lib/payment/types";
 
 export interface PaymentOption {
@@ -17,10 +18,11 @@ export function PaymentMethodSelector({
   value: PaymentProviderId;
   onChange: (id: PaymentProviderId) => void;
 }) {
+  const t = useT();
   return (
     <fieldset className="space-y-2">
       <legend className="text-xs font-semibold uppercase tracking-wide text-navy/50">
-        Mode de paiement
+        {t("Mode de paiement")}
       </legend>
       {options.map((opt) => (
         <label
@@ -38,8 +40,8 @@ export function PaymentMethodSelector({
             className="mt-1"
           />
           <span>
-            <span className="block text-sm font-semibold text-navy">{opt.label}</span>
-            <span className="block text-xs text-navy/50">{opt.description}</span>
+            <span className="block text-sm font-semibold text-navy">{t(opt.label)}</span>
+            <span className="block text-xs text-navy/50">{t(opt.description)}</span>
           </span>
         </label>
       ))}

@@ -56,6 +56,9 @@ export interface Product {
   baseNotes?: string[];
   shortDescription: string;
   longDescription: string[];
+  /** Textes en italien saisis au back-office (le site italien les montre à la place du français). */
+  shortDescriptionIt?: string;
+  longDescriptionIt?: string[];
   testerPrice?: number;
   volumes?: VolumeOption[];
   regularPrice?: number;

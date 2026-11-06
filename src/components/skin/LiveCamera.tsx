@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/components/i18n/LocaleProvider";
 import { useEffect, useRef, useState } from "react";
 import { Camera, Loader2, RefreshCw, X } from "lucide-react";
 
@@ -9,6 +10,7 @@ import { Camera, Loader2, RefreshCw, X } from "lucide-react";
  * navigateurs intégrés). Si la caméra est refusée ou absente, onFallback ouvre l'appareil photo du téléphone.
  */
 export function LiveCamera({ onPhoto, onClose, onFallback }: { onPhoto: (f: File) => void; onClose: () => void; onFallback: () => void }) {
+  const tr = useT();
   const video = useRef<HTMLVideoElement>(null);
   const stream = useRef<MediaStream | null>(null);
   const [facing, setFacing] = useState<"user" | "environment">("user");
@@ -66,19 +68,19 @@ export function LiveCamera({ onPhoto, onClose, onFallback }: { onPhoto: (f: File
   }
 
   return (
-    <div role="dialog" aria-modal="true" aria-label="Prendre un selfie" className="fixed inset-0 z-[70] flex flex-col bg-black">
+    <div role="dialog" aria-modal="true" aria-label={tr("Prendre un selfie")} className="fixed inset-0 z-[70] flex flex-col bg-black">
       <div className="flex items-center justify-between p-3 text-white">
-        <p className="text-sm">De face, en lumière naturelle</p>
-        <button type="button" onClick={onClose} aria-label="Fermer la caméra" className="rounded-full p-2 hover:bg-white/10"><X size={22} /></button>
+        <p className="text-sm">{tr("De face, en lumière naturelle")}</p>
+        <button type="button" onClick={onClose} aria-label={tr("Fermer la caméra")} className="rounded-full p-2 hover:bg-white/10"><X size={22} /></button>
       </div>
       <div className="relative flex flex-1 items-center justify-center overflow-hidden">
         <video ref={video} playsInline muted className={`h-full w-full object-cover ${facing === "user" ? "-scale-x-100" : ""}`} />
         {!ready && !error && <Loader2 size={36} className="absolute animate-spin text-white" />}
         {error && (
           <div className="absolute inset-x-6 rounded-2xl bg-white p-5 text-center text-sm text-navy">
-            <p>{error}</p>
+            <p>{tr(error)}</p>
             <button type="button" onClick={onFallback} className="mt-3 inline-flex items-center gap-2 rounded-full bg-navy px-5 py-3 font-semibold text-white">
-              <Camera size={16} /> Ouvrir l&apos;appareil photo du téléphone
+              <Camera size={16} /> {tr("Ouvrir l'appareil photo du téléphone")}
             </button>
           </div>
         )}
@@ -86,8 +88,8 @@ export function LiveCamera({ onPhoto, onClose, onFallback }: { onPhoto: (f: File
       </div>
       <div className="flex items-center justify-around p-5 pb-8">
         <span className="w-12" />
-        <button type="button" onClick={shoot} disabled={!ready} aria-label="Prendre la photo" className="h-18 w-18 rounded-full border-4 border-white bg-white/90 disabled:opacity-40" style={{ height: 72, width: 72 }} />
-        <button type="button" onClick={() => setFacing(facing === "user" ? "environment" : "user")} aria-label="Changer de caméra" className="rounded-full p-3 text-white hover:bg-white/10"><RefreshCw size={22} /></button>
+        <button type="button" onClick={shoot} disabled={!ready} aria-label={tr("Prendre la photo")} className="h-18 w-18 rounded-full border-4 border-white bg-white/90 disabled:opacity-40" style={{ height: 72, width: 72 }} />
+        <button type="button" onClick={() => setFacing(facing === "user" ? "environment" : "user")} aria-label={tr("Changer de caméra")} className="rounded-full p-3 text-white hover:bg-white/10"><RefreshCw size={22} /></button>
       </div>
     </div>
   );

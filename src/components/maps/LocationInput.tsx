@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/components/i18n/LocaleProvider";
 import { useState, useTransition } from "react";
 import { CircleAlert, Link2, Loader2, MessageCircle } from "lucide-react";
 import { locateFromText } from "@/lib/actions/delivery-quote";
@@ -11,6 +12,7 @@ export type Located = { lat: number; lng: number; approx: boolean; label: string
  * ou simple adresse (« Sacré-Cœur 3 près de la pharmacie ») localisée approximativement.
  */
 export function LocationInput({ onLocated, onText, recipientPhone, className = "" }: { onLocated: (l: Located) => void; onText?: (text: string) => void; recipientPhone?: string | null; className?: string }) {
+  const t = useT();
   const [text, setText] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
@@ -45,19 +47,19 @@ export function LocationInput({ onLocated, onText, recipientPhone, className = "
                 if (text.trim()) locate();
               }
             }}
-            placeholder="Coller un lien Maps / WhatsApp, ou écrire l'adresse"
-            aria-label="Localisation de livraison"
+            placeholder={t("Coller un lien Maps / WhatsApp, ou écrire l'adresse")}
+            aria-label={t("Localisation de livraison")}
             className="w-full rounded-lg border border-line bg-white py-2 pl-9 pr-3 text-sm outline-none focus:border-navy"
           />
         </div>
         <button type="button" onClick={locate} disabled={pending || !text.trim()} className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-navy px-3 py-2 text-sm font-semibold text-navy hover:bg-navy hover:text-white disabled:opacity-40">
-          {pending ? <Loader2 size={15} className="animate-spin" /> : null} Placer
+          {pending ? <Loader2 size={15} className="animate-spin" /> : null} {t("Placer")}
         </button>
       </div>
-      {error && <p role="alert" className="flex items-start gap-1.5 text-xs text-rose-dark"><CircleAlert size={14} className="mt-0.5 shrink-0" />{error}</p>}
+      {error && <p role="alert" className="flex items-start gap-1.5 text-xs text-rose-dark"><CircleAlert size={14} className="mt-0.5 shrink-0" />{t(error)}</p>}
       {phone.length >= 8 && (
       <a href={`https://wa.me/${phone}?text=${ask}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#128C4B] hover:underline">
-        <MessageCircle size={14} /> Demander sa position au destinataire par WhatsApp
+        <MessageCircle size={14} /> {t("Demander sa position au destinataire par WhatsApp")}
       </a>
       )}
     </div>
@@ -66,9 +68,10 @@ export function LocationInput({ onLocated, onText, recipientPhone, className = "
 
 /** Bandeau affiché quand la position vient d'une adresse approximative. */
 export function ApproxNotice({ label }: { label: string }) {
+  const t = useT();
   return (
     <p className="rounded-xl bg-amber-50 px-3 py-2 text-xs text-amber-950">
-      <strong>Position approximative</strong> ({label}). Déplacez le repère si vous connaissez l&apos;endroit exact ; sinon le livreur appellera le destinataire pour confirmer.
+      <strong>{t("Position approximative")}</strong> ({t(label)}{t("). Déplacez le repère si vous connaissez l'endroit exact ; sinon le livreur appellera le destinataire pour confirmer.")}
     </p>
   );
 }

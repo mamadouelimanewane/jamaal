@@ -1,10 +1,12 @@
+import { getT } from "@/lib/i18n/server";
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/i18n/Link";
 import { prisma } from "@/lib/prisma";
 import { getCategoriesWithProducts } from "@/lib/db-categories";
 
 /** Rangée « Toutes nos gammes » : une vignette par catégorie qui contient des produits. */
 export async function AllRanges() {
+  const t = await getT();
   const categories = await getCategoriesWithProducts();
   if (!categories.length) return null;
   const rows = await prisma.product
@@ -20,10 +22,10 @@ export async function AllRanges() {
       <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <p className="luxury-eyebrow">Parfums, soins, maison, bien-être</p>
-            <h2 id="all-ranges" className="mt-2 font-serif-display text-3xl font-medium text-navy">Toutes nos gammes</h2>
+            <p className="luxury-eyebrow">{t("Parfums, soins, maison, bien-être")}</p>
+            <h2 id="all-ranges" className="mt-2 font-serif-display text-3xl font-medium text-navy">{t("Toutes nos gammes")}</h2>
           </div>
-          <p className="text-xs text-navy/60">JAMAAL, revendeur officiel de la marque CHOGAN (Italie)</p>
+          <p className="text-xs text-navy/60">{t("JAMAAL, revendeur officiel de la marque CHOGAN (Italie)")}</p>
         </div>
       </div>
       <ul className="mx-auto mt-7 flex max-w-7xl snap-x gap-4 overflow-x-auto px-5 pb-3 sm:px-8 lg:px-12 [scrollbar-width:thin]">
@@ -39,8 +41,8 @@ export async function AllRanges() {
                     <span className="flex h-full items-center justify-center font-serif-display text-3xl text-[#9c6254]">{c.navLabel.slice(0, 1)}</span>
                   )}
                 </span>
-                <span className="mt-3 block text-[13px] font-medium leading-tight text-navy group-hover:underline">{c.navLabel}</span>
-                <span className="mt-0.5 block text-[11px] text-navy/50">{count.get(c.slug) ?? 0} produits</span>
+                <span className="mt-3 block text-[13px] font-medium leading-tight text-navy group-hover:underline">{t(c.navLabel)}</span>
+                <span className="mt-0.5 block text-[11px] text-navy/50">{count.get(c.slug) ?? 0} {t("produits")}</span>
               </Link>
             </li>
           );

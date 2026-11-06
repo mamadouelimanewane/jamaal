@@ -1,6 +1,7 @@
 "use client";
 
-import Link from "next/link";
+import { useT } from "@/components/i18n/LocaleProvider";
+import Link from "@/components/i18n/Link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Minus, Plus, Trash2 } from "lucide-react";
@@ -34,6 +35,7 @@ function readRefCookie(): string | null {
 }
 
 export default function CartPage() {
+  const tr = useT();
   const router = useRouter();
   const { items, removeItem, updateQuantity, total, clear, syncPrices } = useCartStore();
   const [pricesUpdated, setPricesUpdated] = useState(false);
@@ -290,20 +292,20 @@ export default function CartPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
-      <h1 className="font-serif-display text-2xl font-semibold text-navy">Votre panier</h1>
+      <h1 className="font-serif-display text-2xl font-semibold text-navy">{tr("Votre panier")}</h1>
 
       {items.length === 0 ? (
         <div className="mt-10 text-center">
-          <p className="text-sm text-navy/60">Votre panier est vide pour le moment.</p>
+          <p className="text-sm text-navy/60">{tr("Votre panier est vide pour le moment.")}</p>
           <Link href="/" className="mt-4 inline-block text-sm font-semibold text-rose-dark">
-            Continuer mes achats →
+            {tr("Continuer mes achats →")}
           </Link>
         </div>
       ) : (
         <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-3 [&>*]:min-w-0">
           {pricesUpdated && (
             <p role="status" className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 lg:col-span-3">
-              Les prix de certains articles ont changé depuis votre dernière visite. Votre panier affiche les prix actuels.
+              {tr("Les prix de certains articles ont changé depuis votre dernière visite. Votre panier affiche les prix actuels.")}
             </p>
           )}
           <ul className="flex flex-col gap-4 lg:col-span-2">
@@ -348,7 +350,7 @@ export default function CartPage() {
                       onClick={() => removeItem(item.productId, item.volumeLabel)}
                       className="ml-auto flex items-center gap-1 text-xs text-rose-dark"
                     >
-                      <Trash2 size={13} /> Retirer
+                      <Trash2 size={13} /> {tr("Retirer")}
                     </button>
                   </div>
                 </div>
@@ -361,33 +363,33 @@ export default function CartPage() {
 
           <form id="commander" onSubmit={handleSubmit} className="h-fit scroll-mt-24 rounded-2xl border border-line bg-white p-5">
             <div className="flex items-center justify-between text-sm text-navy/70">
-              <span>Sous-total</span>
+              <span>{tr("Sous-total")}</span>
               <span>{formatPrice(total())}</span>
             </div>
             <div className="mt-2 flex items-center justify-between text-sm text-navy/70">
-              <span>Livraison</span>
+              <span>{tr("Livraison")}</span>
               <span>
                 {delivery.mode === "RETRAIT"
-                  ? "Retrait, sans frais"
+                  ? tr("Retrait, sans frais")
                   : delivery.quote?.ok
-                    ? delivery.quote.free ? "Offerte" : formatPrice(deliveryFee)
-                    : "Selon votre position"}
+                    ? delivery.quote.free ? tr("Offerte") : formatPrice(deliveryFee)
+                    : tr("Selon votre position")}
               </span>
             </div>
             {discounts.offer && (
               <div className="mt-2 flex items-center justify-between gap-3 text-sm text-ia-dark">
-                <span>🎁 {discounts.offer.title}</span>
+                <span>🎁 {tr(discounts.offer.title)}</span>
                 <span className="shrink-0">−{formatPrice(discounts.offer.discount)}</span>
               </div>
             )}
             {codeOk && codeOk.discount > 0 && (
               <div className="mt-2 flex items-center justify-between gap-3 text-sm text-ia-dark">
-                <span>Code {codeOk.code} ({codeOk.label})</span>
+                <span>{tr("Code")} {codeOk.code} ({tr(codeOk.label)})</span>
                 <span className="shrink-0">−{formatPrice(codeOk.discount)}</span>
               </div>
             )}
             <div className="mt-2 flex items-center justify-between text-base font-semibold text-navy">
-              <span>Total</span>
+              <span>{tr("Total")}</span>
               <span>{formatPrice(Math.max(0, total() - discountTotal) + deliveryFee)}</span>
             </div>
             <div className="mt-3">
@@ -401,36 +403,36 @@ export default function CartPage() {
                       setCouponCode(couponInput.trim());
                     }
                   }}
-                  placeholder="Code promo"
-                  aria-label="Code promo"
+                  placeholder={tr("Code promo")}
+                  aria-label={tr("Code promo")}
                   className="min-w-0 flex-1 rounded-lg border border-line px-3 py-2 text-sm uppercase outline-none focus:border-navy"
                 />
                 <button type="button" onClick={() => setCouponCode(couponInput.trim())} disabled={!couponInput.trim()} className="shrink-0 rounded-lg border border-line px-3 text-sm font-semibold text-navy hover:bg-cream disabled:opacity-50">
-                  Appliquer
+                  {tr("Appliquer")}
                 </button>
               </div>
-              {discounts.code && "error" in discounts.code && <p className="mt-1 text-xs text-rose-dark">{discounts.code.error}</p>}
-              {codeOk && <button type="button" onClick={() => { setCouponCode(""); setCouponInput(""); }} className="mt-1 text-xs text-navy/60 underline">Retirer le code</button>}
+              {discounts.code && "error" in discounts.code && <p className="mt-1 text-xs text-rose-dark">{tr(discounts.code.error)}</p>}
+              {codeOk && <button type="button" onClick={() => { setCouponCode(""); setCouponInput(""); }} className="mt-1 text-xs text-navy/60 underline">{tr("Retirer le code")}</button>}
             </div>
 
             <div className="mt-4 flex flex-col gap-3">
               <input
                 required
-                placeholder="Nom et prénom"
+                placeholder={tr("Nom et prénom")}
                 value={customer.name}
                 onChange={(e) => setCustomer((c) => ({ ...c, name: e.target.value }))}
                 className="rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-navy"
               />
               <input
                 required
-                placeholder="Téléphone"
+                placeholder={tr("Téléphone")}
                 value={customer.phone}
                 onChange={(e) => setCustomer((c) => ({ ...c, phone: e.target.value }))}
                 className="rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-navy"
               />
               {prefilled && (
                 <p className="-mt-1 text-xs text-navy/65">
-                  Informations pré-remplies, modifiables si vous commandez pour quelqu&apos;un d&apos;autre.{" "}
+                  {tr("Informations pré-remplies, modifiables si vous commandez pour quelqu'un d'autre.")}{" "}
                   <button
                     type="button"
                     onClick={() => {
@@ -440,22 +442,22 @@ export default function CartPage() {
                     }}
                     className="font-semibold text-rose-dark underline"
                   >
-                    Effacer
+                    {tr("Effacer")}
                   </button>
                 </p>
               )}
 
               {delivery.mode === "LIVRAISON" && (
                 <fieldset className="space-y-2 rounded-xl border border-line px-3 py-2.5">
-                  <legend className="px-1 text-sm font-semibold text-navy">Qui reçoit le colis ?</legend>
+                  <legend className="px-1 text-sm font-semibold text-navy">{tr("Qui reçoit le colis ?")}</legend>
                   <div className="flex flex-wrap gap-4 text-sm">
-                    <label className="flex items-center gap-2"><input type="radio" name="recipient" checked={!forOther} onChange={() => setForOther(false)} /> Moi-même</label>
-                    <label className="flex items-center gap-2"><input type="radio" name="recipient" checked={forOther} onChange={() => setForOther(true)} /> Une autre personne</label>
+                    <label className="flex items-center gap-2"><input type="radio" name="recipient" checked={!forOther} onChange={() => setForOther(false)} /> {tr("Moi-même")}</label>
+                    <label className="flex items-center gap-2"><input type="radio" name="recipient" checked={forOther} onChange={() => setForOther(true)} /> {tr("Une autre personne")}</label>
                   </div>
                   {forOther && (
                     <div className="grid gap-2 sm:grid-cols-2">
-                      <input placeholder="Nom du destinataire" value={recipient.name} onChange={(e) => setRecipient((r) => ({ ...r, name: e.target.value }))} className="rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-navy" />
-                      <input placeholder="Téléphone du destinataire" inputMode="tel" value={recipient.phone} onChange={(e) => setRecipient((r) => ({ ...r, phone: e.target.value }))} className="rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-navy" />
+                      <input placeholder={tr("Nom du destinataire")} value={recipient.name} onChange={(e) => setRecipient((r) => ({ ...r, name: e.target.value }))} className="rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-navy" />
+                      <input placeholder={tr("Téléphone du destinataire")} inputMode="tel" value={recipient.phone} onChange={(e) => setRecipient((r) => ({ ...r, phone: e.target.value }))} className="rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-navy" />
                     </div>
                   )}
                 </fieldset>
@@ -471,7 +473,7 @@ export default function CartPage() {
                     disabled={refLocked}
                     className="w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-navy disabled:bg-navy/5"
                   >
-                    <option value="">Consultant·e qui vous a recommandé JAMAAL (optionnel)</option>
+                    <option value="">{tr("Consultant·e qui vous a recommandé JAMAAL (optionnel)")}</option>
                     {consultants.map((c) => (
                       <option key={c.id} value={c.id}>
                         {c.name} ({c.city})
@@ -480,36 +482,36 @@ export default function CartPage() {
                   </select>
                   {refLocked && (
                     <p className="mt-1 text-xs text-navy/50">
-                      Commande rattachée automatiquement à votre consultant.
+                      {tr("Commande rattachée automatiquement à votre consultant.")}
                     </p>
                   )}
                 </div>
               )}
 
               <div className="rounded-xl border border-line bg-cream/50 p-3">
-                <label className="flex items-center gap-2 text-sm font-medium text-navy"><input type="checkbox" checked={giftWrap} onChange={(e) => setGiftWrap(e.target.checked)} />Préparer cette commande comme un cadeau</label>
+                <label className="flex items-center gap-2 text-sm font-medium text-navy"><input type="checkbox" checked={giftWrap} onChange={(e) => setGiftWrap(e.target.checked)} />{tr("Préparer cette commande comme un cadeau")}</label>
                 {giftWrap && (
                   <div className="mt-3 space-y-3">
                     <div className="grid gap-3 sm:grid-cols-2">
-                      <label className="text-xs font-medium text-navy">Occasion
+                      <label className="text-xs font-medium text-navy">{tr("Occasion")}
                         <select value={giftOccasion} onChange={(e) => setGiftOccasion(e.target.value)} className="mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm">
-                          <option value="">Choisir (facultatif)</option>
-                          {OCCASIONS.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
+                          <option value="">{tr("Choisir (facultatif)")}</option>
+                          {OCCASIONS.map((o) => <option key={o.id} value={o.id}>{tr(o.label)}</option>)}
                         </select>
                       </label>
-                      <label className="text-xs font-medium text-navy">De la part de
-                        <input value={giftFrom} onChange={(e) => setGiftFrom(e.target.value)} maxLength={80} placeholder="Ex. Moussa, depuis Paris" className="mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm" />
+                      <label className="text-xs font-medium text-navy">{tr("De la part de")}
+                        <input value={giftFrom} onChange={(e) => setGiftFrom(e.target.value)} maxLength={80} placeholder={tr("Ex. Moussa, depuis Paris")} className="mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm" />
                       </label>
                     </div>
-                    <textarea maxLength={300} placeholder="Message cadeau (facultatif, 300 caractères maximum)" value={giftMessage} onChange={(e) => setGiftMessage(e.target.value)} rows={3} className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm" />
+                    <textarea maxLength={300} placeholder={tr("Message cadeau (facultatif, 300 caractères maximum)")} value={giftMessage} onChange={(e) => setGiftMessage(e.target.value)} rows={3} className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm" />
                     <VoiceRecorder value={giftVoice} onChange={setGiftVoice} />
-                    {!forOther && <p className="text-xs text-navy/70">Vous offrez depuis l&apos;étranger ou à un proche ? Choisissez la livraison et choisissez « Une autre personne » comme destinataire : nous le livrons chez lui, avec votre message.</p>}
+                    {!forOther && <p className="text-xs text-navy/70">{tr("Vous offrez depuis l'étranger ou à un proche ? Choisissez la livraison et choisissez « Une autre personne » comme destinataire : nous le livrons chez lui, avec votre message.")}</p>}
                   </div>
                 )}
               </div>
 
               {paymentOptions === null ? (
-                <p className="text-sm text-navy/70">Chargement des moyens de paiement…</p>
+                <p className="text-sm text-navy/70">{tr("Chargement des moyens de paiement…")}</p>
               ) : paymentOptions.length && paymentMethod ? (
                 <>
                   <PaymentMethodSelector
@@ -519,8 +521,8 @@ export default function CartPage() {
                   />
                   {partChoices.length > 0 && installmentOffer && (
                     <fieldset className="rounded-xl border border-line bg-cream/40 px-3 py-3">
-                      <legend className="px-1 text-xs font-semibold text-navy">Payer en plusieurs fois, sans frais</legend>
-                      <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Nombre de paiements">
+                      <legend className="px-1 text-xs font-semibold text-navy">{tr("Payer en plusieurs fois, sans frais")}</legend>
+                      <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={tr("Nombre de paiements")}>
                         {[1, ...partChoices].map((n) => (
                           <button
                             key={n}
@@ -533,13 +535,13 @@ export default function CartPage() {
                             }}
                             className={`min-h-10 rounded-full px-3.5 py-2 text-xs font-semibold ${chosenParts === n ? "bg-navy text-white" : "border border-line bg-white text-navy hover:bg-cream"}`}
                           >
-                            {n === 1 ? "En 1 fois" : `En ${n} fois · ${planLabel(grandTotal, n)}`}
+                            {n === 1 ? tr("En 1 fois") : tr("En {n} fois · {v1}", { n, v1: planLabel(grandTotal, n) })}
                           </button>
                         ))}
                       </div>
                       {chosenParts > 1 && (
                         <p className="mt-2 text-xs leading-relaxed text-navy/75">
-                          Aujourd&apos;hui {formatPrice(splitAmounts(grandTotal, chosenParts)[0])}, puis une échéance tous les {installmentOffer.intervalDays} jours, avec un rappel WhatsApp. Votre commande est préparée et livrée dès qu&apos;elle est entièrement réglée.
+                          {tr("Aujourd'hui")} {formatPrice(splitAmounts(grandTotal, chosenParts)[0])}{tr(", puis une échéance tous les")} {installmentOffer.intervalDays} {tr("jours, avec un rappel WhatsApp. Votre commande est préparée et livrée dès qu'elle est entièrement réglée.")}
                         </p>
                       )}
                     </fieldset>
@@ -547,7 +549,7 @@ export default function CartPage() {
                 </>
               ) : (
                 <p role="alert" className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-900">
-                  Le paiement en ligne n&apos;est pas encore disponible. Contactez-nous sur WhatsApp pour passer votre commande.
+                  {tr("Le paiement en ligne n'est pas encore disponible. Contactez-nous sur WhatsApp pour passer votre commande.")}
                 </p>
               )}
 
@@ -559,32 +561,32 @@ export default function CartPage() {
                   className="mt-0.5"
                 />
                 <span>
-                  J&apos;accepte les{" "}
+                  {tr("J'accepte les")}{" "}
                   <Link href="/cgv" className="font-semibold text-rose-dark underline">
-                    Conditions Générales de Vente
+                    {tr("Conditions Générales de Vente")}
                   </Link>
                 </span>
               </label>
             </div>
 
-            {error && <p className="mt-3 text-xs text-rose-dark">{error}</p>}
+            {error && <p className="mt-3 text-xs text-rose-dark">{tr(error)}</p>}
 
             <button
               type="submit"
               disabled={submitting || !paymentMethod}
               className="mt-5 w-full rounded-full bg-navy py-3 text-sm font-semibold text-white transition hover:bg-navy-light disabled:opacity-60"
             >
-              {submitting ? "Redirection vers le paiement…" : paymentMethod === "cod" ? "Passer la commande" : chosenParts > 1 ? `Payer la 1re échéance (${formatPrice(splitAmounts(grandTotal, chosenParts)[0])})` : "Payer"}
+              {submitting ? tr("Redirection vers le paiement…") : paymentMethod === "cod" ? tr("Passer la commande") : chosenParts > 1 ? tr("Payer la 1re échéance ({v0})", { v0: formatPrice(splitAmounts(grandTotal, chosenParts)[0]) }) : tr("Payer")}
             </button>
 
             <p className="mt-3 text-center text-[11px] text-navy/40">
               {paymentMethod === "cod"
-                ? "Règlement à la livraison."
-                : "Vous serez dirigé directement vers le moyen de paiement choisi, avec le montant déjà indiqué : rien à ressaisir."}
+                ? tr("Règlement à la livraison.")
+                : tr("Vous serez dirigé directement vers le moyen de paiement choisi, avec le montant déjà indiqué : rien à ressaisir.")}
             </p>
             <div className="mt-4 border-t border-line pt-4 text-center">
-              <p className="mb-2 text-[11px] text-navy/50">Vous préférez finaliser avec une conseillère ?</p>
-              <OrderOnWhatsApp lines={items.map((i) => `${i.quantity} × ${i.name} (${i.volumeLabel})`).concat(couponCode ? [`Code promo : ${couponCode}`] : [])} label="Envoyer ce panier sur WhatsApp" className="w-full" />
+              <p className="mb-2 text-[11px] text-navy/50">{tr("Vous préférez finaliser avec une conseillère ?")}</p>
+              <OrderOnWhatsApp lines={items.map((i) => `${i.quantity} × ${i.name} (${i.volumeLabel})`).concat(couponCode ? [`Code promo : ${couponCode}`] : [])} label={tr("Envoyer ce panier sur WhatsApp")} className="w-full" />
             </div>
           </form>
         </div>

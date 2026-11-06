@@ -3,6 +3,7 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { getConsultantLabelBySlug } from "@/lib/actions/public-data";
 import { WHATSAPP_CONTACTS } from "@/lib/contact";
+import { useT } from "@/components/i18n/LocaleProvider";
 
 const readRef = () => document.cookie.split("; ").find((c) => c.startsWith("jamaal_ref="))?.split("=")[1] ?? "";
 const subscribe = () => () => {};
@@ -25,6 +26,7 @@ export function orderWhatsAppText(lines: string[], ref: string, sellerName?: str
  * Complète le panier du site (qui reste le parcours classique), sans le remplacer.
  */
 export function OrderOnWhatsApp({ lines, label = "Commander sur WhatsApp", className = "" }: { lines: string[]; label?: string; className?: string }) {
+  const t = useT();
   const ref = useSyncExternalStore(subscribe, readRef, () => "");
   const [sellerName, setSellerName] = useState<string | null>(null);
   useEffect(() => {
@@ -45,7 +47,7 @@ export function OrderOnWhatsApp({ lines, label = "Commander sur WhatsApp", class
       <svg viewBox="0 0 32 32" className="h-4 w-4 fill-current" aria-hidden="true">
         <path d="M16.001 3C9.373 3 4 8.373 4 15c0 2.386.697 4.61 1.902 6.478L4 29l7.723-1.874A11.94 11.94 0 0 0 16.001 27C22.63 27 28 21.627 28 15S22.63 3 16.001 3Z" />
       </svg>
-      {label}
+      {t(label)}
     </a>
   );
 }

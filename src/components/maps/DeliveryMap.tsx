@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/components/i18n/LocaleProvider";
 import { useEffect, useRef, useState } from "react";
 import type { Map as LeafletMap, LayerGroup } from "leaflet";
 import { LocateFixed } from "lucide-react";
@@ -87,6 +88,7 @@ export function DeliveryMap({
   follow?: string;
   ariaLabel?: string;
 }) {
+  const t = useT();
   const el = useRef<HTMLDivElement>(null);
   const map = useRef<LeafletMap | null>(null);
   const layer = useRef<LayerGroup | null>(null);
@@ -205,7 +207,7 @@ export function DeliveryMap({
       <div ref={el} style={{ height }} className="z-0 w-full overflow-hidden rounded-xl border border-line" role="application" aria-label={ariaLabel} />
       {moved && (
         <button type="button" onClick={recenter} className="absolute bottom-3 right-3 z-[500] inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-2 text-xs font-semibold text-navy shadow-md">
-          <LocateFixed size={14} /> Recentrer
+          <LocateFixed size={14} /> {t("Recentrer")}
         </button>
       )}
     </div>

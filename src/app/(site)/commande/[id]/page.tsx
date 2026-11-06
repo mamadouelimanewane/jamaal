@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { getT } from "@/lib/i18n/server";
+import Link from "@/components/i18n/Link";
 import { isInstallmentOrder, nextInstallment } from "@/lib/installments";
 import { InstallmentSchedule } from "@/components/InstallmentSchedule";
 import { PAY_LINK_REF } from "@/lib/pay-link";
@@ -35,6 +36,7 @@ const paymentStatusLabels: Record<string, string> = {
 };
 
 export default async function OrderConfirmationPage({ params, searchParams }: Props) {
+  const t = await getT();
   const { id } = await params;
   const sp = await searchParams;
   let order = await getOrderConfirmation(id);
@@ -70,77 +72,77 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
       <PaymentWatcher active={isPending && !!due} />
       <div className="rounded-2xl border border-line bg-white p-8 text-center shadow-sm">
         <p className="text-xs font-semibold uppercase tracking-widest text-rose-dark">
-          {resa ? `Réservation · ${RESERVATION_LABELS[resa]}` : isPaid
-            ? "Paiement confirmé"
+          {resa ? t("Réservation · {v0}", { v0: RESERVATION_LABELS[resa] }) : isPaid
+            ? t("Paiement confirmé")
             : inst && order.installmentsPaid > 0 && !isPending
-              ? `${order.installmentsPaid}/${order.installmentCount} échéances réglées`
+              ? t("{installmentsPaid}/{installmentCount} échéances réglées", { installmentsPaid: order.installmentsPaid, installmentCount: order.installmentCount })
             : linkNotStarted
-              ? "Commande à régler"
+              ? t("Commande à régler")
             : isCanceled
-              ? "Paiement annulé"
+              ? t("Paiement annulé")
               : isPending
-                ? "Paiement en attente"
-                : "Commande enregistrée"}
+                ? t("Paiement en attente")
+                : t("Commande enregistrée")}
         </p>
         <h1 className="mt-3 font-serif-display text-2xl font-semibold text-navy">
-          Merci, {order.customerName} !
+          {t("Merci,")} {order.customerName} !
         </h1>
         <p className="mt-3 text-sm leading-relaxed text-navy/70">
           {resa ? (
             resa === "ACOMPTE_ATTENDU"
-              ? `Votre réservation est enregistrée. Réglez l'acompte de ${formatPrice(order.depositAmount)} pour la confirmer ; nous commandons alors votre produit (délai annoncé : ${order.reservationDelay ?? "quelques semaines"}).`
+              ? t("Votre réservation est enregistrée. Réglez l'acompte de {v0} pour la confirmer ; nous commandons alors votre produit (délai annoncé : {v1}).", { v0: formatPrice(order.depositAmount), v1: order.reservationDelay ?? "quelques semaines" })
               : resa === "RESERVEE"
-                ? `Acompte reçu, merci ! Votre produit est commandé (délai annoncé : ${order.reservationDelay ?? "quelques semaines"}). Nous vous prévenons sur WhatsApp dès son arrivée.`
+                ? t("Acompte reçu, merci ! Votre produit est commandé (délai annoncé : {v0}). Nous vous prévenons sur WhatsApp dès son arrivée.", { v0: order.reservationDelay ?? "quelques semaines" })
                 : resa === "DISPONIBLE"
-                  ? `Votre produit est arrivé ! Reste à régler : ${formatPrice(balance)}, en ligne ci-dessous ou ${order.deliveryMode === "LIVRAISON_JAMAAL" ? "à la livraison" : "au retrait"}.`
+                  ? t("Votre produit est arrivé ! Reste à régler : {v0}, en ligne ci-dessous ou {v1}.", { v0: formatPrice(balance), v1: order.deliveryMode === "LIVRAISON_JAMAAL" ? "à la livraison" : "au retrait" })
                   : resa === "SOLDEE"
-                    ? "Réservation soldée : votre commande suit son cours."
-                    : "Cette réservation a été annulée."
+                    ? t("Réservation soldée : votre commande suit son cours.")
+                    : t("Cette réservation a été annulée.")
           ) : isPaid
-            ? "Votre paiement a bien été reçu. Nous préparons votre commande."
+            ? t("Votre paiement a bien été reçu. Nous préparons votre commande.")
             : inst && order.installmentsPaid > 0 && !isPending
-              ? `Merci, votre échéance est bien reçue. Prochaine échéance : ${formatPrice(inst.amount)} le ${inst.dueAt.toLocaleDateString("fr-FR", { day: "numeric", month: "long", timeZone: "UTC" })}, avec un rappel sur WhatsApp. Votre commande est préparée dès qu'elle est entièrement réglée.`
+              ? t("Merci, votre échéance est bien reçue. Prochaine échéance : {v0} le {v1}, avec un rappel sur WhatsApp. Votre commande est préparée dès qu'elle est entièrement réglée.", { v0: formatPrice(inst.amount), v1: inst.dueAt.toLocaleDateString("fr-FR", { day: "numeric", month: "long", timeZone: "UTC" }) })
             : linkNotStarted
-              ? `${order.consultant?.name ?? "Votre conseiller JAMAAL"} a préparé votre commande. Réglez-la en ligne avec le bouton ci-dessous : elle est préparée dès réception du paiement.`
+              ? t("{v0} a préparé votre commande. Réglez-la en ligne avec le bouton ci-dessous : elle est préparée dès réception du paiement.", { v0: order.consultant?.name ?? "Votre conseiller JAMAAL" })
             : isCanceled
-              ? "Le paiement a été annulé. Votre commande reste enregistrée : réglez-la avec le bouton ci-dessous, ou contactez-nous sur WhatsApp."
+              ? t("Le paiement a été annulé. Votre commande reste enregistrée : réglez-la avec le bouton ci-dessous, ou contactez-nous sur WhatsApp.")
               : isPending
-                ? "Si vous avez finalisé le paiement, la confirmation peut prendre quelques instants. Cette page se mettra à jour."
-                : "Votre commande a bien été enregistrée. Notre équipe ou votre consultant vous contactera très vite pour confirmer la livraison et le règlement."}
+                ? t("Si vous avez finalisé le paiement, la confirmation peut prendre quelques instants. Cette page se mettra à jour.")
+                : t("Votre commande a bien été enregistrée. Notre équipe ou votre consultant vous contactera très vite pour confirmer la livraison et le règlement.")}
         </p>
 
         {resa ? (
-          due && due.amount > 0 && <PayOrderButton orderId={order.id} label={due.part === "ACOMPTE" ? `Payer l'acompte (${formatPrice(due.amount)})` : `Payer le solde (${formatPrice(due.amount)})`} />
+          due && due.amount > 0 && <PayOrderButton orderId={order.id} label={due.part === "ACOMPTE" ? t("Payer l'acompte ({v0})", { v0: formatPrice(due.amount) }) : t("Payer le solde ({v0})", { v0: formatPrice(due.amount) })} />
         ) : (
-          !isPaid && <PayOrderButton orderId={order.id} label={inst ? `Payer l'échéance ${inst.n}/${inst.of} (${formatPrice(inst.amount)})` : undefined} />
+          !isPaid && <PayOrderButton orderId={order.id} label={inst ? t("Payer l'échéance {n}/{of} ({v2})", { n: inst.n, of: inst.of, v2: formatPrice(inst.amount) }) : undefined} />
         )}
         {isInstallmentOrder(order) && <InstallmentSchedule order={order} className="mt-6" />}
 
         <div className="mt-6 rounded-xl bg-navy/5 px-4 py-3 text-left text-sm">
           <div className="flex justify-between">
-            <span className="text-navy/60">N° de commande</span>
+            <span className="text-navy/60">{t("N° de commande")}</span>
             <span className="font-mono text-xs font-semibold text-navy">
               {order.id.slice(-8).toUpperCase()}
             </span>
           </div>
           <div className="mt-2 flex justify-between">
-            <span className="text-navy/60">Total</span>
+            <span className="text-navy/60">{t("Total")}</span>
             <span className="font-semibold text-navy">{formatPrice(order.total)}</span>
           </div>
           {resa && (
             <>
               <div className="mt-2 flex justify-between">
-                <span className="text-navy/60">Acompte</span>
-                <span className="font-semibold text-navy">{formatPrice(order.depositAmount)} · {order.depositPaidAt ? <span className="text-emerald-700">payé</span> : <span className="text-amber-700">à payer</span>}</span>
+                <span className="text-navy/60">{t("Acompte")}</span>
+                <span className="font-semibold text-navy">{formatPrice(order.depositAmount)} · {order.depositPaidAt ? <span className="text-emerald-700">{t("payé")}</span> : <span className="text-amber-700">{t("à payer")}</span>}</span>
               </div>
               <div className="mt-2 flex justify-between">
-                <span className="text-navy/60">Solde à l&apos;arrivée</span>
+                <span className="text-navy/60">{t("Solde à l'arrivée")}</span>
                 <span className="font-semibold text-navy">{formatPrice(balance)}</span>
               </div>
             </>
           )}
           {!resa && <div className="mt-2 flex justify-between">
-            <span className="text-navy/60">Paiement</span>
+            <span className="text-navy/60">{t("Paiement")}</span>
             <span className="font-semibold text-navy">
               {paymentMethodLabels[paymentMethod] ?? paymentMethod}
               {" · "}
@@ -154,14 +156,14 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
                 }
               >
                 {isPaid
-                  ? "Payé"
+                  ? t("Payé")
                   : paymentStatusLabels[paymentStatus] ?? paymentStatus}
               </span>
             </span>
           </div>}
           {order.consultant && (
             <div className="mt-2 flex justify-between">
-              <span className="text-navy/60">Consultant·e</span>
+              <span className="text-navy/60">{t("Consultant·e")}</span>
               <span className="font-semibold text-navy">
                 {order.consultant.name} ({order.consultant.city})
               </span>
@@ -169,7 +171,7 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
           )}
         </div>
 
-        {order.giftWrap && <div className="mt-4 rounded-xl border border-rose/30 bg-rose/5 p-4 text-left text-sm"><p className="font-semibold text-navy">Commande cadeau</p>{order.giftFrom && <p className="mt-1 text-navy/70">De la part de {order.giftFrom}{order.giftOccasion ? ` · ${occasionOf(order.giftOccasion)?.label ?? ""}` : ""}</p>}{order.giftMessage && <p className="mt-1 text-navy/70">« {order.giftMessage} »</p>}{order.giftVoiceUrl && <audio src={order.giftVoiceUrl} controls className="mt-2 w-full" />}</div>}
+        {order.giftWrap && <div className="mt-4 rounded-xl border border-rose/30 bg-rose/5 p-4 text-left text-sm"><p className="font-semibold text-navy">{t("Commande cadeau")}</p>{order.giftFrom && <p className="mt-1 text-navy/70">{t("De la part de")} {order.giftFrom}{order.giftOccasion ? ` · ${occasionOf(order.giftOccasion)?.label ?? ""}` : ""}</p>}{order.giftMessage && <p className="mt-1 text-navy/70">« {order.giftMessage} »</p>}{order.giftVoiceUrl && <audio src={order.giftVoiceUrl} controls className="mt-2 w-full" />}</div>}
 
         {!order.isReservation && order.customerPhone && order.status !== "ANNULEE" && !order.subscriptionId && <SubscribeOffer orderId={order.id} discountPct={subPct} existingToken={existingSub?.token ?? null} />}
 
@@ -195,7 +197,7 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
             href={`/suivi/${order.id}`}
             className="rounded-full bg-navy px-6 py-3 text-sm font-semibold text-white transition hover:bg-navy-light"
           >
-            Suivre ma commande →
+            {t("Suivre ma commande →")}
           </Link>
 
           {order.consultant?.whatsapp && (
@@ -209,12 +211,12 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
               rel="noopener noreferrer"
               className="rounded-full border border-line px-6 py-3 text-sm font-semibold text-navy"
             >
-              Contacter mon consultant sur WhatsApp
+              {t("Contacter mon consultant sur WhatsApp")}
             </a>
           )}
 
           <Link href="/" className="text-sm font-semibold text-rose-dark">
-            Retour à l&apos;accueil
+            {t("Retour à l'accueil")}
           </Link>
         </div>
       </div>

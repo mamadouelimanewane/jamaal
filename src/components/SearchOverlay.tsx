@@ -1,7 +1,8 @@
 "use client";
 
+import { useT } from "@/components/i18n/LocaleProvider";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
+import Link from "@/components/i18n/Link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { createPortal } from "react-dom";
@@ -106,6 +107,7 @@ export function SearchOverlay({ categories }: { categories: Category[] }) {
 }
 
 function SearchPanel({ initial, close, categories }: { initial: string; close: () => void; categories: Category[] }) {
+  const tr = useT();
   const router = useRouter();
   const [query, setQuery] = useState(initial);
   const [store, setStore] = useState<Record<string, Result>>({});
@@ -192,8 +194,8 @@ function SearchPanel({ initial, close, categories }: { initial: string; close: (
   const otherCats = categories.filter((c) => !c.slug.startsWith("parfum-")).slice(0, 6);
 
   return (
-    <div className="fixed inset-0 z-[60]" role="dialog" aria-modal="true" aria-label="Rechercher dans le catalogue">
-      <button type="button" aria-label="Fermer la recherche" onClick={close} className="absolute inset-0 h-full w-full cursor-default bg-[#14213b]/45 backdrop-blur-[3px] animate-[fadeIn_.15s_ease-out]" />
+    <div className="fixed inset-0 z-[60]" role="dialog" aria-modal="true" aria-label={tr("Rechercher dans le catalogue")}>
+      <button type="button" aria-label={tr("Fermer la recherche")} onClick={close} className="absolute inset-0 h-full w-full cursor-default bg-[#14213b]/45 backdrop-blur-[3px] animate-[fadeIn_.15s_ease-out]" />
       <div className="relative mx-auto flex h-full max-h-full flex-col bg-[#fdfbfa] shadow-[0_30px_80px_-20px_rgba(20,33,59,.45)] sm:mt-4 sm:h-auto sm:max-h-[min(86vh,820px)] sm:w-[min(980px,calc(100%-2rem))] sm:rounded-3xl animate-[slideDown_.18s_ease-out]">
         {/* Champ de recherche */}
         <div className="flex items-center gap-3 border-b border-[#eadfda] px-5 py-4 sm:px-7 sm:py-5">
@@ -208,19 +210,19 @@ function SearchPanel({ initial, close, categories }: { initial: string; close: (
             enterKeyHint="search"
             autoComplete="off"
             spellCheck={false}
-            aria-label="Rechercher un parfum"
+            aria-label={tr("Rechercher un parfum")}
             aria-controls="search-results"
             aria-activedescendant={active >= 0 ? `sr-${active}` : undefined}
-            placeholder="Un parfum, une marque, un code…"
+            placeholder={tr("Un parfum, une marque, un code…")}
             className="min-w-0 flex-1 bg-transparent font-serif-display text-xl text-[#14213b] outline-none placeholder:text-navy/35 sm:text-[28px] [&::-webkit-search-cancel-button]:hidden"
           />
           {query && (
             <button type="button" onClick={() => { setQuery(""); inputRef.current?.focus(); }} className="rounded-full px-3 py-1.5 text-xs font-medium text-navy/70 hover:bg-navy/5">
-              Effacer
+              {tr("Effacer")}
             </button>
           )}
-          <kbd className="hidden rounded-md border border-[#eadfda] px-2 py-1 text-[11px] text-navy/60 sm:block">Échap</kbd>
-          <button type="button" onClick={close} aria-label="Fermer" className="rounded-full p-2 text-navy/70 hover:bg-navy/5 sm:hidden">
+          <kbd className="hidden rounded-md border border-[#eadfda] px-2 py-1 text-[11px] text-navy/60 sm:block">{tr("Échap")}</kbd>
+          <button type="button" onClick={close} aria-label={tr("Fermer")} className="rounded-full p-2 text-navy/70 hover:bg-navy/5 sm:hidden">
             <X size={20} />
           </button>
         </div>
@@ -232,8 +234,8 @@ function SearchPanel({ initial, close, categories }: { initial: string; close: (
                 {recent.length > 0 && (
                   <section className="mb-7">
                     <div className="flex items-center justify-between">
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#9c6254]">Recherches récentes</p>
-                      <button type="button" onClick={() => { writeRecent([]); setRecent([]); }} className="text-xs text-navy/55 hover:text-navy">Effacer</button>
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#9c6254]">{tr("Recherches récentes")}</p>
+                      <button type="button" onClick={() => { writeRecent([]); setRecent([]); }} className="text-xs text-navy/55 hover:text-navy">{tr("Effacer")}</button>
                     </div>
                     <ul className="mt-3 flex flex-col">
                       {recent.map((r) => (
@@ -246,7 +248,7 @@ function SearchPanel({ initial, close, categories }: { initial: string; close: (
                     </ul>
                   </section>
                 )}
-                <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-[#9c6254]"><Sparkles size={13} /> Les plus recherchés</p>
+                <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-[#9c6254]"><Sparkles size={13} /> {tr("Les plus recherchés")}</p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {TRENDING.map((t) => (
                     <button key={t} type="button" onClick={() => setQuery(t)} className="rounded-full border border-[#eadfda] bg-white px-4 py-2 text-sm text-navy transition hover:border-[#c9997a] hover:bg-[#f5ece8]">
@@ -255,16 +257,16 @@ function SearchPanel({ initial, close, categories }: { initial: string; close: (
                   ))}
                 </div>
                 <p className="mt-6 text-sm leading-6 text-navy/60">
-                  Cherchez par nom, par grand parfum (« Sauvage », « Dior »), par code Chogan (« 001M », « BSF016 ») ou par note (« vanille », « oud »). Les fautes de frappe sont tolérées.
+                  {tr("Cherchez par nom, par grand parfum (« Sauvage », « Dior »), par code Chogan (« 001M », « BSF016 ») ou par note (« vanille », « oud »). Les fautes de frappe sont tolérées.")}
                 </p>
               </div>
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#9c6254]">Collections</p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#9c6254]">{tr("Collections")}</p>
                 <div className="mt-3 grid grid-cols-2 gap-2">
                   {perfumeCats.map((c) => (
                     <Link key={c.slug} href={`/collections/${c.slug}`} onClick={close} className="group rounded-2xl bg-[#14213b] px-4 py-4 text-[#f5ece8] transition hover:bg-[#1d2f4f]">
                       <span className="block font-serif-display text-lg leading-tight">{c.navLabel.replace("JAMAAL ", "")}</span>
-                      <span className="mt-1 flex items-center gap-1 text-[11px] uppercase tracking-[0.16em] text-[#ecc6a6]">Découvrir <ArrowUpRight size={12} /></span>
+                      <span className="mt-1 flex items-center gap-1 text-[11px] uppercase tracking-[0.16em] text-[#ecc6a6]">{tr("Découvrir")} <ArrowUpRight size={12} /></span>
                     </Link>
                   ))}
                 </div>
@@ -281,8 +283,8 @@ function SearchPanel({ initial, close, categories }: { initial: string; close: (
             </div>
           ) : result && result.total === 0 && !loading ? (
             <div className="py-10 text-center">
-              <p className="font-serif-display text-2xl text-navy">Aucun parfum pour « {query} »</p>
-              <p className="mx-auto mt-2 max-w-md text-sm text-navy/60">Essayez le nom d&apos;un grand parfum, une marque, un code Chogan ou une note olfactive.</p>
+              <p className="font-serif-display text-2xl text-navy">{tr("Aucun parfum pour «")} {query} »</p>
+              <p className="mx-auto mt-2 max-w-md text-sm text-navy/60">{tr("Essayez le nom d'un grand parfum, une marque, un code Chogan ou une note olfactive.")}</p>
               <div className="mt-5 flex flex-wrap justify-center gap-2">
                 {TRENDING.slice(0, 5).map((t) => (
                   <button key={t} type="button" onClick={() => setQuery(t)} className="rounded-full border border-[#eadfda] bg-white px-4 py-2 text-sm text-navy hover:bg-[#f5ece8]">{t}</button>
@@ -294,14 +296,14 @@ function SearchPanel({ initial, close, categories }: { initial: string; close: (
               <div className="min-w-0">
                 {result?.corrected && (
                   <p className="mb-3 rounded-xl bg-[#f5ece8] px-3.5 py-2.5 text-sm text-navy/80">
-                    Résultats pour <b className="text-navy">« {result.corrected} »</b>, au lieu de « {query} »
+                    {tr("Résultats pour")} <b className="text-navy">« {result.corrected} »</b>{tr(", au lieu de «")} {query} »
                   </p>
                 )}
                 <div className="mb-2 flex items-center justify-between">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#9c6254]">Parfums{result ? ` · ${result.total}` : ""}</p>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#9c6254]">{tr("Parfums")}{result ? ` · ${result.total}` : ""}</p>
                   {showAll && result!.total > products.length && (
                     <button type="button" onClick={() => goResults(result?.corrected ?? query)} className="flex items-center gap-1 text-xs font-semibold text-navy hover:text-[#9c6254]">
-                      Tout voir <ArrowRight size={13} />
+                      {tr("Tout voir")} <ArrowRight size={13} />
                     </button>
                   )}
                 </div>
@@ -310,7 +312,7 @@ function SearchPanel({ initial, close, categories }: { initial: string; close: (
                     {[0, 1, 2, 3].map((i) => <li key={i} className="h-[76px] animate-pulse rounded-xl bg-[#f5ece8]" />)}
                   </ul>
                 ) : (
-                  <ul className="flex flex-col" role="listbox" aria-label="Parfums suggérés">
+                  <ul className="flex flex-col" role="listbox" aria-label={tr("Parfums suggérés")}>
                     {products.map((p, i) => (
                       <li key={p.slug} id={`sr-${i}`} role="option" aria-selected={active === i}>
                         <Link
@@ -324,15 +326,15 @@ function SearchPanel({ initial, close, categories }: { initial: string; close: (
                             <span className="block truncate font-serif-display text-[17px] leading-snug text-[#14213b]"><Highlight text={p.name} terms={terms} /></span>
                             {p.inspiredBy && (
                               <span className="block truncate text-[13px] text-navy/75">
-                                Inspiré de <span className="font-medium text-navy"><Highlight text={p.inspiredBy} terms={terms} /></span>
+                                {tr("Inspiré de")} <span className="font-medium text-navy"><Highlight text={p.inspiredBy} terms={terms} /></span>
                                 {p.inspiredBrand && <> · <span className="uppercase tracking-wide text-[11px] text-[#9c6254]"><Highlight text={p.inspiredBrand} terms={terms} /></span></>}
                               </span>
                             )}
                             <span className="mt-0.5 block text-[11px] uppercase tracking-[0.12em] text-navy/50">
-                              {p.code ? <>Code <Highlight text={p.code} terms={terms} /> · </> : null}{p.category}
+                              {p.code ? <>{tr("Code")} <Highlight text={p.code} terms={terms} /> · </> : null}{p.category}
                             </span>
                           </span>
-                          {p.price ? <span className="hidden shrink-0 text-right text-sm font-semibold text-navy sm:block"><span className="block text-[10px] font-normal uppercase tracking-wide text-navy/50">à partir de</span>{formatPrice(p.price)}</span> : null}
+                          {p.price ? <span className="hidden shrink-0 text-right text-sm font-semibold text-navy sm:block"><span className="block text-[10px] font-normal uppercase tracking-wide text-navy/50">{tr("à partir de")}</span>{formatPrice(p.price)}</span> : null}
                           {active === i && <CornerDownLeft size={15} className="hidden shrink-0 text-navy/40 sm:block" />}
                         </Link>
                       </li>
@@ -347,7 +349,7 @@ function SearchPanel({ initial, close, categories }: { initial: string; close: (
                     onClick={() => goResults(result?.corrected ?? query)}
                     className={`mt-3 flex w-full items-center justify-between rounded-xl px-4 py-3.5 text-sm font-semibold transition ${active === products.length ? "bg-[#14213b] text-white" : "bg-[#14213b]/95 text-white hover:bg-[#14213b]"}`}
                   >
-                    Voir les {result!.total} résultat{result!.total > 1 ? "s" : ""} <ArrowRight size={16} />
+                    {result!.total > 1 ? tr("Voir les {n} résultats", { n: result!.total }) : tr("Voir le résultat")} <ArrowRight size={16} />
                   </button>
                 )}
               </div>
@@ -356,7 +358,7 @@ function SearchPanel({ initial, close, categories }: { initial: string; close: (
                 <aside className="flex flex-col gap-6 sm:border-l sm:border-[#eadfda] sm:pl-6">
                   {result.brands.length > 0 && (
                     <section>
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#9c6254]">Inspirés de la marque</p>
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#9c6254]">{tr("Inspirés de la marque")}</p>
                       <div className="mt-3 flex flex-wrap gap-2">
                         {result.brands.map((b) => (
                           <button key={b.brand} type="button" onClick={() => setQuery(b.brand)} className="rounded-full border border-[#eadfda] bg-white px-3.5 py-1.5 text-sm text-navy hover:border-[#c9997a] hover:bg-[#f5ece8]">
@@ -368,12 +370,12 @@ function SearchPanel({ initial, close, categories }: { initial: string; close: (
                   )}
                   {result.categories.length > 0 && (
                     <section>
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#9c6254]">Dans les collections</p>
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#9c6254]">{tr("Dans les collections")}</p>
                       <ul className="mt-2 flex flex-col">
                         {result.categories.map((c) => (
                           <li key={c.slug}>
                             <button type="button" onClick={() => { remember(query); close(); router.push(`/recherche?q=${encodeURIComponent(result.query)}&cat=${c.slug}`); }} className="flex w-full items-center justify-between rounded-lg px-2 py-2 text-left text-sm text-navy hover:bg-[#f5ece8]">
-                              <span>{c.label}</span><span className="text-navy/45">{c.count}</span>
+                              <span>{tr(c.label)}</span><span className="text-navy/45">{c.count}</span>
                             </button>
                           </li>
                         ))}
@@ -387,9 +389,9 @@ function SearchPanel({ initial, close, categories }: { initial: string; close: (
         </div>
 
         <div className="hidden items-center gap-5 border-t border-[#eadfda] px-7 py-3 text-[11px] text-navy/50 sm:flex">
-          <span><kbd className="rounded border border-[#eadfda] px-1.5">↑</kbd> <kbd className="rounded border border-[#eadfda] px-1.5">↓</kbd> naviguer</span>
-          <span><kbd className="rounded border border-[#eadfda] px-1.5">Entrée</kbd> ouvrir</span>
-          <span><kbd className="rounded border border-[#eadfda] px-1.5">Ctrl K</kbd> rechercher partout</span>
+          <span><kbd className="rounded border border-[#eadfda] px-1.5">↑</kbd> <kbd className="rounded border border-[#eadfda] px-1.5">↓</kbd> {tr("naviguer")}</span>
+          <span><kbd className="rounded border border-[#eadfda] px-1.5">{tr("Entrée")}</kbd> {tr("ouvrir")}</span>
+          <span><kbd className="rounded border border-[#eadfda] px-1.5">{tr("Ctrl K")}</kbd> {tr("rechercher partout")}</span>
         </div>
       </div>
     </div>

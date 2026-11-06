@@ -1,16 +1,22 @@
-import Link from "next/link";
+import { getT } from "@/lib/i18n/server";
+import type { Metadata } from "next";
+import Link from "@/components/i18n/Link";
 import { getBlogPosts } from "@/lib/db-content";
 
-export const metadata = { title: "Le journal JAMAAL", description: "Conseils parfum, beauté et bien-être : les articles du journal JAMAAL." };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return { title: t("Le journal JAMAAL"), description: t("Conseils parfum, beauté et bien-être : les articles du journal JAMAAL.") };
+}
 
 export const dynamic = "force-dynamic";
 
 export default async function BlogPage() {
+  const t = await getT();
   const blogPosts = await getBlogPosts();
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
-      <h1 className="font-serif-display text-3xl font-semibold text-navy">Blog JAMAAL</h1>
+      <h1 className="font-serif-display text-3xl font-semibold text-navy">{t("Blog JAMAAL")}</h1>
       <div className="mt-8 flex flex-col gap-6">
         {blogPosts.map((post) => (
           <Link
@@ -25,7 +31,7 @@ export default async function BlogPage() {
                 year: "numeric",
               })}
             </span>
-            <h2 className="mt-1 font-serif-display text-xl font-semibold text-navy">{post.title}</h2>
+            <h2 className="mt-1 font-serif-display text-xl font-semibold text-navy">{t(post.title)}</h2>
             <p className="mt-2 text-sm text-navy/70">{post.excerpt}</p>
           </Link>
         ))}

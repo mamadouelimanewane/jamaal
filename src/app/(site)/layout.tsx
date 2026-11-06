@@ -1,3 +1,6 @@
+import { getBasePath, getLocale, getT } from "@/lib/i18n/server";
+import { localizeHref } from "@/lib/i18n/config";
+import { LocaleProvider } from "@/components/i18n/LocaleProvider";
 import type { Metadata } from "next";
 import { Playfair_Display, Poppins } from "next/font/google";
 import "../globals.css";
@@ -30,29 +33,40 @@ export const maxDuration = 60;
 const SITE_DESCRIPTION =
   "JAMAAL Luxury Cosmetics — parfums, soins et cosmétiques inspirés des plus grandes maisons de parfumerie, à prix juste.";
 
-export const metadata: Metadata = {
-  metadataBase: new URL(siteBaseUrl()),
-  title: {
-    default: "JAMAAL Luxury Cosmetics | Parfums inspirés des grandes maisons",
-    template: "%s | JAMAAL",
-  },
-  description: SITE_DESCRIPTION,
-  openGraph: {
-    type: "website",
-    locale: "fr_SN",
-    siteName: "JAMAAL Luxury Cosmetics",
-    title: "JAMAAL Luxury Cosmetics",
-    description: SITE_DESCRIPTION,
-    images: [{ url: "/logo/jamaal-logo.jpg", alt: "JAMAAL Luxury Cosmetics" }],
-  },
-  twitter: { card: "summary_large_image" },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const [t, locale, path] = await Promise.all([getT(), getLocale(), getBasePath()]);
+  const description = t(SITE_DESCRIPTION);
+  return {
+    metadataBase: new URL(siteBaseUrl()),
+    title: {
+      default: t("JAMAAL Luxury Cosmetics | Parfums inspirés des grandes maisons"),
+      template: "%s | JAMAAL",
+    },
+    description,
+    // Même page en français et en italien (référencement).
+    alternates: {
+      canonical: localizeHref(path, locale),
+      languages: { fr: path, it: localizeHref(path, "it"), "x-default": path },
+    },
+    openGraph: {
+      type: "website",
+      locale: locale === "it" ? "it_IT" : "fr_SN",
+      alternateLocale: locale === "it" ? ["fr_SN"] : ["it_IT"],
+      siteName: "JAMAAL Luxury Cosmetics",
+      title: "JAMAAL Luxury Cosmetics",
+      description,
+      images: [{ url: "/logo/jamaal-logo.jpg", alt: "JAMAAL Luxury Cosmetics" }],
+    },
+    twitter: { card: "summary_large_image" },
+  };
+}
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const categories = await getCategoriesWithProducts();
+  const [categories, locale] = await Promise.all([getCategoriesWithProducts(), getLocale()]);
   return (
-    <html lang="fr" className={`${playfair.variable} ${poppins.variable} h-full antialiased`}>
+    <html lang={locale} className={`${playfair.variable} ${poppins.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col bg-background text-foreground">
+        <LocaleProvider locale={locale}>
         <AnnouncementBar />
         <Header categories={categories} />
         <main className="flex-1">{children}</main>
@@ -60,6 +74,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <CartDrawer />
         <WhatsAppButton />
         {geminiConfigured() && <ShopAssistant />}
+        </LocaleProvider>
       </body>
     </html>
   );

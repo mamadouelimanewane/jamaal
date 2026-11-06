@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/components/i18n/LocaleProvider";
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Loader2, RotateCcw, SendHorizontal, Sparkles, X } from "lucide-react";
@@ -23,6 +24,7 @@ const WELCOME =
 
 /** Conseillère virtuelle de la boutique : bulle flottante au-dessus du bouton WhatsApp. */
 export function ShopAssistant() {
+  const tr = useT();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -90,11 +92,11 @@ export function ShopAssistant() {
         <button
           type="button"
           onClick={() => setOpen(true)}
-          aria-label="Ouvrir la conseillère JAMAAL"
+          aria-label={tr("Ouvrir la conseillère JAMAAL")}
           className="fixed bottom-[5.5rem] right-5 z-40 flex h-14 items-center gap-2 rounded-full bg-conseil pl-4 pr-5 text-white shadow-lg shadow-conseil/30 transition hover:scale-105"
         >
           <Sparkles size={20} className="text-conseil-accent" />
-          <span className="text-sm font-semibold">Conseil</span>
+          <span className="text-sm font-semibold">{tr("Conseil")}</span>
         </button>
       )}
 
@@ -102,7 +104,7 @@ export function ShopAssistant() {
         <div
           role="dialog"
           aria-modal="false"
-          aria-label="Conseillère virtuelle JAMAAL"
+          aria-label={tr("Conseillère virtuelle JAMAAL")}
           className="fixed inset-x-0 bottom-0 z-50 flex h-[88dvh] flex-col overflow-hidden rounded-t-3xl border border-line bg-white shadow-2xl shadow-conseil/20 sm:inset-x-auto sm:bottom-5 sm:right-5 sm:h-[min(640px,calc(100dvh-2.5rem))] sm:w-[400px] sm:rounded-3xl"
         >
           <div className="flex items-center gap-3 bg-conseil px-5 py-4 text-white">
@@ -110,8 +112,8 @@ export function ShopAssistant() {
               <Sparkles size={20} className="text-conseil-accent" />
             </span>
             <div className="min-w-0 flex-1">
-              <p className="font-serif-display text-lg font-semibold leading-tight">Conseillère JAMAAL</p>
-              <p className="text-xs text-white/70">Assistante IA · parfums, commandes, livraison</p>
+              <p className="font-serif-display text-lg font-semibold leading-tight">{tr("Conseillère JAMAAL")}</p>
+              <p className="text-xs text-white/70">{tr("Assistante IA · parfums, commandes, livraison")}</p>
             </div>
             {messages.length > 0 && (
               <button
@@ -120,14 +122,14 @@ export function ShopAssistant() {
                   setMessages([]);
                   setError(null);
                 }}
-                title="Nouvelle conversation"
-                aria-label="Nouvelle conversation"
+                title={tr("Nouvelle conversation")}
+                aria-label={tr("Nouvelle conversation")}
                 className="rounded-full p-2 text-white/80 hover:bg-white/10"
               >
                 <RotateCcw size={17} />
               </button>
             )}
-            <button type="button" onClick={() => setOpen(false)} aria-label="Fermer" className="rounded-full p-2 text-white/80 hover:bg-white/10">
+            <button type="button" onClick={() => setOpen(false)} aria-label={tr("Fermer")} className="rounded-full p-2 text-white/80 hover:bg-white/10">
               <X size={20} />
             </button>
           </div>
@@ -143,7 +145,7 @@ export function ShopAssistant() {
                     onClick={() => send(s)}
                     className="rounded-full border border-conseil/25 bg-white px-3 py-1.5 text-left text-xs text-navy transition hover:border-conseil hover:text-conseil"
                   >
-                    {s}
+                    {tr(s)}
                   </button>
                 ))}
               </div>
@@ -163,12 +165,12 @@ export function ShopAssistant() {
             ))}
             {loading && (
               <div className="flex items-center gap-2 text-sm text-navy/60">
-                <Loader2 size={16} className="animate-spin" /> La conseillère cherche pour vous…
+                <Loader2 size={16} className="animate-spin" /> {tr("La conseillère cherche pour vous…")}
               </div>
             )}
             {error && (
               <p className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">
-                {error}{" "}
+                {tr(error)}{" "}
                 <a href={whatsappLink(WHATSAPP_CONTACTS[0].number)} target="_blank" rel="noopener noreferrer" className="font-semibold underline">
                   WhatsApp
                 </a>
@@ -197,18 +199,18 @@ export function ShopAssistant() {
                 }}
                 rows={1}
                 maxLength={1000}
-                placeholder="Posez votre question…"
-                aria-label="Votre question"
+                placeholder={tr("Posez votre question…")}
+                aria-label={tr("Votre question")}
                 className="max-h-28 min-h-[44px] flex-1 resize-none rounded-2xl border border-line px-3 py-2.5 text-sm text-navy outline-none focus:border-conseil"
               />
-              <button type="submit" disabled={loading || !input.trim()} aria-label="Envoyer" className="rounded-2xl bg-conseil p-3 text-white hover:bg-conseil-dark disabled:opacity-40">
+              <button type="submit" disabled={loading || !input.trim()} aria-label={tr("Envoyer")} className="rounded-2xl bg-conseil p-3 text-white hover:bg-conseil-dark disabled:opacity-40">
                 <SendHorizontal size={18} />
               </button>
             </div>
             <p className="mt-2 text-center text-[11px] text-navy/55">
-              Assistante IA : vérifiez les informations importantes.{" "}
+              {tr("Assistante IA : vérifiez les informations importantes.")}{" "}
               <a href={whatsappLink(WHATSAPP_CONTACTS[0].number)} target="_blank" rel="noopener noreferrer" className="font-semibold text-[#1f8f4e] underline">
-                Parler à un conseiller
+                {tr("Parler à un conseiller")}
               </a>
             </p>
           </form>

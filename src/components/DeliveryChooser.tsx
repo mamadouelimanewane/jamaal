@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/components/i18n/LocaleProvider";
 import { useEffect, useRef, useState } from "react";
 import { LocateFixed, Map as MapIcon, MapPin, Store } from "lucide-react";
 import { DeliveryMap } from "@/components/maps/DeliveryMap";
@@ -23,6 +24,7 @@ export type DeliveryChoice =
 
 /** Choix de la remise au panier : livraison géolocalisée (frais selon la distance) ou retrait. */
 export function DeliveryChooser({ productsTotal, value, onChange, recipientPhone, onAddressText }: { productsTotal: number; value: DeliveryChoice; onChange: (v: DeliveryChoice) => void; recipientPhone?: string | null; onAddressText?: (text: string) => void }) {
+  const t = useT();
   const [info, setInfo] = useState<CartDeliveryInfo | null>(null);
   const [locating, setLocating] = useState(false);
   const [geoError, setGeoError] = useState<string | null>(null);
@@ -82,27 +84,27 @@ export function DeliveryChooser({ productsTotal, value, onChange, recipientPhone
 
   return (
     <fieldset className="min-w-0 space-y-3">
-      <legend className="text-sm font-semibold text-navy">Livraison</legend>
+      <legend className="text-sm font-semibold text-navy">{t("Livraison")}</legend>
       <div className="flex flex-col gap-2">
         <label className={option(value.mode === "LIVRAISON")}>
           <input type="radio" name="deliveryMode" checked={value.mode === "LIVRAISON"} onChange={() => onChange({ mode: "LIVRAISON", lat, lng, quote: null, approx: false, place: null })} className="mt-1" />
-          <span><span className="flex items-center gap-1.5 font-semibold text-navy"><MapPin size={15} /> Livraison chez moi</span><span className="text-navy/75">Frais selon la distance</span></span>
+          <span><span className="flex items-center gap-1.5 font-semibold text-navy"><MapPin size={15} /> {t("Livraison chez moi")}</span><span className="text-navy/75">{t("Frais selon la distance")}</span></span>
         </label>
         <label className={option(value.mode === "RETRAIT")}>
           <input type="radio" name="deliveryMode" checked={value.mode === "RETRAIT"} onChange={() => onChange({ mode: "RETRAIT" })} className="mt-1" />
-          <span><span className="flex items-center gap-1.5 font-semibold text-navy"><Store size={15} /> Retrait</span><span className="text-navy/75">Chez mon consultant, sans frais</span></span>
+          <span><span className="flex items-center gap-1.5 font-semibold text-navy"><Store size={15} /> {t("Retrait")}</span><span className="text-navy/75">{t("Chez mon consultant, sans frais")}</span></span>
         </label>
       </div>
 
       {value.mode === "LIVRAISON" && (
         <div className="space-y-2">
           <button type="button" onClick={locate} disabled={locating} className="inline-flex items-center gap-2 rounded-full bg-navy px-4 py-2 text-sm font-semibold text-white hover:bg-navy-light disabled:opacity-60">
-            <LocateFixed size={16} /> {locating ? "Localisation…" : "Utiliser ma position"}
+            <LocateFixed size={16} /> {locating ? t("Localisation…") : t("Utiliser ma position")}
           </button>
           {geoError && <p role="alert" className="text-xs text-rose-dark">{geoError}</p>}
-          <p className="text-xs font-semibold text-navy">Ou collez une localisation, ou écrivez une adresse</p>
+          <p className="text-xs font-semibold text-navy">{t("Ou collez une localisation, ou écrivez une adresse")}</p>
           <p className="text-xs text-navy/75">
-            Localisation reçue sur WhatsApp, lien Google Maps, Plus Code, ou simplement l&apos;adresse (« Sacré-Cœur 3, près de la pharmacie »).
+            {t("Localisation reçue sur WhatsApp, lien Google Maps, Plus Code, ou simplement l'adresse (« Sacré-Cœur 3, près de la pharmacie »).")}
           </p>
           <LocationInput
             recipientPhone={recipientPhone}
@@ -110,11 +112,11 @@ export function DeliveryChooser({ productsTotal, value, onChange, recipientPhone
             onLocated={(l) => onChange({ mode: "LIVRAISON", lat: l.lat, lng: l.lng, quote: null, approx: l.approx, place: l.label })}
           />
           <button type="button" onClick={() => setShowMap((v) => !v)} aria-expanded={showMap} className="inline-flex items-center gap-2 rounded-full border border-navy/30 px-4 py-2 text-sm font-semibold text-navy hover:bg-navy/5">
-            <MapIcon size={16} /> {showMap ? "Masquer la carte" : "Choisir sur la carte"}
+            <MapIcon size={16} /> {showMap ? t("Masquer la carte") : t("Choisir sur la carte")}
           </button>
           {showMap && (
             <>
-              <p className="text-xs text-navy/75">Touchez la carte à l&apos;endroit de la livraison ; vous pouvez déplacer le repère.</p>
+              <p className="text-xs text-navy/75">{t("Touchez la carte à l'endroit de la livraison ; vous pouvez déplacer le repère.")}</p>
               {info && (
                 <DeliveryMap
                   height={260}
@@ -127,18 +129,18 @@ export function DeliveryChooser({ productsTotal, value, onChange, recipientPhone
               )}
             </>
           )}
-          {value.approx && lat != null && <ApproxNotice label={value.place || "adresse"} />}
+          {value.approx && lat != null && <ApproxNotice label={value.place || t("adresse")} />}
           {value.quote && (
             value.quote.ok ? (
               <p className="rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-900">
-                {value.quote.distanceKm.toLocaleString("fr-FR")} km du dépôt · frais de livraison{" "}
-                <strong>{value.quote.free ? "offerts" : formatPrice(value.quote.fee)}</strong>
+                {value.quote.distanceKm.toLocaleString("fr-FR")} {t("km du dépôt · frais de livraison")}{" "}
+                <strong>{value.quote.free ? t("offerts") : formatPrice(value.quote.fee)}</strong>
               </p>
             ) : (
-              <p role="alert" className="rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-900">{value.quote.error}</p>
+              <p role="alert" className="rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-900">{t(value.quote.error)}</p>
             )
           )}
-          {info && info.freeAbove > 0 && <p className="text-xs text-navy/75">Livraison offerte dès {formatPrice(info.freeAbove)} d&apos;achats.</p>}
+          {info && info.freeAbove > 0 && <p className="text-xs text-navy/75">{t("Livraison offerte dès")} {formatPrice(info.freeAbove)} {t("d'achats.")}</p>}
         </div>
       )}
     </fieldset>

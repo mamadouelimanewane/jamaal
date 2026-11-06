@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/components/i18n/LocaleProvider";
 import { useEffect, useRef, useState } from "react";
 import { Eraser } from "lucide-react";
 
@@ -8,6 +9,7 @@ import { Eraser } from "lucide-react";
  * suffisant est tracé, null quand le cadre est vide.
  */
 export function SignaturePad({ onChange, label = "Votre signature" }: { onChange: (png: string | null) => void; label?: string }) {
+  const t = useT();
   const canvas = useRef<HTMLCanvasElement>(null);
   const drawing = useRef(false);
   const last = useRef<{ x: number; y: number } | null>(null);
@@ -69,19 +71,19 @@ export function SignaturePad({ onChange, label = "Votre signature" }: { onChange
   return (
     <div>
       <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold uppercase tracking-wide text-navy/60">{label} *</span>
-        <button type="button" onClick={clear} className="inline-flex items-center gap-1 text-xs font-semibold text-navy/70 hover:text-navy"><Eraser size={13} /> Effacer</button>
+        <span className="text-xs font-semibold uppercase tracking-wide text-navy/60">{t(label)} *</span>
+        <button type="button" onClick={clear} className="inline-flex items-center gap-1 text-xs font-semibold text-navy/70 hover:text-navy"><Eraser size={13} /> {t("Effacer")}</button>
       </div>
       <canvas
         ref={canvas}
-        aria-label="Cadre de signature : signez au doigt ou à la souris"
+        aria-label={t("Cadre de signature : signez au doigt ou à la souris")}
         onPointerDown={down}
         onPointerMove={move}
         onPointerUp={up}
         onPointerLeave={up}
         className="mt-1.5 h-40 w-full touch-none rounded-xl border-2 border-dashed border-line bg-white"
       />
-      <p className="mt-1 text-xs text-navy/60">{empty ? "Signez dans le cadre ci-dessus." : "Signature enregistrée. « Effacer » pour recommencer."}</p>
+      <p className="mt-1 text-xs text-navy/60">{empty ? t("Signez dans le cadre ci-dessus.") : t("Signature enregistrée. « Effacer » pour recommencer.")}</p>
     </div>
   );
 }

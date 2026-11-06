@@ -4,6 +4,9 @@ import { INVITE_COOKIE, INVITE_MAX_AGE, inviteCode } from "@/lib/invite-lock";
 import { guardRequest, guardResponse } from "@/lib/bot-guard-store";
 import { clientIpFromHeaders } from "@/lib/rate-limit";
 import { legacyRedirect } from "@/lib/domain-redirect";
+import { LOCALE_COOKIE, LOCALE_HEADER, PATH_HEADER, isLocalizablePath, localizeHref, splitLocale } from "@/lib/i18n/config";
+
+const LOCALE_MAX_AGE = 60 * 60 * 24 * 365;
 
 const REF_COOKIE = "jamaal_ref";
 const REF_MAX_AGE = 60 * 60 * 24 * 30; // 30 jours
@@ -66,7 +69,45 @@ const handler = auth(async (req) => {
     if (verdict.action !== "allow") return guardResponse(verdict);
   }
 
-  const response = NextResponse.next();
+  // ——— Langue du site vitrine : /it/… = italien (réécrit vers la page française, langue passée en en-tête) ———
+  const { locale, path: basePath } = splitLocale(pathname);
+  const localizable = isLocalizablePath(basePath);
+  const cookieLang = req.cookies.get(LOCALE_COOKIE)?.value;
+  const langParam = searchParams.get("lang");
+  if (req.method === "GET" && localizable) {
+    // Retour au français demandé (sélecteur FR) : on mémorise et on nettoie l'adresse.
+    if (langParam === "fr" || langParam === "it") {
+      const url = req.nextUrl.clone();
+      url.searchParams.delete("lang");
+      url.pathname = langParam === "it" ? localizeHref(basePath, "it") : basePath;
+      const res = NextResponse.redirect(url, 307);
+      res.cookies.set(LOCALE_COOKIE, langParam, { path: "/", maxAge: LOCALE_MAX_AGE, sameSite: "lax" });
+      return res;
+    }
+    // Visiteur qui a choisi l'italien : les adresses françaises le mènent à la page italienne.
+    if (locale === "fr" && cookieLang === "it") {
+      const url = req.nextUrl.clone();
+      url.pathname = localizeHref(pathname, "it");
+      return NextResponse.redirect(url, 307);
+    }
+  }
+  if (locale === "it" && !localizable) {
+    const url = req.nextUrl.clone();
+    url.pathname = basePath;
+    return NextResponse.redirect(url, 308);
+  }
+  const reqHeaders = new Headers(req.headers);
+  reqHeaders.set(LOCALE_HEADER, locale);
+  reqHeaders.set(PATH_HEADER, basePath);
+  let response: NextResponse;
+  if (locale === "it") {
+    const url = req.nextUrl.clone();
+    url.pathname = basePath;
+    response = NextResponse.rewrite(url, { request: { headers: reqHeaders } });
+    if (cookieLang !== "it") response.cookies.set(LOCALE_COOKIE, "it", { path: "/", maxAge: LOCALE_MAX_AGE, sameSite: "lax" });
+  } else {
+    response = NextResponse.next({ request: { headers: reqHeaders } });
+  }
   // Signale aux robots d'IA que le contenu ne doit pas servir à l'entraînement ni être recopié.
   if (!pathname.startsWith("/api/")) response.headers.set("X-Robots-Tag", pathname.startsWith("/admin") ? "noindex, nofollow, noai, noimageai" : "noai, noimageai");
 
@@ -85,7 +126,7 @@ const handler = auth(async (req) => {
   }
 
   // ——— Lien d'invitation d'un revendeur : code de parrainage fixé (cookie httpOnly, imposé à la candidature) ———
-  const invite = pathname === "/devenir-consultant" ? inviteCode(searchParams.get("ref")) : "";
+  const invite = basePath === "/devenir-consultant" ? inviteCode(searchParams.get("ref")) : "";
   if (invite) {
     response.cookies.set(INVITE_COOKIE, invite, { path: "/", maxAge: INVITE_MAX_AGE, sameSite: "lax", httpOnly: true, secure: req.nextUrl.protocol === "https:" });
   }

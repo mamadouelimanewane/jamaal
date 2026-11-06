@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/components/i18n/LocaleProvider";
 import { useEffect, useRef, useState } from "react";
 import { Loader2, Mic, Square, Trash2 } from "lucide-react";
 import { uploadGiftVoice } from "@/lib/actions/gifts";
@@ -8,6 +9,7 @@ const MAX_SEC = 60;
 
 /** Message vocal pour un cadeau : enregistrer (1 minute au plus), réécouter, supprimer. Renvoie l'adresse du fichier. */
 export function VoiceRecorder({ value, onChange }: { value: string | null; onChange: (url: string | null) => void }) {
+  const tr = useT();
   const [state, setState] = useState<"idle" | "rec" | "upload">("idle");
   const [sec, setSec] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -60,18 +62,18 @@ export function VoiceRecorder({ value, onChange }: { value: string | null; onCha
       {value ? (
         <div className="flex items-center gap-2">
           <audio src={value} controls className="h-10 min-w-0 flex-1" />
-          <button type="button" onClick={() => onChange(null)} aria-label="Supprimer le message vocal" className="rounded-full p-2 text-navy/60 hover:bg-cream hover:text-rose-dark"><Trash2 size={18} /></button>
+          <button type="button" onClick={() => onChange(null)} aria-label={tr("Supprimer le message vocal")} className="rounded-full p-2 text-navy/60 hover:bg-cream hover:text-rose-dark"><Trash2 size={18} /></button>
         </div>
       ) : state === "rec" ? (
         <button type="button" onClick={() => rec.current?.stop()} className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-rose-dark px-4 py-3 text-sm font-semibold text-white">
-          <Square size={14} /> Arrêter ({MAX_SEC - sec} s)
+          <Square size={14} /> {tr("Arrêter (")}{MAX_SEC - sec} s)
         </button>
       ) : (
         <button type="button" onClick={start} disabled={state === "upload"} className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-line px-4 py-3 text-sm font-semibold text-navy hover:bg-cream disabled:opacity-60">
-          {state === "upload" ? <Loader2 size={16} className="animate-spin" /> : <Mic size={16} />} {state === "upload" ? "Enregistrement…" : "Ajouter un message vocal (facultatif)"}
+          {state === "upload" ? <Loader2 size={16} className="animate-spin" /> : <Mic size={16} />} {state === "upload" ? tr("Enregistrement…") : tr("Ajouter un message vocal (facultatif)")}
         </button>
       )}
-      {error && <p role="alert" className="mt-2 text-xs text-rose-dark">{error}</p>}
+      {error && <p role="alert" className="mt-2 text-xs text-rose-dark">{tr(error)}</p>}
     </div>
   );
 }

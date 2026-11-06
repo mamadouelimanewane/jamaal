@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/components/i18n/LocaleProvider";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
@@ -10,6 +11,7 @@ const btn = "inline-flex items-center justify-center gap-2 rounded-full border b
 
 /** Actions du client sur son abonnement : fréquence, recevoir maintenant, sauter, pause, arrêt. */
 export function SubscriptionManager({ token, status, intervalDays }: { token: string; status: string; intervalDays: number }) {
+  const t = useT();
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [pending, start] = useTransition();
   const [busy, setBusy] = useState<string | null>(null);
@@ -24,11 +26,11 @@ export function SubscriptionManager({ token, status, intervalDays }: { token: st
     });
   };
   const spin = (a: string) => pending && busy === a && <Loader2 size={14} className="animate-spin" />;
-  if (status === "ANNULE") return <p className="text-sm text-navy/70">Cet abonnement est arrêté. Vous pouvez en créer un nouveau depuis votre prochaine commande.</p>;
+  if (status === "ANNULE") return <p className="text-sm text-navy/70">{t("Cet abonnement est arrêté. Vous pouvez en créer un nouveau depuis votre prochaine commande.")}</p>;
   return (
     <div className="space-y-5">
       <div>
-        <p className="text-sm font-semibold text-navy">Fréquence</p>
+        <p className="text-sm font-semibold text-navy">{t("Fréquence")}</p>
         <div className="mt-2 flex flex-wrap gap-2">
           {INTERVALS.map((d) => (
             <button key={d} type="button" disabled={pending} aria-pressed={intervalDays === d} onClick={() => run("interval", d)} className={`rounded-full border px-4 py-2 text-sm ${intervalDays === d ? "border-navy bg-navy text-white" : "border-line bg-white text-navy"}`}>{intervalLabel(d)}</button>
@@ -36,12 +38,12 @@ export function SubscriptionManager({ token, status, intervalDays }: { token: st
         </div>
       </div>
       <div className="flex flex-wrap gap-2">
-        {status === "ACTIVE" && <button type="button" disabled={pending} onClick={() => run("now")} className="inline-flex items-center gap-2 rounded-full bg-navy px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-light disabled:opacity-50">{spin("now")} Recevoir maintenant</button>}
-        {status === "ACTIVE" && <button type="button" disabled={pending} onClick={() => run("skip")} className={btn}>{spin("skip")} Sauter la prochaine</button>}
-        {status === "ACTIVE" ? <button type="button" disabled={pending} onClick={() => run("pause")} className={btn}>{spin("pause")} Mettre en pause</button> : <button type="button" disabled={pending} onClick={() => run("resume")} className={btn}>{spin("resume")} Reprendre</button>}
-        <button type="button" disabled={pending} onClick={() => { if (window.confirm("Arrêter définitivement ce réassort ?")) run("cancel"); }} className="rounded-full px-5 py-2.5 text-sm font-semibold text-rose-dark hover:bg-rose/10 disabled:opacity-50">Arrêter</button>
+        {status === "ACTIVE" && <button type="button" disabled={pending} onClick={() => run("now")} className="inline-flex items-center gap-2 rounded-full bg-navy px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-light disabled:opacity-50">{spin("now")} {t("Recevoir maintenant")}</button>}
+        {status === "ACTIVE" && <button type="button" disabled={pending} onClick={() => run("skip")} className={btn}>{spin("skip")} {t("Sauter la prochaine")}</button>}
+        {status === "ACTIVE" ? <button type="button" disabled={pending} onClick={() => run("pause")} className={btn}>{spin("pause")} {t("Mettre en pause")}</button> : <button type="button" disabled={pending} onClick={() => run("resume")} className={btn}>{spin("resume")} {t("Reprendre")}</button>}
+        <button type="button" disabled={pending} onClick={() => { if (window.confirm("Arrêter définitivement ce réassort ?")) run("cancel"); }} className="rounded-full px-5 py-2.5 text-sm font-semibold text-rose-dark hover:bg-rose/10 disabled:opacity-50">{t("Arrêter")}</button>
       </div>
-      {msg && <p role={msg.ok ? "status" : "alert"} className={`text-sm ${msg.ok ? "text-emerald-800" : "text-rose-dark"}`}>{msg.text}</p>}
+      {msg && <p role={msg.ok ? "status" : "alert"} className={`text-sm ${msg.ok ? "text-emerald-800" : "text-rose-dark"}`}>{t(msg.text)}</p>}
     </div>
   );
 }

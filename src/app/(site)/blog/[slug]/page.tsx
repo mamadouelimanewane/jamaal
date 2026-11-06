@@ -1,6 +1,7 @@
+import { getT, pageAlternates } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import { cache } from "react";
-import Link from "next/link";
+import Link from "@/components/i18n/Link";
 import { notFound } from "next/navigation";
 import { getBlogPostBySlug } from "@/lib/db-content";
 
@@ -11,11 +12,11 @@ const loadPost = cache(getBlogPostBySlug);
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const post = await loadPost(slug);
-  if (!post || !post.published) return { title: "Article introuvable", robots: { index: false } };
+  if (!post || !post.published) return { title: (await getT())("Article introuvable"), robots: { index: false } };
   return {
     title: post.title,
     description: post.excerpt,
-    alternates: { canonical: `/blog/${post.slug}` },
+    alternates: await pageAlternates(`/blog/${post.slug}`),
     openGraph: {
       type: "article",
       url: `/blog/${post.slug}`,
@@ -31,6 +32,7 @@ export default async function BlogPostPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
+  const t = await getT();
   const { slug } = await params;
   const post = await loadPost(slug);
   // Un article dépublié ne doit plus être accessible par son adresse.
@@ -39,9 +41,9 @@ export default async function BlogPostPage({
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
       <p className="mb-2 text-xs text-navy/50">
-        <Link href="/blog">Blog</Link> / {post.title}
+        <Link href="/blog">{t("Blog")}</Link> / {t(post.title)}
       </p>
-      <h1 className="font-serif-display text-3xl font-semibold text-navy">{post.title}</h1>
+      <h1 className="font-serif-display text-3xl font-semibold text-navy">{t(post.title)}</h1>
       <p className="mt-2 text-xs text-rose-dark">
         {new Date(post.date).toLocaleDateString("fr-FR", {
           day: "numeric",
@@ -52,7 +54,7 @@ export default async function BlogPostPage({
       <div className="mt-6 flex flex-col gap-4">
         {post.content.map((p, i) => (
           <p key={i} className="text-sm leading-relaxed text-navy/80">
-            {p}
+            {t(p)}
           </p>
         ))}
       </div>

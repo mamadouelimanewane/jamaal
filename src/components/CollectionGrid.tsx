@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/components/i18n/LocaleProvider";
 import { useMemo, useState } from "react";
 import { Product } from "@/data/types";
 import { ProductCard } from "./ProductCard";
@@ -11,6 +12,7 @@ function priceOf(p: Product) {
 }
 
 export function CollectionGrid({ products }: { products: Product[] }) {
+  const t = useT();
   const [sort, setSort] = useState<SortKey>("pertinence");
 
   const sorted = useMemo(() => {
@@ -32,17 +34,17 @@ export function CollectionGrid({ products }: { products: Product[] }) {
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <p className="text-sm text-navy/60">{products.length} produits</p>
+        <p className="text-sm text-navy/60">{products.length} {t("produits")}</p>
         <select
           value={sort}
           onChange={(e) => setSort(e.target.value as SortKey)}
           className="rounded-full border border-line bg-white px-3 py-2 text-sm text-navy outline-none"
         >
-          <option value="pertinence">En vedette</option>
-          <option value="prix-asc">Prix : faible à élevé</option>
-          <option value="prix-desc">Prix : élevé à faible</option>
-          <option value="az">Alphabétique, A à Z</option>
-          <option value="za">Alphabétique, Z à A</option>
+          <option value="pertinence">{t("En vedette")}</option>
+          <option value="prix-asc">{t("Prix : faible à élevé")}</option>
+          <option value="prix-desc">{t("Prix : élevé à faible")}</option>
+          <option value="az">{t("Alphabétique, A à Z")}</option>
+          <option value="za">{t("Alphabétique, Z à A")}</option>
         </select>
       </div>
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">

@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { getT } from "@/lib/i18n/server";
+import Link from "@/components/i18n/Link";
 import { passwordLogin, whatsappLoginLink } from "@/lib/actions/staff-login";
 import { WHATSAPP_CONTACTS } from "@/lib/contact";
 
@@ -21,7 +22,8 @@ export interface LoginNotice {
  * /espace-revendeur : numéro WhatsApp ou e-mail + mot de passe, OU lien de connexion reçu sur
  * WhatsApp (sans mot de passe). Messages explicites à chaque échec.
  */
-export function StaffLoginForm({ from, next, notice }: { from: "/admin/login" | "/espace-revendeur" | "/admin/livreur"; next?: string; notice: LoginNotice }) {
+export async function StaffLoginForm({ from, next, notice }: { from: "/admin/login" | "/espace-revendeur" | "/admin/livreur"; next?: string; notice: LoginNotice }) {
+  const t = await getT();
   const id = (notice.id ?? "").slice(0, 80);
   const help = `https://wa.me/${WHATSAPP_CONTACTS[0].number}?text=${encodeURIComponent(`Bonjour JAMAAL, je n'arrive pas à me connecter à mon espace revendeur.${id ? ` Mon numéro / identifiant : ${id}` : ""}`)}`;
   const msg =
@@ -57,9 +59,9 @@ export function StaffLoginForm({ from, next, notice }: { from: "/admin/login" | 
     <div>
       {msg && (
         <p role={msg.tone === "err" ? "alert" : "status"} className={`mt-5 rounded-xl border px-4 py-3 text-sm ${msg.tone === "err" ? "border-rose-dark/20 bg-rose/10 text-rose-dark" : "border-emerald-700/20 bg-emerald-50 text-emerald-800"}`}>
-          {msg.text}
+          {t(msg.text)}
           {(notice.lien === "indispo" || notice.erreur === "bloque" || notice.lien === "attente") && (
-            <a href={help} target="_blank" rel="noopener noreferrer" className="mt-2 block font-semibold underline">Écrire à l&apos;équipe JAMAAL sur WhatsApp</a>
+            <a href={help} target="_blank" rel="noopener noreferrer" className="mt-2 block font-semibold underline">{t("Écrire à l'équipe JAMAAL sur WhatsApp")}</a>
           )}
         </p>
       )}
@@ -68,42 +70,42 @@ export function StaffLoginForm({ from, next, notice }: { from: "/admin/login" | 
         <form action={passwordLogin} className="mt-5 flex flex-col gap-4">
           <input type="hidden" name="from" value={from} />
           <input type="hidden" name="next" value={next ?? "/admin"} />
-          <label htmlFor="login" className="text-base font-bold text-navy">📱 Mon numéro WhatsApp
+          <label htmlFor="login" className="text-base font-bold text-navy">{t("📱 Mon numéro WhatsApp")}
             <input id="login" type="tel" inputMode="tel" name="login" defaultValue={id} placeholder="77 123 45 67" autoComplete="username" required className="mt-1 w-full rounded-2xl border-2 border-line bg-white px-4 py-4 text-center text-3xl font-semibold tracking-wider text-navy outline-none focus:border-navy" />
           </label>
-          <label htmlFor="password" className="text-base font-bold text-navy">🔒 Mon code secret
+          <label htmlFor="password" className="text-base font-bold text-navy">{t("🔒 Mon code secret")}
             <input id="password" type="password" name="password" autoComplete="current-password" placeholder="● ● ● ● ● ●" required className="mt-1 w-full rounded-2xl border-2 border-line bg-white px-4 py-4 text-center text-3xl font-semibold tracking-[0.4em] text-navy outline-none focus:border-navy" />
           </label>
-          <button type="submit" className="min-h-16 rounded-2xl bg-[#15803D] text-xl font-extrabold text-white shadow-lg">Entrer 🛵</button>
+          <button type="submit" className="min-h-16 rounded-2xl bg-[#15803D] text-xl font-extrabold text-white shadow-lg">{t("Entrer 🛵")}</button>
         </form>
       ) : (
       <form action={passwordLogin} className="mt-7 flex flex-col gap-5">
           <input type="hidden" name="from" value={from} />
           <input type="hidden" name="next" value={next ?? "/admin"} />
           <div>
-            <label htmlFor="login" className="text-xs font-semibold text-navy/85">Numéro WhatsApp ou e-mail</label>
+            <label htmlFor="login" className="text-xs font-semibold text-navy/85">{t("Numéro WhatsApp ou e-mail")}</label>
             <input id="login" type="text" name="login" defaultValue={id} placeholder="77 123 45 67" autoComplete="username" autoCapitalize="none" autoCorrect="off" spellCheck={false} required className={field} />
           </div>
           <div>
-            <label htmlFor="password" className="text-xs font-semibold text-navy/85">Mot de passe</label>
+            <label htmlFor="password" className="text-xs font-semibold text-navy/85">{t("Mot de passe")}</label>
             <input id="password" type="password" name="password" autoComplete="current-password" required className={field} />
           </div>
-          <button type="submit" className="rounded-full bg-navy px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-navy-light">Se connecter</button>
+          <button type="submit" className="rounded-full bg-navy px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-navy-light">{t("Se connecter")}</button>
         </form>
       )}
 
-      <div className="my-7 flex items-center gap-3 text-[11px] uppercase tracking-[0.2em] text-navy/40"><span className="h-px flex-1 bg-line" />ou, sans mot de passe<span className="h-px flex-1 bg-line" /></div>
+      <div className="my-7 flex items-center gap-3 text-[11px] uppercase tracking-[0.2em] text-navy/40"><span className="h-px flex-1 bg-line" />{t("ou, sans mot de passe")}<span className="h-px flex-1 bg-line" /></div>
 
       <form action={whatsappLoginLink} className="flex flex-col gap-3">
         <input type="hidden" name="from" value={from} />
-        <label htmlFor="phone" className="text-xs font-semibold text-navy/85">Recevoir un lien de connexion sur mon WhatsApp</label>
+        <label htmlFor="phone" className="text-xs font-semibold text-navy/85">{t("Recevoir un lien de connexion sur mon WhatsApp")}</label>
         <input id="phone" type="tel" name="phone" inputMode="tel" defaultValue={/\d{6,}/.test(id.replace(/\D/g, "")) && !id.includes("@") ? id : ""} placeholder="77 123 45 67" autoComplete="tel" required className={field} />
-        <button type="submit" className="rounded-full bg-[#25D366] px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-[#1ebe5b]">Recevoir le lien sur WhatsApp</button>
+        <button type="submit" className="rounded-full bg-[#25D366] px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-[#1ebe5b]">{t("Recevoir le lien sur WhatsApp")}</button>
       </form>
 
       <div className="mt-6 flex flex-col items-center gap-2 text-xs">
-        <Link href="/admin/forgot-password" className="font-semibold text-rose-dark hover:underline">Mot de passe oublié ?</Link>
-        <a href={help} target="_blank" rel="noopener noreferrer" className="text-navy/60 hover:underline">Toujours bloqué ? Écrire à l&apos;équipe JAMAAL</a>
+        <Link href="/admin/forgot-password" className="font-semibold text-rose-dark hover:underline">{t("Mot de passe oublié ?")}</Link>
+        <a href={help} target="_blank" rel="noopener noreferrer" className="text-navy/60 hover:underline">{t("Toujours bloqué ? Écrire à l'équipe JAMAAL")}</a>
       </div>
     </div>
   );

@@ -1,7 +1,8 @@
 "use client";
 
+import { useT } from "@/components/i18n/LocaleProvider";
 import { useRef, useState, useTransition } from "react";
-import Link from "next/link";
+import Link from "@/components/i18n/Link";
 import { Dna, Loader2, MessageCircle, Plus, RotateCcw, Sparkles, X } from "lucide-react";
 import { discoverScentAdn, type AdnResult } from "@/lib/actions/scent-adn";
 import { FAMILY_LABELS, type Family } from "@/lib/scent/adn";
@@ -14,6 +15,7 @@ type Props = { suggestions: string[]; refSlug: string | null; advisor: { name: s
 
 /** Parcours « Parfum ADN » : parfums portés + 4 questions → 3 parfums Chogan avec % de correspondance. */
 export function ScentAdn({ suggestions, refSlug, advisor }: Props) {
+  const tr = useT();
   const [worn, setWorn] = useState<string[]>([]);
   const [draft, setDraft] = useState("");
   const [gender, setGender] = useState("");
@@ -51,15 +53,15 @@ export function ScentAdn({ suggestions, refSlug, advisor }: Props) {
     return (
       <div ref={top} className="scroll-mt-24 space-y-6">
         <section className="rounded-3xl bg-navy p-6 text-white sm:p-8">
-          <p className="flex items-center gap-2 text-xs uppercase tracking-widest text-white/70"><Dna size={16} /> Votre Parfum ADN</p>
-          <p className="mt-2 font-serif-display text-2xl leading-snug sm:text-3xl">{result.summary ? result.summary.charAt(0).toUpperCase() + result.summary.slice(1) : "Profil établi"}</p>
+          <p className="flex items-center gap-2 text-xs uppercase tracking-widest text-white/70"><Dna size={16} /> {tr("Votre Parfum ADN")}</p>
+          <p className="mt-2 font-serif-display text-2xl leading-snug sm:text-3xl">{result.summary ? result.summary.charAt(0).toUpperCase() + result.summary.slice(1) : tr("Profil établi")}</p>
           {result.profile.worn.length > result.profile.recognised.length && (
-            <p className="mt-3 text-sm text-white/75">Nous n&apos;avons pas reconnu {result.profile.worn.filter((w) => !result.profile.recognised.includes(w)).join(", ")} : vos autres réponses ont guidé le choix.</p>
+            <p className="mt-3 text-sm text-white/75">{tr("Nous n'avons pas reconnu")} {result.profile.worn.filter((w) => !result.profile.recognised.includes(w)).join(", ")} {tr(": vos autres réponses ont guidé le choix.")}</p>
           )}
-          {result.saved && <p className="mt-3 text-sm text-white/80">Profil enregistré : votre conseiller·e s&apos;en servira pour vos prochains conseils.</p>}
+          {result.saved && <p className="mt-3 text-sm text-white/80">{tr("Profil enregistré : votre conseiller·e s'en servira pour vos prochains conseils.")}</p>}
         </section>
         {result.matches.length === 0 ? (
-          <p className="rounded-2xl bg-cream px-4 py-3 text-sm text-navy">Aucun parfum ne correspond encore dans le catalogue. Écrivez-nous sur WhatsApp : nous vous conseillons.</p>
+          <p className="rounded-2xl bg-cream px-4 py-3 text-sm text-navy">{tr("Aucun parfum ne correspond encore dans le catalogue. Écrivez-nous sur WhatsApp : nous vous conseillons.")}</p>
         ) : (
           <ol className="grid gap-4 sm:grid-cols-3">
             {result.matches.map((m, i) => (
@@ -74,20 +76,20 @@ export function ScentAdn({ suggestions, refSlug, advisor }: Props) {
                   <span className={`absolute left-2 top-2 rounded-full px-3 py-1 text-sm font-bold ${i === 0 ? "bg-rose-dark text-white" : "bg-white text-navy shadow"}`}>{m.percent} %</span>
                 </div>
                 <Link href={`/produits/${m.slug}${ref}`} className="mt-3 font-serif-display text-lg font-semibold text-navy hover:underline">{m.name}</Link>
-                {m.inspiredBy && <p className="text-xs text-navy/60">Inspiré de {m.inspiredBy}</p>}
+                {m.inspiredBy && <p className="text-xs text-navy/60">{tr("Inspiré de")} {m.inspiredBy}</p>}
                 <p className="mt-2 flex-1 text-sm text-navy/75">{m.reason.charAt(0).toUpperCase() + m.reason.slice(1)}.</p>
-                {m.price ? <p className="mt-2 font-semibold text-navy">à partir de {formatPrice(m.price)}</p> : null}
-                <Link href={`/produits/${m.slug}${ref}`} className="mt-3 rounded-full bg-navy px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-navy-light">Voir et commander</Link>
+                {m.price ? <p className="mt-2 font-semibold text-navy">{tr("à partir de")} {formatPrice(m.price)}</p> : null}
+                <Link href={`/produits/${m.slug}${ref}`} className="mt-3 rounded-full bg-navy px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-navy-light">{tr("Voir et commander")}</Link>
               </li>
             ))}
           </ol>
         )}
         <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
           <a href={`https://wa.me/${advisor.whatsapp}?text=${encodeURIComponent(msg)}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-6 py-3.5 font-semibold text-white hover:bg-[#1ebe5b]">
-            <MessageCircle size={18} /> En parler à {advisor.name} sur WhatsApp
+            <MessageCircle size={18} /> {tr("En parler à")} {advisor.name} {tr("sur WhatsApp")}
           </a>
-          <Link href="/coffrets-decouverte" className="inline-flex items-center justify-center rounded-full border border-line px-6 py-3.5 font-semibold text-navy hover:bg-cream">Essayer avec un coffret découverte</Link>
-          <button type="button" onClick={() => setResult(null)} className="inline-flex items-center justify-center gap-2 rounded-full px-6 py-3.5 text-sm font-semibold text-navy/70 hover:text-navy"><RotateCcw size={16} /> Recommencer</button>
+          <Link href="/coffrets-decouverte" className="inline-flex items-center justify-center rounded-full border border-line px-6 py-3.5 font-semibold text-navy hover:bg-cream">{tr("Essayer avec un coffret découverte")}</Link>
+          <button type="button" onClick={() => setResult(null)} className="inline-flex items-center justify-center gap-2 rounded-full px-6 py-3.5 text-sm font-semibold text-navy/70 hover:text-navy"><RotateCcw size={16} /> {tr("Recommencer")}</button>
         </div>
       </div>
     );
@@ -95,23 +97,23 @@ export function ScentAdn({ suggestions, refSlug, advisor }: Props) {
 
   return (
     <div ref={top} className="scroll-mt-24 space-y-6">
-      {result && !result.ok && <p role="alert" className="rounded-2xl border border-rose-dark/20 bg-rose/10 px-4 py-3 text-sm text-rose-dark">{result.error}</p>}
+      {result && !result.ok && <p role="alert" className="rounded-2xl border border-rose-dark/20 bg-rose/10 px-4 py-3 text-sm text-rose-dark">{tr(result.error)}</p>}
 
       <section className="rounded-3xl border border-line bg-white p-5 sm:p-7">
-        <h2 className="font-serif-display text-xl text-navy">1. Les parfums que vous portez ou adorez</h2>
-        <p className="mt-1 text-sm text-navy/70">Par exemple Sauvage, J&apos;adore, La Vie est Belle, Baccarat Rouge… (jusqu&apos;à 5).</p>
+        <h2 className="font-serif-display text-xl text-navy">{tr("1. Les parfums que vous portez ou adorez")}</h2>
+        <p className="mt-1 text-sm text-navy/70">{tr("Par exemple Sauvage, J'adore, La Vie est Belle, Baccarat Rouge… (jusqu'à 5).")}</p>
         <div className="mt-3 flex flex-wrap gap-2">
           {worn.map((w) => (
             <span key={w} className="inline-flex items-center gap-1 rounded-full bg-navy px-3 py-1.5 text-sm text-white">
               {w}
-              <button type="button" aria-label={`Retirer ${w}`} onClick={() => setWorn(worn.filter((x) => x !== w))}><X size={14} /></button>
+              <button type="button" aria-label={tr("Retirer {w}", { w })} onClick={() => setWorn(worn.filter((x) => x !== w))}><X size={14} /></button>
             </span>
           ))}
         </div>
         <div className="relative mt-3 flex gap-2">
-          <label htmlFor="adn-worn" className="sr-only">Nom d&apos;un parfum</label>
-          <input id="adn-worn" value={draft} onChange={(e) => setDraft(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); add(draft); } }} placeholder="Nom du parfum" maxLength={60} autoComplete="off" className="w-full rounded-full border border-line px-4 py-3 text-sm" disabled={worn.length >= 5} />
-          <button type="button" onClick={() => add(draft)} disabled={draft.trim().length < 2 || worn.length >= 5} className="inline-flex shrink-0 items-center gap-1 rounded-full border border-line px-4 text-sm font-semibold text-navy hover:bg-cream disabled:opacity-50"><Plus size={16} /> Ajouter</button>
+          <label htmlFor="adn-worn" className="sr-only">{tr("Nom d'un parfum")}</label>
+          <input id="adn-worn" value={draft} onChange={(e) => setDraft(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); add(draft); } }} placeholder={tr("Nom du parfum")} maxLength={60} autoComplete="off" className="w-full rounded-full border border-line px-4 py-3 text-sm" disabled={worn.length >= 5} />
+          <button type="button" onClick={() => add(draft)} disabled={draft.trim().length < 2 || worn.length >= 5} className="inline-flex shrink-0 items-center gap-1 rounded-full border border-line px-4 text-sm font-semibold text-navy hover:bg-cream disabled:opacity-50"><Plus size={16} /> {tr("Ajouter")}</button>
           {hints.length > 0 && (
             <ul className="absolute left-0 right-24 top-full z-10 mt-1 overflow-hidden rounded-2xl border border-line bg-white shadow-lg">
               {hints.map((h) => <li key={h}><button type="button" onClick={() => add(h)} className="block w-full px-4 py-2 text-left text-sm text-navy hover:bg-cream">{h}</button></li>)}
@@ -121,45 +123,45 @@ export function ScentAdn({ suggestions, refSlug, advisor }: Props) {
       </section>
 
       <section className="rounded-3xl border border-line bg-white p-5 sm:p-7">
-        <h2 className="font-serif-display text-xl text-navy">2. Vos envies</h2>
-        <p className="mt-3 text-sm font-semibold text-navy">Pour qui ?</p>
+        <h2 className="font-serif-display text-xl text-navy">{tr("2. Vos envies")}</h2>
+        <p className="mt-3 text-sm font-semibold text-navy">{tr("Pour qui ?")}</p>
         <div className="mt-2 flex flex-wrap gap-2">
-          {[["femme", "Femme"], ["homme", "Homme"], ["unisexe", "Peu importe"]].map(([v, l]) => <button key={v} type="button" aria-pressed={gender === v} onClick={() => setGender(gender === v ? "" : v)} className={chip(gender === v)}>{l}</button>)}
+          {[["femme", "Femme"], ["homme", "Homme"], ["unisexe", "Peu importe"]].map(([v, l]) => <button key={v} type="button" aria-pressed={gender === v} onClick={() => setGender(gender === v ? "" : v)} className={chip(gender === v)}>{tr(l)}</button>)}
         </div>
-        <p className="mt-5 text-sm font-semibold text-navy">Les odeurs qui vous attirent <span className="font-normal text-navy/60">(jusqu&apos;à 3)</span></p>
+        <p className="mt-5 text-sm font-semibold text-navy">{tr("Les odeurs qui vous attirent")} <span className="font-normal text-navy/60">{tr("(jusqu'à 3)")}</span></p>
         <div className="mt-2 flex flex-wrap gap-2">
-          {FAMILIES.map(([f, l]) => <button key={f} type="button" aria-pressed={families.includes(f)} onClick={() => toggleFam(f)} className={chip(families.includes(f))}>{l}</button>)}
+          {FAMILIES.map(([f, l]) => <button key={f} type="button" aria-pressed={families.includes(f)} onClick={() => toggleFam(f)} className={chip(families.includes(f))}>{tr(l)}</button>)}
         </div>
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
           <div>
-            <p className="text-sm font-semibold text-navy">Sillage</p>
+            <p className="text-sm font-semibold text-navy">{tr("Sillage")}</p>
             <div className="mt-2 flex flex-wrap gap-2">
-              {[["discret", "Discret"], ["modere", "Présent"], ["intense", "Intense, qui se remarque"]].map(([v, l]) => <button key={v} type="button" aria-pressed={intensity === v} onClick={() => setIntensity(intensity === v ? "" : v)} className={chip(intensity === v)}>{l}</button>)}
+              {[["discret", "Discret"], ["modere", "Présent"], ["intense", "Intense, qui se remarque"]].map(([v, l]) => <button key={v} type="button" aria-pressed={intensity === v} onClick={() => setIntensity(intensity === v ? "" : v)} className={chip(intensity === v)}>{tr(l)}</button>)}
             </div>
           </div>
           <div>
-            <p className="text-sm font-semibold text-navy">Plutôt pour</p>
+            <p className="text-sm font-semibold text-navy">{tr("Plutôt pour")}</p>
             <div className="mt-2 flex flex-wrap gap-2">
-              {[["jour", "La journée, le bureau"], ["soir", "Le soir, les cérémonies"], ["tous", "Tous les jours"]].map(([v, l]) => <button key={v} type="button" aria-pressed={moment === v} onClick={() => setMoment(moment === v ? "" : v)} className={chip(moment === v)}>{l}</button>)}
+              {[["jour", "La journée, le bureau"], ["soir", "Le soir, les cérémonies"], ["tous", "Tous les jours"]].map(([v, l]) => <button key={v} type="button" aria-pressed={moment === v} onClick={() => setMoment(moment === v ? "" : v)} className={chip(moment === v)}>{tr(l)}</button>)}
             </div>
           </div>
         </div>
       </section>
 
       <section className="rounded-3xl border border-line bg-cream/60 p-5 sm:p-7">
-        <h2 className="font-serif-display text-lg text-navy">3. Garder mon profil <span className="text-sm font-sans text-navy/60">(facultatif)</span></h2>
-        <p className="mt-1 text-sm text-navy/70">Votre conseiller·e retrouvera vos goûts pour vos prochains achats et vos cadeaux.</p>
+        <h2 className="font-serif-display text-lg text-navy">{tr("3. Garder mon profil")} <span className="text-sm font-sans text-navy/60">{tr("(facultatif)")}</span></h2>
+        <p className="mt-1 text-sm text-navy/70">{tr("Votre conseiller·e retrouvera vos goûts pour vos prochains achats et vos cadeaux.")}</p>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
-          <label className="text-sm text-navy">Prénom<input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} autoComplete="given-name" className="mt-1 w-full rounded-full border border-line bg-white px-4 py-2.5" /></label>
-          <label className="text-sm text-navy">Numéro WhatsApp<input value={phone} onChange={(e) => setPhone(e.target.value)} inputMode="tel" maxLength={20} autoComplete="tel" placeholder="77 123 45 67" className="mt-1 w-full rounded-full border border-line bg-white px-4 py-2.5" /></label>
+          <label className="text-sm text-navy">{tr("Prénom")}<input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} autoComplete="given-name" className="mt-1 w-full rounded-full border border-line bg-white px-4 py-2.5" /></label>
+          <label className="text-sm text-navy">{tr("Numéro WhatsApp")}<input value={phone} onChange={(e) => setPhone(e.target.value)} inputMode="tel" maxLength={20} autoComplete="tel" placeholder="77 123 45 67" className="mt-1 w-full rounded-full border border-line bg-white px-4 py-2.5" /></label>
         </div>
       </section>
 
       <div className="flex flex-col items-center gap-2">
         <button type="button" onClick={submit} disabled={!canSubmit || pending} className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-rose-dark px-8 py-4 text-base font-semibold text-white shadow-lg transition hover:opacity-90 disabled:opacity-50 sm:w-auto">
-          {pending ? <Loader2 size={18} className="animate-spin" /> : <Dna size={18} />} {pending ? "Analyse de vos goûts…" : "Découvrir mon Parfum ADN"}
+          {pending ? <Loader2 size={18} className="animate-spin" /> : <Dna size={18} />} {pending ? tr("Analyse de vos goûts…") : tr("Découvrir mon Parfum ADN")}
         </button>
-        {!canSubmit && <p className="text-xs text-navy/60">Citez un parfum ou choisissez au moins une famille d&apos;odeurs.</p>}
+        {!canSubmit && <p className="text-xs text-navy/60">{tr("Citez un parfum ou choisissez au moins une famille d'odeurs.")}</p>}
       </div>
     </div>
   );
