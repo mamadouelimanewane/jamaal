@@ -1,7 +1,7 @@
 import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import { auth } from "@/lib/auth";
 import { requireAdminForApi } from "@/lib/api-guard";
-import { IMAGE_TYPES, MAX_VIDEO_BYTES, VIDEO_TYPES, isMediaScope, pathFitsScope, type MediaScope } from "@/lib/media";
+import { IMAGE_TYPES, MAX_VIDEO_BYTES, PDF_TYPE, VIDEO_TYPES, isMediaScope, pathFitsScope, type MediaScope } from "@/lib/media";
 
 export const dynamic = "force-dynamic";
 
@@ -35,7 +35,7 @@ export async function POST(req: Request) {
         if (denied) throw new Error(denied);
         if (!pathFitsScope(pathname, scope)) throw new Error("Nom de fichier refusé.");
         return {
-          allowedContentTypes: [...IMAGE_TYPES, ...VIDEO_TYPES],
+          allowedContentTypes: scope === "tarifs" ? [PDF_TYPE] : [...IMAGE_TYPES, ...VIDEO_TYPES],
           maximumSizeInBytes: MAX_VIDEO_BYTES,
           addRandomSuffix: true,
         };

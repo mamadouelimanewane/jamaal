@@ -4,6 +4,9 @@
  */
 export const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/avif"] as const;
 export const VIDEO_TYPES = ["video/mp4", "video/quicktime", "video/webm"] as const;
+/** Documents : seulement pour la liste de prix des revendeurs. */
+export const PDF_TYPE = "application/pdf";
+export const isPdfFile = (f: { type: string; name: string }) => f.type === PDF_TYPE || /\.pdf$/i.test(f.name);
 /** Vidéo : 100 Mo au plus (environ 1 à 2 minutes filmées au téléphone). */
 export const MAX_VIDEO_BYTES = 100 * 1024 * 1024;
 /** Image : 10 Mo au plus avant réduction dans le navigateur. */
@@ -18,6 +21,7 @@ export const MEDIA_SCOPES = {
   accueil: "accueil",
   kit: "kit-marketing",
   boutique: "boutiques",
+  tarifs: "tarifs",
 } as const;
 export type MediaScope = keyof typeof MEDIA_SCOPES;
 

@@ -2,13 +2,15 @@ import Link from "next/link";
 import { getReseller } from "@/lib/reseller";
 import { mySellerRate, resellerCatalog } from "@/lib/reseller-catalog";
 import { ResellerCatalogGrid } from "@/components/admin/ResellerCatalogGrid";
+import { PriceListCard } from "@/components/admin/PriceListCard";
+import { getPriceList } from "@/lib/price-list";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Produits" };
 
 export default async function CataloguePage() {
   const me = await getReseller();
-  const [products, rate] = await Promise.all([resellerCatalog(), me ? mySellerRate(me.id) : Promise.resolve(null)]);
+  const [products, rate, priceList] = await Promise.all([resellerCatalog(), me ? mySellerRate(me.id) : Promise.resolve(null), getPriceList()]);
 
   return (
     <div className="max-w-6xl">
@@ -21,6 +23,9 @@ export default async function CataloguePage() {
           </p>
         </div>
         <Link href="/admin/mon-marketing" className="rounded-full border border-line px-4 py-2 text-sm font-semibold text-navy hover:bg-white">Mon marketing →</Link>
+      </div>
+      <div className="mt-5">
+        <PriceListCard {...priceList} />
       </div>
       <div className="mt-5">
         <ResellerCatalogGrid products={products} rate={rate} />

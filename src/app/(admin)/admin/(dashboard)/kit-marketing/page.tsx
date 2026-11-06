@@ -5,6 +5,8 @@ import { createMarketingAsset, deleteMarketingAsset } from "@/lib/actions/market
 import { MediaListEditor } from "@/components/admin/MediaListEditor";
 import { MediaView } from "@/components/MediaView";
 import { isVideoUrl } from "@/lib/media";
+import { PriceListUploader } from "@/components/admin/PriceListUploader";
+import { getPriceList } from "@/lib/price-list";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Kit marketing" };
@@ -18,7 +20,7 @@ const CATEGORIES = ["Général", "Parfums", "Soins", "Promotions", "Témoignages
  */
 export default async function KitMarketingAdminPage() {
   await requireAdmin("marketing");
-  const assets = await prisma.marketingAsset.findMany({ orderBy: { createdAt: "desc" } });
+  const [assets, priceList] = await Promise.all([prisma.marketingAsset.findMany({ orderBy: { createdAt: "desc" } }), getPriceList()]);
 
   return (
     <div className="max-w-5xl">
@@ -26,6 +28,8 @@ export default async function KitMarketingAdminPage() {
       <p className="mt-1 text-sm text-navy/75">
         Ajoutez des photos et des vidéos : elles apparaissent aussitôt dans « Mon kit marketing » de chaque revendeur, avec votre texte, prêtes à publier.
       </p>
+
+      <PriceListUploader current={priceList} />
 
       <form action={createMarketingAsset} className="mt-6 space-y-4 rounded-2xl border border-line bg-white p-5">
         <h2 className="font-semibold text-navy">Ajouter une photo ou une vidéo</h2>

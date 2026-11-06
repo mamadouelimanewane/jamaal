@@ -2,7 +2,7 @@
 
 import { upload } from "@vercel/blob/client";
 import { compressImage } from "@/lib/image-compress";
-import { isImageFile, isVideoFile, mediaPath, videoContentType, videoFileError, MAX_IMAGE_BYTES, type MediaScope } from "@/lib/media";
+import { isImageFile, isPdfFile, isVideoFile, mediaPath, videoContentType, videoFileError, MAX_IMAGE_BYTES, type MediaScope } from "@/lib/media";
 
 /**
  * Envoie une photo ou une vidéo choisie dans la galerie, directement vers le stockage du site.
@@ -13,7 +13,12 @@ export async function uploadMedia(file: File, scope: MediaScope, onProgress?: (p
   let body: File | Blob = file;
   let contentType: string;
   let name = file.name || "media";
-  if (isVideoFile(file)) {
+  if (scope === "tarifs") {
+    if (!isPdfFile(file)) throw new Error("Choisissez un fichier PDF.");
+    if (file.size > 40 * 1024 * 1024) throw new Error("PDF trop lourd : 40 Mo au plus.");
+    contentType = "application/pdf";
+    if (!/\.pdf$/i.test(name)) name += ".pdf";
+  } else if (isVideoFile(file)) {
     const err = videoFileError(file);
     if (err) throw new Error(err);
     contentType = videoContentType(file);
