@@ -12,6 +12,8 @@ export interface LoginNotice {
   /** Compte suspendu ou droits modifiés : la session a été coupée. */
   suspendu?: string;
   session?: string;
+  /** Arrivée depuis l'espace livreur : connexion à l'espace revendeur du même numéro. */
+  espace?: string;
 }
 
 /**
@@ -45,7 +47,9 @@ export function StaffLoginForm({ from, next, notice }: { from: "/admin/login" | 
                 ? { tone: "err", text: "L'envoi automatique de liens n'est pas encore activé. Écrivez à l'équipe JAMAAL : elle vous envoie un lien de connexion tout de suite." }
                 : notice.reset
                   ? { tone: "ok", text: "Mot de passe enregistré. Connectez-vous avec votre numéro WhatsApp (ou e-mail) et ce mot de passe." }
-                  : null;
+                  : notice.espace === "revendeur"
+                    ? { tone: "ok", text: "Compte livreur fermé sur ce navigateur (l'application JAMAAL Livreur reste à part). Connectez-vous à votre espace revendeur : votre numéro WhatsApp et votre mot de passe revendeur." }
+                    : null;
 
   return (
     <div>

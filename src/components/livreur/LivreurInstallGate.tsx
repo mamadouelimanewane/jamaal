@@ -8,8 +8,18 @@ import { useInstall } from "@/components/admin/InstallApp";
 /**
  * Espace livreur : l'application JAMAAL Livreur est obligatoire. Ouvert dans un navigateur (pas depuis
  * l'icône), l'espace est masqué et renvoie vers l'installation.
+ * Même numéro livreur et revendeur : un bouton mène à l'espace revendeur (le compte livreur est quitté dans
+ * ce navigateur seulement ; l'application installée garde sa propre connexion sur iPhone).
  */
-export function LivreurInstallGate() {
+export function LivreurInstallGate({
+  otherSpace,
+  switchAction,
+  logoutAction,
+}: {
+  otherSpace: "revendeur" | "admin" | null;
+  switchAction: () => Promise<void>;
+  logoutAction: () => Promise<void>;
+}) {
   const { installed } = useInstall();
   if (installed) return null;
   return (
@@ -19,7 +29,18 @@ export function LivreurInstallGate() {
         <p className="mx-auto mt-4 flex w-fit items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-900"><Lock size={13} /> Application obligatoire</p>
         <h2 id="lv-gate-title" className="mt-3 font-serif-display text-2xl font-semibold text-navy">Ouvrez l&apos;application JAMAAL Livreur</h2>
         <p className="mt-2 text-sm leading-6 text-navy/75">Vos livraisons s&apos;utilisent uniquement depuis l&apos;application installée sur votre téléphone. Déjà installée ? Ouvrez-la avec l&apos;icône <strong>JAMAAL Livreur</strong>.</p>
-        <Link href="/admin/livreur" className="mt-5 block rounded-full bg-rose-dark px-6 py-3.5 text-sm font-semibold text-white">Installer l&apos;application</Link>
+        {otherSpace && (
+          <form action={switchAction} className="mt-5">
+            <button className="w-full rounded-full bg-navy px-6 py-3.5 text-sm font-semibold text-white">
+              Aller à mon espace {otherSpace === "admin" ? "administrateur" : "revendeur"}
+            </button>
+            <p className="mt-1.5 text-xs text-navy/60">Connectez-vous ensuite avec votre numéro et votre mot de passe {otherSpace === "admin" ? "administrateur" : "revendeur"}.</p>
+          </form>
+        )}
+        <Link href="/admin/livreur" className={`${otherSpace ? "mt-3" : "mt-5"} block rounded-full bg-rose-dark px-6 py-3.5 text-sm font-semibold text-white`}>Installer l&apos;application livreur</Link>
+        <form action={logoutAction} className="mt-3">
+          <button className="text-sm font-semibold text-navy/70 underline">Se déconnecter</button>
+        </form>
       </div>
     </div>
   );

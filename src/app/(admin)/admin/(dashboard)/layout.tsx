@@ -52,6 +52,7 @@ import { ResponsiveSidebar } from "@/components/admin/ResponsiveSidebar";
 import { SIDEBAR_COOKIE } from "@/lib/sidebar-pref";
 import { TopBar } from "@/components/admin/TopBar";
 import { LivreurInstallGate } from "@/components/livreur/LivreurInstallGate";
+import { accountsByPhone } from "@/lib/staff-accounts";
 import { InstallBanner } from "@/components/admin/InstallBanner";
 import { topBarRank } from "@/lib/topbar-rank";
 import { SidebarNavLink } from "@/components/admin/SidebarNavLink";
@@ -193,6 +194,21 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 async function logoutAction() {
   "use server";
   await signOut({ redirectTo: "/admin/login" });
+}
+
+/** Livreur qui a aussi un compte revendeur (ou admin) au même numéro : quitter le compte livreur pour l'autre espace. */
+async function switchToStaffSpace() {
+  "use server";
+  await signOut({ redirectTo: "/admin/login?espace=revendeur" });
+}
+
+/** Autre espace (revendeur ou administrateur) ouvert au même numéro que ce livreur. */
+async function otherSpaceOf(userId: string): Promise<"revendeur" | "admin" | null> {
+  const me = await prisma.user.findUnique({ where: { id: userId }, select: { phone: true, livreur: { select: { phone: true } } } });
+  const phone = me?.livreur?.phone || me?.phone;
+  if (!phone) return null;
+  const roles = (await accountsByPhone(phone)).filter((a) => a.id !== userId).map((a) => a.role);
+  return roles.includes("CONSULTANT") ? "revendeur" : roles.includes("ADMIN") ? "admin" : null;
 }
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -338,7 +354,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <Suspense fallback={null}><FormErrorBanner /></Suspense>
       <AutoTableLabels />
       {role === "CONSULTANT" && <InstallBanner />}
-      {role === "LIVREUR" && <LivreurInstallGate />}
+      {role === "LIVREUR" && <LivreurInstallGate otherSpace={session.user?.id ? await otherSpaceOf(session.user.id) : null} switchAction={switchToStaffSpace} logoutAction={logoutAction} />}
       {children}
       {geminiConfigured() && role && <AssistantLauncher role={role} />}
     </ResponsiveSidebar>
