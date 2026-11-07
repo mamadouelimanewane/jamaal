@@ -13,6 +13,7 @@ import {
   RefreshCw,
   SlidersHorizontal,
   Share2,
+  ShoppingBag,
 } from "lucide-react";
 import { formatPrice } from "@/lib/currency";
 import type { StockRow } from "@/lib/inventory-report";
@@ -381,9 +382,14 @@ export function HandbookView({ rows, refSlug, origin }: HandbookViewProps) {
       {selectedProducts > 0 && (
         <div className="fixed inset-x-3 bottom-4 z-30 mx-auto flex max-w-xl items-center justify-between gap-3 rounded-2xl bg-navy px-4 py-3 text-white shadow-2xl sm:bottom-6">
           <span className="text-sm"><strong>{selectedProducts}</strong> produit{selectedProducts > 1 ? "s" : ""} sélectionné{selectedProducts > 1 ? "s" : ""}</span>
-          <button type="button" onClick={() => shareBox.current?.scrollIntoView({ behavior: "smooth", block: "start" })} className="inline-flex items-center gap-1.5 rounded-full bg-[#25D366] px-4 py-2 text-sm font-semibold text-white">
-            <Share2 size={15} /> Partager
-          </button>
+          <div className="flex items-center gap-2">
+            <Link href={`/admin/acheter?produits=${shareItems.map((p) => p.slug).join(",")}`} className="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-semibold text-navy">
+              <ShoppingBag size={15} /> Acheter
+            </Link>
+            <button type="button" onClick={() => shareBox.current?.scrollIntoView({ behavior: "smooth", block: "start" })} className="inline-flex items-center gap-1.5 rounded-full bg-[#25D366] px-4 py-2 text-sm font-semibold text-white">
+              <Share2 size={15} /> Partager
+            </button>
+          </div>
         </div>
       )}
 

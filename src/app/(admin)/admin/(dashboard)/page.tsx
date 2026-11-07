@@ -201,6 +201,13 @@ async function ConsultantOverview({ userId }: { userId: string }) {
         {myPosition >= 0 && ` · #${myPosition + 1} au classement du mois`}.
       </p>
 
+      <div className="mt-4 flex flex-wrap gap-2">
+        <Link href="/admin/acheter" className="inline-flex items-center gap-2 rounded-full bg-rose-dark px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:opacity-90">
+          🛍️ Acheter un produit
+        </Link>
+        <span className="self-center text-xs text-navy/65">Pour vous ou pour un client · wallet, Wave, Orange Money ou à la livraison</span>
+      </div>
+
       <CopilotTeaser consultantId={consultantId} />
 
       <div className="mt-6">

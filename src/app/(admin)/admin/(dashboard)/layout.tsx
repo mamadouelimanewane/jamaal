@@ -8,6 +8,7 @@ import { BadgePercent, BookOpen, Calculator,
   Package,
   Tags,
   ShoppingCart,
+  ShoppingBag,
   Users,
   Bike,
   BarChart3,
@@ -152,6 +153,7 @@ const consultantGroups: { title: string | null; links: { href: string; label: st
   {
     title: "Ventes",
     links: [
+      { href: "/admin/acheter", label: "Acheter un produit", icon: ShoppingBag, match: ["/admin/mes-commandes/nouvelle"] },
       { href: "/admin/mes-commandes", label: "Mes commandes", icon: ShoppingCart },
       { href: "/admin/mes-ventes", label: "Mes ventes", icon: BarChart3 },
       { href: "/admin/mes-clients", label: "Mes clients", icon: Contact },

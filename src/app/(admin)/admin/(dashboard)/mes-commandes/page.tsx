@@ -60,7 +60,7 @@ export default async function MesCommandesPage() {
           href="/admin/mes-commandes/nouvelle"
           className="rounded-full bg-navy px-4 py-2 text-sm font-semibold text-white hover:bg-navy-light"
         >
-          + Nouvelle commande
+          🛍️ Acheter un produit
         </Link>
       </div>
 

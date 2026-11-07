@@ -94,6 +94,10 @@ export default async function CatalogueProductPage({ params }: { params: Promise
                 ))}
               </dl>
             )}
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              <Link href={`/admin/acheter?produits=${product.slug}&pour=moi`} className="inline-flex items-center justify-center rounded-full bg-rose-dark px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90">🛍️ Acheter pour moi</Link>
+              <Link href={`/admin/acheter?produits=${product.slug}`} className="inline-flex items-center justify-center rounded-full border-2 border-rose-dark px-4 py-2.5 text-sm font-semibold text-rose-dark hover:bg-rose/10">Acheter pour un client</Link>
+            </div>
             <a href={links.productLink(product.slug)} target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-rose-dark hover:underline">
               Voir la page client <ExternalLink size={14} />
             </a>

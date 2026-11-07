@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useMemo, useState } from "react";
-import { Check, Image as ImageIcon, Loader2, Search, Share2 } from "lucide-react";
+import { Check, Image as ImageIcon, Loader2, Search, Share2, ShoppingBag } from "lucide-react";
 import { useCatalogSearch } from "./useCatalogSearch";
 import { estimatedGainLabel } from "@/lib/share-text";
 import type { ResellerProduct } from "@/lib/reseller-catalog";
@@ -63,9 +63,14 @@ export function ResellerCatalogGrid({ products, rate }: { products: ResellerProd
                   </div>
                 </div>
               </Link>
-              <Link href={`/admin/catalogue/${p.slug}#partager`} className="flex items-center justify-center gap-1.5 border-t border-line py-2 text-xs font-semibold text-rose-dark hover:bg-cream">
-                <Share2 size={13} /> Partager
-              </Link>
+              <div className="grid grid-cols-2 divide-x divide-line border-t border-line">
+                <Link href={`/admin/catalogue/${p.slug}#partager`} className="flex items-center justify-center gap-1.5 py-2 text-xs font-semibold text-rose-dark hover:bg-cream">
+                  <Share2 size={13} /> Partager
+                </Link>
+                <Link href={`/admin/acheter?produits=${p.slug}`} className="flex items-center justify-center gap-1.5 py-2 text-xs font-semibold text-navy hover:bg-cream">
+                  <ShoppingBag size={13} /> Acheter
+                </Link>
+              </div>
             </article>
           );
         })}
@@ -77,6 +82,9 @@ export function ResellerCatalogGrid({ products, rate }: { products: ResellerProd
           <span className="text-sm"><strong>{picked.length}</strong> produit{picked.length > 1 ? "s" : ""} sélectionné{picked.length > 1 ? "s" : ""}</span>
           <div className="flex items-center gap-2">
             <button type="button" onClick={() => setPicked([])} className="rounded-full px-3 py-1.5 text-sm text-white/80 hover:bg-white/10">Effacer</button>
+            <Link href={`/admin/acheter?produits=${picked.join(",")}`} className="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-semibold text-navy hover:bg-cream">
+              <ShoppingBag size={15} /> Acheter
+            </Link>
             <Link href={`/admin/mon-marketing?produits=${picked.join(",")}#partager`} className="inline-flex items-center gap-1.5 rounded-full bg-[#25D366] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1ebe5b]">
               <Share2 size={15} /> Partager la sélection
             </Link>

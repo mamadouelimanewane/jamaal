@@ -22,7 +22,10 @@ export default async function CataloguePage() {
             pour une sélection.{rate !== null ? ` Votre commission : ${rate} % du prix des produits.` : ""}
           </p>
         </div>
-        <Link href="/admin/mon-marketing" className="rounded-full border border-line px-4 py-2 text-sm font-semibold text-navy hover:bg-white">Mon marketing →</Link>
+        <div className="flex flex-wrap gap-2">
+          <Link href="/admin/acheter" className="rounded-full bg-rose-dark px-4 py-2 text-sm font-semibold text-white hover:opacity-90">🛍️ Acheter un produit</Link>
+          <Link href="/admin/mon-marketing" className="rounded-full border border-line px-4 py-2 text-sm font-semibold text-navy hover:bg-white">Mon marketing →</Link>
+        </div>
       </div>
       <div className="mt-5">
         <PriceListCard {...priceList} />

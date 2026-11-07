@@ -19,7 +19,9 @@ export function SidebarNavLink({
   match?: string[];
 }) {
   const pathname = usePathname();
-  const active = href === "/admin" ? pathname === "/admin" : [href, ...(match ?? [])].some((h) => pathname.startsWith(h));
+  // « Acheter un produit » a sa propre entrée : la page d'achat n'allume pas « Mes commandes ».
+  const own = pathname.startsWith("/admin/mes-commandes/nouvelle") && href === "/admin/mes-commandes" ? false : null;
+  const active = own ?? (href === "/admin" ? pathname === "/admin" : [href, ...(match ?? [])].some((h) => pathname.startsWith(h)));
 
   return (
     <Link

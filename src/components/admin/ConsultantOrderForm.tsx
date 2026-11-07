@@ -11,7 +11,7 @@ import { COLLECT_LABELS, type CollectMethod, type SpecialZone } from "@/lib/spec
 
 type PayMode = "livraison" | "wallet" | "wave" | "orange_money" | "lien";
 
-interface LineItem {
+export interface LineItem {
   productId: string;
   productName: string;
   volumeLabel: string;
@@ -31,6 +31,8 @@ export function ConsultantOrderForm({
   onlinePay = [],
   installments = null,
   me = null,
+  initialItems = [],
+  initialForSelf = false,
 }: {
   depot: { lat: number; lng: number; label: string };
   vendor: { address: string | null; lat: number | null; lng: number | null };
@@ -43,9 +45,13 @@ export function ConsultantOrderForm({
   me?: { name: string; phone: string | null } | null;
   /** Paiement en plusieurs fois (réglages JAMAAL), proposé avec le lien de paiement. */
   installments?: InstallmentSettings | null;
+  /** Produits déjà choisis (bouton « Acheter » d'une fiche ou d'une sélection). */
+  initialItems?: LineItem[];
+  /** « Pour moi » coché d'emblée. */
+  initialForSelf?: boolean;
 }) {
   const [collect, setCollect] = useState<"NON" | CollectMethod>("NON");
-  const [forSelf, setForSelf] = useState(false);
+  const [forSelf, setForSelf] = useState(initialForSelf && !!me);
   const [payModeRaw, setPayMode] = useState<PayMode>("livraison");
   const [fee, setFee] = useState(0);
   const [parts, setParts] = useState(1);
@@ -53,7 +59,7 @@ export function ConsultantOrderForm({
   const [query, setQuery] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [results, setResults] = useState<ProductSearchResult[]>([]);
-  const [items, setItems] = useState<LineItem[]>([]);
+  const [items, setItems] = useState<LineItem[]>(initialItems);
   const [isPending, startTransition] = useTransition();
   const [state, submitAction, submitting] = useActionState(createConsultantOrder, { ok: false } as ConsultantOrderState);
 
