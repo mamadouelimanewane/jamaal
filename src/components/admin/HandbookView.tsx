@@ -1,11 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
   BookOpen,
   Search,
-  MessageCircle,
   Copy,
   Check,
   Sparkles,
@@ -13,27 +12,45 @@ import {
   ExternalLink,
   RefreshCw,
   SlidersHorizontal,
-  Contact,
-  Send,
+  Share2,
 } from "lucide-react";
 import { formatPrice } from "@/lib/currency";
 import type { StockRow } from "@/lib/inventory-report";
+import { ShareStudio } from "@/components/admin/ShareStudio";
+import type { ShareItem } from "@/lib/share-text";
+
+/** Produits partagés à la fois (images préparées pour chacun). */
+const MAX_SHARE = 10;
 
 interface HandbookViewProps {
   rows: StockRow[];
   refSlug: string | null;
   consultantName: string | null;
+  origin: string;
 }
 
-export function HandbookView({ rows, refSlug, consultantName }: HandbookViewProps) {
+export function HandbookView({ rows, refSlug, origin }: HandbookViewProps) {
   const [q, setQ] = useState("");
   const [onlyAvailable, setOnlyAvailable] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
   const [sortBy, setSortBy] = useState<"stock" | "code" | "name" | "price">("stock");
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
-  const [contactPhone, setContactPhone] = useState("");
   const [shareNotice, setShareNotice] = useState<string | null>(null);
+  const shareBox = useRef<HTMLElement>(null);
+
+  /** Produits de la sélection (un par produit, même si plusieurs formats sont cochés). */
+  const shareItems = useMemo<ShareItem[]>(() => {
+    const out = new Map<string, ShareItem>();
+    for (const r of rows) {
+      if (!selectedKeys.includes(r.key) || r.stock <= 0) continue;
+      const prev = out.get(r.slug);
+      const price = prev?.price != null && r.salePrice != null ? Math.min(prev.price, r.salePrice) : (prev?.price ?? r.salePrice);
+      out.set(r.slug, { slug: r.slug, name: r.name, price, choganCode: r.productCode, inspiredBy: r.inspiredBy, multiFormat: !!prev });
+    }
+    return [...out.values()].slice(0, MAX_SHARE);
+  }, [rows, selectedKeys]);
+  const selectedProducts = new Set(rows.filter((r) => selectedKeys.includes(r.key)).map((r) => r.slug)).size;
 
   // Catégories uniques
   const categories = useMemo(() => {
@@ -117,66 +134,24 @@ export function HandbookView({ rows, refSlug, consultantName }: HandbookViewProp
     setTimeout(() => setCopiedKey(null), 2000);
   };
 
-  // WhatsApp individuel
-  const waLink = (row: StockRow) => {
-    const first = consultantName?.split(/\s+/)[0] || "";
-    const intro = first ? `Bonjour ! C'est ${first} de JAMAAL.` : "Bonjour !";
-    const insp = row.inspiredBy ? ` (inspiré de *${row.inspiredBy}*)` : "";
-    const code = row.productCode ? ` [Code: ${row.productCode}]` : "";
-    const fmt = row.format && row.format !== "Format unique" ? ` en ${row.format}` : "";
-    const prx = row.salePrice ? ` au prix de *${formatPrice(row.salePrice)}*` : "";
-    const msg = `${intro} Le produit *${row.name}*${insp}${fmt}${code} est bien *DISPONIBLE EN STOCK À DAKAR* (${row.stock} pièce${row.stock > 1 ? "s" : ""} restante${row.stock > 1 ? "s" : ""})${prx}.\n\nSouhaitez-vous que je vous le fasse livrer aujourd'hui ? 🌸`;
-    return `https://wa.me/?text=${encodeURIComponent(msg)}`;
-  };
-
   function toggleSelected(row: StockRow) {
     if (row.stock <= 0) return;
-    setSelectedKeys((current) => current.includes(row.key)
-      ? current.filter((key) => key !== row.key)
-      : [...current, row.key]);
-  }
-
-  async function choosePhoneContact() {
-    const contactsApi = (navigator as Navigator & {
-      contacts?: { select: (properties: string[], options: { multiple: boolean }) => Promise<{ name?: string[]; tel?: string[] }[]> };
-    }).contacts;
-    if (!contactsApi) {
-      setShareNotice("Le carnet de contacts est disponible sur certains téléphones Android avec Chrome. Saisissez le numéro WhatsApp du client ci-dessous.");
-      return;
-    }
-    try {
-      const contacts = await contactsApi.select(["name", "tel"], { multiple: false });
-      const phone = contacts[0]?.tel?.[0];
-      if (phone) {
-        setContactPhone(phone);
-        setShareNotice(`Contact sélectionné : ${contacts[0]?.name?.[0] || phone}. Appuyez sur « Envoyer sur WhatsApp » pour continuer.`);
+    setShareNotice(null);
+    setSelectedKeys((current) => {
+      if (current.includes(row.key)) return current.filter((key) => key !== row.key);
+      const slugs = new Set(rows.filter((r) => current.includes(r.key)).map((r) => r.slug));
+      if (!slugs.has(row.slug) && slugs.size >= MAX_SHARE) {
+        setShareNotice(`${MAX_SHARE} produits au plus par partage.`);
+        return current;
       }
-    } catch {
-      setShareNotice("Sélection annulée. Vous pouvez saisir le numéro WhatsApp du client.");
-    }
+      return [...current, row.key];
+    });
   }
 
-  function shareSelected() {
-    const selectedRows = rows.filter((row) => selectedKeys.includes(row.key) && row.stock > 0);
-    if (!selectedRows.length) {
-      setShareNotice("Sélectionnez au moins un produit disponible en stock.");
-      return;
-    }
-    const digits = contactPhone.replace(/\D/g, "").replace(/^00/, "");
-    if (contactPhone.trim() && digits.length < 9) {
-      setShareNotice("Le numéro saisi semble incomplet. Vérifiez le numéro WhatsApp du client.");
-      return;
-    }
-    const lines = selectedRows.map((row) => {
-      const url = new URL(`/produits/${row.slug}${refSlug ? `?ref=${encodeURIComponent(refSlug)}` : ""}`, window.location.origin).toString();
-      const format = row.format && row.format !== "Format unique" ? ` (${row.format})` : "";
-      const price = row.salePrice ? ` — ${formatPrice(row.salePrice)}` : "";
-      return `• ${row.name}${format}${price}\n${url}`;
-    });
-    const message = `Bonjour ! Voici les produits disponibles que je vous propose :\n\n${lines.join("\n\n")}\n\nDites-moi si vous souhaitez passer commande. 🌸`;
-    const target = digits.length === 9 ? `221${digits}` : digits;
-    window.open(`https://wa.me/${target}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
-    setShareNotice("WhatsApp s’est ouvert avec les fiches d’achat. Vérifiez le message puis appuyez sur Envoyer.");
+  /** Partager une seule ligne : elle devient la sélection, puis on descend aux boutons de partage. */
+  function shareOne(row: StockRow) {
+    setSelectedKeys([row.key]);
+    setTimeout(() => shareBox.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 60);
   }
 
   // Exporter en CSV
@@ -281,18 +256,27 @@ export function HandbookView({ rows, refSlug, consultantName }: HandbookViewProp
         </div>
       </div>
 
-      <section className="rounded-2xl border border-line bg-white p-4 shadow-sm">
-        <div className="flex flex-wrap items-center gap-2">
-          <button type="button" onClick={choosePhoneContact} className="inline-flex items-center gap-2 rounded-full border border-line px-4 py-2 text-sm font-semibold text-navy hover:bg-cream">
-            <Contact size={16} /> Choisir un contact du téléphone
-          </button>
-          <input type="tel" inputMode="tel" value={contactPhone} onChange={(event) => setContactPhone(event.target.value)} placeholder="Numéro WhatsApp du client" aria-label="Numéro WhatsApp du client" className="min-w-56 flex-1 rounded-full border border-line px-4 py-2 text-sm" />
-          <button type="button" onClick={shareSelected} disabled={!selectedKeys.length} className="inline-flex items-center gap-2 rounded-full bg-[#25D366] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">
-            <Send size={16} /> Envoyer {selectedKeys.length ? `${selectedKeys.length} produit${selectedKeys.length > 1 ? "s" : ""}` : "sur WhatsApp"}
-          </button>
+      <section ref={shareBox} id="partager" aria-labelledby="hb-share" className="scroll-mt-20 rounded-2xl border border-line bg-white p-4 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 id="hb-share" className="font-semibold text-navy">
+            {selectedProducts ? `Partager ${selectedProducts} produit${selectedProducts > 1 ? "s" : ""}` : "Partager des produits"}
+          </h2>
+          {selectedKeys.length > 0 && (
+            <button type="button" onClick={() => setSelectedKeys([])} className="text-xs font-semibold text-navy/60 hover:text-navy">
+              Vider la sélection
+            </button>
+          )}
         </div>
-        <p className="mt-2 text-xs text-navy/60">Le sélecteur du téléphone dépend du navigateur. Si le bouton ne peut pas ouvrir vos contacts, saisissez le numéro. WhatsApp demandera de confirmer l’envoi.</p>
-        {shareNotice && <p role="status" className="mt-2 text-xs font-medium text-navy/80">{shareNotice}</p>}
+        {shareItems.length ? (
+          <div className="mt-3">
+            <ShareStudio items={shareItems} origin={origin} refSlug={refSlug} />
+          </div>
+        ) : (
+          <p className="mt-1 text-sm text-navy/70">
+            Cochez un ou plusieurs produits en stock dans la liste : vous pourrez les envoyer à un ou plusieurs contacts WhatsApp, les mettre en statut ou les publier sur Instagram, TikTok et Facebook — toujours avec l&apos;image et le lien de commande.
+          </p>
+        )}
+        {shareNotice && <p role="status" className="mt-2 text-xs font-medium text-amber-800">{shareNotice}</p>}
       </section>
 
       {/* ── BARRE DE RECHERCHE & FILTRES ──────────────────────────────── */}
@@ -394,6 +378,15 @@ export function HandbookView({ rows, refSlug, consultantName }: HandbookViewProp
         </div>
       </div>
 
+      {selectedProducts > 0 && (
+        <div className="fixed inset-x-3 bottom-4 z-30 mx-auto flex max-w-xl items-center justify-between gap-3 rounded-2xl bg-navy px-4 py-3 text-white shadow-2xl sm:bottom-6">
+          <span className="text-sm"><strong>{selectedProducts}</strong> produit{selectedProducts > 1 ? "s" : ""} sélectionné{selectedProducts > 1 ? "s" : ""}</span>
+          <button type="button" onClick={() => shareBox.current?.scrollIntoView({ behavior: "smooth", block: "start" })} className="inline-flex items-center gap-1.5 rounded-full bg-[#25D366] px-4 py-2 text-sm font-semibold text-white">
+            <Share2 size={15} /> Partager
+          </button>
+        </div>
+      )}
+
       {/* ── LISTE DES RÉSULTATS ────────────────────────────────────────── */}
       <div className="overflow-hidden rounded-2xl border border-line bg-white shadow-xs">
         <div className="border-b border-line bg-cream/60 px-4 py-3 flex items-center justify-between text-xs font-semibold text-navy/70">
@@ -404,7 +397,6 @@ export function HandbookView({ rows, refSlug, consultantName }: HandbookViewProp
         <div className="divide-y divide-line">
           {filtered.map((r) => {
             const isCopied = copiedKey === r.key;
-            const wa = waLink(r);
             const inStock = r.stock > 0;
             const isLow = inStock && r.stock <= 5;
             const productHref = `/produits/${r.slug}${refSlug ? `?ref=${refSlug}` : ""}`;
@@ -484,17 +476,17 @@ export function HandbookView({ rows, refSlug, consultantName }: HandbookViewProp
 
                 {/* Actions rapides */}
                 <div className="flex items-center gap-2 shrink-0 sm:self-center">
-                  {/* WhatsApp client */}
-                  <a
-                    href={wa}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    title="Envoyer la disponibilité à un client sur WhatsApp"
-                    className="inline-flex items-center gap-1.5 rounded-full bg-[#25D366] px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-[#20ba59] transition"
+                  {/* Partager (image + lien) */}
+                  <button
+                    type="button"
+                    onClick={() => shareOne(r)}
+                    disabled={!inStock}
+                    title="Partager ce produit : image et lien de commande"
+                    className="inline-flex items-center gap-1.5 rounded-full bg-[#25D366] px-3 py-1.5 text-xs font-bold text-white shadow-sm transition hover:bg-[#20ba59] disabled:opacity-40"
                   >
-                    <MessageCircle size={14} />
-                    <span>WhatsApp</span>
-                  </a>
+                    <Share2 size={14} />
+                    <span>Partager</span>
+                  </button>
 
                   {/* Copier la référence */}
                   <button

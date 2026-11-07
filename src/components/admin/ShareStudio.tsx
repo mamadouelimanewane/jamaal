@@ -28,6 +28,17 @@ const FORMATS: { id: Format; label: string; hint: string }[] = [
   { id: "photo", label: "Photo du produit", hint: "La photo seule, sans texte" },
 ];
 
+type Recipient = { target: string; name: string; sent: boolean };
+const MAX_RECIPIENTS = 20;
+
+/** Numéro pour wa.me : 9 chiffres sénégalais → 221…, sinon numéro international complet. */
+export function waNumber(raw: string): string {
+  const d = raw.replace(/\D/g, "").replace(/^00/, "");
+  return d.length === 9 ? `221${d}` : d.length >= 11 && d.length <= 15 ? d : "";
+}
+
+const prettyNumber = (t: string) => (t.startsWith("221") && t.length === 12 ? `${t.slice(3, 5)} ${t.slice(5, 8)} ${t.slice(8, 10)} ${t.slice(10)}` : `+${t}`);
+
 const visualUrl = (slug: string, format: Format, refSlug: string | null) =>
   `/api/visuel/${slug}?format=${format}${refSlug ? `&ref=${refSlug}` : ""}`;
 
@@ -118,7 +129,8 @@ export function ShareStudio({
   const [edited, setEdited] = useState<{ base: string; text: string } | null>(null);
   const text = edited?.base === defaultText ? edited.text : defaultText;
   const [phone, setPhone] = useState("");
-  const [selectedClientName, setSelectedClientName] = useState<string | null>(null);
+  /** Destinataires choisis (un ou plusieurs contacts). */
+  const [recipients, setRecipients] = useState<Recipient[]>([]);
 
   // Sélecteur de contact modal
   const [showContactsModal, setShowContactsModal] = useState(false);
@@ -128,9 +140,7 @@ export function ShareStudio({
 
   const channelBox = useRef<HTMLDivElement>(null);
 
-  const digits = phone.replace(/\D/g, "").replace(/^00/, "");
-  const target = digits.length === 9 ? `221${digits}` : digits.length >= 11 ? digits : "";
-  const waUrl = `https://wa.me/${target}?text=${encodeURIComponent(text)}`;
+  const waTo = (target: string) => `https://wa.me/${target}?text=${encodeURIComponent(text)}`;
   const tiktokText = useMemo(() => shareMessage(items, origin, refSlug, "tiktok"), [items, origin, refSlug]);
   const instaText = useMemo(() => shareMessage(items, origin, refSlug, "instagram"), [items, origin, refSlug]);
   const facebookText = useMemo(() => shareMessage(items, origin, refSlug, "facebook"), [items, origin, refSlug]);
@@ -156,6 +166,8 @@ export function ShareStudio({
       if (ctrl.signal.aborted) return;
       const ok = files.filter((f): f is File => !!f);
       setPrepared({ key, files: ok, failed: files.length - ok.length });
+      // Image manquante (réseau lent) : nouvel essai automatique, deux fois au plus.
+      if (ok.length < files.length && attempt < 2) setTimeout(() => setAttempt((a) => a + 1), 1500);
     });
     return () => ctrl.abort();
   }, [key, refSlug, attempt]);
@@ -183,13 +195,29 @@ export function ShareStudio({
     }
   }
 
+  /**
+   * Toute publication part avec l'image ET le lien : sans image prête, on ne publie pas le lien seul,
+   * on relance la préparation et on prévient.
+   */
+  function imagesOrRetry(): File[] | null {
+    const files = ready?.files ?? [];
+    if (files.length) return files;
+    setAttempt((a) => a + 1);
+    setMsg(`${items.length > 1 ? "Les images ne sont pas encore prêtes" : "L'image n'est pas encore prête"} : nouvel essai en cours, touchez à nouveau le bouton dans un instant.`);
+    return null;
+  }
+
+  /** Légende jointe à l'image : partout, sauf Instagram et TikTok sur iPhone (ils refusent image + texte ; le texte est copié). */
+  const captionFor = (app: App, caption: string) => (isIos() && (app === "instagram" || app === "tiktok") ? undefined : caption);
+
   /** Partage direct par la liste du téléphone (si l'appli y figure). */
   async function shareDirect(app: App, caption: string) {
-    const files = ready?.files ?? [];
+    const files = imagesOrRetry();
+    if (!files) return;
     copy(caption);
     if (!canShareFiles(files)) return onGallery();
     setBusy(true);
-    const r = await shareFiles(files, !isIos() && app === "whatsapp" ? caption : undefined);
+    const r = await shareFiles(files, captionFor(app, caption));
     setBusy(false);
     if (r === "ok") setMsg(`Texte copié : collez-le dans ${APP_LABEL[app]}.`);
     if (r === "fail") await onGallery();
@@ -203,29 +231,37 @@ export function ShareStudio({
     setChannel(app);
   }
 
-  // Ouvre le carnet du téléphone lorsqu’il est pris en charge par le navigateur.
+  /** Ajoute un destinataire (numéro sénégalais à 9 chiffres ou international). */
+  function addRecipient(rawPhone: string, name?: string | null): boolean {
+    const target = waNumber(rawPhone);
+    if (!target) {
+      setMsg("Numéro incomplet : saisissez le numéro WhatsApp, par exemple 77 123 45 67.");
+      return false;
+    }
+    setRecipients((l) => (l.some((r) => r.target === target) || l.length >= MAX_RECIPIENTS ? l : [...l, { target, name: name?.trim() || prettyNumber(target), sent: false }]));
+    return true;
+  }
+
+  function addTyped() {
+    if (phone.trim() && addRecipient(phone)) setPhone("");
+  }
+
+  // Ouvre le carnet du téléphone (Android Chrome) : plusieurs contacts à la fois.
   async function handleContactPicker() {
     const contactsApi = (navigator as Navigator & {
       contacts?: { select: (properties: string[], options: { multiple: boolean }) => Promise<{ name?: string[]; tel?: string[] }[]> };
     }).contacts;
     if (!contactsApi?.select) {
-      setMsg("Le carnet de contacts du téléphone n’est pas pris en charge par ce navigateur. Essayez sur Android avec Chrome ou saisissez le numéro WhatsApp.");
+      setMsg("Le carnet de contacts du téléphone n’est pas pris en charge par ce navigateur (Android avec Chrome seulement). Saisissez les numéros WhatsApp, ou touchez « Envoyer » et choisissez les contacts dans WhatsApp.");
       return;
     }
     try {
-      const selected = await contactsApi.select(["name", "tel"], { multiple: false });
-      const contact = selected[0];
-      const rawTel = contact?.tel?.[0] || "";
-      const name = contact?.name?.[0] || "";
-      if (rawTel) {
-        setPhone(rawTel);
-        setSelectedClientName(name || null);
-        setMsg(`Contact du téléphone sélectionné : ${name || rawTel}. Appuyez sur « Envoyer à un contact WhatsApp » pour envoyer.`);
-      } else {
-        setMsg("Ce contact n’a pas de numéro de téléphone.");
-      }
+      const selected = await contactsApi.select(["name", "tel"], { multiple: true });
+      let n = 0;
+      for (const c of selected) if (c.tel?.[0] && addRecipient(c.tel[0], c.name?.[0])) n++;
+      setMsg(n ? `${n} contact${n > 1 ? "s" : ""} ajouté${n > 1 ? "s" : ""}.` : "Aucun numéro dans les contacts choisis.");
     } catch {
-      setMsg("Sélection annulée. Vous pouvez saisir le numéro WhatsApp du client.");
+      setMsg("Sélection annulée.");
     }
   }
 
@@ -249,26 +285,46 @@ export function ShareStudio({
   }
 
   function selectClient(c: ResellerClientItem) {
-    setPhone(c.phone);
-    setSelectedClientName(c.name);
-    setShowContactsModal(false);
-    setMsg(`Client sélectionné : ${c.name} (${c.phone})`);
+    if (addRecipient(c.phone, c.name)) setMsg(`Ajouté : ${c.name}`);
   }
 
+  /**
+   * Envoyer à un ou plusieurs contacts, toujours image + texte avec le lien :
+   * - téléphone : liste de partage avec les images et le texte → WhatsApp, où l'on coche les contacts
+   *   (jusqu'à 5 discussions à la fois) ;
+   * - ordinateur : images téléchargées, puis une discussion par contact avec le texte (joindre l'image 📎).
+   */
   async function onWhatsApp() {
-    if (target) {
-      const files = ready?.files ?? [];
-      files.forEach(download);
-      window.open(waUrl, "_blank", "noopener");
-      setGuide("whatsapp");
-      setMsg(
-        files.length
-          ? "Image enregistrée et discussion WhatsApp ouverte avec le texte : joignez l'image (trombone 📎)."
-          : "WhatsApp ouvert avec le texte et vos liens."
-      );
-      return;
+    setStatusHelp(null);
+    const files = imagesOrRetry();
+    if (!files) return;
+    if (phone.trim()) addTyped();
+    if (phoneDevice && canShareFiles(files)) {
+      setBusy(true);
+      const r = await shareFiles(files, text, text);
+      setBusy(false);
+      if (r === "ok") {
+        const names = recipients.map((x) => x.name);
+        setMsg(names.length ? `Envoyé via WhatsApp${names.length ? ` (à cocher : ${names.join(", ")})` : ""}. Image et lien partent ensemble.` : "Envoyé : dans WhatsApp, cochez un ou plusieurs contacts (jusqu'à 5), image et lien partent ensemble.");
+        return;
+      }
+      if (r === "cancel") return setMsg("Partage annulé.");
     }
-    openChannel("whatsapp");
+    // Sans partage d'images (ordinateur, certains navigateurs) : image enregistrée + discussion avec le texte.
+    files.forEach(download);
+    setSaved(true);
+    copy(text);
+    const list = recipients.length ? recipients : [];
+    if (list.length === 1 || (!list.length && !phoneDevice)) {
+      window.open(waTo(list[0]?.target ?? ""), "_blank", "noopener");
+      if (list[0]) setRecipients((l) => l.map((x) => (x.target === list[0].target ? { ...x, sent: true } : x)));
+    }
+    setGuide("whatsapp");
+    setMsg(
+      list.length > 1
+        ? `${files.length > 1 ? "Images enregistrées" : "Image enregistrée"} : ouvrez chaque discussion ci-dessous, joignez l'image (trombone 📎) et envoyez — le texte avec le lien est déjà écrit.`
+        : `${files.length > 1 ? "Images enregistrées" : "Image enregistrée"} et WhatsApp ouvert avec le texte et le lien : joignez l'image (trombone 📎) avant d'envoyer.`
+    );
   }
 
   /**
@@ -281,8 +337,8 @@ export function ShareStudio({
     setMsg(null);
     setGuide(null);
     setChannel(null);
-    const files = ready?.files ?? [];
-    if (!files.length) setAttempt((a) => a + 1);
+    const files = imagesOrRetry();
+    if (!files) return;
 
     if (!phoneDevice) {
       copy(text);
@@ -296,20 +352,13 @@ export function ShareStudio({
 
     if (canShareFiles(files)) {
       setBusy(true);
-      const r = await shareFiles(files, isIos() ? undefined : text, text);
+      const r = await shareFiles(files, text, text);
       setBusy(false);
       if (r === "ok") return setStatusHelp("after");
       if (r === "cancel") {
         setStatusHelp(null);
         return setMsg("Partage annulé. Touchez à nouveau « Mettre en statut WhatsApp », puis WhatsApp → « Mon statut ».");
       }
-    } else if (!files.length && typeof navigator.share === "function") {
-      // Images indisponibles : statut texte avec le lien de la boutique.
-      setBusy(true);
-      const r = await shareFiles([], text);
-      setBusy(false);
-      if (r === "ok") return setStatusHelp("after");
-      if (r === "cancel") return setStatusHelp(null);
     }
 
     copy(text);
@@ -324,13 +373,14 @@ export function ShareStudio({
   async function onInstagram() {
     setMsg(null);
     openChannel("instagram");
+    const files = imagesOrRetry();
+    if (!files) return;
     copy(instaText);
-    const files = ready?.files ?? [];
 
     // Sur smartphone tactile avec partage natif : ouvre directement la liste avec Instagram !
     if (touch && canShareFiles(files)) {
       setBusy(true);
-      const r = await shareFiles(files, isIos() ? undefined : instaText);
+      const r = await shareFiles(files, captionFor("instagram", instaText));
       setBusy(false);
       if (r === "ok") {
         setMsg("✓ Visuel partagé ! Collez le texte en légende dans Instagram.");
@@ -365,13 +415,14 @@ export function ShareStudio({
   async function onTikTok() {
     setMsg(null);
     openChannel("tiktok");
+    const files = imagesOrRetry();
+    if (!files) return;
     copy(tiktokText);
-    const files = ready?.files ?? [];
 
     // Sur smartphone tactile avec partage natif : ouvre directement la liste avec TikTok !
     if (touch && canShareFiles(files)) {
       setBusy(true);
-      const r = await shareFiles(files, isIos() ? undefined : tiktokText);
+      const r = await shareFiles(files, captionFor("tiktok", tiktokText));
       setBusy(false);
       if (r === "ok") {
         setMsg("✓ Visuel partagé ! Collez le texte en description dans TikTok.");
@@ -409,12 +460,13 @@ export function ShareStudio({
   async function onFacebook() {
     setMsg(null);
     openChannel("facebook");
+    const files = imagesOrRetry();
+    if (!files) return;
     copy(facebookText);
-    const files = ready?.files ?? [];
 
     if (touch && canShareFiles(files)) {
       setBusy(true);
-      const r = await shareFiles(files, isIos() ? undefined : facebookText);
+      const r = await shareFiles(files, captionFor("facebook", facebookText));
       setBusy(false);
       if (r === "ok") {
         setMsg("✓ Visuel partagé ! Collez le texte dans votre publication Facebook.");
@@ -537,8 +589,8 @@ export function ShareStudio({
                       <p className="font-semibold text-xs text-navy">{c.name}</p>
                       <p className="text-[11px] text-navy/60 font-mono">{c.phone}</p>
                     </div>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-navy/5 px-2.5 py-1 text-[10px] font-semibold text-navy">
-                      Choisir →
+                    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-semibold ${recipients.some((r) => r.target === waNumber(c.phone)) ? "bg-emerald-100 text-emerald-800" : "bg-navy/5 text-navy"}`}>
+                      {recipients.some((r) => r.target === waNumber(c.phone)) ? "✓ Ajouté" : "Ajouter +"}
                     </span>
                   </button>
                 ))}
@@ -550,7 +602,7 @@ export function ShareStudio({
                 onClick={() => setShowContactsModal(false)}
                 className="rounded-full border border-line px-4 py-1.5 text-xs font-semibold text-navy hover:bg-cream"
               >
-                Fermer
+                {recipients.length ? `Terminé (${recipients.length})` : "Fermer"}
               </button>
             </div>
           </div>
@@ -601,65 +653,82 @@ export function ShareStudio({
         />
       </label>
 
-      {/* ── CHAMP CLIENT AVEC BOUTON CONTACT ──────────────────────────── */}
+      {/* ── DESTINATAIRES (un ou plusieurs) ───────────────────────────── */}
       <div>
-        <label className="block text-sm font-medium text-navy">
-          Envoyer à un client précis (facultatif)
+        <label htmlFor="share-phone" className="block text-sm font-medium text-navy">
+          Envoyer à un ou plusieurs clients (facultatif)
         </label>
         <div className="mt-1.5 flex flex-wrap items-center gap-2">
           <input
+            id="share-phone"
             type="tel"
             inputMode="tel"
             value={phone}
-            onChange={(e) => {
-              setPhone(e.target.value);
-              setSelectedClientName(null);
+            onChange={(e) => setPhone(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                addTyped();
+              }
             }}
             placeholder="Numéro WhatsApp, ex. 77 123 45 67"
             className="w-full rounded-xl border border-line px-3 py-2 text-sm sm:max-w-xs outline-none focus:border-navy"
           />
-
-          {/* Bouton Contact à côté du champ */}
+          <button type="button" onClick={addTyped} disabled={!phone.trim()} className="rounded-xl bg-navy px-3.5 py-2 text-xs font-semibold text-white disabled:opacity-40">
+            + Ajouter
+          </button>
           <button
             type="button"
             onClick={handleContactPicker}
             className="inline-flex items-center gap-1.5 rounded-xl border border-navy/20 bg-cream/70 px-3.5 py-2 text-xs font-semibold text-navy hover:bg-cream hover:border-navy/40 transition shadow-xs cursor-pointer"
-            title="Choisir un contact dans le répertoire de votre téléphone (Android Chrome compatible)"
+            title="Choisir un ou plusieurs contacts dans le répertoire du téléphone (Android Chrome)"
           >
             <Contact size={15} className="text-rose-dark" />
             <span>Contacts</span>
           </button>
-          <button
-            type="button"
-            onClick={openSavedClients}
-            className="rounded-xl border border-line px-3.5 py-2 text-xs font-semibold text-navy/75 hover:bg-cream transition"
-          >
+          <button type="button" onClick={openSavedClients} className="rounded-xl border border-line px-3.5 py-2 text-xs font-semibold text-navy/75 hover:bg-cream transition">
             Mes clients du site
           </button>
-
-          {phone && (
-            <button
-              type="button"
-              onClick={() => {
-                setPhone("");
-                setSelectedClientName(null);
-              }}
-              className="inline-flex items-center gap-1 rounded-full text-xs text-navy/50 hover:text-navy px-2 py-1"
-            >
-              Effacer
-            </button>
-          )}
         </div>
 
-        {selectedClientName && (
-          <p className="mt-1 flex items-center gap-1 text-xs font-medium text-emerald-800">
-            <UserCheck size={13} />
-            Client sélectionné : <span className="font-semibold">{selectedClientName}</span>
-          </p>
+        {recipients.length > 0 && (
+          <ul className="mt-2 flex flex-wrap gap-2" aria-label="Destinataires">
+            {recipients.map((r) => (
+              <li key={r.target} className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold ${r.sent ? "border-emerald-300 bg-emerald-50 text-emerald-800" : "border-line bg-white text-navy"}`}>
+                {r.sent ? <Check size={12} /> : <UserCheck size={12} />}
+                {r.name}
+                <button type="button" onClick={() => setRecipients((l) => l.filter((x) => x.target !== r.target))} aria-label={`Retirer ${r.name}`} className="rounded-full p-0.5 text-navy/50 hover:bg-cream hover:text-navy">
+                  <X size={12} />
+                </button>
+              </li>
+            ))}
+            <li>
+              <button type="button" onClick={() => setRecipients([])} className="px-2 py-1 text-xs text-navy/50 hover:text-navy">Tout effacer</button>
+            </li>
+          </ul>
         )}
         <span className="mt-1 block text-xs font-normal text-navy/60">
-          Vide : vous choisissez le contact directement dans WhatsApp. Pour un statut, touchez « Mettre en statut WhatsApp ».
+          {phoneDevice
+            ? "Sur le téléphone, « Envoyer » ouvre WhatsApp avec l'image et le lien : cochez les contacts (jusqu'à 5 à la fois)."
+            : "Vide : vous choisissez le contact dans WhatsApp. Plusieurs contacts : une discussion par contact s'ouvre ci-dessous."}
         </span>
+
+        {!phoneDevice && recipients.length > 1 && saved && (
+          <div className="mt-2 flex flex-wrap gap-2">
+            {recipients.map((r) => (
+              <a
+                key={r.target}
+                href={waTo(r.target)}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setRecipients((l) => l.map((x) => (x.target === r.target ? { ...x, sent: true } : x)))}
+                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold ${r.sent ? "bg-emerald-100 text-emerald-800" : "bg-[#25D366] text-white"}`}
+              >
+                <MessageCircle size={13} /> {r.sent ? "Ouvert" : "Ouvrir"} : {r.name}
+              </a>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* ── BOUTONS DE PUBLICATION / PARTAGE ───────────────────────────── */}
@@ -679,7 +748,8 @@ export function ShareStudio({
           disabled={busy || loading}
           className={`${btn} border-2 border-[#25D366] text-[#128C4B] hover:bg-emerald-50`}
         >
-          {loading ? <Loader2 size={16} className="animate-spin" /> : <MessageCircle size={16} />} Envoyer à un contact WhatsApp
+          {loading ? <Loader2 size={16} className="animate-spin" /> : <MessageCircle size={16} />}{" "}
+          {recipients.length > 1 ? `Envoyer à ${recipients.length} contacts WhatsApp` : recipients.length === 1 ? `Envoyer à ${recipients[0].name}` : "Envoyer à des contacts WhatsApp"}
         </button>
 
         <button
@@ -753,14 +823,6 @@ export function ShareStudio({
           </button>
         )}
 
-        <a
-          href={waUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 rounded-full border border-[#25D366] px-3 py-1.5 font-semibold text-[#128C4B] hover:bg-emerald-50"
-        >
-          <MessageCircle size={14} /> Texte et lien seuls sur WhatsApp
-        </a>
       </div>
 
       {loading && <p className="text-xs text-navy/65">Préparation {items.length > 1 ? "des images" : "de l'image"}…</p>}
