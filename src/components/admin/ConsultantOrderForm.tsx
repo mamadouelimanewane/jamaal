@@ -20,7 +20,7 @@ export interface LineItem {
 }
 
 const inputClass =
-  "mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-navy";
+  "mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm outline-none focus:border-navy";
 const labelClass = "text-xs font-medium text-navy/85";
 
 export function ConsultantOrderForm({
@@ -120,7 +120,7 @@ export function ConsultantOrderForm({
             value={query}
             onChange={(e) => search(e.target.value)}
             placeholder="Nom, code (ex. 001M), catégorie ou n° de fiche…"
-            className="w-full rounded-lg border border-line py-2 pl-9 pr-3 text-sm outline-none focus:border-navy"
+            className="w-full rounded-lg border border-line bg-white py-2 pl-9 pr-3 text-sm outline-none focus:border-navy"
           />
         </div>
 
@@ -178,8 +178,8 @@ export function ConsultantOrderForm({
         <h2 className="mb-3 text-sm font-semibold text-navy">2. Pour qui ?</h2>
         <div className="mb-3 grid grid-cols-2 gap-2" role="radiogroup" aria-label="Commande pour">
           {([[true, "Pour moi-même"], [false, "Pour un client"]] as const).map(([v, label]) => (
-            <button key={label} type="button" role="radio" aria-checked={forSelf === v} onClick={() => setForSelf(v)} disabled={v && !me} className={`rounded-xl border px-3 py-2.5 text-sm font-semibold ${forSelf === v ? "border-navy bg-navy text-white" : "border-line bg-white text-navy hover:bg-cream"} disabled:opacity-40`}>
-              {label}
+            <button key={label} type="button" role="radio" aria-checked={forSelf === v} onClick={() => setForSelf(v)} disabled={v && !me} className={`rounded-xl border-2 px-3 py-2.5 text-sm font-semibold text-white transition ${v ? "border-[#15803D] bg-[#16A34A]" : "border-navy bg-navy"} ${forSelf === v ? "shadow-md ring-4 ring-offset-1 " + (v ? "ring-[#16A34A]/35" : "ring-navy/30") : "opacity-75 hover:opacity-100"} disabled:opacity-30`}>
+              {forSelf === v ? "✓ " : ""}{label}
             </button>
           ))}
         </div>

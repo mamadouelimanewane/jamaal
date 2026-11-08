@@ -11,7 +11,7 @@ import { formatPrice } from "@/lib/currency";
 type Target = "RETRAIT" | "CLIENT" | "VENDEUR";
 type Point = { lat: number; lng: number; approx?: boolean; place?: string | null } | null;
 
-const field = "mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-navy";
+const field = "mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm outline-none focus:border-navy";
 
 /**
  * Choix du vendeur : remettre lui-même le colis, faire livrer son client à l'adresse du client,
