@@ -12,25 +12,25 @@ export async function GET() {
   }
 
   const me = await getReseller();
-  let orders: { customerName: string; customerPhone: string | null; createdAt: Date }[] = [];
+  let orders: { customerName: string; customerPhone: string | null; address: string | null; createdAt: Date }[] = [];
 
   if (me) {
     orders = await prisma.order.findMany({
       where: { consultantId: me.id, customerPhone: { not: null } },
       orderBy: { createdAt: "desc" },
-      select: { customerName: true, customerPhone: true, createdAt: true },
+      select: { customerName: true, customerPhone: true, address: true, createdAt: true },
       take: 300,
     });
   } else if (session.user.role === "ADMIN") {
     orders = await prisma.order.findMany({
       where: { customerPhone: { not: null } },
       orderBy: { createdAt: "desc" },
-      select: { customerName: true, customerPhone: true, createdAt: true },
+      select: { customerName: true, customerPhone: true, address: true, createdAt: true },
       take: 300,
     });
   }
 
-  const map = new Map<string, { name: string; phone: string; lastOrder: string }>();
+  const map = new Map<string, { name: string; phone: string; address: string | null; lastOrder: string }>();
   for (const o of orders) {
     if (!o.customerPhone) continue;
     const cleanPhone = o.customerPhone.replace(/\D/g, "");
@@ -39,6 +39,7 @@ export async function GET() {
       map.set(cleanPhone, {
         name: o.customerName || "Client",
         phone: o.customerPhone,
+        address: o.address,
         lastOrder: o.createdAt.toISOString(),
       });
     }

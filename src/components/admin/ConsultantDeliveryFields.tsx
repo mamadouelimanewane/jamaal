@@ -77,7 +77,7 @@ export function ConsultantDeliveryFields({
 
   return (
     <fieldset className="min-w-0 space-y-3">
-      <legend className="text-sm font-semibold text-navy">3. Livraison</legend>
+      <legend className="text-sm font-semibold text-navy">4. Livraison</legend>
       <input type="hidden" name="deliveryTarget" value={target} />
       {point && <><input type="hidden" name="deliveryLat" value={point.lat} /><input type="hidden" name="deliveryLng" value={point.lng} /><input type="hidden" name="deliveryApprox" value={point.approx ? "1" : ""} /><input type="hidden" name="deliveryPlace" value={point.place ?? ""} /></>}
 

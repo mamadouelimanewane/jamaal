@@ -13,15 +13,15 @@ import type { LineItem } from "@/components/admin/ConsultantOrderForm";
 async function preselected(raw: string | undefined, format: string | undefined): Promise<LineItem[]> {
   const slugs = (raw ?? "").split(",").map((s) => s.trim()).filter(Boolean).slice(0, 10);
   if (!slugs.length) return [];
-  const rows = await prisma.product.findMany({ where: { slug: { in: slugs } }, select: { id: true, slug: true, name: true, regularPrice: true, volumes: true, variants: { select: { volumeLabel: true, stock: true } } } });
+  const rows = await prisma.product.findMany({ where: { slug: { in: slugs } }, select: { id: true, slug: true, name: true, regularPrice: true, volumes: true, photo: true, variants: { select: { volumeLabel: true, stock: true } } } });
   return slugs.flatMap((slug) => {
     const p = rows.find((r) => r.slug === slug);
     if (!p) return [];
     const volumes = ((p.volumes as { label: string; price: number }[] | null) ?? []).filter((v) => v && v.label && v.price > 0);
     const stock: Record<string, number> = Object.fromEntries(p.variants.map((x) => [x.volumeLabel, x.stock]));
     const v = volumes.find((x) => x.label === format) ?? volumes.find((x) => (stock[x.label] ?? 1) > 0) ?? volumes[0];
-    if (v) return [{ productId: p.id, productName: p.name, volumeLabel: v.label, price: v.price, quantity: 1 }];
-    return p.regularPrice ? [{ productId: p.id, productName: p.name, volumeLabel: "Format unique", price: p.regularPrice, quantity: 1 }] : [];
+    if (v) return [{ productId: p.id, productName: p.name, volumeLabel: v.label, price: v.price, quantity: 1, options: volumes, photo: p.photo }];
+    return p.regularPrice ? [{ productId: p.id, productName: p.name, volumeLabel: "Format unique", price: p.regularPrice, quantity: 1, photo: p.photo }] : [];
   });
 }
 

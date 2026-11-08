@@ -12,6 +12,7 @@ export interface ProductSearchResult {
   category: string;
   regularPrice: number | null;
   volumes: { label: string; price: number }[] | null;
+  photo: string | null;
 }
 
 export async function searchProductsForOrder(query: string): Promise<ProductSearchResult[]> {
@@ -21,11 +22,11 @@ export async function searchProductsForOrder(query: string): Promise<ProductSear
   const ranked = await searchCatalog(q, 15).catch(() => null);
   const ids = ranked?.hits.map((h) => h.doc.id) ?? [];
   const rows = ids.length
-    ? await prisma.product.findMany({ where: { id: { in: ids } }, select: { id: true, name: true, choganCode: true, number: true, category: true, regularPrice: true, volumes: true } })
+    ? await prisma.product.findMany({ where: { id: { in: ids } }, select: { id: true, name: true, choganCode: true, number: true, category: true, regularPrice: true, volumes: true, photo: true } })
     : await prisma.product.findMany({
         where: { OR: [{ name: { contains: q, mode: "insensitive" } }, { choganCode: { startsWith: q, mode: "insensitive" } }, ...(/^\d+$/.test(q) ? [{ number: Number(q) }] : [])] },
         take: 15,
-        select: { id: true, name: true, choganCode: true, number: true, category: true, regularPrice: true, volumes: true },
+        select: { id: true, name: true, choganCode: true, number: true, category: true, regularPrice: true, volumes: true, photo: true },
       });
   const order = new Map(ids.map((id, i) => [id, i]));
   rows.sort((a, b) => (order.get(a.id) ?? 99) - (order.get(b.id) ?? 99));
@@ -37,5 +38,6 @@ export async function searchProductsForOrder(query: string): Promise<ProductSear
     category: r.category,
     regularPrice: r.regularPrice,
     volumes: (r.volumes as { label: string; price: number }[] | null) ?? null,
+    photo: r.photo,
   }));
 }
