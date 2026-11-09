@@ -38,6 +38,7 @@ const SEGMENTS = {
 } as const;
 
 type NumKey =
+  | "dispatchMaxActive"
   | "purchasePct"
   | "salePct"
   | "priceRounding"
@@ -676,6 +677,23 @@ export function BusinessModelEditor({
               <p className="mt-1 text-xs text-navy/70">{model.depotLat.toFixed(5)}, {model.depotLng.toFixed(5)}</p>
             </div>
             <div className="content-start space-y-4">
+              <fieldset>
+                <legend className="text-sm font-medium text-ink">Attribution des livraisons aux livreurs</legend>
+                <div className="mt-2 grid grid-cols-2 gap-2">
+                  {([["MANUEL", "Manuelle (je choisis)"], ["AUTO", "Automatique"]] as const).map(([v, label]) => (
+                    <label key={v} className={`flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-semibold ${model.deliveryDispatch === v ? "border-navy bg-navy text-white" : "border-line text-ink"}`}>
+                      <input type="radio" name="deliveryDispatch" value={v} checked={model.deliveryDispatch === v} onChange={() => setModel((m) => ({ ...m, deliveryDispatch: v }))} className="sr-only" />
+                      {label}
+                    </label>
+                  ))}
+                </div>
+                {model.deliveryDispatch === "AUTO" ? (
+                  <div className="mt-2 max-w-xs"><NumberField label="Courses en cours au maximum par livreur" name="dispatchMaxActive" value={model.dispatchMaxActive} onChange={set} step="1" hint="le livreur en ligne le plus proche du dépôt reçoit la course" /></div>
+                ) : (
+                  <input type="hidden" name="dispatchMaxActive" value={model.dispatchMaxActive} />
+                )}
+              </fieldset>
+
               <fieldset>
                 <legend className="text-sm font-medium text-ink">Calcul des frais de livraison</legend>
                 <div className="mt-2 grid grid-cols-2 gap-2">

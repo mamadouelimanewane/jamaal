@@ -11,6 +11,7 @@ import { startViewAsReseller } from "@/lib/actions/view-as";
 import { ResellerAccess } from "@/components/admin/ResellerAccess";
 import { getConsultantRankings } from "@/lib/ranking";
 import { RankBadge } from "@/components/admin/RankBadge";
+import { ListSearch } from "@/components/ListSearch";
 
 export const dynamic = "force-dynamic";
 
@@ -70,8 +71,12 @@ export default async function AdminConsultantsPage() {
         Classement du mois en cours — Gold, Silver puis Bronze selon le CA généré et les filleuls actifs.
       </p>
 
-      <div className="mt-6 overflow-x-auto rounded-2xl border border-line bg-white">
-        <table className="w-full text-sm">
+      <div className="mt-5">
+        <ListSearch target="consultants-table" total={consultants.length} placeholder="Rechercher : nom, ville, téléphone, e-mail, parrain…" />
+      </div>
+
+      <div className="mt-4 overflow-x-auto rounded-2xl border border-line bg-white">
+        <table id="consultants-table" className="w-full text-sm">
           <thead className="bg-cream text-left text-xs uppercase text-navy/70">
             <tr>
               <th className="px-4 py-3">Rang</th>
@@ -91,7 +96,7 @@ export default async function AdminConsultantsPage() {
                 .reduce((sum, o) => sum + o.total, 0);
               const info = rankById.get(c.id);
               return (
-                <tr key={c.id} className="border-t border-line">
+                <tr key={c.id} className="border-t border-line" data-search={[c.name, c.city, c.whatsapp, c.email, c.slug, c.sponsor?.name, c.user?.email, c.user?.phone, c.active ? "actif" : "inactif", info?.rank].filter(Boolean).join(" ")}>
                   <td className="px-4 py-3">
                     <RankBadge rank={info?.rank ?? null} />
                   </td>
@@ -151,6 +156,9 @@ export default async function AdminConsultantsPage() {
                 </tr>
               );
             })}
+            <tr data-search-empty hidden>
+              <td colSpan={8} className="px-4 py-6 text-center text-sm text-navy/65">Aucun consultant ne correspond à cette recherche.</td>
+            </tr>
           </tbody>
         </table>
       </div>

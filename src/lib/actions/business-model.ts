@@ -101,6 +101,9 @@ export async function saveBusinessModelAction(_prev: BusinessModelState, formDat
   const minPay = readNumber(formData, "livreurMinPay");
   input.livreurMinPay = Number.isFinite(minPay) && minPay > 0 ? Math.round(minPay) : 0;
   input.deliveryPricing = formData.get("deliveryPricing") === "GRILLE" ? "GRILLE" : "KM";
+  input.deliveryDispatch = formData.get("deliveryDispatch") === "AUTO" ? "AUTO" : "MANUEL";
+  const maxActive = readNumber(formData, "dispatchMaxActive");
+  input.dispatchMaxActive = Number.isFinite(maxActive) && maxActive >= 1 ? Math.min(50, Math.round(maxActive)) : 4;
   {
     const ups = formData.getAll("gridUpToKm");
     const fees = formData.getAll("gridFee");

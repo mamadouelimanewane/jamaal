@@ -2,6 +2,7 @@
  * Création d'une commande (panier du site, ou commande prise sur WhatsApp par l'assistant).
  * Module serveur ordinaire (pas une action) : seules les actions de src/lib/actions l'exposent.
  */
+import { scheduleAutoAssign } from "@/lib/delivery-dispatch";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
@@ -406,6 +407,7 @@ export async function placeOrder(
 
   if (deliveryData.deliveryStatus) {
     await prisma.deliveryEvent.create({ data: { orderId: order.id, status: "A_PREPARER", note: `${deliveryData.deliveryDistanceKm} km depuis le dépôt` } });
+    scheduleAutoAssign(order.id);
   }
 
   // 7. Effets de bord

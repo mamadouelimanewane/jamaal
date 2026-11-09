@@ -1,3 +1,4 @@
+import { scheduleAutoAssign } from "@/lib/delivery-dispatch";
 import { NextRequest } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -15,5 +16,7 @@ export async function POST(req: NextRequest) {
   const user = await prisma.user.findUnique({ where: { id: session.user.id }, select: { active: true, livreurId: true } });
   if (!user?.active || !user.livreurId) return Response.json({ error: "auth" }, { status: 403 });
   const r = await recordPosition(user.livreurId, fix);
+  // Un livreur est en ligne : les livraisons en attente peuvent lui être attribuées (mode automatique).
+  scheduleAutoAssign();
   return Response.json({ ok: true, ...r }, { headers: { "Cache-Control": "no-store" } });
 }

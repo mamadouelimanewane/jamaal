@@ -10,6 +10,7 @@ import { DeliveryMap, type MapPoint } from "@/components/maps/DeliveryMap";
 import { AssignLivreurForm, DeliveryAdminActions } from "@/components/admin/AssignLivreurForm";
 import { PayLivreursButton } from "@/components/admin/PayLivreursButton";
 import { LiveRefresh } from "@/components/admin/LiveRefresh";
+import { DispatchModePanel } from "@/components/admin/DispatchModePanel";
 
 export const dynamic = "force-dynamic";
 
@@ -93,6 +94,8 @@ export default async function LivraisonsPage() {
 
       <div className="mt-6"><DeliveryMap points={points} height={380} /></div>
       <p className="mt-2 text-sm text-navy/75">J = dépôt · repères rosés = adresses de livraison · 🛵 = livreurs ayant partagé leur position depuis moins de 30 min.</p>
+
+      <DispatchModePanel mode={model.deliveryDispatch} maxActive={model.dispatchMaxActive} waiting={toAssign.filter((o) => o.deliveryStatus === "A_PREPARER" && !o.livreurId).length} />
 
       <section className="mt-6 rounded-2xl border border-line bg-white p-5">
         <h2 className="text-lg font-semibold text-ink">À attribuer ({toAssign.length})</h2>

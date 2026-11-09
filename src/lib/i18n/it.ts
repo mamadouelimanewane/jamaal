@@ -1116,4 +1116,8 @@ export const IT: Record<string, string> = {
   "Vous serez dirigé directement vers le moyen de paiement choisi, avec le montant déjà indiqué : rien à ressaisir.": "Sarai indirizzato direttamente al metodo di pagamento scelto, con l'importo già indicato: niente da reinserire.",
   "Wallet JAMAAL": "Wallet JAMAAL",
   "Zone fine et souvent plus foncée : soin dédié aux cernes et poches.": "Zona sottile e spesso più scura: trattamento dedicato a occhiaie e borse.",
+  "Rechercher un consultant : nom ou ville…": "Cerca un consulente: nome o città…",
+  "Aucun consultant ne correspond à cette recherche.": "Nessun consulente corrisponde a questa ricerca.",
+  "{n} sur {total}": "{n} su {total}",
+  "Effacer la recherche": "Cancella la ricerca",
 };

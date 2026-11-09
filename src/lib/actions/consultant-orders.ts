@@ -1,5 +1,6 @@
 "use server";
 
+import { scheduleAutoAssign } from "@/lib/delivery-dispatch";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
@@ -239,6 +240,7 @@ async function placeConsultantOrder(formData: FormData): Promise<string> {
     : await prisma.order.create({ data: orderData });
   // Payée (wallet ou encaissée par le revendeur) : les commissions de la chaîne sont enregistrées tout de suite.
   if (payWithWallet || collect) after(() => runPayoutsForOrder(order.id));
+  if (deliveryData.deliveryStatus && !payLink) scheduleAutoAssign(order.id);
 
   if (coupon) {
     if (coupon.source === "coupon") await prisma.coupon.update({ where: { id: coupon.id }, data: { usedCount: { increment: 1 } } }).catch(() => {});

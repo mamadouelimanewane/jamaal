@@ -1,5 +1,6 @@
 "use server";
 
+import { scheduleAutoAssign } from "@/lib/delivery-dispatch";
 import { after } from "next/server";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
@@ -63,6 +64,7 @@ export async function quickMarkPaid(id: string): Promise<R> {
   if (o.deliveryMode === "LIVRAISON_JAMAAL" && !o.deliveryStatus) {
     await prisma.order.update({ where: { id }, data: { deliveryStatus: "A_PREPARER", deliveryEvents: { create: { status: "A_PREPARER", note: "Paiement reçu : livraison à préparer" } } } });
   }
+  if (o.deliveryMode === "LIVRAISON_JAMAAL") scheduleAutoAssign(id);
   await takeOrderStock(id, session.user?.id ?? null);
   after(() => runPayoutsForOrder(id));
   notifyOrderUpdate(id, "PAYEE");

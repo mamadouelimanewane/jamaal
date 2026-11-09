@@ -1,5 +1,6 @@
 "use server";
 
+import { scheduleAutoAssign } from "@/lib/delivery-dispatch";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "./auth-guard";
@@ -87,6 +88,7 @@ export async function reservationArrivedAction(orderId: string): Promise<Reserva
     return { ok: false, error: /stock insuffisant|il manque|manquait/i.test(msg) ? `Stock insuffisant : réceptionnez d'abord la marchandise (${msg}).` : msg.replace(/^./, (c) => c.toUpperCase()) };
   }
 
+  scheduleAutoAssign(orderId);
   const order = await prisma.order.findUnique({ where: { id: orderId }, select: { customerName: true, customerPhone: true, deliveryContactPhone: true, total: true, depositAmount: true, deliveryMode: true, items: { select: { productName: true, volumeLabel: true } } } });
   let whatsappUrl: string | undefined;
   if (order) {

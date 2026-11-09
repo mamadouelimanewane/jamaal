@@ -12,6 +12,7 @@ import { OrderStatus } from "@prisma/client";
 import { CopyTrackingLink } from "@/components/admin/CopyTrackingLink";
 import { OrderSplit } from "@/components/admin/OrderSplit";
 import { OrderDeliveryPanel } from "@/components/admin/OrderDeliveryPanel";
+import { OrderLocationField } from "@/components/admin/OrderLocationField";
 import { ReservationActions } from "@/components/admin/ReservationActions";
 import { RESERVATION_LABELS, type ReservationStatus } from "@/lib/reservation";
 
@@ -205,7 +206,7 @@ export default async function AdminOrderDetailPage({
           </div>
 
           <div>
-            <label className="text-xs font-medium text-navy/85">Livreur assigné</label>
+            <label className="text-xs font-medium text-navy/85">Livreur assigné {order.deliveryMode === "LIVRAISON_JAMAAL" ? "(il est prévenu sur WhatsApp)" : ""}</label>
             <select
               name="livreurId"
               defaultValue={order.livreurId ?? ""}
@@ -220,28 +221,7 @@ export default async function AdminOrderDetailPage({
             </select>
           </div>
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <div>
-              <label className="text-xs font-medium text-navy/85">Latitude livraison</label>
-              <input
-                name="deliveryLat"
-                type="number"
-                step="any"
-                defaultValue={order.deliveryLat ?? undefined}
-                className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm"
-              />
-            </div>
-            <div>
-              <label className="text-xs font-medium text-navy/85">Longitude livraison</label>
-              <input
-                name="deliveryLng"
-                type="number"
-                step="any"
-                defaultValue={order.deliveryLng ?? undefined}
-                className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm"
-              />
-            </div>
-          </div>
+          <OrderLocationField lat={order.deliveryLat} lng={order.deliveryLng} productsTotal={order.total - order.deliveryFee} currentFee={order.deliveryFee} paid={order.paymentStatus === "PAYE"} customerPhone={order.deliveryContactPhone ?? order.customerPhone} />
 
           {order.deliveryLat && order.deliveryLng && (
             <a

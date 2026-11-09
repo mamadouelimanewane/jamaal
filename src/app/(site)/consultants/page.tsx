@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { getConsultants } from "@/lib/db-content";
 import { getConsultantRankings } from "@/lib/ranking";
 import { RankBadge } from "@/components/admin/RankBadge";
+import { ListSearch } from "@/components/ListSearch";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getT();
@@ -34,10 +35,14 @@ export default async function ConsultantsPage() {
       <p className="mt-3 text-sm text-navy/70">
         {t("Retrouvez un·e consultant·e près de chez vous pour un conseil personnalisé.")}
       </p>
-      <ul className="mt-8 flex flex-col gap-3">
+      <div className="mt-6">
+        <ListSearch target="consultants-list" total={sorted.length} placeholder={t("Rechercher un consultant : nom ou ville…")} />
+      </div>
+      <ul id="consultants-list" className="mt-5 flex flex-col gap-3">
         {sorted.map((c) => (
           <li
             key={c.id}
+            data-search={`${c.name} ${c.city ?? ""}`}
             className="flex items-center justify-between rounded-2xl border border-line bg-white p-4"
           >
             <div>
@@ -52,6 +57,9 @@ export default async function ConsultantsPage() {
             </a>
           </li>
         ))}
+        <li data-search-empty hidden className="rounded-2xl border border-dashed border-line p-6 text-center text-sm text-navy/65">
+          {t("Aucun consultant ne correspond à cette recherche.")}
+        </li>
       </ul>
     </div>
   );

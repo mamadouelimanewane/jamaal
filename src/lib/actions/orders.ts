@@ -8,6 +8,12 @@ import { OrderStatus } from "@prisma/client";
 import { placeOrder, type CheckoutCustomer, type CheckoutDelivery, type CheckoutItem } from "@/lib/orders/place-order";
 export type { CheckoutCustomer, CheckoutDelivery, CheckoutItem };
 import { setOrderStatus } from "@/lib/orders/status";
+import type { Prisma } from "@prisma/client";
+import { getBusinessModel } from "@/lib/business-model-store";
+import { isValidPoint, quoteDelivery } from "@/lib/delivery";
+import { advanceDelivery, DeliveryError } from "@/lib/delivery-engine";
+import { logActivity } from "@/lib/activity-log";
+import { backWithError } from "@/lib/form-error";
 
 /**
  * Crée une commande publique (checkout client).
@@ -68,29 +74,76 @@ export async function updateOrderStatus(id: string, status: OrderStatus) {
   await setOrderStatus(id, status);
 }
 
+/**
+ * Logistique d'une commande (fiche commande, admin) : vendeur, mode de livraison, livreur, position.
+ * - Nouveau livreur sur une livraison JAMAAL : attribution complète (pièce d'identité vérifiée, livreur et
+ *   client prévenus), comme depuis Livraisons.
+ * - Nouvelle position : distance, frais et part du livreur recalculés ; si la commande n'est pas encore
+ *   payée, les frais et le total sont mis à jour.
+ */
 export async function assignOrderLogistics(id: string, formData: FormData) {
-  await requireAdmin("commandes");
-  const consultantId = String(formData.get("consultantId") ?? "") || null;
-  const livreurId = String(formData.get("livreurId") ?? "") || null;
-  const deliveryMode = String(formData.get("deliveryMode") ?? "RETRAIT_CONSULTANT") as
-    | "RETRAIT_CONSULTANT"
-    | "LIVRAISON_JAMAAL";
-  const latRaw = String(formData.get("deliveryLat") ?? "").trim();
-  const lngRaw = String(formData.get("deliveryLng") ?? "").trim();
+  const session = await requireAdmin("commandes");
+  const back = `/admin/commandes/${id}`;
+  try {
+    const order = await prisma.order.findUnique({
+      where: { id },
+      select: { livreurId: true, deliveryMode: true, deliveryLat: true, deliveryLng: true, deliveryFee: true, total: true, paymentStatus: true, address: true, deliveryStatus: true, status: true },
+    });
+    if (!order) throw new Error("Commande introuvable.");
+    const consultantId = String(formData.get("consultantId") ?? "") || null;
+    const livreurId = String(formData.get("livreurId") ?? "") || null;
+    const deliveryMode = String(formData.get("deliveryMode") ?? "RETRAIT_CONSULTANT") === "LIVRAISON_JAMAAL" ? "LIVRAISON_JAMAAL" : "RETRAIT_CONSULTANT";
+    const latRaw = String(formData.get("deliveryLat") ?? "").trim().replace(",", ".");
+    const lngRaw = String(formData.get("deliveryLng") ?? "").trim().replace(",", ".");
+    const point = latRaw && lngRaw ? { lat: Number(latRaw), lng: Number(lngRaw) } : null;
+    if (point && !isValidPoint(point)) throw new Error("Position invalide : collez un lien de localisation ou vérifiez latitude et longitude.");
+    const place = String(formData.get("deliveryPlace") ?? "").trim().slice(0, 120);
+    const approx = formData.get("deliveryApprox") === "1";
 
-  await prisma.order.update({
-    where: { id },
-    data: {
-      consultantId,
-      livreurId,
+    const moved = !!point && (point.lat !== order.deliveryLat || point.lng !== order.deliveryLng);
+    const data: Prisma.OrderUpdateInput = {
+      consultant: consultantId ? { connect: { id: consultantId } } : { disconnect: true },
       deliveryMode,
-      deliveryLat: latRaw ? Number(latRaw) : null,
-      deliveryLng: lngRaw ? Number(lngRaw) : null,
-    },
-  });
+      deliveryLat: point?.lat ?? null,
+      deliveryLng: point?.lng ?? null,
+      ...(place ? { deliveryPlace: place } : {}),
+      ...(moved ? { deliveryApprox: approx } : {}),
+    };
+    let feeNote = "";
+    if (moved && deliveryMode === "LIVRAISON_JAMAAL") {
+      const products = order.total - order.deliveryFee;
+      const quote = quoteDelivery(point!, products, await getBusinessModel());
+      if (!quote.ok) throw new Error(quote.error ?? "Adresse hors zone de livraison.");
+      data.deliveryDistanceKm = quote.distanceKm;
+      data.livreurShare = quote.livreurShare;
+      if (order.paymentStatus !== "PAYE" && quote.fee !== order.deliveryFee) {
+        data.deliveryFee = quote.fee;
+        data.total = products + quote.fee;
+        feeNote = ` · frais ${order.deliveryFee} → ${quote.fee} F`;
+      }
+    }
+    // Livreur : sur une livraison JAMAAL, l'attribution passe par le circuit de livraison.
+    const viaDelivery = deliveryMode === "LIVRAISON_JAMAAL" && livreurId && livreurId !== order.livreurId;
+    if (!viaDelivery) data.livreur = livreurId ? { connect: { id: livreurId } } : { disconnect: true };
+    if (deliveryMode === "LIVRAISON_JAMAAL" && !order.deliveryStatus && order.status !== "ANNULEE") data.deliveryStatus = "A_PREPARER";
+
+    await prisma.order.update({ where: { id }, data });
+    if (moved) await logActivity(session, `Position de livraison modifiée${feeNote}`, "Order", id);
+
+    if (viaDelivery) {
+      const l = await prisma.livreur.findFirst({ where: { id: livreurId!, active: true }, select: { name: true, _count: { select: { documents: true } } } });
+      if (!l) throw new Error("Livreur introuvable ou inactif.");
+      if (!l._count.documents) throw new Error(`Pièce d'identité de ${l.name} manquante : ajoutez-la dans Livreurs › Modifier avant de lui confier une course.`);
+      await advanceDelivery(id, "ASSIGNEE", { kind: "admin" }, { livreurId: livreurId!, note: `Attribuée à ${l.name}` });
+      await logActivity(session, `Livraison attribuée à ${l.name}`, "Order", id);
+    }
+  } catch (e) {
+    await backWithError(e instanceof DeliveryError ? new Error(e.message) : e, back);
+  }
   revalidatePath("/admin/commandes");
-  revalidatePath(`/admin/commandes/${id}`);
+  revalidatePath(back);
   revalidatePath("/admin/mes-livraisons");
+  revalidatePath("/admin/livraisons");
 }
 
 export async function livreurUpdateOrderStatus(id: string, status: OrderStatus) {

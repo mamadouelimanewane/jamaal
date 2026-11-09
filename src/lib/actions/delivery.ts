@@ -1,7 +1,8 @@
 "use server";
 
 import { payoutChannels } from "@/lib/business-model";
-import { getBusinessModel } from "@/lib/business-model-store";
+import { getBusinessModel, saveBusinessModel } from "@/lib/business-model-store";
+import { autoAssignPending } from "@/lib/delivery-dispatch";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin, requireLivreurProfile } from "./auth-guard";
@@ -108,4 +109,26 @@ export async function recordCashRemittance(livreurId: string, _prev: CashState, 
   revalidatePath("/admin/livreurs");
   revalidatePath(`/admin/livreurs/${livreurId}/modifier`);
   return { ok: true, message: `${amount.toLocaleString("fr-FR")} F enregistrés.` };
+}
+
+/** Mode d'attribution des livraisons (page Livraisons) : manuel ou automatique, et maximum de courses par livreur. */
+export async function setDeliveryDispatch(mode: "MANUEL" | "AUTO", maxActive?: number): Promise<DeliveryActionResult & { assigned?: number }> {
+  const session = await requireAdmin("livraison");
+  const model = await getBusinessModel();
+  const next = { ...model, deliveryDispatch: mode === "AUTO" ? ("AUTO" as const) : ("MANUEL" as const), dispatchMaxActive: maxActive && maxActive >= 1 ? Math.min(50, Math.round(maxActive)) : model.dispatchMaxActive };
+  await saveBusinessModel(next);
+  await logActivity(session, `Attribution des livraisons : ${next.deliveryDispatch === "AUTO" ? `automatique (max ${next.dispatchMaxActive} par livreur)` : "manuelle"}`, "BusinessModel");
+  const assigned = next.deliveryDispatch === "AUTO" ? await autoAssignPending() : 0;
+  revalidatePath("/admin/livraisons");
+  return { ok: true, assigned };
+}
+
+/** « Attribuer maintenant » : lance l'attribution automatique des livraisons en attente. */
+export async function runAutoAssign(): Promise<DeliveryActionResult & { assigned?: number }> {
+  await requireAdmin("livraison");
+  const model = await getBusinessModel();
+  if (model.deliveryDispatch !== "AUTO") return { ok: false, error: "Activez d'abord l'attribution automatique." };
+  const assigned = await autoAssignPending();
+  revalidatePath("/admin/livraisons");
+  return { ok: true, assigned };
 }

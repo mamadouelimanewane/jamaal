@@ -1,3 +1,4 @@
+import { scheduleAutoAssign } from "@/lib/delivery-dispatch";
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { runPayoutsForOrder } from "@/lib/payouts/engine";
@@ -158,6 +159,10 @@ async function afterPayLinkPaid(order: { id: string; consultantId: string | null
       data: { deliveryStatus: "A_PREPARER", deliveryEvents: { create: { status: "A_PREPARER", note: "Paiement en ligne reçu : livraison à préparer" } } },
     });
     safeRevalidate("/admin/livraisons");
+  }
+  if (order.deliveryMode === "LIVRAISON_JAMAAL" && !order.isReservation) {
+    // Payée : la livraison peut partir (attribution automatique si elle est activée).
+    scheduleAutoAssign(order.id);
   }
   if (!order.consultantId) return;
   const user = await prisma.user.findFirst({ where: { consultantId: order.consultantId }, select: { id: true } });

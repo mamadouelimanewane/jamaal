@@ -100,6 +100,10 @@ export type BusinessModel = {
   deliveryGrid: DeliveryBracket[];
   /** Commission minimale du livreur par course (FCFA), même livraison offerte. 0 = aucune. */
   livreurMinPay: number;
+  /** Attribution des livraisons : « MANUEL » (l'admin choisit le livreur) ou « AUTO » (livreur disponible le plus proche). */
+  deliveryDispatch: "MANUEL" | "AUTO";
+  /** Attribution automatique : nombre maximal de courses en cours par livreur. */
+  dispatchMaxActive: number;
 };
 
 export type DeliveryBracket = { upToKm: number; fee: number; livreur: number };
@@ -185,6 +189,8 @@ export const DEFAULT_BUSINESS_MODEL: BusinessModel = {
   deliveryPricing: "KM",
   deliveryGrid: DEFAULT_DELIVERY_GRID,
   livreurMinPay: 0,
+  deliveryDispatch: "MANUEL",
+  dispatchMaxActive: 4,
 };
 
 function normalizeTiers(list: unknown[]): PrimeTier[] {
@@ -239,6 +245,8 @@ export function normalizeBusinessModel(raw: unknown): BusinessModel {
   num("livreurSharePct", 0, 100);
   num("livreurMinPay", 0, 1_000_000);
   if (r.deliveryPricing === "KM" || r.deliveryPricing === "GRILLE") base.deliveryPricing = r.deliveryPricing;
+  if (r.deliveryDispatch === "MANUEL" || r.deliveryDispatch === "AUTO") base.deliveryDispatch = r.deliveryDispatch;
+  num("dispatchMaxActive", 1, 50);
   if (Array.isArray(r.deliveryGrid)) {
     const g = normalizeGrid(r.deliveryGrid);
     if (g.length) base.deliveryGrid = g;
