@@ -206,7 +206,7 @@ export default async function AdminOrderDetailPage({
           </div>
 
           <div>
-            <label className="text-xs font-medium text-navy/85">Livreur assigné {order.deliveryMode === "LIVRAISON_JAMAAL" ? "(il est prévenu sur WhatsApp)" : ""}</label>
+            <label className="text-xs font-medium text-navy/85">Livreur assigné <span className="font-normal text-navy/60">(choisir un livreur passe la commande en livraison JAMAAL : il est prévenu dans son application et sur WhatsApp)</span></label>
             <select
               name="livreurId"
               defaultValue={order.livreurId ?? ""}

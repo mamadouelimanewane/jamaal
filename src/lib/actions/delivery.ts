@@ -7,7 +7,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin, requireLivreurProfile } from "./auth-guard";
 import { logActivity } from "@/lib/activity-log";
-import { advanceDelivery, DeliveryError, payLivreurs } from "@/lib/delivery-engine";
+import { advanceDelivery, DeliveryError, ensureJamaalDelivery, payLivreurs } from "@/lib/delivery-engine";
 import { DELIVERY_LABELS, type DeliveryStatus } from "@/lib/delivery";
 import { normalizeWalletNumber } from "@/lib/payouts/providers";
 
@@ -46,8 +46,12 @@ export async function assignLivreurAction(orderId: string, livreurId: string): P
   if (!livreur) return { ok: false, error: "Livreur introuvable ou inactif." };
   if (!livreur._count.documents) return { ok: false, error: `Pièce d'identité de ${livreur.name} manquante : ajoutez-la dans Livreurs › Modifier avant de lui confier une course.` };
   try {
+    // Toute commande peut être confiée à un livreur : elle devient une livraison JAMAAL.
+    await ensureJamaalDelivery(orderId);
     await advanceDelivery(orderId, "ASSIGNEE", { kind: "admin" }, { livreurId: livreur.id, note: `Attribuée à ${livreur.name}` });
     await logActivity(session, `Livraison attribuée à ${livreur.name}`, "Order", orderId);
+    revalidatePath("/admin/livraisons");
+    revalidatePath(`/admin/commandes/${orderId}`);
     return { ok: true };
   } catch (error) {
     return failure(error);

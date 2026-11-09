@@ -11,7 +11,7 @@ import { setOrderStatus } from "@/lib/orders/status";
 import type { Prisma } from "@prisma/client";
 import { getBusinessModel } from "@/lib/business-model-store";
 import { isValidPoint, quoteDelivery } from "@/lib/delivery";
-import { advanceDelivery, DeliveryError } from "@/lib/delivery-engine";
+import { advanceDelivery, DeliveryError, ensureJamaalDelivery } from "@/lib/delivery-engine";
 import { logActivity } from "@/lib/activity-log";
 import { backWithError } from "@/lib/form-error";
 
@@ -92,7 +92,9 @@ export async function assignOrderLogistics(id: string, formData: FormData) {
     if (!order) throw new Error("Commande introuvable.");
     const consultantId = String(formData.get("consultantId") ?? "") || null;
     const livreurId = String(formData.get("livreurId") ?? "") || null;
-    const deliveryMode = String(formData.get("deliveryMode") ?? "RETRAIT_CONSULTANT") === "LIVRAISON_JAMAAL" ? "LIVRAISON_JAMAAL" : "RETRAIT_CONSULTANT";
+    // Un livreur choisi = livraison JAMAAL (sinon il ne serait ni prévenu ni payé).
+    const newLivreur = !!livreurId && livreurId !== order.livreurId;
+    const deliveryMode = newLivreur || String(formData.get("deliveryMode") ?? "RETRAIT_CONSULTANT") === "LIVRAISON_JAMAAL" ? "LIVRAISON_JAMAAL" : "RETRAIT_CONSULTANT";
     const latRaw = String(formData.get("deliveryLat") ?? "").trim().replace(",", ".");
     const lngRaw = String(formData.get("deliveryLng") ?? "").trim().replace(",", ".");
     const point = latRaw && lngRaw ? { lat: Number(latRaw), lng: Number(lngRaw) } : null;
@@ -123,7 +125,7 @@ export async function assignOrderLogistics(id: string, formData: FormData) {
       }
     }
     // Livreur : sur une livraison JAMAAL, l'attribution passe par le circuit de livraison.
-    const viaDelivery = deliveryMode === "LIVRAISON_JAMAAL" && livreurId && livreurId !== order.livreurId;
+    const viaDelivery = newLivreur;
     if (!viaDelivery) data.livreur = livreurId ? { connect: { id: livreurId } } : { disconnect: true };
     if (deliveryMode === "LIVRAISON_JAMAAL" && !order.deliveryStatus && order.status !== "ANNULEE") data.deliveryStatus = "A_PREPARER";
 
@@ -134,6 +136,7 @@ export async function assignOrderLogistics(id: string, formData: FormData) {
       const l = await prisma.livreur.findFirst({ where: { id: livreurId!, active: true }, select: { name: true, _count: { select: { documents: true } } } });
       if (!l) throw new Error("Livreur introuvable ou inactif.");
       if (!l._count.documents) throw new Error(`Pièce d'identité de ${l.name} manquante : ajoutez-la dans Livreurs › Modifier avant de lui confier une course.`);
+      await ensureJamaalDelivery(id);
       await advanceDelivery(id, "ASSIGNEE", { kind: "admin" }, { livreurId: livreurId!, note: `Attribuée à ${l.name}` });
       await logActivity(session, `Livraison attribuée à ${l.name}`, "Order", id);
     }

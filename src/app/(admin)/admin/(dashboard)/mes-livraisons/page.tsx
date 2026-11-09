@@ -10,6 +10,7 @@ import { ListenButton } from "@/components/livreur/Listen";
 import { LivreurDeliveryCard } from "@/components/admin/LivreurDeliveryCard";
 import { LivreurWalletForm } from "@/components/admin/LivreurWalletForm";
 import { LiveRefresh } from "@/components/admin/LiveRefresh";
+import { NewCourseAlert } from "@/components/livreur/NewCourseAlert";
 import { DELIVERY_LABELS, type DeliveryStatus } from "@/lib/delivery";
 import { WALLET_LABELS } from "@/lib/payouts/providers";
 
@@ -74,6 +75,7 @@ export default async function MesLivraisonsPage() {
         <LivreurGps active={orders.length > 0} />
         <LiveRefresh seconds={20} />
       </div>
+      <NewCourseAlert courses={orders.filter((o) => o.deliveryStatus === "ASSIGNEE" || !o.deliveryStatus).map((o) => ({ id: o.id, name: o.deliveryContactName ?? o.customerName, place: o.deliveryPlace ?? o.address ?? "voir la carte" }))} />
       {orders.length > 0 && <p className="mt-2 rounded-2xl bg-[#EFF6FF] px-4 py-2.5 text-sm font-semibold text-[#1E3A8A]">📍 Gardez l&apos;application ouverte pendant la tournée : le client voit où vous êtes.</p>}
 
       <a href="/admin/mon-wallet" className={`mt-3 flex items-center justify-between gap-3 rounded-3xl p-4 ${owed ? "bg-[#FEF3C7] text-[#78350F]" : "bg-[#CCFBF1] text-[#134E4A]"}`}>

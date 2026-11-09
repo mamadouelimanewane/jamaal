@@ -68,6 +68,8 @@ export async function autoAssignPending(orderId?: string): Promise<number> {
   for (const o of orders) {
     const pick = pickLivreur(pool, depot, model.dispatchMaxActive);
     if (!pick) break;
+    // Toujours libre ? (un autre balayage ou l'équipe a pu l'attribuer entre-temps)
+    if (!(await prisma.order.count({ where: { id: o.id, livreurId: null, deliveryStatus: "A_PREPARER" } }))) continue;
     try {
       await advanceDelivery(o.id, "ASSIGNEE", { kind: "admin" }, { livreurId: pick.id, note: `Attribution automatique à ${pick.name}${pick.live ? "" : " (hors ligne)"}` });
       pick.load += 1;

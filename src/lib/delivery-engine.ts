@@ -8,8 +8,9 @@ import { takeOrderStock } from "@/lib/stock";
 import { after } from "next/server";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@prisma/client";
 import { getBusinessModel } from "@/lib/business-model-store";
-import { DELIVERY_LABELS, isValidPoint, type DeliveryStatus } from "@/lib/delivery";
+import { DELIVERY_LABELS, isValidPoint, newDeliveryCode, quoteDelivery, type DeliveryStatus } from "@/lib/delivery";
 import { DELIVERY_FAR_M, distanceM } from "@/lib/geo-track";
 import { runPayoutsForOrder } from "@/lib/payouts/engine";
 import { isWalletProvider, payoutProvidersConfig, sendPayout } from "@/lib/payouts/providers";
@@ -52,6 +53,34 @@ function refresh(orderId: string) {
  * - Un livreur n'agit que sur ses propres livraisons ; « Livrée » exige le code du client.
  * - L'admin peut attribuer un livreur, signaler un échec ou forcer une étape (sans code).
  */
+/**
+ * Une commande confiée à un livreur devient une livraison JAMAAL (même si elle était en retrait ou
+ * livrée par le consultant) : code de livraison, étape « En préparation », part du livreur d'après la
+ * distance (les frais déjà payés par le client ne changent pas).
+ */
+export async function ensureJamaalDelivery(orderId: string) {
+  const o = await prisma.order.findUnique({
+    where: { id: orderId },
+    select: { status: true, deliveryMode: true, deliveryCode: true, deliveryStatus: true, livreurId: true, livreurShare: true, deliveryLat: true, deliveryLng: true, total: true, deliveryFee: true },
+  });
+  if (!o) throw new DeliveryError("Commande introuvable.");
+  if (o.status === "ANNULEE") throw new DeliveryError("Commande annulée.");
+  if (o.status === "LIVREE" || o.deliveryStatus === "LIVREE") throw new DeliveryError("Commande déjà livrée.");
+  const data: Prisma.OrderUpdateInput = {};
+  if (o.deliveryMode !== "LIVRAISON_JAMAAL") data.deliveryMode = "LIVRAISON_JAMAAL";
+  if (!o.deliveryCode) data.deliveryCode = newDeliveryCode();
+  if (!o.deliveryStatus) data.deliveryStatus = o.livreurId ? "ASSIGNEE" : "A_PREPARER";
+  const point = { lat: o.deliveryLat ?? NaN, lng: o.deliveryLng ?? NaN };
+  if (!o.livreurShare && isValidPoint(point)) {
+    const q = quoteDelivery(point, o.total - o.deliveryFee, await getBusinessModel());
+    if (q.ok) {
+      data.livreurShare = q.livreurShare;
+      data.deliveryDistanceKm = q.distanceKm;
+    }
+  }
+  if (Object.keys(data).length) await prisma.order.update({ where: { id: orderId }, data });
+}
+
 export async function advanceDelivery(
   orderId: string,
   to: DeliveryStatus,
@@ -71,7 +100,9 @@ export async function advanceDelivery(
     if (order.livreurId !== actor.livreurId) throw new DeliveryError("Cette livraison ne vous est pas attribuée.");
     if (to === "ASSIGNEE") throw new DeliveryError("Seule l'équipe JAMAAL attribue les livraisons.");
   }
-  if (!NEXT[from].includes(to) && !(actor.kind === "admin" && to !== from)) {
+  // L'équipe peut forcer une étape, et réattribuer (ou renvoyer) une course tant qu'elle n'est pas livrée.
+  const adminReassign = actor.kind === "admin" && to === "ASSIGNEE" && from !== "LIVREE";
+  if (!NEXT[from].includes(to) && !(actor.kind === "admin" && to !== from) && !adminReassign) {
     throw new DeliveryError(`Étape impossible : « ${DELIVERY_LABELS[from]} » → « ${DELIVERY_LABELS[to]} ».`);
   }
   if (to === "LIVREE" && actor.kind === "livreur") {
@@ -157,8 +188,16 @@ async function afterStep(orderId: string, to: DeliveryStatus, order: StepOrder) 
     // Mission envoyée au livreur sur WhatsApp : il fait avancer la course en répondant.
     const o = await prisma.order.findUnique({
       where: { id: orderId },
-      select: { total: true, paymentStatus: true, address: true, deliveryPlace: true, deliveryLat: true, deliveryLng: true, livreur: { select: { name: true, phone: true } } },
+      select: { total: true, paymentStatus: true, address: true, deliveryPlace: true, deliveryLat: true, deliveryLng: true, livreur: { select: { id: true, name: true, phone: true } } },
     });
+    // Notification dans l'application JAMAAL Livreur (cloche + alerte sonore), même si WhatsApp n'arrive pas.
+    if (o?.livreur) {
+      const users = await prisma.user.findMany({ where: { livreurId: o.livreur.id, active: true }, select: { id: true } });
+      if (users.length)
+        await prisma.notification.createMany({
+          data: users.map((u) => ({ userId: u.id, orderId, title: "Nouvelle course 🛵", message: `${contactName} · ${o.deliveryPlace ?? o.address ?? "voir la carte"}${o.paymentStatus === "PAYE" ? " · déjà payée" : ` · à encaisser ${o.total.toLocaleString("fr-FR")} F`}` })),
+        });
+    }
     if (o?.livreur?.phone) {
       const ref = orderId.slice(-8).toUpperCase();
       await sendWhatsApp({
