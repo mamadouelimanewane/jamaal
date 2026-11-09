@@ -81,6 +81,46 @@ export async function ensureJamaalDelivery(orderId: string) {
   if (Object.keys(data).length) await prisma.order.update({ where: { id: orderId }, data });
 }
 
+/** Message du code de remise envoyé à la personne qui reçoit le colis (pur, testé). */
+export function deliveryCodeMessage(o: { contactName: string; customerName: string; atVendor: boolean; code: string; livreur?: { name: string; phone?: string | null } | null; track: string; step: "ASSIGNEE" | "EN_ROUTE" | "RENVOI" }): string {
+  const what = o.atVendor ? `la commande JAMAAL de ${o.customerName}` : "votre commande JAMAAL";
+  const d = (o.livreur?.phone ?? "").replace(/\D/g, "");
+  const local = d.startsWith("221") && d.length === 12 ? d.slice(3) : d.length === 9 ? d : "";
+  const phone = local ? `${local.slice(0, 2)} ${local.slice(2, 5)} ${local.slice(5, 7)} ${local.slice(7)}` : d ? `+${d}` : "";
+  const head =
+    o.step === "EN_ROUTE"
+      ? `${what} est en route${o.livreur ? ` avec ${o.livreur.name}` : ""}.`
+      : `${what} est confiée au livreur ${o.livreur?.name ?? "JAMAAL"}${phone ? ` (${phone})` : ""}.`;
+  return `Bonjour ${o.contactName}, ${head}\n🔐 Code de livraison : ${o.code}\nDonnez ce code au livreur seulement quand vous avez le colis en main : c'est la preuve que vous l'avez bien reçu. Ne le communiquez à personne d'autre.${o.track ? `\nSuivi en direct : ${o.track}` : ""}`;
+}
+
+/**
+ * Envoie (ou renvoie) le code de remise au destinataire du colis. Si WhatsApp ne passe pas (non configuré,
+ * refusé), l'équipe et le vendeur sont prévenus dans le back-office pour le transmettre eux-mêmes.
+ */
+export async function sendDeliveryCode(orderId: string, step: "ASSIGNEE" | "EN_ROUTE" | "RENVOI"): Promise<{ status: string; error?: string; phone: string | null; text: string }> {
+  const o = await prisma.order.findUnique({
+    where: { id: orderId },
+    select: { customerName: true, customerPhone: true, deliveryContactName: true, deliveryContactPhone: true, deliveryTarget: true, deliveryCode: true, consultantId: true, livreur: { select: { name: true, phone: true } } },
+  });
+  if (!o?.deliveryCode) return { status: "ECHEC", error: "Pas de code de livraison", phone: null, text: "" };
+  const site = await getSiteUrl().catch(() => "");
+  const atVendor = o.deliveryTarget === "VENDEUR";
+  const phone = o.deliveryContactPhone ?? o.customerPhone;
+  const text = deliveryCodeMessage({ contactName: o.deliveryContactName ?? o.customerName, customerName: o.customerName, atVendor, code: o.deliveryCode, livreur: o.livreur, track: site ? `${site}/suivi/${orderId}` : "", step });
+  const r = phone ? await sendWhatsApp({ to: phone, kind: atVendor ? "reseller" : "client", text, ...(site ? { cta: { label: "Suivre ma livraison", url: `${site}/suivi/${orderId}` } } : {}) }) : { status: "ECHEC" as const, error: "Pas de numéro" };
+  if (r.status !== "ENVOYE") {
+    const ref = orderId.slice(-8).toUpperCase();
+    const msg = `Le client ${o.customerName} n'a pas reçu son code de livraison par WhatsApp (${r.status === "SIMULE" ? "WhatsApp non configuré" : r.error ?? "refusé"}). Code : ${o.deliveryCode} · transmettez-le-lui (bouton « Envoyer le code » sur la commande).`;
+    const users = await prisma.user.findMany({
+      where: { active: true, OR: [{ role: "ADMIN" }, ...(o.consultantId ? [{ consultantId: o.consultantId }] : [])] },
+      select: { id: true },
+    });
+    if (users.length) await prisma.notification.createMany({ data: users.map((u) => ({ userId: u.id, orderId, title: `Code de livraison à transmettre · n° ${ref}`, message: msg })) });
+  }
+  return { status: r.status, error: "error" in r ? r.error : undefined, phone, text };
+}
+
 export async function advanceDelivery(
   orderId: string,
   to: DeliveryStatus,
@@ -198,6 +238,8 @@ async function afterStep(orderId: string, to: DeliveryStatus, order: StepOrder) 
           data: users.map((u) => ({ userId: u.id, orderId, title: "Nouvelle course 🛵", message: `${contactName} · ${o.deliveryPlace ?? o.address ?? "voir la carte"}${o.paymentStatus === "PAYE" ? " · déjà payée" : ` · à encaisser ${o.total.toLocaleString("fr-FR")} F`}` })),
         });
     }
+    // Code de remise envoyé au destinataire dès l'attribution (preuve de réception à la livraison).
+    await sendDeliveryCode(orderId, "ASSIGNEE").catch((e) => console.error("[livraison] code client", orderId, e));
     if (o?.livreur?.phone) {
       const ref = orderId.slice(-8).toUpperCase();
       await sendWhatsApp({
@@ -208,15 +250,7 @@ async function afterStep(orderId: string, to: DeliveryStatus, order: StepOrder) 
       });
     }
   }
-  if (to === "EN_ROUTE" && contactPhone) {
-    const o = await prisma.order.findUnique({ where: { id: orderId }, select: { deliveryCode: true, livreur: { select: { name: true } } } });
-    await sendWhatsApp({
-      to: contactPhone,
-      kind: atVendor ? "reseller" : "client",
-      text: `Bonjour ${contactName}, ${atVendor ? `la commande JAMAAL de ${order.customerName}` : "votre commande JAMAAL"} est en route${o?.livreur ? ` avec ${o.livreur.name}` : ""}. Suivez-la en direct : ${track}\nCode de livraison à donner au livreur : ${o?.deliveryCode ?? ""}`,
-      ...(track ? { cta: { label: "Suivre le livreur", url: track } } : {}),
-    });
-  }
+  if (to === "EN_ROUTE" && contactPhone) await sendDeliveryCode(orderId, "EN_ROUTE");
   if (to === "LIVREE") {
     // Chaque effet est indépendant : l'échec d'une notification ne bloque pas les versements.
     const safely = (label: string, fn: () => Promise<unknown>) => fn().catch((e) => console.error(`[livraison] ${label}`, orderId, e));

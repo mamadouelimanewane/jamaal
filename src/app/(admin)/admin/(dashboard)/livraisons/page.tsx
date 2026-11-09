@@ -9,6 +9,7 @@ import { payoutProvidersConfig } from "@/lib/payouts/providers";
 import { DeliveryMap, type MapPoint } from "@/components/maps/DeliveryMap";
 import { AssignLivreurForm, DeliveryAdminActions, type LivreurChoice } from "@/components/admin/AssignLivreurForm";
 import { ListSearch } from "@/components/ListSearch";
+import { SendCodeButton } from "@/components/admin/SendCodeButton";
 import { LIVREUR_ACTIVE } from "@/lib/livreur-signup";
 import { PayLivreursButton } from "@/components/admin/PayLivreursButton";
 import { LiveRefresh } from "@/components/admin/LiveRefresh";
@@ -52,19 +53,19 @@ export default async function LivraisonsPage() {
       where: { status: "ASSIGNEE" },
       orderBy: { createdAt: "desc" },
       take: 40,
-      select: { id: true, createdAt: true, note: true, orderId: true, order: { select: { customerName: true } }, livreur: { select: { name: true, phone: true } } },
+      select: { id: true, createdAt: true, note: true, orderId: true, order: { select: { customerName: true, customerPhone: true, deliveryContactPhone: true } }, livreur: { select: { name: true, phone: true } } },
     }),
   ]);
   // Message WhatsApp envoyé au livreur pour chaque attribution (dans les 3 minutes qui suivent).
   const last9 = (p: string | null | undefined) => (p ?? "").replace(/\D/g, "").slice(-9);
   const waLogs = history.length
     ? await prisma.whatsAppMessage.findMany({
-        where: { direction: "OUT", kind: "livreur", createdAt: { gte: new Date(history[history.length - 1].createdAt.getTime() - 60_000) } },
-        select: { toNumber: true, status: true, error: true, createdAt: true },
+        where: { direction: "OUT", kind: { in: ["livreur", "client", "reseller"] }, createdAt: { gte: new Date(history[history.length - 1].createdAt.getTime() - 60_000) } },
+        select: { toNumber: true, kind: true, status: true, error: true, createdAt: true },
       })
     : [];
-  const waFor = (phone: string | null | undefined, at: Date) =>
-    waLogs.find((w) => last9(w.toNumber) === last9(phone) && w.createdAt.getTime() >= at.getTime() - 5_000 && w.createdAt.getTime() <= at.getTime() + 180_000);
+  const waFor = (phone: string | null | undefined, at: Date, kinds = ["livreur"]) =>
+    waLogs.find((w) => kinds.includes(w.kind) && last9(w.toNumber) === last9(phone) && w.createdAt.getTime() >= at.getTime() - 5_000 && w.createdAt.getTime() <= at.getTime() + 180_000);
 
   const toAssign = orders.filter((o) => o.deliveryStatus === "A_PREPARER" || o.deliveryStatus === "ECHEC");
   const inProgress = orders.filter((o) => !toAssign.includes(o));
@@ -173,6 +174,7 @@ export default async function LivraisonsPage() {
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
                   {o.deliveryStatus === "ASSIGNEE" && livreurs.length > 0 && <AssignLivreurForm orderId={o.id} livreurs={choices(destOf(o))} suggestedId={o.livreurId} label="Réattribuer / relancer" reassign />}
+                  <SendCodeButton orderId={o.id} compact />
                   <DeliveryAdminActions orderId={o.id} />
                 </div>
               </li>
@@ -214,6 +216,8 @@ export default async function LivraisonsPage() {
             {history.map((h) => {
               const wa = waFor(h.livreur?.phone, h.createdAt);
               const [waText, waClass] = wa ? WA_LABEL[wa.status] ?? [wa.status, "text-navy/70"] : ["WhatsApp : aucun message", "text-navy/60"];
+              const code = waFor(h.order?.deliveryContactPhone ?? h.order?.customerPhone, h.createdAt, ["client", "reseller"]);
+              const [codeText, codeClass] = code ? (code.status === "ENVOYE" || code.status === "LIVRE" || code.status === "LU" ? ["code envoyé ✓", "text-emerald-800"] : code.status === "SIMULE" ? ["code non envoyé (WhatsApp non configuré)", "text-amber-800"] : ["code refusé par WhatsApp", "text-red-700"]) : ["code : aucun envoi", "text-navy/60"];
               return (
                 <li key={h.id} className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 py-2.5">
                   <span>
@@ -221,7 +225,10 @@ export default async function LivraisonsPage() {
                     <Link href={`/admin/commandes/${h.orderId}`} className="font-semibold text-ink hover:underline">{h.order?.customerName ?? h.orderId.slice(-8)}</Link> → <strong>{h.livreur?.name ?? "?"}</strong>
                     {h.note ? <span className="text-navy/60"> · {h.note}</span> : null}
                   </span>
-                  <span className={`text-xs font-semibold ${waClass}`} title={wa?.error ?? undefined}>📱 Appli ✓ · {waText}{wa?.status === "ECHEC" && wa.error ? ` (${wa.error.slice(0, 60)})` : ""}</span>
+                  <span className="flex flex-col items-end text-xs font-semibold">
+                    <span className={waClass} title={wa?.error ?? undefined}>Livreur : 📱 Appli ✓ · {waText}{wa?.status === "ECHEC" && wa.error ? ` (${wa.error.slice(0, 60)})` : ""}</span>
+                    <span className={codeClass} title={code?.error ?? undefined}>Client : 🔐 {codeText}</span>
+                  </span>
                 </li>
               );
             })}

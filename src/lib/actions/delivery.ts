@@ -5,9 +5,10 @@ import { getBusinessModel, saveBusinessModel } from "@/lib/business-model-store"
 import { autoAssignPending } from "@/lib/delivery-dispatch";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin, requireLivreurProfile } from "./auth-guard";
+import { requireAdmin, requireConsultantProfile, requireLivreurProfile } from "./auth-guard";
+import { auth } from "@/lib/auth";
 import { logActivity } from "@/lib/activity-log";
-import { advanceDelivery, DeliveryError, ensureJamaalDelivery, payLivreurs } from "@/lib/delivery-engine";
+import { advanceDelivery, DeliveryError, ensureJamaalDelivery, payLivreurs, sendDeliveryCode } from "@/lib/delivery-engine";
 import { DELIVERY_LABELS, type DeliveryStatus } from "@/lib/delivery";
 import { normalizeWalletNumber } from "@/lib/payouts/providers";
 
@@ -135,4 +136,25 @@ export async function runAutoAssign(): Promise<DeliveryActionResult & { assigned
   const assigned = await autoAssignPending();
   revalidatePath("/admin/livraisons");
   return { ok: true, assigned };
+}
+
+/**
+ * (Ré)envoyer le code de livraison au destinataire du colis, par WhatsApp. Équipe (Livraisons) ou vendeur
+ * de la commande. Renvoie aussi le texte, pour un envoi manuel si WhatsApp ne passe pas.
+ */
+export async function resendDeliveryCode(orderId: string): Promise<DeliveryActionResult & { status?: string; phone?: string | null; text?: string }> {
+  const session = await auth();
+  const role = session?.user?.role;
+  if (role === "ADMIN") await requireAdmin("livraison");
+  else if (role === "CONSULTANT") {
+    const { consultant } = await requireConsultantProfile();
+    const mine = await prisma.order.count({ where: { id: orderId, consultantId: consultant.id } });
+    if (!mine) return { ok: false, error: "Commande introuvable." };
+  } else return { ok: false, error: "Accès refusé." };
+  const o = await prisma.order.findUnique({ where: { id: orderId }, select: { deliveryCode: true, deliveryStatus: true, status: true } });
+  if (!o?.deliveryCode) return { ok: false, error: "Cette commande n'a pas de code de livraison (elle n'est pas en livraison JAMAAL)." };
+  if (o.deliveryStatus === "LIVREE" || o.status === "ANNULEE") return { ok: false, error: "Commande déjà livrée ou annulée." };
+  const r = await sendDeliveryCode(orderId, "RENVOI");
+  if (session?.user?.id) await logActivity(session, `Code de livraison renvoyé (${r.status})`, "Order", orderId).catch(() => {});
+  return { ok: true, status: r.status, phone: r.phone, text: r.text };
 }

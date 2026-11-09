@@ -23,3 +23,13 @@ test("recherche de consultants : accents, ordre des mots, numéros", () => {
   assert.equal(matchesSearch(row, "77 123"), true);
   assert.equal(matchesSearch(row, "dakar"), false);
 });
+
+import { deliveryCodeMessage } from "../delivery-engine";
+
+test("message du code de livraison au destinataire", () => {
+  const m = deliveryCodeMessage({ contactName: "Awa", customerName: "Awa", atVendor: false, code: "4821", livreur: { name: "Ouzin", phone: "https://wa.me/221770000000" }, track: "https://www.jamaal.sn/suivi/x", step: "ASSIGNEE" });
+  assert.match(m, /Code de livraison : 4821/);
+  assert.match(m, /confiée au livreur Ouzin \(77 000 00 00\)/);
+  assert.match(m, /suivi\/x/);
+  assert.match(deliveryCodeMessage({ contactName: "Moussa", customerName: "Fatou", atVendor: true, code: "1111", livreur: null, track: "", step: "EN_ROUTE" }), /la commande JAMAAL de Fatou est en route/);
+});

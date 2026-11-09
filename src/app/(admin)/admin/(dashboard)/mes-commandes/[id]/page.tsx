@@ -1,4 +1,5 @@
 import { notFound, redirect } from "next/navigation";
+import { SendCodeButton } from "@/components/admin/SendCodeButton";
 import { paymentLine } from "@/lib/special-terms";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
@@ -144,6 +145,9 @@ export default async function MesCommandeDetailPage({
               Code de remise à donner au livreur{order.deliveryTarget === "VENDEUR" ? "" : " (transmis aussi au client)"} :{" "}
               <span className="rounded-lg bg-navy px-2.5 py-1 font-mono text-base font-semibold tracking-widest text-white">{order.deliveryCode}</span>
             </p>
+          )}
+          {order.deliveryCode && order.deliveryTarget !== "VENDEUR" && order.deliveryStatus !== "LIVREE" && order.status !== "ANNULEE" && (
+            <div className="mt-2"><SendCodeButton orderId={order.id} /></div>
           )}
         </div>
       )}

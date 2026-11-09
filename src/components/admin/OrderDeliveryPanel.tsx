@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/currency";
 import { DELIVERY_LABELS, type DeliveryStatus } from "@/lib/delivery";
 import { DeliveryAdminActions } from "./AssignLivreurForm";
+import { SendCodeButton } from "./SendCodeButton";
 import { OrderDeliveryMap } from "./OrderDeliveryMap";
 import { getBusinessModel } from "@/lib/business-model-store";
 import { isValidPoint } from "@/lib/delivery";
@@ -83,7 +84,12 @@ export async function OrderDeliveryPanel({ orderId }: { orderId: string }) {
       {(status === "A_PREPARER" || status === "ECHEC") && (
         <p className="mt-3 text-sm"><Link href="/admin/livraisons" className="font-semibold text-rose-dark hover:underline">Attribuer un livreur dans « Livraisons »</Link></p>
       )}
-      {active && <div className="mt-3"><DeliveryAdminActions orderId={orderId} /></div>}
+      {active && (
+        <div className="mt-3 grid gap-2">
+          {order.deliveryCode && <SendCodeButton orderId={orderId} />}
+          <DeliveryAdminActions orderId={orderId} />
+        </div>
+      )}
       <ol className="mt-4 space-y-2 border-t border-line pt-3 text-sm">
         {order.deliveryEvents.map((e) => (
           <li key={e.id} className="flex flex-wrap justify-between gap-2">
