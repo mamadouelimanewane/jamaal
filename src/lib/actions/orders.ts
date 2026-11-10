@@ -14,6 +14,7 @@ import { isValidPoint, quoteDelivery } from "@/lib/delivery";
 import { advanceDelivery, DeliveryError, ensureJamaalDelivery } from "@/lib/delivery-engine";
 import { logActivity } from "@/lib/activity-log";
 import { backWithError } from "@/lib/form-error";
+import { trackEvent } from "@/lib/analytics";
 
 /**
  * Crée une commande publique (checkout client).
@@ -55,12 +56,15 @@ export async function createOrder(
   reservation: boolean = false,
   couponCode: string = "",
   gift: unknown = null,
-  installments: number = 0
+  installments: number = 0,
+  analyticsSessionId?: string
 ): Promise<CreateOrderResult> {
   try {
     // Les options internes (clé de limitation…) ne viennent jamais du navigateur.
     const code = typeof couponCode === "string" ? couponCode.slice(0, 40) : "";
-    return { ok: true, id: await placeOrder(customer, items, consultantId, acceptCgv, giftWrap, giftMessage, delivery, reservation, { couponCode: code, gift: giftWrap ? cleanGiftInfo(gift) : undefined, installments: Number(installments) || 0 }) };
+    const id = await placeOrder(customer, items, consultantId, acceptCgv, giftWrap, giftMessage, delivery, reservation, { couponCode: code, gift: giftWrap ? cleanGiftInfo(gift) : undefined, installments: Number(installments) || 0 });
+    await trackEvent({ name: "order_created", path: reservation ? "/reserver" : "/panier", orderId: id, sessionId: analyticsSessionId }).catch((error) => console.error("[analytics] commande", id, error));
+    return { ok: true, id };
   } catch (e) {
     const internal = !(e instanceof Error) || /^PrismaClient/.test(e.constructor.name);
     if (internal) console.error("[commande]", e);

@@ -4,9 +4,9 @@
 
 | Mode | ID | Disponibilité |
 |------|-----|---------------|
-| Paiement à la livraison | `cod` | Toujours |
+| Paiement à la livraison | `cod` | Uniquement si activé explicitement pour les cas spéciaux |
 | Wave | `wave` | Si `WAVE_API_KEY` |
-| Orange Money | `orange_money` | Si clés OM configurées |
+| Orange Money | `orange_money` | Via Versus vérifié; intégration directe Kwingo 2 désactivée jusqu’à validation du contrat |
 | Carte (Stripe) | `stripe` | Si `STRIPE_SECRET_KEY` |
 
 ## Schéma Prisma
@@ -30,7 +30,7 @@ npx prisma migrate dev --name add_payment_fields
 2. Client choisit le mode de paiement
 3. `initiatePayment(orderId, method)`
    - **COD** → redirection `/commande/[id]`
-   - **Wave / OM / Stripe** → redirect vers l’URL du provider
+   - **Wave / OM via Versus / Stripe** → redirect vers l’URL du provider
 4. Webhook marque `paymentStatus = PAID` + éventuellement `status = CONFIRMEE`
 
 ## Intégration panier (extrait)
@@ -71,14 +71,8 @@ WAVE_API_KEY=secret_xxx
 WAVE_API_BASE=https://api.wave.com/v1
 WAVE_WEBHOOK_SECRET=   # pour vérifier les webhooks
 
-# Orange Money (selon contrat Sonatel)
-ORANGE_MONEY_CLIENT_ID=
-ORANGE_MONEY_CLIENT_SECRET=
-ORANGE_MONEY_MERCHANT_KEY=
-ORANGE_MONEY_TOKEN_URL=https://api.orange.com/oauth/v3/token
-ORANGE_MONEY_PAYMENT_URL=
-ORANGE_MONEY_NOTIF_URL=https://votre-domaine/api/payment/orange/webhook
-ORANGE_MONEY_WEBHOOK_SECRET=   # obligatoire : ajouté en ?token= à la notif_url
+# Orange Money direct (Kwingo 2) : non activé tant que le contrat technique n’est pas implémenté.
+# Les ORANGE_MONEY_* ne doivent pas être configurées pour activer ce mode.
 
 # Stripe
 STRIPE_SECRET_KEY=sk_...
@@ -130,4 +124,4 @@ Wave et Orange Money utilisent `fetch` natif — pas de SDK obligatoire.
 3. **Ensuite** : Orange Money
 4. **Diaspora / cartes** : Stripe
 
-Sans aucune clé, seul **COD** apparaît au checkout — le site reste fonctionnel.
+Le paiement à la livraison est proposé uniquement si l’administrateur l’active pour les cas spéciaux.

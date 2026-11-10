@@ -87,6 +87,7 @@ const adminGroups = [
       { href: "/admin/categories", label: "Catégories", icon: Tags },
       { href: "/admin/accueil", label: "Page d'accueil", icon: GalleryHorizontal },
       { href: "/admin/kit-marketing", label: "Kit marketing (photos, vidéos)", icon: Clapperboard },
+      { href: "/admin/produits/qualite", label: "Qualité du catalogue", icon: ShieldCheck },
       { href: "/admin/catalogue-officiel", label: "Catalogue officiel (12 pages A4)", icon: FileText },
       { href: "/admin/handbook", label: "Produits disponibles", icon: BookMarked },
     ],
@@ -95,6 +96,7 @@ const adminGroups = [
     title: "Ventes",
     links: [
       { href: "/admin/commandes", label: "Commandes", icon: ShoppingCart },
+      { href: "/admin/commandes/achats-groupes", label: "Superviser les achats groupés", icon: Users },
       { href: "/admin/reservations", label: "Réservations", icon: CalendarClock },
       { href: "/admin/paiement-echelonne", label: "Paiement en plusieurs fois", icon: CalendarClock },
       { href: "/admin/abonnements", label: "Abonnements et cartes cadeaux", icon: Repeat },
@@ -175,6 +177,7 @@ const consultantGroups: { title: string | null; links: { href: string; label: st
       { href: "/admin/ma-boutique", label: "Ma boutique (lien de bio)", icon: Store },
       { href: "/admin/stats-boutique", label: "Statistiques de ma boutique", icon: BarChart3 },
       { href: "/admin/ma-communication", label: "Ma communication", icon: Megaphone },
+      { href: "/admin/achats-groupes", label: "Mes achats groupés", icon: UsersRound },
       { href: "/admin/catalogue-officiel", label: "Catalogue officiel (12 pages)", icon: FileText },
       { href: "/admin/handbook", label: "Produits disponibles", icon: BookMarked },
     ],

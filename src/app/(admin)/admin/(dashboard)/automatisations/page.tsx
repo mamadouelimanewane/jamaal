@@ -5,6 +5,7 @@ import { AUTOMATIONS, automationStates, type AutomationId } from "@/lib/automati
 import { whatsappConfig } from "@/lib/whatsapp";
 import { geminiConfigured } from "@/lib/ai/gemini";
 import { AutomationToggle, RunDailyButton } from "@/components/admin/GrowthWidgets";
+import { latestAutomationRuns } from "@/lib/automation/run-log";
 
 export const dynamic = "force-dynamic";
 
@@ -33,7 +34,7 @@ export default async function AutomationsPage() {
     }
   };
   const problems: string[] = [];
-  const [states, sent, botIn, botOut, waOrders, carts, wa] = await Promise.all([
+  const [states, sent, botIn, botOut, waOrders, carts, wa, runs] = await Promise.all([
     step("réglages", automationStates(), Object.fromEntries(Object.keys(AUTOMATIONS).map((k) => [k, true])) as Record<AutomationId, boolean>),
     step("envois", prisma.automationSent.findMany({ where: { createdAt: { gte: since } }, select: { key: true } }), []),
     step("messages reçus", prisma.whatsAppMessage.count({ where: { direction: "IN", createdAt: { gte: since } } }), 0),
@@ -41,6 +42,7 @@ export default async function AutomationsPage() {
     step("commandes WhatsApp", prisma.order.count({ where: { channel: "WHATSAPP", createdAt: { gte: since } } }), 0),
     step("paniers", prisma.abandonedCart.findMany({ orderBy: { updatedAt: "desc" }, take: 8, select: { id: true, name: true, phone: true, total: true, updatedAt: true, remindedAt: true, orderedAt: true } }), []),
     step("WhatsApp", Promise.resolve().then(() => whatsappConfig()), { provider: "aucun", active: false, template: "", webhookReady: false }),
+    step("journal", latestAutomationRuns(), []),
   ]);
   let gemini = false;
   try {
@@ -49,6 +51,8 @@ export default async function AutomationsPage() {
     problems.push("IA : configuration illisible");
   }
   const count = (p?: string) => (p ? sent.filter((s) => s.key.startsWith(p)).length : null);
+  const failedRuns = runs.filter((run) => run.status !== "OK").length;
+  const failedSteps = runs.flatMap((run) => run.steps.filter((item) => item.status === "ECHEC").map((item) => ({ run, item })));
   const checks = [
     { ok: wa.active, label: "Envoi WhatsApp", help: wa.active ? `Actif (${wa.provider})` : "Non configuré : les messages sont simulés et notés dans le Journal WhatsApp (réglages dans Centre WhatsApp)." },
     { ok: wa.webhookReady, label: "Réception des messages WhatsApp", help: wa.webhookReady ? "Webhook prêt : l'assistant répond aux clients." : "Ajoutez WHATSAPP_VERIFY_TOKEN et WHATSAPP_APP_SECRET dans Vercel, puis déclarez /api/whatsapp/webhook chez Meta." },
@@ -67,6 +71,12 @@ export default async function AutomationsPage() {
       {problems.length > 0 && (
         <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">Lecture partielle : {problems.join(" · ")}</p>
       )}
+      <section className="grid gap-3 sm:grid-cols-3">
+        <div className="rounded-xl border border-line bg-white p-4"><p className="text-xs text-navy/60">Exécutions conservées</p><p className="mt-1 text-2xl font-semibold text-navy">{runs.length}</p><p className="text-xs text-navy/60">12 dernières au maximum</p></div>
+        <div className={`rounded-xl border p-4 ${failedRuns ? "border-red-200 bg-red-50" : "border-emerald-200 bg-emerald-50"}`}><p className="text-xs">Exécutions à examiner</p><p className="mt-1 text-2xl font-semibold">{failedRuns}</p><p className="text-xs">avec au moins une étape en erreur</p></div>
+        <div className="rounded-xl border border-line bg-white p-4"><p className="text-xs text-navy/60">Étapes en erreur</p><p className="mt-1 text-2xl font-semibold text-navy">{failedSteps.length}</p><p className="text-xs text-navy/60">dans les exécutions affichées</p></div>
+      </section>
+      {failedSteps.length > 0 && <section className="rounded-2xl border border-red-200 bg-red-50 p-4"><h2 className="font-semibold text-red-950">Incidents à traiter en premier</h2><ul className="mt-2 space-y-2">{failedSteps.slice(0, 8).map(({run,item})=><li key={`${run.job}:${run.startedAt}:${item.name}`} className="rounded-lg bg-white/80 p-3 text-sm"><span className="font-semibold">{item.name}</span><span className="text-red-900"> · {item.detail}</span><span className="mt-1 block text-xs text-slate-600">{run.job === "daily" ? "Tâche du soir" : "Kit du matin"} · {new Date(run.startedAt).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short", timeZone: "Africa/Dakar" })}</span></li>)}</ul><p className="mt-3 text-xs text-red-900">Corrigez la cause, puis utilisez « Lancer la tâche du jour maintenant » lorsque le traitement peut être rejoué sans doublon.</p></section>}
       <section className="grid gap-3 sm:grid-cols-2">
         {checks.map((c) => (
           <div key={c.label} className={`rounded-2xl border p-4 ${c.ok ? "border-ia/30 bg-ia-light/40" : "border-amber-200 bg-amber-50"}`}>
@@ -127,6 +137,24 @@ export default async function AutomationsPage() {
         <h2 className="font-semibold text-navy">Lancer la tâche du jour maintenant</h2>
         <p className="mb-3 mt-1 text-sm text-navy/70">Pratique pour tester : défis terminés, relances, demandes d&apos;avis, veille des prix Chogan et résumé du soir. Rien n&apos;est envoyé deux fois.</p>
         <RunDailyButton />
+      </section>
+
+      <section className="rounded-2xl border border-line bg-white p-5">
+        <h2 className="font-semibold text-navy">Dernières exécutions automatiques</h2>
+        <p className="mt-1 text-xs text-navy/60">Le dernier résultat du cron du matin et du soir, avec les étapes en échec.</p>
+        {runs.length ? <ul className="mt-3 space-y-3">
+          {runs.map((run) => (
+            <li key={`${run.job}:${run.startedAt}`} className="rounded-xl border border-line p-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="text-sm font-semibold text-navy">{run.job === "daily" ? "Tâche du soir" : "Kit du matin"} · {new Date(run.startedAt).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short", timeZone: "Africa/Dakar" })}</p>
+                <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${run.status === "OK" ? "bg-emerald-50 text-emerald-800" : run.status === "PARTIEL" ? "bg-amber-50 text-amber-900" : "bg-red-50 text-red-800"}`}>{run.status === "OK" ? "Terminé" : run.status === "PARTIEL" ? "Terminé avec des erreurs" : "Échec"} · {(run.durationMs / 1000).toFixed(1)} s</span>
+              </div>
+              <ul className="mt-2 grid gap-1 text-xs sm:grid-cols-2">
+                {run.steps.map((item) => <li key={item.name} className={item.status === "ECHEC" ? "text-red-800" : "text-navy/70"}>{item.status === "ECHEC" ? "Échec" : "OK"} · {item.name}{item.status === "ECHEC" && ` : ${item.detail}`}</li>)}
+              </ul>
+            </li>
+          ))}
+        </ul> : <p className="mt-3 text-sm text-navy/60">Le journal se remplira à la prochaine exécution planifiée.</p>}
       </section>
 
       <section className="rounded-2xl border border-line bg-white p-5">

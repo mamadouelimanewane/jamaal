@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable @typescript-eslint/no-require-imports -- Standalone CommonJS script using Node built-ins. */
 /**
  * Convertit un listing de prix Chogan (PDF Canva « Listino Profumi Tribe ») en src/data/chogan-listino.json.
  * Usage : node scripts/pdf-listino.cjs "chemin/listino.pdf" [sortie.json]

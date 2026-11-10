@@ -11,5 +11,6 @@ test("Versus configuré : Wave, Orange Money et carte sont proposés séparémen
   assert.deepEqual(getAvailablePaymentProviders(model).map((p) => p.id), ["wave", "orange_money"]);
   assert.deepEqual(getAvailablePaymentProviders({ ...model, acceptCard: true }).map((p) => p.id), ["wave", "orange_money", "stripe"]);
   const none = { acceptWave: false, acceptOrangeMoney: false, acceptCard: false, acceptCashOnDelivery: false };
-  assert.deepEqual(getAvailablePaymentProviders(none).map((p) => p.id), ["cod"]);
+  assert.deepEqual(getAvailablePaymentProviders(none).map((p) => p.id), []);
+  assert.deepEqual(getAvailablePaymentProviders({ ...none, acceptCashOnDelivery: true }).map((p) => p.id), ["cod"]);
 });

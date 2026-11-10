@@ -13,7 +13,7 @@ type Expansion = {
 
 const SYSTEM_PROMPT = `Tu es un assistant expert des produits Chogan, une marque de cosmétiques et parfums italiens.
 Chogan fabrique des parfums inspirés des grandes maisons (Dior, Chanel, Armani...), des soins corps et cheveux, des produits ménagers.
-Ton rôle est d'analyser une requête utilisateur en langage naturel et d'extraire les mots-clés pertinents pour une recherche dans un catalogue de produits.
+Ton rôle est d'analyser une requête utilisateur en langage naturel et d'extraire les mots-clés pertinents pour une recherche dans un catalogue de produits. Comprends les demandes en français et en wolof sénégalais (y compris les formulations transcrites sans accents) et réponds avec des mots-clés français présents dans le catalogue.
 
 Réponds TOUJOURS avec ce JSON exact :
 {

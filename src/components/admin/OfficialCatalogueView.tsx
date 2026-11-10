@@ -1,8 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-import { Printer, Download, Sparkles, Phone, MapPin, Globe, Share2, Check } from "lucide-react";
+import { Printer, Sparkles } from "lucide-react";
 
 interface OfficialCatalogueViewProps {
   consultantName: string | null;
@@ -17,8 +15,6 @@ export function OfficialCatalogueView({
   consultantCity,
   consultantSlug,
 }: OfficialCatalogueViewProps) {
-  const [copiedLink, setCopiedLink] = useState(false);
-
   const handlePrint = () => {
     if (typeof window !== "undefined") {
       window.print();

@@ -11,7 +11,7 @@ import { VoiceRecorder } from "@/components/gift/VoiceRecorder";
 import { OCCASIONS } from "@/lib/gift/gift";
 import { createOrder } from "@/lib/actions/orders";
 import { locateFromText } from "@/lib/actions/delivery-quote";
-import { getCartPrices, previewCartDiscounts, saveCartDraft, type CartDiscounts } from "@/lib/actions/cart";
+import { getCartPrices, loadSharedSelection, previewCartDiscounts, recoverCartDraft, saveCartDraft, type CartDiscounts } from "@/lib/actions/cart";
 import { DeliveryChooser, type DeliveryChoice } from "@/components/DeliveryChooser";
 import { getActiveConsultantsForCheckout, getCheckoutPrefill } from "@/lib/actions/public-data";
 import { forgetCheckoutMemory, loadCheckoutMemory, saveCheckoutMemory } from "@/lib/checkout-memory";
@@ -25,6 +25,8 @@ import {
   type PaymentOption,
 } from "@/components/PaymentMethodSelector";
 import type { PaymentProviderId } from "@/lib/payment/types";
+import { trackEvent } from "@/lib/analytics";
+import { getAnalyticsSessionId } from "@/lib/analytics-session";
 
 const REF_COOKIE = "jamaal_ref";
 
@@ -37,7 +39,7 @@ function readRefCookie(): string | null {
 export default function CartPage() {
   const tr = useT();
   const router = useRouter();
-  const { items, removeItem, updateQuantity, total, clear, syncPrices } = useCartStore();
+  const { items, removeItem, updateQuantity, total, clear, syncPrices, replaceItems } = useCartStore();
   const [pricesUpdated, setPricesUpdated] = useState(false);
   const [delivery, setDelivery] = useState<DeliveryChoice>({ mode: "LIVRAISON", lat: null, lng: null, quote: null });
   const deliveryFee = delivery.mode === "LIVRAISON" && delivery.quote?.ok ? delivery.quote.fee : 0;
@@ -78,6 +80,47 @@ export default function CartPage() {
   const partChoices = installmentOffer && onlineOptions.length ? offeredCounts(grandTotal, installmentOffer) : [];
   const chosenParts = partChoices.includes(parts) ? parts : 1;
   const cartKey = items.map((i) => `${i.productId}|${i.volumeLabel}|${i.quantity}|${i.price}`).join(",");
+  const hasItems = items.length > 0;
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const sharedCoupon = params.get("coupon");
+    if (sharedCoupon && /^[A-Z0-9_-]{4,32}$/i.test(sharedCoupon)) {
+      setCouponInput(sharedCoupon.toUpperCase());
+      setCouponCode(sharedCoupon.toUpperCase());
+    }
+    const recoveryId = params.get("reprise");
+    const sharedSelection = params.get("selection");
+    if (!recoveryId && !sharedSelection) {
+      if (sharedCoupon) window.history.replaceState(null, "", "/panier");
+      return;
+    }
+    let cancelled = false;
+    const recovery = recoveryId
+      ? recoverCartDraft(recoveryId)
+      : (() => {
+          try { return loadSharedSelection(JSON.parse(sharedSelection!)); }
+          catch { return Promise.resolve(null); }
+        })();
+    recovery.then((recovered) => {
+      if (cancelled) return;
+      if (recovered?.length) {
+        replaceItems(recovered);
+        setError(null);
+      } else {
+        setError(recoveryId ? "Ce lien de reprise a expiré ou la commande a déjà été passée." : "Les produits partagés ne sont plus disponibles. Votre panier n’a pas été modifié.");
+      }
+      window.history.replaceState(null, "", "/panier");
+    }).catch(() => {
+      if (!cancelled) setError("Impossible de recharger ce panier. Réessayez ou contactez JAMAAL sur WhatsApp.");
+      window.history.replaceState(null, "", "/panier");
+    });
+    return () => { cancelled = true; };
+  }, [replaceItems]);
+
+  useEffect(() => {
+    if (hasItems) void trackEvent({ name: "cart_view", path: "/panier", sessionId: getAnalyticsSessionId() });
+  }, [hasItems]);
 
   useEffect(() => {
     if (!items.length) return;
@@ -262,7 +305,8 @@ export default function CartPage() {
         false,
         codeOk ? couponCode : "",
         giftWrap ? { occasion: giftOccasion, from: giftFrom, voiceUrl: giftVoice } : null,
-        chosenParts
+        chosenParts,
+        getAnalyticsSessionId()
       );
       if (!res.ok) {
         setError(res.error);

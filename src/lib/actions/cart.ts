@@ -96,3 +96,56 @@ export async function saveCartDraft(input: { name: string; phone: string; consul
   if (open) await prisma.abandonedCart.update({ where: { id: open.id }, data: { name, items, total, consultantId } });
   else await prisma.abandonedCart.create({ data: { phone, name, items, total, consultantId } });
 }
+
+/** Reconstitue un panier abandonné depuis son lien WhatsApp, sans révéler les coordonnées client. */
+export async function recoverCartDraft(id: string) {
+  if (typeof id !== "string" || !/^[a-z0-9_-]{12,64}$/i.test(id)) return null;
+  const draft = await prisma.abandonedCart.findUnique({ where: { id }, select: { id: true, items: true, updatedAt: true, orderedAt: true } });
+  if (!draft || draft.orderedAt || draft.updatedAt.getTime() < Date.now() - 7 * 86_400_000) return null;
+  const saved = Array.isArray(draft.items) ? draft.items as { productId?: unknown; volumeLabel?: unknown; quantity?: unknown }[] : [];
+  const lines = saved.flatMap((item) => typeof item.productId === "string" && typeof item.volumeLabel === "string"
+    ? [{ productId: item.productId, volumeLabel: item.volumeLabel, quantity: Math.max(1, Math.min(50, Math.round(Number(item.quantity) || 1))) }]
+    : []);
+  if (!lines.length) return null;
+  const [prices, products] = await Promise.all([
+    getCartPrices(lines),
+    prisma.product.findMany({ where: { id: { in: [...new Set(lines.map((line) => line.productId))] } }, select: { id: true, name: true, slug: true, colorFrom: true, colorTo: true } }),
+  ]);
+  const byId = new Map(products.map((product) => [product.id, product]));
+  const recovered = lines.flatMap((line, index) => {
+    const product = byId.get(line.productId);
+    const price = prices[index]?.price;
+    return product && price != null ? [{ ...line, ...product, price }] : [];
+  });
+  return recovered.length ? recovered : null;
+}
+
+/** Prépare le panier d'un client depuis une sélection partagée par un vendeur. */
+export async function loadSharedSelection(input: unknown) {
+  if (!Array.isArray(input)) return null;
+  const requested = input.slice(0, 12).flatMap((raw) => {
+    if (!raw || typeof raw !== "object") return [];
+    const item = raw as { productId?: unknown; volumeLabel?: unknown };
+    if (typeof item.productId !== "string" || item.productId.length > 40 || typeof item.volumeLabel !== "string" || item.volumeLabel.length > 60) return [];
+    return [{ productId: item.productId, volumeLabel: item.volumeLabel }];
+  });
+  if (!requested.length) return null;
+  const products = await prisma.product.findMany({
+    where: { id: { in: [...new Set(requested.map((item) => item.productId))] } },
+    select: { id: true, slug: true, name: true, colorFrom: true, colorTo: true, stock: true, regularPrice: true, testerPrice: true, volumes: true, variants: { select: { volumeLabel: true, stock: true } } },
+  });
+  const byId = new Map(products.map((product) => [product.id, product]));
+  const prices = await getCartPrices(requested);
+  const result = requested.flatMap((item, index) => {
+    const product = byId.get(item.productId);
+    const price = prices[index]?.price;
+    if (!product || price == null) return [];
+    const hasVariants = product.variants.length > 0;
+    const stock = hasVariants
+      ? product.variants.find((variant) => variant.volumeLabel === item.volumeLabel)?.stock ?? 0
+      : product.stock;
+    if (stock <= 0) return [];
+    return [{ productId: product.id, slug: product.slug, name: product.name, volumeLabel: item.volumeLabel, price, quantity: 1, colorFrom: product.colorFrom, colorTo: product.colorTo }];
+  });
+  return result.length ? result : null;
+}

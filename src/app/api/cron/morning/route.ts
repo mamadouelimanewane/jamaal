@@ -4,6 +4,7 @@ import { sendCopilots } from "@/lib/copilot/run";
 import { claimAutomation } from "@/lib/automation-settings";
 import { siteBaseUrl } from "@/lib/site-url";
 import { retryPendingWithdrawals } from "@/lib/wallet";
+import { recordAutomationRun } from "@/lib/automation/run-log";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -17,16 +18,19 @@ export async function GET(req: Request) {
     if (!(req.headers.get("user-agent") ?? "").startsWith("vercel-cron")) return new Response("Accès refusé.", { status: 401 });
     if (!(await claimAutomation(`cron-matin:${new Date().toISOString().slice(0, 10)}`))) return Response.json({ ok: true, deja: true });
   }
+  const started = new Date();
   try {
-    const started = Date.now();
     const retraits = await retryPendingWithdrawals(20).catch((e) => ({ erreur: String(e) }));
     const kit = await sendMorningKit(siteBaseUrl());
     const copilote = await sendCopilots(siteBaseUrl(), new Date(), { budgetMs: 20_000 }).catch((e) => ({ erreur: String(e) }));
     // Le temps restant sert à la mise à jour du catalogue Chogan (prix et nouveautés).
-    const chogan = await watchChoganPrices(Math.max(5_000, 52_000 - (Date.now() - started))).catch((e) => ({ erreur: String(e) }));
-    return Response.json({ ok: true, report: kit, retraits, copilote, chogan });
+    const chogan = await watchChoganPrices(Math.max(5_000, 52_000 - (Date.now() - started.getTime()))).catch((e) => ({ erreur: String(e) }));
+    const report = { retraits, kit, copilote, chogan };
+    await recordAutomationRun("morning", started, report);
+    return Response.json({ ok: true, report });
   } catch (e) {
     console.error("[kit du matin]", e);
+    await recordAutomationRun("morning", started, {}, e);
     return Response.json({ ok: false }, { status: 500 });
   }
 }

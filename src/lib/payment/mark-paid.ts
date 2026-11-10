@@ -11,6 +11,7 @@ import { GIFT_PREFIX } from "@/lib/gift/gift";
 import { takeOrderStock } from "@/lib/stock";
 import { dueDates, isInstallmentOrder } from "@/lib/installments";
 import { notifyInstallmentReceived } from "@/lib/installments-notify";
+import { trackEvent } from "@/lib/analytics";
 
 type Method = "WAVE" | "ORANGE_MONEY" | "STRIPE";
 
@@ -77,8 +78,9 @@ export async function markOrderPaid(
 
   // Réservation : l'acompte réserve le produit, sans clôturer le paiement ni verser de commission.
   if (due.part === "ACOMPTE") {
-    await markDepositPaid(orderId, opts.externalRef ?? null);
-    return true;
+    const marked = await markDepositPaid(orderId, opts.externalRef ?? null);
+    if (marked) await trackEvent({ name: "payment_confirmed", orderId, path: "/commande" }).catch((error) => console.error("[analytics] acompte", orderId, error));
+    return marked;
   }
 
   const res = await prisma.order.updateMany({
@@ -93,6 +95,8 @@ export async function markOrderPaid(
     },
   });
   if (res.count === 0) return true; // un autre appel concurrent a déjà traité
+
+  await trackEvent({ name: "payment_confirmed", orderId, path: "/commande" }).catch((error) => console.error("[analytics] paiement", orderId, error));
 
   // Paiement effectif : les articles sortent du stock maintenant (une seule fois).
   await takeOrderStock(orderId).catch((e) => console.error("[stock] paiement", orderId, e));

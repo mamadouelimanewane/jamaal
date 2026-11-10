@@ -51,9 +51,12 @@ Variables d'environnement principales (`.env`, jamais commité) :
 | `WAVE_*`, `ORANGE_MONEY_*`, `STRIPE_*` | paiement (voir `PAYMENT.md`) |
 | `WHATSAPP_*` | envoi WhatsApp (voir `docs/whatsapp-api-config.md`) |
 | `WAVE_PAYOUT_API_KEY` | versement des commissions sur Wave (clé « Payout » Wave Business) |
-| `ORANGE_PAYOUT_URL`, `ORANGE_PAYOUT_TOKEN` | versement des commissions sur Orange Money (Sonatel ou agrégateur) |
 | `GOOGLE_AI_API_KEY` | IA Gemini : assistant du back-office (`/admin/assistant`) et recherche en langage naturel (clé gratuite sur aistudio.google.com) |
 | `GEMINI_MODEL` | modèle Gemini (facultatif, défaut `gemini-flash-latest`) |
+
+L’intégration directe Orange Money Kwingo 2 (encaissements et versements Cash-In) reste désactivée
+jusqu’à validation de la documentation technique et des identifiants de production. Le paiement
+Orange via Versus reste soumis à sa configuration existante.
 
 ## Base de données
 

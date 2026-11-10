@@ -16,7 +16,6 @@ import {
   UserCheck,
   Users,
   X,
-  Check,
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { shareMessage, productLink, type ShareItem } from "@/lib/share-text";
