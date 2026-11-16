@@ -56,6 +56,7 @@ import { LivreurInstallGate } from "@/components/livreur/LivreurInstallGate";
 import { accountsByPhone } from "@/lib/staff-accounts";
 import { InstallBanner } from "@/components/admin/InstallBanner";
 import { topBarRank } from "@/lib/topbar-rank";
+import { FacebookIcon } from "@/components/icons/FacebookIcon";
 import { SidebarNavLink } from "@/components/admin/SidebarNavLink";
 
 import { GlobalSearch } from "@/components/admin/GlobalSearch";
@@ -124,6 +125,7 @@ const adminGroups = [
       { href: "/admin/messages", label: "Messages de contact", icon: Mail },
       { href: "/admin/annonces", label: "Annonces aux consultants", icon: Megaphone },
       { href: "/admin/whatsapp", label: "Centre WhatsApp", icon: Share2 },
+      { href: "/admin/facebook", label: "Facebook et Instagram", icon: FacebookIcon },
       { href: "/admin/whatsapp/conversations", label: "Conversations WhatsApp", icon: Mail },
       { href: "/admin/whatsapp/campagnes", label: "Campagnes WhatsApp", icon: Megaphone },
       { href: "/admin/journal-whatsapp", label: "Journal WhatsApp", icon: Mail },

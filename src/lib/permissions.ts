@@ -42,7 +42,7 @@ export const MODULES: ModuleDef[] = [
   { id: "comptabilite", label: "Comptabilité et finances", description: "Comptabilité, wallets, versements, dépenses.", paths: ["/admin/fraude", "/admin/comptabilite", "/admin/wallets", "/admin/versements"] },
   { id: "statistiques", label: "Statistiques", description: "Tableaux de bord et statistiques de ventes.", paths: ["/admin/statistiques"] },
   { id: "marketing", label: "Marketing et contenu", description: "Page d'accueil, blog, annonces, offres, codes promo.", paths: ["/admin/accueil", "/admin/kit-marketing", "/admin/blog", "/admin/annonces", "/admin/offres", "/admin/coupons", "/admin/skin-advisor"] },
-  { id: "whatsapp", label: "WhatsApp et automatisations", description: "Conversations, campagnes, journal, automatisations.", paths: ["/admin/whatsapp", "/admin/journal-whatsapp", "/admin/automatisations"] },
+  { id: "whatsapp", label: "WhatsApp et automatisations", description: "Conversations, campagnes, journal, automatisations.", paths: ["/admin/whatsapp", "/admin/facebook", "/admin/journal-whatsapp", "/admin/automatisations"] },
   { id: "reglages", label: "Réglages et modèle économique", description: "Réglages généraux, commissions, paiements, livraison.", paths: ["/admin/reglages", "/admin/modele-economique"] },
   { id: "utilisateurs", label: "Utilisateurs et journal", description: "Comptes, rôles, privilèges, journal d'activité.", paths: ["/admin/utilisateurs", "/admin/historique"] },
 ];
