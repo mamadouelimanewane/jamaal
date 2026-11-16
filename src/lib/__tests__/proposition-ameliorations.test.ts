@@ -19,10 +19,10 @@ test("barre du haut : place au classement du mois", () => {
 
 test("partage : un produit, plusieurs produits, TikTok ; liens avec le code du revendeur", () => {
   const one = shareMessage([{ slug: "aqua", name: "Aqua Soul", price: 12500, inspiredBy: "Acqua di Gio" }], "https://j.sn", "awa");
-  assert.match(one, /^Aqua Soul \(inspiré de Acqua di Gio\) — 12\s500 FCFA\. Commande ici : https:\/\/j\.sn\/produits\/aqua\?ref=awa$/);
+  assert.match(one, /^Aqua Soul \(inspiré de Acqua di Gio\) — 12\s500 FCFA\. Commande ici : https:\/\/j\.sn\/produits\/aqua\?ref=awa&utm_source=whatsapp&utm_medium=social&utm_campaign=revendeur$/);
   const many = shareMessage([{ slug: "a", name: "A", price: 1000 }, { slug: "b", name: "B" }], "https://j.sn", null);
   assert.match(many, /Ma sélection JAMAAL/);
-  assert.match(many, /• A — 1\s000 FCFA : https:\/\/j\.sn\/produits\/a\n• B : https:\/\/j\.sn\/produits\/b/);
+  assert.match(many, /• A — 1\s000 FCFA : https:\/\/j\.sn\/produits\/a\?utm_source=whatsapp[^\n]*\n• B : https:\/\/j\.sn\/produits\/b\?utm_source=whatsapp/);
   const tiktok = shareMessage([{ slug: "a", name: "A" }], "https://j.sn", "awa", "tiktok");
   assert.match(tiktok, /https:\/\/j\.sn\/c\/awa/);
   assert.match(tiktok, /#JAMAAL/);

@@ -7,8 +7,8 @@ import { auth } from "@/lib/auth";
 export async function getConsultantLabelBySlug(slug: string): Promise<string | null> {
   const clean = String(slug ?? "").trim().toLowerCase();
   if (!/^[a-z0-9-]{2,48}$/.test(clean)) return null;
-  const c = await prisma.consultant.findFirst({ where: { slug: clean, active: true }, select: { name: true, city: true } });
-  return c ? `${c.name} (${c.city})` : null;
+  const c = await prisma.consultant.findFirst({ where: { slug: clean, active: true }, select: { name: true, shopName: true, city: true } });
+  return c ? `${c.shopName ?? c.name} (${c.city})` : null;
 }
 
 /** Nom et téléphone d'un client connecté (compte client), pour pré-remplir la commande. Rien pour un visiteur anonyme. */
@@ -26,7 +26,8 @@ export async function getActiveConsultantsForCheckout() {
   const consultants = await prisma.consultant.findMany({
     where: { active: true },
     orderBy: { name: "asc" },
-    select: { id: true, name: true, city: true, slug: true },
+    select: { id: true, name: true, shopName: true, city: true, slug: true },
   });
-  return consultants;
+  // Nom de boutique à la place du nom du revendeur quand il est rempli.
+  return consultants.map(({ shopName, ...c }) => ({ ...c, name: shopName ?? c.name }));
 }

@@ -535,6 +535,8 @@ model Consultant {
   shopTheme String?   @default("maison")
   /// Phrase d'accroche ou slogan personnalisé de la boutique.
   shopTagline String?
+  /// Nom de la boutique (ex. « O'RA ») : affiché à la place du nom du revendeur sur sa page.
+  shopName    String?
   /// Personnalisation du thème : accent (0, 1 ou 2), mise en avant du haut de page, typographie, sections masquées.
   shopAccent Int @default(0)
   shopHero   String @default("portrait")

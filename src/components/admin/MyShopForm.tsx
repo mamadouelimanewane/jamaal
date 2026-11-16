@@ -20,6 +20,7 @@ export function MyShopForm({
   media = [],
   bio,
   tagline,
+  shopName = null,
   theme,
   look,
   favorites,
@@ -34,6 +35,8 @@ export function MyShopForm({
   media?: string[];
   bio: string | null;
   tagline?: string | null;
+  /** Nom de la boutique, affiché à la place du nom du revendeur. */
+  shopName?: string | null;
   theme?: string | null;
   look?: { accent: number; hero: string; typo: string; hidden: string[] };
   favorites: string[];
@@ -155,6 +158,19 @@ export function MyShopForm({
       {/* 2. Bibliothèque de Thèmes */}
       <ThemeSelector initialTheme={theme} initialAccent={look?.accent} initialHero={look?.hero} initialTypo={look?.typo} initialHidden={look?.hidden} consultantName={name} avatarUrl={preview && !removed ? preview : null} logoUrl={logoPreview && !logoRemoved ? logoPreview : null} />
 
+      {/* Nom de la boutique (à la place du nom du revendeur) */}
+      <label className="block text-sm font-medium text-navy">
+        Nom de la boutique <span className="font-normal text-navy/55">(facultatif)</span>
+        <input
+          name="shopName"
+          defaultValue={shopName ?? ""}
+          maxLength={60}
+          placeholder="Ex. O'RA Parfums"
+          className="mt-1.5 w-full rounded-xl border border-line bg-white px-3 py-2 text-sm text-navy outline-none focus:border-navy"
+        />
+        <span className="mt-1 block text-xs text-navy/55">Rempli, c&apos;est ce nom qui s&apos;affiche avec votre logo sur votre boutique et dans la liste des conseillers : votre nom personnel n&apos;y apparaît plus. Vide : votre nom s&apos;affiche.</span>
+      </label>
+
       {/* 3. Slogan / Phrase d'accroche */}
       <label className="block text-sm font-medium text-navy">
         Slogan / Phrase d&apos;accroche <span className="text-navy/50">({taglineText.length}/100)</span>
@@ -165,7 +181,7 @@ export function MyShopForm({
           placeholder="Ex. Vos fragrances d'exception livrées partout à Dakar."
           className="mt-1.5 w-full rounded-xl border border-line bg-white px-3 py-2 text-sm text-navy outline-none focus:border-navy"
         />
-        <span className="mt-1 block text-xs text-navy/55">Affiché en sous-titre juste sous votre nom sur votre page personnelle.</span>
+        <span className="mt-1 block text-xs text-navy/55">Affiché en sous-titre juste sous le nom de la boutique (ou le vôtre) sur votre page.</span>
       </label>
 
       {/* 4. Bio / Présentation */}

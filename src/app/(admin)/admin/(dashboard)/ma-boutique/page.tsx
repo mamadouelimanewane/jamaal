@@ -41,6 +41,7 @@ export default async function MaBoutiquePage() {
           media={me.shopMedia ?? []}
           bio={me.shopBio ?? null}
           tagline={me.shopTagline ?? null}
+          shopName={me.shopName ?? null}
           theme={me.shopTheme ?? null}
           look={{ accent: me.shopAccent, hero: me.shopHero, typo: me.shopTypo, hidden: me.shopHidden }}
           favorites={me.favorites ?? []}

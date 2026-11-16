@@ -106,7 +106,7 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
             : inst && order.installmentsPaid > 0 && !isPending
               ? t("Merci, votre échéance est bien reçue. Prochaine échéance : {v0} le {v1}, avec un rappel sur WhatsApp. Votre commande est préparée dès qu'elle est entièrement réglée.", { v0: formatPrice(inst.amount), v1: inst.dueAt.toLocaleDateString("fr-FR", { day: "numeric", month: "long", timeZone: "UTC" }) })
             : linkNotStarted
-              ? t("{v0} a préparé votre commande. Réglez-la en ligne avec le bouton ci-dessous : elle est préparée dès réception du paiement.", { v0: order.consultant?.name ?? "Votre conseiller JAMAAL" })
+              ? t("{v0} a préparé votre commande. Réglez-la en ligne avec le bouton ci-dessous : elle est préparée dès réception du paiement.", { v0: order.consultant?.shopName ?? order.consultant?.name ?? "Votre conseiller JAMAAL" })
             : isCanceled
               ? t("Le paiement a été annulé. Votre commande reste enregistrée : réglez-la avec le bouton ci-dessous, ou contactez-nous sur WhatsApp.")
               : isPending
@@ -168,7 +168,7 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
             <div className="mt-2 flex justify-between">
               <span className="text-navy/60">{t("Consultant·e")}</span>
               <span className="font-semibold text-navy">
-                {order.consultant.name} ({order.consultant.city})
+                {order.consultant.shopName ?? order.consultant.name} ({order.consultant.city})
               </span>
             </div>
           )}

@@ -195,7 +195,7 @@ export async function getOrderConfirmation(id: string) {
       installmentsPaid: true,
       installmentIntervalDays: true,
       installmentRefs: true,
-      consultant: { select: { name: true, city: true, whatsapp: true } },
+      consultant: { select: { name: true, shopName: true, city: true, whatsapp: true } },
       items: {
         select: {
           productId: true,
