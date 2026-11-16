@@ -7,6 +7,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/currency";
 import { OrderDetailCell } from "@/components/admin/OrderDetailCell";
+import { Search } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -18,7 +19,8 @@ const statusLabels: Record<string, string> = {
   ANNULEE: "Annulée",
 };
 
-export default async function MesCommandesPage() {
+export default async function MesCommandesPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+  const q = (await searchParams).q?.trim().slice(0, 100) ?? "";
   const session = await auth();
   if (session?.user?.role !== "CONSULTANT") redirect("/admin");
 
@@ -29,6 +31,13 @@ export default async function MesCommandesPage() {
       consultant: {
         include: {
           orders: {
+            where: q ? { OR: [
+              { customerName: { contains: q, mode: "insensitive" } },
+              { customerPhone: { contains: q } },
+              { customerEmail: { contains: q, mode: "insensitive" } },
+              { id: { contains: q, mode: "insensitive" } },
+              { items: { some: { product: { name: { contains: q, mode: "insensitive" } } } } },
+            ] } : undefined,
             orderBy: { createdAt: "desc" },
             include: {
               items: {
@@ -63,6 +72,16 @@ export default async function MesCommandesPage() {
           🛍️ Acheter un produit
         </Link>
       </div>
+
+      <form action="/admin/mes-commandes" method="get" className="mt-5 flex gap-2" role="search">
+        <label htmlFor="order-search" className="sr-only">Rechercher dans mes commandes</label>
+        <div className="flex min-h-11 flex-1 items-center gap-2 rounded-xl border border-line bg-white px-3">
+          <Search size={18} className="text-navy/50" aria-hidden="true" />
+          <input id="order-search" name="q" defaultValue={q} placeholder="Rechercher un client, téléphone, produit ou numéro de commande" className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-navy/45" />
+        </div>
+        <button className="rounded-xl bg-navy px-4 text-sm font-semibold text-white">Rechercher</button>
+        {q && <Link href="/admin/mes-commandes" className="self-center text-sm text-navy underline">Effacer</Link>}
+      </form>
 
       <div className="mt-6 overflow-x-auto rounded-2xl border border-line bg-white shadow-xs">
         <table className="w-full text-sm">
@@ -101,7 +120,7 @@ export default async function MesCommandesPage() {
             {user.consultant.orders.length === 0 && (
               <tr>
                 <td colSpan={6} className="px-4 py-6 text-center text-navy/70">
-                  Aucune commande pour le moment.
+                  {q ? `Aucune commande ne correspond à « ${q} ».` : "Aucune commande pour le moment."}
                 </td>
               </tr>
             )}

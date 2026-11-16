@@ -5,6 +5,7 @@ import Link from "@/components/i18n/Link";
 import { X, Minus, Plus, Trash2 } from "lucide-react";
 import { useCartStore } from "@/lib/cart-store";
 import { formatPrice } from "@/lib/currency";
+import { MetaPixelEvent } from "@/components/MetaPixel";
 
 export function CartDrawer() {
   const t = useT();
@@ -14,6 +15,7 @@ export function CartDrawer() {
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
+      <MetaPixelEvent event="InitiateCheckout" value={total()} />
       <button
         aria-label={t("Fermer le panier")}
         onClick={close}

@@ -198,6 +198,7 @@ export async function getOrderConfirmation(id: string) {
       consultant: { select: { name: true, city: true, whatsapp: true } },
       items: {
         select: {
+          productId: true,
           productName: true,
           volumeLabel: true,
           price: true,

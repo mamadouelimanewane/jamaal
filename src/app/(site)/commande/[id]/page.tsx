@@ -15,6 +15,7 @@ import { PayOrderButton } from "@/components/PayOrderButton";
 import { PaymentWatcher } from "@/components/PaymentWatcher";
 import { settlePendingPayment } from "@/lib/payment/settle";
 import { amountDue, RESERVATION_LABELS, type ReservationStatus } from "@/lib/reservation";
+import { MetaPixelEvent } from "@/components/MetaPixel";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -68,6 +69,8 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
   ]);
 
   return (
+    <>
+    {isPaid && <MetaPixelEvent event="Purchase" eventId={order.id} productIds={order.items.flatMap((item) => item.productId ? [item.productId] : [])} value={order.total} />}
     <div className="mx-auto max-w-lg px-4 py-16">
       <PaymentWatcher active={isPending && !!due} />
       <div className="rounded-2xl border border-line bg-white p-8 text-center shadow-sm">
@@ -221,5 +224,6 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
         </div>
       </div>
     </div>
+    </>
   );
 }

@@ -32,11 +32,14 @@ function send(payload: Record<string, unknown>) {
 export function ShopTracker({ slug }: { slug: string }) {
   useEffect(() => {
     const sid = visitId();
-    send({ slug, kind: "visite", sid });
+    const params = new URLSearchParams(window.location.search);
+    const rawSource = (params.get("utm_source") ?? "").toLowerCase();
+    const source = ["whatsapp", "instagram", "tiktok", "facebook"].includes(rawSource) ? rawSource : undefined;
+    send({ slug, kind: "visite", sid, source });
     const onClick = (e: MouseEvent) => {
       const el = (e.target as Element | null)?.closest?.("[data-track]") as HTMLElement | null;
       if (!el) return;
-      send({ slug, kind: el.dataset.track, productId: el.dataset.product, sid });
+      send({ slug, kind: el.dataset.track, productId: el.dataset.product, sid, source });
     };
     document.addEventListener("click", onClick, { capture: true });
     return () => document.removeEventListener("click", onClick, { capture: true });

@@ -4,6 +4,9 @@
  */
 
 export const SHOP_EVENT_KINDS = ["visite", "whatsapp", "produit"] as const;
+export const SOCIAL_SOURCES = ["whatsapp", "instagram", "tiktok", "facebook"] as const;
+export type SocialSource = (typeof SOCIAL_SOURCES)[number];
+export const isSocialSource = (v: unknown): v is SocialSource => SOCIAL_SOURCES.includes(v as SocialSource);
 export type ShopEventKind = (typeof SHOP_EVENT_KINDS)[number];
 export const isShopEventKind = (v: unknown): v is ShopEventKind => SHOP_EVENT_KINDS.includes(v as ShopEventKind);
 
@@ -21,7 +24,7 @@ export function periodStart(days: number, now = new Date()): Date {
   return d;
 }
 
-export type StatEvent = { kind: string; sid: string | null; productId: string | null; createdAt: Date };
+export type StatEvent = { kind: string; sid: string | null; productId: string | null; source?: string | null; createdAt: Date };
 
 /** Visiteurs distincts : un identifiant de visite compte une fois ; sans identifiant, chaque visite compte. */
 export function countVisitors(events: StatEvent[]): number {

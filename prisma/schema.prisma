@@ -1372,6 +1372,7 @@ model ShopEvent {
   consultantId String
   consultant   Consultant @relation(fields: [consultantId], references: [id], onDelete: Cascade)
   kind         String
+  source       String?
   productId    String?
   sid          String?
   createdAt    DateTime   @default(now())

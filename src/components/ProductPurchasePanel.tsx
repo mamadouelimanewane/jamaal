@@ -8,6 +8,7 @@ import type { Product } from "@/data/types";
 import { useCartStore } from "@/lib/cart-store";
 import { formatPrice } from "@/lib/currency";
 import { depositFor, type ReservationSettings } from "@/lib/reservation";
+import { MetaPixelEvent } from "@/components/MetaPixel";
 
 const LOW = 5;
 
@@ -43,6 +44,7 @@ export function ProductPurchasePanel({ product, reservation }: { product: Produc
   }
 
   return <div className="flex flex-col gap-6">
+    {added && <MetaPixelEvent event="AddToCart" productId={product.id} value={volume.price * quantity} />}
     <div>
       <p className="font-serif-display text-3xl font-medium text-[#14213b]">{formatPrice(volume.price)}</p>
       <p className="mt-1 text-[10px] text-navy/45">{t("Prix du format sélectionné · FCFA")}</p>

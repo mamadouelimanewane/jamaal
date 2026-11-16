@@ -59,6 +59,16 @@ export default async function ShopStatsPage({ searchParams }: { searchParams: Pr
       </div>
 
       <section className="rounded-2xl border border-line bg-white p-5">
+        <h2 className="text-sm font-semibold text-navy">Visites issues de vos publications</h2>
+        <p className="mt-1 text-xs text-navy/65">Comptage des visites arrivées par un lien de partage identifié. Les plateformes ne communiquent pas les vues ou impressions des publications.</p>
+        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {([ ["WhatsApp", "whatsapp"], ["Instagram", "instagram"], ["TikTok", "tiktok"], ["Facebook", "facebook"] ] as const).map(([label, key]) => (
+            <div key={key} className="rounded-xl bg-cream/70 p-3"><p className="text-xs text-navy/65">{label}</p><p className="mt-1 text-xl font-semibold tabular-nums text-navy">{F(s.socialSources[key])}</p></div>
+          ))}
+        </div>
+      </section>
+
+      <section className="rounded-2xl border border-line bg-white p-5">
         <h2 className="text-sm font-semibold text-navy">Visiteurs par jour</h2>
         {s.visitors === 0 ? (
           <p className="mt-3 text-sm text-navy/70">Aucune visite sur cette période. Partagez votre lien de bio (Ma boutique) sur Instagram, TikTok et votre statut WhatsApp.</p>

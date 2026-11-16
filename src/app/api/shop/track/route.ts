@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { classifyAgent } from "@/lib/bot-guard";
-import { isShopEventKind } from "@/lib/shop/shop-stats";
+import { isShopEventKind, isSocialSource } from "@/lib/shop/shop-stats";
 
 /**
  * Compteur de la boutique personnelle (/c/<slug>) : { slug, kind: "visite"|"whatsapp"|"produit", productId?, sid }.
@@ -19,6 +19,7 @@ export async function POST(req: NextRequest) {
     const kind = body?.kind;
     const sid = String(body?.sid ?? "").replace(/[^a-zA-Z0-9-]/g, "").slice(0, 40) || null;
     const productId = typeof body?.productId === "string" ? body.productId.replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 40) || null : null;
+    const source = isSocialSource(body?.source) ? body.source : null;
     if (!slug || !isShopEventKind(kind)) return done();
 
     const c = await prisma.consultant.findFirst({ where: { slug, active: true }, select: { id: true, user: { select: { id: true } } } });
@@ -39,7 +40,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (productId && !(await prisma.product.findUnique({ where: { id: productId }, select: { id: true } }))) return done();
-    await prisma.shopEvent.create({ data: { consultantId: c.id, kind, sid, productId: kind === "produit" ? productId : null } });
+    await prisma.shopEvent.create({ data: { consultantId: c.id, kind, sid, source, productId: kind === "produit" ? productId : null } });
   } catch {
     // Les statistiques ne doivent jamais gêner la visite.
   }
