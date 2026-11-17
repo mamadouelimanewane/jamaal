@@ -29,7 +29,7 @@ export type BoResult = {
   coupons: BoItem[];
 };
 
-const STATUS: Record<string, string> = { EN_ATTENTE: "En attente", CONFIRMEE: "Confirmée", EXPEDIEE: "Expédiée", LIVREE: "Livrée", ANNULEE: "Annulée" };
+const STATUS: Record<string, string> = { NON_PAYEE: "Non payée", EN_ATTENTE: "En attente", CONFIRMEE: "Confirmée", EXPEDIEE: "Expédiée", LIVREE: "Livrée", ANNULEE: "Annulée" };
 const F = (n: number) => `${n.toLocaleString("fr-FR")} FCFA`;
 const digits = (q: string) => q.replace(/\D/g, "");
 

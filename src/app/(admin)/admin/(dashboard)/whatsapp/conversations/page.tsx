@@ -10,7 +10,7 @@ import { WhatsAppReplyForm } from "@/components/admin/WhatsAppReplyForm";
 export const dynamic = "force-dynamic";
 
 const WHO: Record<string, string> = { bot: "Assistant", conseiller: "Conseiller", suivi: "Suivi", relance: "Relance", avis: "Avis", campagne: "Campagne", kit: "Kit", livreur: "Livreur", team: "Équipe", reseller: "Revendeur", client: "Notification", test: "Test", resume: "Résumé" };
-const ORDER_STATUS: Record<string, string> = { EN_ATTENTE: "En attente", CONFIRMEE: "Confirmée", EXPEDIEE: "Expédiée", LIVREE: "Livrée", ANNULEE: "Annulée" };
+const ORDER_STATUS: Record<string, string> = { NON_PAYEE: "Non payée", EN_ATTENTE: "En attente", CONFIRMEE: "Confirmée", EXPEDIEE: "Expédiée", LIVREE: "Livrée", ANNULEE: "Annulée" };
 
 /** Âge d'une date (hors rendu React : fonction de module). */
 const ageMs = (d: Date) => Date.now() - d.getTime();

@@ -1,5 +1,7 @@
 "use server";
 
+import { paymentStage, statusForPayment } from "@/lib/orders/payment-rules";
+
 import { scheduleAutoAssign } from "@/lib/delivery-dispatch";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
@@ -61,7 +63,7 @@ export async function reservationArrivedAction(orderId: string): Promise<Reserva
   const userId = session.user?.id ?? null;
   try {
     await prisma.$transaction(async (tx) => {
-      const order = await tx.order.findUnique({ where: { id: orderId }, select: { reservationStatus: true, deliveryMode: true, items: { select: { productId: true, variantId: true, volumeLabel: true, quantity: true } } } });
+      const order = await tx.order.findUnique({ where: { id: orderId }, select: { reservationStatus: true, deliveryMode: true, status: true, paymentStatus: true, depositPaidAt: true, installmentsPaid: true, items: { select: { productId: true, variantId: true, volumeLabel: true, quantity: true } } } });
       if (!order || order.reservationStatus !== "RESERVEE") throw new StockError("la réservation n'attend pas d'arrivage (acompte non reçu, déjà servie ou annulée)");
       const claim = await tx.order.updateMany({
         where: { id: orderId, reservationStatus: "RESERVEE" },
@@ -69,7 +71,8 @@ export async function reservationArrivedAction(orderId: string): Promise<Reserva
           reservationStatus: "DISPONIBLE",
           reservationReadyAt: new Date(),
           stockState: "RESERVE",
-          status: "CONFIRMEE",
+          // Statut selon le paiement : acompte seul → « En attente », soldée → « Confirmée ».
+          status: statusForPayment(paymentStage(order)),
           ...(order.deliveryMode === "LIVRAISON_JAMAAL" ? { deliveryStatus: "A_PREPARER" } : {}),
         },
       });
@@ -80,7 +83,8 @@ export async function reservationArrivedAction(orderId: string): Promise<Reserva
         if (!ref) continue;
         await moveStock(tx, ref, -item.quantity, { kind: "VENTE", strict: true, orderId, userId, reason: `Réservation servie · ${short(orderId)}` });
       }
-      await tx.orderStatusHistory.create({ data: { orderId, status: "CONFIRMEE" } });
+      const now = statusForPayment(paymentStage(order));
+      if (now !== order.status) await tx.orderStatusHistory.create({ data: { orderId, status: now } });
       if (order.deliveryMode === "LIVRAISON_JAMAAL") await tx.deliveryEvent.create({ data: { orderId, status: "A_PREPARER", note: "Réservation : produit arrivé" } });
     });
   } catch (e) {

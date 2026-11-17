@@ -19,7 +19,8 @@ export async function DeliveryTimeline({ status }: { status: OrderStatus }) {
     );
   }
 
-  const currentIndex = steps.findIndex((s) => s.key === status);
+  // Non payée : la commande est reçue, la suite attend le paiement.
+  const currentIndex = status === "NON_PAYEE" ? 0 : steps.findIndex((s) => s.key === status);
 
   return (
     <div className="flex items-center">

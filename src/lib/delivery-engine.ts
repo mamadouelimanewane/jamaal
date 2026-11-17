@@ -167,14 +167,14 @@ export async function advanceDelivery(
       data: {
         deliveryStatus: to,
         ...(to === "ASSIGNEE" ? { livreurId } : {}),
-        ...(orderStatus && !(orderStatus === "CONFIRMEE" && order.status !== "EN_ATTENTE") ? { status: orderStatus } : {}),
+        ...(orderStatus && orderStatus !== "CONFIRMEE" ? { status: orderStatus } : {}),
         ...(to === "LIVREE" ? { deliveredAt: now, deliveredDistanceM } : {}),
       },
     }),
     prisma.deliveryEvent.create({
       data: { orderId, livreurId, status: to, lat: hasPoint ? point.lat : null, lng: hasPoint ? point.lng : null, note: opts.note?.trim().slice(0, 300) || null },
     }),
-    ...(orderStatus && orderStatus !== order.status ? [prisma.orderStatusHistory.create({ data: { orderId, status: orderStatus } })] : []),
+    ...(orderStatus && orderStatus !== "CONFIRMEE" && orderStatus !== order.status ? [prisma.orderStatusHistory.create({ data: { orderId, status: orderStatus } })] : []),
     ...(hasPoint && actor.kind === "livreur"
       ? [
           prisma.livreur.update({ where: { id: actor.livreurId }, data: { lastLat: point.lat, lastLng: point.lng, lastSeenAt: now } }),

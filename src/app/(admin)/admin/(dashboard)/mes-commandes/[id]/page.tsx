@@ -19,6 +19,7 @@ import { shopWhatsAppLink } from "@/lib/shop/consultant-shop";
 export const dynamic = "force-dynamic";
 
 const statusLabels: Record<string, string> = {
+  NON_PAYEE: "Non payée",
   EN_ATTENTE: "En attente",
   CONFIRMEE: "Confirmée",
   EXPEDIEE: "Expédiée",

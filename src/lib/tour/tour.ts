@@ -33,7 +33,7 @@ export async function livreurTour(livreurId: string, opts: { withRoute?: boolean
         livreurId,
         status: { not: "ANNULEE" },
         deliveryMode: "LIVRAISON_JAMAAL",
-        OR: [{ deliveryStatus: { in: ACTIVE } }, { deliveryStatus: null, status: { in: ["EN_ATTENTE", "CONFIRMEE", "EXPEDIEE"] } }],
+        OR: [{ deliveryStatus: { in: ACTIVE } }, { deliveryStatus: null, status: { in: ["NON_PAYEE", "EN_ATTENTE", "CONFIRMEE", "EXPEDIEE"] } }],
       },
       orderBy: { createdAt: "asc" },
       select: { id: true, customerName: true, deliveryContactName: true, address: true, deliveryPlace: true, deliveryLat: true, deliveryLng: true, deliveryStatus: true, deliveryApprox: true },

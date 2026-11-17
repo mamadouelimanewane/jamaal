@@ -1,4 +1,5 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { paymentStage, statusChangeError } from "@/lib/orders/payment-rules";
 import { paymentLine } from "@/lib/special-terms";
 import { isInstallmentOrder } from "@/lib/installments";
 import { InstallmentSchedule } from "@/components/InstallmentSchedule";
@@ -16,8 +17,9 @@ import { OrderLocationField } from "@/components/admin/OrderLocationField";
 import { ReservationActions } from "@/components/admin/ReservationActions";
 import { RESERVATION_LABELS, type ReservationStatus } from "@/lib/reservation";
 
-const statuses: OrderStatus[] = ["EN_ATTENTE", "CONFIRMEE", "EXPEDIEE", "LIVREE", "ANNULEE"];
+const statuses: OrderStatus[] = ["NON_PAYEE", "EN_ATTENTE", "CONFIRMEE", "EXPEDIEE", "LIVREE", "ANNULEE"];
 const statusLabels: Record<string, string> = {
+  NON_PAYEE: "Non payée",
   EN_ATTENTE: "En attente",
   CONFIRMEE: "Confirmée",
   EXPEDIEE: "Expédiée",
@@ -27,10 +29,13 @@ const statusLabels: Record<string, string> = {
 
 export default async function AdminOrderDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ statut?: string }>;
 }) {
   const { id } = await params;
+  const statutError = (await searchParams).statut?.slice(0, 300) ?? null;
   const [order, consultants, livreurs] = await Promise.all([
     prisma.order.findUnique({
       where: { id },
@@ -51,8 +56,13 @@ export default async function AdminOrderDetailPage({
 
   async function changeStatus(formData: FormData) {
     "use server";
-    await updateOrderStatus(id, formData.get("status") as OrderStatus);
+    const res = await updateOrderStatus(id, formData.get("status") as OrderStatus);
+    if (res && !res.ok) redirect(`/admin/commandes/${id}?statut=${encodeURIComponent(res.error)}#statut`);
+    redirect(`/admin/commandes/${id}#statut`);
   }
+  // Statuts avant expédition : un seul possible, celui qui correspond au paiement.
+  const payStage = paymentStage(order);
+  const allowed = (s: OrderStatus) => !statusChangeError(order, s);
 
   return (
     <div className="max-w-2xl">
@@ -120,18 +130,24 @@ export default async function AdminOrderDetailPage({
       {order.giftWrap && <div className="mt-4 rounded-xl border border-rose/30 bg-rose/5 p-4"><p className="text-sm font-semibold text-navy">Préparation cadeau</p>{order.giftOccasion && <p className="mt-1 text-sm text-navy/85">Occasion : {occasionOf(order.giftOccasion)?.label ?? order.giftOccasion}</p>}{order.giftFrom && <p className="mt-1 text-sm text-navy/85">De la part de : {order.giftFrom}</p>}{order.giftMessage && <p className="mt-1 text-sm text-navy/85">Message : {order.giftMessage}</p>}{order.giftVoiceUrl && <div className="mt-2"><p className="text-xs text-navy/70">Message vocal (à faire écouter ou transmettre au destinataire) :</p><audio src={order.giftVoiceUrl} controls className="mt-1 w-full max-w-sm" /></div>}</div>}
       {order.subscriptionId && <p className="mt-4 rounded-xl bg-ia-light px-4 py-2 text-sm text-ia-dark">Commande d&apos;un abonnement de réassort. <Link href="/admin/abonnements" className="font-semibold underline">Voir les abonnements</Link></p>}
 
-      <form action={changeStatus} className="mt-6 flex flex-wrap items-center gap-3 rounded-2xl border border-line bg-white p-5">
+      <form id="statut" action={changeStatus} className="mt-6 flex scroll-mt-24 flex-wrap items-center gap-3 rounded-2xl border border-line bg-white p-5">
         <label className="text-sm font-medium text-navy/85">Statut</label>
         <select name="status" defaultValue={order.status} className="rounded-lg border border-line px-3 py-2 text-sm">
           {statuses.map((s) => (
-            <option key={s} value={s}>
+            <option key={s} value={s} disabled={!allowed(s)}>
               {statusLabels[s]}
+              {!allowed(s) ? (s === "CONFIRMEE" ? " (paiement total requis)" : s === "EN_ATTENTE" ? (payStage === "TOTAL" ? " (déjà payée)" : " (acompte requis)") : " (paiement déjà reçu)") : ""}
             </option>
           ))}
         </select>
         <button className="w-full rounded-full bg-navy px-5 py-2 text-sm font-semibold text-white hover:bg-navy-light sm:ml-auto sm:w-fit">
           Mettre à jour
         </button>
+        <p className="w-full text-xs text-navy/65">
+          Le statut suit le paiement : rien encaissé = « Non payée », acompte ou paiement partiel = « En attente », payée en totalité = « Confirmée ».
+          {payStage === "AUCUN" ? " Rien n'est encaissé pour l'instant." : payStage === "PARTIEL" ? " Un acompte ou une partie est encaissé." : " Payée en totalité."}
+        </p>
+        {statutError && <p role="alert" className="w-full rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">{statutError}</p>}
       </form>
 
       {order.isReservation && (

@@ -14,6 +14,8 @@ enum Role {
 }
 
 enum OrderStatus {
+  /// Rien encaissé. Acompte ou partiel → EN_ATTENTE ; payée en totalité → CONFIRMEE.
+  NON_PAYEE
   EN_ATTENTE
   CONFIRMEE
   EXPEDIEE
@@ -335,7 +337,7 @@ model Order {
   customerEmail String?
   customerPhone String?
   address       String?
-  status        OrderStatus @default(EN_ATTENTE)
+  status        OrderStatus @default(NON_PAYEE)
   total         Int
   /// Position déduite d'une adresse approximative : le livreur doit la confirmer par téléphone.
   deliveryApprox      Boolean  @default(false)

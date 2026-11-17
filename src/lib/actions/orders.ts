@@ -7,7 +7,7 @@ import { requireAdmin, requireLivreurProfile } from "./auth-guard";
 import { OrderStatus } from "@prisma/client";
 import { placeOrder, type CheckoutCustomer, type CheckoutDelivery, type CheckoutItem } from "@/lib/orders/place-order";
 export type { CheckoutCustomer, CheckoutDelivery, CheckoutItem };
-import { setOrderStatus } from "@/lib/orders/status";
+import { OrderStatusError, setOrderStatus } from "@/lib/orders/status";
 import type { Prisma } from "@prisma/client";
 import { getBusinessModel } from "@/lib/business-model-store";
 import { isValidPoint, quoteDelivery } from "@/lib/delivery";
@@ -73,9 +73,15 @@ export async function createOrder(
 }
 
 
-export async function updateOrderStatus(id: string, status: OrderStatus) {
+export async function updateOrderStatus(id: string, status: OrderStatus): Promise<{ ok: true } | { ok: false; error: string }> {
   await requireAdmin("commandes");
-  await setOrderStatus(id, status);
+  try {
+    await setOrderStatus(id, status);
+    return { ok: true };
+  } catch (e) {
+    if (e instanceof OrderStatusError) return { ok: false, error: e.message };
+    throw e;
+  }
 }
 
 /**
@@ -157,7 +163,9 @@ export async function livreurUpdateOrderStatus(id: string, status: OrderStatus) 
   const { livreur } = await requireLivreurProfile();
   const order = await prisma.order.findUnique({ where: { id } });
   if (!order || order.livreurId !== livreur.id) return;
-  await setOrderStatus(id, status);
+  await setOrderStatus(id, status).catch((e) => {
+    if (!(e instanceof OrderStatusError)) throw e;
+  });
   revalidatePath("/admin/mes-livraisons");
 }
 

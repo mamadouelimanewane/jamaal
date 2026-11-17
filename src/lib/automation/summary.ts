@@ -51,7 +51,7 @@ export async function dailyFigures(origin: string, now = new Date()): Promise<Da
     prisma.order.aggregate({ where: { ...valid, createdAt: { gte: dayStart } }, _count: { _all: true }, _sum: { total: true } }),
     prisma.order.aggregate({ where: { ...valid, paymentStatus: "PAYE", paidAt: { gte: dayStart } }, _sum: { total: true } }),
     prisma.order.aggregate({ where: { ...valid, createdAt: { gte: monthStart } }, _sum: { total: true } }),
-    prisma.order.count({ where: { status: { in: ["EN_ATTENTE", "CONFIRMEE", "EXPEDIEE"] }, isReservation: false } }),
+    prisma.order.count({ where: { status: { in: ["NON_PAYEE", "EN_ATTENTE", "CONFIRMEE", "EXPEDIEE"] }, isReservation: false } }),
     prisma.order.count({ where: { ...valid, paymentStatus: "EN_ATTENTE", paymentMethod: { not: "A_LA_LIVRAISON" }, createdAt: { lt: new Date(now.getTime() - 86_400_000), gte: new Date(now.getTime() - 14 * 86_400_000) } } }),
     getStockRows(),
     prisma.consultant.findMany({ where: { active: true }, select: { name: true, orders: { where: { ...valid, createdAt: { gte: new Date(now.getTime() - 30 * 86_400_000) } }, select: { id: true }, take: 1 } } }),

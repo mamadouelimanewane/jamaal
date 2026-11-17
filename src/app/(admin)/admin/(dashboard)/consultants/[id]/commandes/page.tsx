@@ -9,6 +9,7 @@ import { OrderDetailCell } from "@/components/admin/OrderDetailCell";
 export const dynamic = "force-dynamic";
 
 const STATUS_LABELS: Record<OrderStatus, string> = {
+  NON_PAYEE: "Non payée",
   EN_ATTENTE: "En attente",
   CONFIRMEE: "Confirmée",
   EXPEDIEE: "Expédiée",
@@ -17,6 +18,7 @@ const STATUS_LABELS: Record<OrderStatus, string> = {
 };
 
 const STATUS_COLORS: Record<OrderStatus, string> = {
+  NON_PAYEE: "bg-red-50 text-red-700",
   EN_ATTENTE: "bg-amber-50 text-amber-700",
   CONFIRMEE: "bg-blue-50 text-blue-700",
   EXPEDIEE: "bg-purple-50 text-purple-700",
@@ -117,7 +119,7 @@ export default async function ConsultantCommandesPage({
         </form>
         <div className="flex flex-wrap gap-1.5">
           {(
-            [undefined, "EN_ATTENTE", "CONFIRMEE", "EXPEDIEE", "LIVREE", "ANNULEE"] as const
+            [undefined, "NON_PAYEE", "EN_ATTENTE", "CONFIRMEE", "EXPEDIEE", "LIVREE", "ANNULEE"] as const
           ).map((s) => (
             <Link
               key={s ?? "tous"}

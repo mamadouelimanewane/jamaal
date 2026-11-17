@@ -60,7 +60,7 @@ export async function markOrderPaid(
     const next = dueDates(order.createdAt, order.installmentCount, order.installmentIntervalDays)[k + 1];
     const res = await prisma.order.updateMany({
       where: { id: orderId, installmentsPaid: k, paymentStatus: { not: "PAYE" } },
-      data: { installmentsPaid: k + 1, installmentNextDue: next, installmentPaidDates: { push: new Date() }, ...(opts.externalRef ? { installmentRefs: { push: opts.externalRef } } : {}), ...(order.status === "EN_ATTENTE" ? { status: "CONFIRMEE" } : {}) },
+      data: { installmentsPaid: k + 1, installmentNextDue: next, installmentPaidDates: { push: new Date() }, ...(opts.externalRef ? { installmentRefs: { push: opts.externalRef } } : {}), ...(order.status === "NON_PAYEE" ? { status: "EN_ATTENTE" } : {}) },
     });
     if (res.count) {
       // 1re échéance reçue : les produits sont mis de côté (sortie du stock).
@@ -89,7 +89,8 @@ export async function markOrderPaid(
       paymentStatus: "PAYE",
       paidAt: new Date(),
       ...(opts.externalRef ? { paymentRef: opts.externalRef } : {}),
-      ...(order.status === "EN_ATTENTE" ? { status: "CONFIRMEE" } : {}),
+      // Payée en totalité : « Confirmée » (règle des statuts, lib/orders/payment-rules).
+      ...(order.status === "NON_PAYEE" || order.status === "EN_ATTENTE" ? { status: "CONFIRMEE" } : {}),
       ...(order.isReservation ? { reservationStatus: "SOLDEE" } : {}),
       ...(lastInstallment ? { installmentsPaid: order.installmentCount, installmentNextDue: null, installmentPaidDates: { push: new Date() }, ...(opts.externalRef ? { installmentRefs: { push: opts.externalRef } } : {}) } : {}),
     },
@@ -133,6 +134,9 @@ export async function markDepositPaid(orderId: string, externalRef: string | nul
     data: { depositPaidAt: new Date(), reservationStatus: "RESERVEE", ...(externalRef ? { paymentRef: externalRef } : {}) },
   });
   if (res.count === 0) return false;
+  // Acompte encaissé : la commande passe de « Non payée » à « En attente ».
+  const promoted = await prisma.order.updateMany({ where: { id: orderId, status: "NON_PAYEE" }, data: { status: "EN_ATTENTE" } });
+  if (promoted.count) await prisma.orderStatusHistory.create({ data: { orderId, status: "EN_ATTENTE" } }).catch(() => {});
   // Le client est prévenu tout de suite et automatiquement : commande confirmée, acompte versé, reste à payer.
   notifyOrderUpdate(orderId, "ACOMPTE");
   const order = await prisma.order.findUnique({ where: { id: orderId }, select: { customerName: true, depositAmount: true, items: { select: { productName: true, volumeLabel: true, quantity: true } } } });

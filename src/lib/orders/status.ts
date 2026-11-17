@@ -13,6 +13,7 @@ import { recordLivreurEarning } from "@/lib/delivery-engine";
 import { syncOrderStock, takeOrderStock } from "@/lib/stock";
 import { notifyOrderUpdate } from "@/lib/whatsapp/order-notify";
 import { trackEvent } from "@/lib/analytics";
+import { statusChangeError } from "@/lib/orders/payment-rules";
 
 function later(task: () => Promise<unknown>) {
   try {
@@ -53,8 +54,14 @@ function refresh(id: string) {
   }
 }
 
+/** Statut refusé par la règle du paiement : message à montrer tel quel. */
+export class OrderStatusError extends Error {}
+
 export async function setOrderStatus(id: string, status: OrderStatus): Promise<void> {
-  const before = await prisma.order.findUnique({ where: { id }, select: { status: true, paymentMethod: true, paymentStatus: true } });
+  const before = await prisma.order.findUnique({ where: { id }, select: { status: true, paymentMethod: true, paymentStatus: true, depositPaidAt: true, installmentsPaid: true } });
+  // « Non payée », « En attente » et « Confirmée » suivent le paiement (lib/orders/payment-rules).
+  const refused = before ? statusChangeError(before, status) : null;
+  if (refused) throw new OrderStatusError(refused);
   await prisma.order.update({ where: { id }, data: { status } });
   if (before && status === "LIVREE" && before.status !== status && before.paymentMethod === "A_LA_LIVRAISON" && before.paymentStatus !== "PAYE") {
     await trackEvent({ name: "payment_confirmed", orderId: id, path: "/commande" });
@@ -62,6 +69,6 @@ export async function setOrderStatus(id: string, status: OrderStatus): Promise<v
   if (before && before.status !== status) await prisma.orderStatusHistory.create({ data: { orderId: id, status } }).catch(() => {});
   if (status === "LIVREE") await notifyConsultantOfDelivery(id);
   await onOrderStatusChanged(id, status);
-  if (status !== "EN_ATTENTE" && before?.status !== status) notifyOrderUpdate(id, status);
+  if (status !== "EN_ATTENTE" && status !== "NON_PAYEE" && before?.status !== status) notifyOrderUpdate(id, status);
   refresh(id);
 }

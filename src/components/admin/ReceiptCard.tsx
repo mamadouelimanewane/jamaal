@@ -14,6 +14,7 @@ export interface ReceiptData {
 }
 
 const statusLabels: Record<string, string> = {
+  NON_PAYEE: "Non payée",
   EN_ATTENTE: "En attente",
   CONFIRMEE: "Confirmée",
   EXPEDIEE: "Expédiée",
