@@ -134,15 +134,16 @@ export function GoodsCreditGrantForm({ resellers, preselected }: { resellers: Re
           <div className="mt-1 divide-y divide-line rounded-xl border border-line bg-white">
             {hits.map((h) => {
               // Formats vendus seulement (pas de 15 ml) : 25 ml, 30 ml, 70 ml…
-              const formats = (h.volumes ?? []).filter((v) => v.label && v.price > 0 && !isUnsoldFormat(v.label));
+              const formats = h.formats.filter((v) => v.label && v.price > 0 && !isUnsoldFormat(v.label));
               return (
                 <div key={h.id} className="px-3 py-2.5">
                   <p className="text-sm"><span className="font-medium text-navy">{h.name}</span>{h.choganCode ? <span className="ml-2 text-xs text-navy/60">{h.choganCode}</span> : null}</p>
                   <div className="mt-1.5 flex flex-wrap gap-1.5">
                     {formats.length ? (
                       formats.map((f) => (
-                        <button key={f.label} type="button" onClick={() => addProduct(h, f)} className="rounded-full border border-line px-3 py-1 text-xs font-semibold text-navy hover:border-navy hover:bg-cream">
-                          + {f.label} · {fmt(f.price)}
+                        <button key={f.label} type="button" onClick={() => addProduct(h, f)} className="rounded-xl border border-line px-3 py-1.5 text-left text-xs text-navy hover:border-navy hover:bg-cream">
+                          <span className="block font-semibold">+ {f.label} · {fmt(f.price)}</span>
+                          <span className="block text-[11px] text-navy/60">{f.code ? `${f.code} · ` : ""}{f.stock == null ? "" : f.stock > 0 ? `${f.stock} en stock` : "rupture"}</span>
                         </button>
                       ))
                     ) : (
