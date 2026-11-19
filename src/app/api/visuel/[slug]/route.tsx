@@ -3,6 +3,7 @@ import QRCode from "qrcode";
 import { prisma } from "@/lib/prisma";
 import { siteBaseUrl } from "@/lib/site-url";
 import { allowedChoganUrl, relayFetch } from "@/lib/chogan/relay";
+import { startingPrice } from "@/lib/price-from";
 
 export const dynamic = "force-dynamic";
 
@@ -41,7 +42,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
   const reseller = ref ? await prisma.consultant.findFirst({ where: { slug: ref, active: true }, select: { name: true, whatsapp: true, slug: true } }) : null;
 
   const volumes = ((product.volumes as { label: string; price: number }[] | null) ?? []).filter((v) => v.price > 0);
-  const price = volumes.length ? Math.min(...volumes.map((v) => v.price)) : product.regularPrice;
+  const price = startingPrice(product.regularPrice, volumes) ?? product.regularPrice;
   const link = `${origin}/produits/${product.slug}${reseller?.slug ? `?ref=${reseller.slug}` : ""}`;
   // Photo intégrée en données : le CDN Chogan passe par le relais (il refuse les serveurs), les
   // autres photos (stockage du site) sont lues directement. Formats lus par le moteur : JPEG, PNG.

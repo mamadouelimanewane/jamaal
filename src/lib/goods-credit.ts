@@ -8,7 +8,7 @@ import type { GoodsCreditStatus, Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/currency";
 
-export type CreditItem = { productId?: string | null; name: string; qty: number; unitPrice: number };
+export type CreditItem = { productId?: string | null; name: string; qty: number; unitPrice: number; /** Format confié (« 30 ml »), facultatif. */ format?: string | null };
 
 export const CREDIT_STATUS_LABELS: Record<GoodsCreditStatus, string> = { EN_COURS: "En cours", SOLDE: "Soldé", ANNULE: "Annulé" };
 export const ENTRY_LABELS: Record<string, string> = {
@@ -23,10 +23,23 @@ export function parseItems(v: unknown): CreditItem[] {
   return v
     .map((x) => x as Partial<CreditItem>)
     .filter((x) => x && typeof x.name === "string" && x.name.trim())
-    .map((x) => ({ productId: x.productId || null, name: String(x.name).slice(0, 120), qty: Math.max(0, Math.round(Number(x.qty) || 0)), unitPrice: Math.max(0, Math.round(Number(x.unitPrice) || 0)) }));
+    .map((x) => ({
+      productId: x.productId || null,
+      name: String(x.name).slice(0, 120),
+      qty: Math.max(0, Math.round(Number(x.qty) || 0)),
+      unitPrice: Math.max(0, Math.round(Number(x.unitPrice) || 0)),
+      ...(typeof x.format === "string" && x.format.trim() ? { format: x.format.trim().slice(0, 60) } : {}),
+    }));
 }
 
-type OrderForCredit = { total: number; deliveryFee: number; items: { productId: string | null; price: number; quantity: number }[] };
+type OrderForCredit = { total: number; deliveryFee: number; items: { productId: string | null; price: number; quantity: number; volumeLabel?: string | null }[] };
+
+const normFormat = (s: string | null | undefined) => (s ?? "").toLowerCase().replace(/\s+/g, " ").trim();
+
+/** La ligne de commande correspond-elle à un produit confié (et à son format, s'il est précisé) ? */
+function lineMatches(items: CreditItem[], line: OrderForCredit["items"][number]) {
+  return items.some((i) => i.productId && i.productId === line.productId && (!i.format || normFormat(i.format) === normFormat(line.volumeLabel)));
+}
 type CreditForAlloc = { id: string; balance: number; items: CreditItem[] };
 
 /** Montant de la vente (hors livraison). */
@@ -42,10 +55,8 @@ export function allocateSale(order: OrderForCredit, credits: CreditForAlloc[]): 
   for (const c of credits) {
     if (left <= 0) break;
     if (c.balance <= 0) continue;
-    const listed = new Set(c.items.map((i) => i.productId).filter(Boolean) as string[]);
-    const eligible = listed.size
-      ? Math.min(left, order.items.filter((i) => i.productId && listed.has(i.productId)).reduce((s, i) => s + i.price * i.quantity, 0))
-      : left;
+    const listed = c.items.some((i) => i.productId);
+    const eligible = listed ? Math.min(left, order.items.filter((l) => lineMatches(c.items, l)).reduce((s, l) => s + l.price * l.quantity, 0)) : left;
     const take = Math.min(c.balance, eligible);
     if (take > 0) {
       out.push({ creditId: c.id, amount: take });
@@ -82,7 +93,7 @@ export async function resellerDebt(consultantId: string) {
 export async function deductFromGoodsCreditForOrder(orderId: string) {
   const order = await prisma.order.findUnique({
     where: { id: orderId },
-    select: { consultantId: true, paymentStatus: true, paymentMethod: true, status: true, total: true, deliveryFee: true, items: { select: { productId: true, price: true, quantity: true } } },
+    select: { consultantId: true, paymentStatus: true, paymentMethod: true, status: true, total: true, deliveryFee: true, items: { select: { productId: true, price: true, quantity: true, volumeLabel: true } } },
   });
   if (!order?.consultantId || order.paymentStatus !== "PAYE" || order.status === "ANNULEE" || order.paymentMethod === "WALLET") return [];
   const consultantId = order.consultantId;

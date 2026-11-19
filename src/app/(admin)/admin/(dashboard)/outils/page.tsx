@@ -7,6 +7,7 @@ import { ScriptCard } from "@/components/admin/ScriptCard";
 import { CatalogShareCard } from "@/components/admin/CatalogShareCard";
 import { getSiteUrl } from "@/lib/site-url";
 import { PersonalLinkCard } from "@/components/admin/PersonalLinkCard";
+import { startingPrice } from "@/lib/price-from";
 
 export const dynamic = "force-dynamic";
 
@@ -56,7 +57,7 @@ export default async function OutilsVentePage() {
     const volumes = (p.volumes as { label: string; price: number }[] | null) ?? [];
     const minPrice =
       volumes.length > 0
-        ? Math.min(...volumes.map((v) => v.price))
+        ? startingPrice(p.regularPrice, volumes) ?? 0
         : p.testerPrice ?? p.regularPrice ?? 0;
     return {
       name: p.name,

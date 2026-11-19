@@ -7,12 +7,13 @@ import type { Product } from "@/data/types";
 import { ProductVisual } from "./ProductVisual";
 import { StarRating } from "./StarRating";
 import { formatPrice } from "@/lib/currency";
+import { startingPrice } from "@/lib/price-from";
 
 export function ProductCard({ product }: { product: Product }) {
   const t = useT();
   const priceLabel = product.testerPrice
     ? `Échantillon · ${formatPrice(product.testerPrice)}`
-    : `À partir de ${formatPrice(product.volumes?.length ? Math.min(...product.volumes.map((v) => v.price)) : product.regularPrice ?? 0)}`;
+    : `À partir de ${formatPrice(startingPrice(product.regularPrice, product.volumes) ?? 0)}`;
   return <Link href={`/produits/${product.slug}`} className="group block focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#8e634b]">
     <div className="relative aspect-[4/5] overflow-hidden bg-[#f5ece8]">
       <ProductVisual product={product} fit="contain" className="h-full w-full p-3 transition duration-700 ease-out group-hover:scale-[1.045] sm:p-5" sizes="(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 22vw"/>

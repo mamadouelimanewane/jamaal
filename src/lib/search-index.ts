@@ -24,7 +24,6 @@ async function load() {
   const labels = new Map(categories.map((c) => [c.slug as string, c.navLabel.replace("JAMAAL ", "")]));
   const docs: SearchDoc[] = rows.map((r) => {
     const volumes = (r.volumes as { label?: string; price?: number }[] | null) ?? [];
-    const prices = [r.regularPrice, ...volumes.map((v) => v.price)].filter((p): p is number => typeof p === "number" && p > 0);
     return {
       id: r.id,
       slug: r.slug,
@@ -39,7 +38,7 @@ async function load() {
       notes: [...r.topNotes, ...r.heartNotes, ...r.baseNotes],
       description: [r.shortDescription, ...r.longDescription].join(" "),
       volumes: [...volumes.map((v) => v.label ?? ""), ...r.variants.map((v) => v.volumeLabel)].filter(Boolean),
-      price: prices.length ? Math.min(...prices) : null,
+      price: startingPrice(r.regularPrice, volumes),
       photo: r.photo,
       colorFrom: r.colorFrom,
       colorTo: r.colorTo,
@@ -77,6 +76,7 @@ export function invalidateSearchIndex() {
 
 import { expandQueryWithAI } from "./search-ai";
 import { geminiConfigured } from "./ai/gemini";
+import { startingPrice } from "@/lib/price-from";
 
 /**
  * Recherche dans le catalogue. `allowAi` autorise l'expansion IA (page de résultats seulement,

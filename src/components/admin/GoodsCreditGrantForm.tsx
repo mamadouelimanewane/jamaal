@@ -4,9 +4,10 @@ import { useActionState, useEffect, useMemo, useState } from "react";
 import { Loader2, Plus, Search, Trash2, X } from "lucide-react";
 import { grantGoodsCredit, type GoodsCreditState } from "@/lib/actions/goods-credit";
 import { searchProductsForOrder, type ProductSearchResult } from "@/lib/actions/product-search";
+import { isUnsoldFormat } from "@/lib/price-from";
 
 type Reseller = { id: string; name: string; city: string; whatsapp: string | null; debt: number };
-type Line = { key: string; productId: string | null; name: string; qty: number; unitPrice: number };
+type Line = { key: string; productId: string | null; name: string; format: string | null; qty: number; unitPrice: number };
 
 const fmt = (n: number) => `${Math.round(n).toLocaleString("fr-FR")} F`;
 const field = "w-full rounded-xl border border-line bg-white px-3 py-2 text-sm text-ink outline-none focus:border-navy focus:ring-2 focus:ring-navy/10";
@@ -60,11 +61,14 @@ export function GoodsCreditGrantForm({ resellers, preselected }: { resellers: Re
   }, [pq]);
 
 
-  const addProduct = (p: ProductSearchResult) => {
-    const price = p.regularPrice ?? p.volumes?.[0]?.price ?? 0;
-    setLines((ls) => [...ls, { key: `${p.id}-${Date.now()}`, productId: p.id, name: p.name, qty: 1, unitPrice: price }]);
-    setPq("");
-    setHits([]);
+  // Un produit s'ajoute dans le format choisi (15 ml recharge, 30 ml, 70 ml…) à son prix.
+  const addProduct = (p: ProductSearchResult, format: { label: string; price: number } | null) => {
+    const price = format?.price ?? p.regularPrice ?? 0;
+    setLines((ls) => {
+      const same = ls.find((l) => l.productId === p.id && l.format === (format?.label ?? null));
+      if (same) return ls.map((l) => (l === same ? { ...l, qty: l.qty + 1 } : l));
+      return [...ls, { key: `${p.id}-${format?.label ?? "u"}-${Date.now()}`, productId: p.id, name: p.name, format: format?.label ?? null, qty: 1, unitPrice: price }];
+    });
   };
   const upd = (key: string, patch: Partial<Line>) => setLines((ls) => ls.map((l) => (l.key === key ? { ...l, ...patch } : l)));
 
@@ -87,7 +91,7 @@ export function GoodsCreditGrantForm({ resellers, preselected }: { resellers: Re
       </div>
 
       <input type="hidden" name="consultantId" value={who} />
-      <input type="hidden" name="items" value={JSON.stringify(lines.map(({ productId, name, qty, unitPrice }) => ({ productId, name, qty, unitPrice })))} />
+      <input type="hidden" name="items" value={JSON.stringify(lines.map(({ productId, name, format, qty, unitPrice }) => ({ productId, name: format ? `${name} — ${format}` : name, format, qty, unitPrice })))} />
 
       <section>
         <p className="text-sm font-semibold text-navy">1. Revendeur</p>
@@ -128,19 +132,36 @@ export function GoodsCreditGrantForm({ resellers, preselected }: { resellers: Re
         </label>
         {hits.length > 0 && (
           <div className="mt-1 divide-y divide-line rounded-xl border border-line bg-white">
-            {hits.map((h) => (
-              <button key={h.id} type="button" onClick={() => addProduct(h)} className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-sm hover:bg-cream/60">
-                <span><span className="font-medium text-navy">{h.name}</span>{h.choganCode ? <span className="ml-2 text-xs text-navy/60">{h.choganCode}</span> : null}</span>
-                <span className="text-xs text-navy/70">{fmt(h.regularPrice ?? h.volumes?.[0]?.price ?? 0)}</span>
-              </button>
-            ))}
+            {hits.map((h) => {
+              // Formats vendus seulement (pas de 15 ml) : 25 ml, 30 ml, 70 ml…
+              const formats = (h.volumes ?? []).filter((v) => v.label && v.price > 0 && !isUnsoldFormat(v.label));
+              return (
+                <div key={h.id} className="px-3 py-2.5">
+                  <p className="text-sm"><span className="font-medium text-navy">{h.name}</span>{h.choganCode ? <span className="ml-2 text-xs text-navy/60">{h.choganCode}</span> : null}</p>
+                  <div className="mt-1.5 flex flex-wrap gap-1.5">
+                    {formats.length ? (
+                      formats.map((f) => (
+                        <button key={f.label} type="button" onClick={() => addProduct(h, f)} className="rounded-full border border-line px-3 py-1 text-xs font-semibold text-navy hover:border-navy hover:bg-cream">
+                          + {f.label} · {fmt(f.price)}
+                        </button>
+                      ))
+                    ) : (
+                      <button type="button" onClick={() => addProduct(h, null)} className="rounded-full border border-line px-3 py-1 text-xs font-semibold text-navy hover:border-navy hover:bg-cream">
+                        + Ajouter · {fmt(h.regularPrice ?? 0)}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+            <button type="button" onClick={() => { setPq(""); setHits([]); }} className="w-full px-3 py-2 text-center text-xs text-navy/60 hover:bg-cream/60">Fermer la recherche</button>
           </div>
         )}
         {lines.length > 0 && (
           <div className="mt-3 space-y-2">
             {lines.map((l) => (
               <div key={l.key} className="flex flex-wrap items-center gap-2 rounded-xl bg-cream/60 px-3 py-2 text-sm">
-                <span className="min-w-[160px] flex-1 font-medium text-navy">{l.name}</span>
+                <span className="min-w-[160px] flex-1 font-medium text-navy">{l.name}{l.format ? <span className="ml-1.5 rounded-full bg-white px-2 py-0.5 text-xs font-semibold text-navy/80">{l.format}</span> : null}</span>
                 <label className="text-xs text-navy/70">Qté <input type="number" min={1} value={l.qty} onChange={(e) => upd(l.key, { qty: Math.max(1, Number(e.target.value) || 1) })} className="ml-1 w-16 rounded-lg border border-line bg-white px-2 py-1 text-sm" /></label>
                 <label className="text-xs text-navy/70">Prix unitaire <input type="number" min={0} value={l.unitPrice} onChange={(e) => upd(l.key, { unitPrice: Math.max(0, Number(e.target.value) || 0) })} className="ml-1 w-28 rounded-lg border border-line bg-white px-2 py-1 text-sm" /></label>
                 <span className="w-28 text-right font-semibold text-navy">{fmt(l.qty * l.unitPrice)}</span>

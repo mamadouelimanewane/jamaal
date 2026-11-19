@@ -26,3 +26,9 @@ test("un crédit soldé ou une vente nulle ne bougent rien", () => {
 test("lignes de produits nettoyées", () => {
   assert.deepEqual(parseItems([{ name: " ", qty: 1 }, { name: "Glory", qty: "3", unitPrice: "12000", productId: "x" }, null]), [{ productId: "x", name: "Glory", qty: 3, unitPrice: 12000 }]);
 });
+
+test("un format confié (30 ml) n'est remboursé que par les ventes de ce format", () => {
+  const o = { total: 60_000, deliveryFee: 0, items: [{ productId: "a", price: 14_800, quantity: 1, volumeLabel: "30 ml" }, { productId: "a", price: 9_800, quantity: 1, volumeLabel: "15 ml · recharge" }] };
+  const r = allocateSale(o, [{ id: "c1", balance: 100_000, items: [{ productId: "a", name: "A", qty: 3, unitPrice: 14_800, format: "30 ml" }] }]);
+  assert.deepEqual(r, [{ creditId: "c1", amount: 14_800 }]);
+});

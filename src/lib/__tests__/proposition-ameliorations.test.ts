@@ -138,3 +138,10 @@ test("partage Instagram : liste des produits, renvoi au lien de la bio, hashtags
   assert.match(t, /lien dans ma bio : j\.sn\/c\/awa/);
   assert.match(t, /#skincare/);
 });
+
+test("prix « à partir de » : la recharge 15 ml ne sert pas de prix d'appel", async () => {
+  const { startingPrice } = await import("../price-from");
+  assert.equal(startingPrice(28_700, [{ label: "15 ml · recharge", price: 9_800 }, { label: "30 ml", price: 14_800 }, { label: "70 ml", price: 28_700 }]), 14_800);
+  assert.equal(startingPrice(null, [{ label: "15 ml", price: 9_800 }, { label: "25 ml", price: 13_500 }]), 13_500);
+  assert.equal(startingPrice(null, [{ label: "15 ml · recharge", price: 9_800 }]), 9_800);
+});

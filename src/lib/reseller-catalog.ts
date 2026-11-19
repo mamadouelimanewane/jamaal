@@ -27,11 +27,8 @@ export type ResellerProduct = {
 };
 
 /** Prix de départ : le plus petit prix de format, sinon le prix du produit. Pur, testé. */
-export function startingPrice(regularPrice: number | null, volumes: unknown): number | null {
-  const list = Array.isArray(volumes) ? (volumes as { price?: unknown }[]).map((v) => Number(v?.price)).filter((n) => Number.isFinite(n) && n > 0) : [];
-  if (list.length) return Math.min(...list);
-  return regularPrice && regularPrice > 0 ? regularPrice : null;
-}
+import { startingPrice } from "@/lib/price-from";
+export { startingPrice };
 
 export async function resellerCatalog(): Promise<ResellerProduct[]> {
   const [rows, categories] = await Promise.all([
