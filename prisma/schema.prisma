@@ -549,6 +549,7 @@ model Consultant {
   /// Conditions spéciales (encaissement direct, commission propre, zones de livraison propres), sinon le régime normal.
   specialTermsId String?
   specialTerms   SpecialTerms? @relation(fields: [specialTermsId], references: [id], onDelete: SetNull)
+  goodsCredits   GoodsCredit[]
   shopEvents ShopEvent[]
 }
 
@@ -1383,4 +1384,57 @@ model ShopEvent {
 
   @@index([consultantId, createdAt])
   @@index([sid])
+}
+
+enum GoodsCreditStatus {
+  EN_COURS
+  SOLDE
+  ANNULE
+}
+
+/// Crédit de marchandises : produits confiés à un revendeur, qu'il rembourse par ses ventes (défalcation automatique)
+/// ou par des versements. Admin › Crédits revendeurs ; revendeur › Mes crédits.
+model GoodsCredit {
+  id           String            @id @default(cuid())
+  /// CM-2026-0001
+  reference    String            @unique
+  consultantId String
+  consultant   Consultant        @relation(fields: [consultantId], references: [id], onDelete: Cascade)
+  /// Valeur des marchandises confiées (F).
+  amount       Int
+  /// Reste dû (F).
+  balance      Int
+  /// Déjà remboursé : ventes + versements (F).
+  repaid       Int               @default(0)
+  status       GoodsCreditStatus @default(EN_COURS)
+  /// [{ productId?, name, qty, unitPrice }] — si des produits sont listés, seules leurs ventes remboursent ce crédit.
+  items        Json              @default("[]")
+  dueDate      DateTime?
+  notes        String?
+  createdById  String?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  closedAt     DateTime?
+  deductions   GoodsCreditDeduction[]
+
+  @@index([consultantId, status])
+}
+
+/// Journal d'un crédit : défalcation sur une vente, versement, annulation d'une vente (montant négatif = rendu au solde).
+model GoodsCreditDeduction {
+  id            String      @id @default(cuid())
+  creditId      String
+  credit        GoodsCredit @relation(fields: [creditId], references: [id], onDelete: Cascade)
+  /// VENTE | VERSEMENT | ANNULATION_VENTE | ANNULATION_CREDIT
+  kind          String
+  orderId       String?
+  amount        Int
+  balanceBefore Int
+  balanceAfter  Int
+  note          String?
+  createdById   String?
+  createdAt     DateTime    @default(now())
+
+  @@index([creditId, createdAt])
+  @@index([orderId])
 }

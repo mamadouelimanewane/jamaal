@@ -2,6 +2,7 @@
  * Module livraison : étapes, géolocalisation, code de remise, part du livreur.
  * Fichier serveur uniquement (appelé par les actions protégées admin / livreur).
  */
+import { safeDeduct } from "@/lib/goods-credit";
 import { creditLivreurEarnings } from "@/lib/wallet";
 import { balanceOf } from "@/lib/reservation";
 import { takeOrderStock } from "@/lib/stock";
@@ -284,6 +285,7 @@ export async function settleCashOnDelivery(orderId: string): Promise<number> {
     create: { ownerType: "LIVREUR", ownerId: o.livreurId, amount: -amount, kind: "ENCAISSEMENT", sourceId: `cod:${orderId}`, orderId, note: `Espèces encaissées · commande ${orderId.slice(-8).toUpperCase()} (à reverser)` },
   });
   await takeOrderStock(orderId, null).catch((e) => console.error("[livraison] stock", orderId, e));
+  await safeDeduct(orderId);
   return amount;
 }
 

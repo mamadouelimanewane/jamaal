@@ -1,6 +1,7 @@
 "use server";
 
 import { paymentStage, statusForPayment } from "@/lib/orders/payment-rules";
+import { safeReverse } from "@/lib/goods-credit";
 
 import { scheduleAutoAssign } from "@/lib/delivery-dispatch";
 import { revalidatePath } from "next/cache";
@@ -118,6 +119,7 @@ export async function reservationCancelAction(orderId: string): Promise<Reservat
   if (!order || !order.reservationStatus || ["ANNULEE", "SOLDEE"].includes(order.reservationStatus)) return { ok: false, error: "Cette réservation ne peut plus être annulée ici." };
   await prisma.order.update({ where: { id: orderId }, data: { status: "ANNULEE", reservationStatus: "ANNULEE", deliveryStatus: null } });
   await prisma.orderStatusHistory.create({ data: { orderId, status: "ANNULEE" } });
+  await safeReverse(orderId);
   await syncOrderStock(orderId, session.user?.id ?? null);
   await logActivity(session, `Réservation annulée · ${short(orderId)}`, "Order", orderId);
   refresh(orderId);

@@ -1,6 +1,7 @@
 "use server";
 
 import { statusChangeError } from "@/lib/orders/payment-rules";
+import { safeDeduct } from "@/lib/goods-credit";
 
 import { scheduleAutoAssign } from "@/lib/delivery-dispatch";
 import { after } from "next/server";
@@ -70,6 +71,7 @@ export async function quickMarkPaid(id: string): Promise<R> {
   }
   if (o.deliveryMode === "LIVRAISON_JAMAAL") scheduleAutoAssign(id);
   await takeOrderStock(id, session.user?.id ?? null);
+  await safeDeduct(id);
   after(() => runPayoutsForOrder(id));
   notifyOrderUpdate(id, "PAYEE");
   await logActivity(session, `Paiement reçu (manuel) · commande ${ref(id)}`, "Order", id);

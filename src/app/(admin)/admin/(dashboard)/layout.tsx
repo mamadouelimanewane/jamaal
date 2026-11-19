@@ -45,8 +45,7 @@ import { BadgePercent, BookOpen, Calculator,
   GraduationCap,
   LogOut,
   FileText,
-  BookMarked,
-} from "lucide-react";
+  BookMarked, HandCoins } from "lucide-react";
 import { auth, signOut } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ResponsiveSidebar } from "@/components/admin/ResponsiveSidebar";
@@ -114,6 +113,7 @@ const adminGroups = [
     links: [
       { href: "/admin/consultants", label: "Consultants", icon: Users },
       { href: "/admin/conditions-speciales", label: "Conditions spéciales", icon: BadgePercent },
+      { href: "/admin/credits-revendeurs", label: "Crédits revendeurs", icon: HandCoins },
       { href: "/admin/boutiques-stats", label: "Statistiques des boutiques", icon: BarChart3 },
       { href: "/admin/primes-equipe", label: "Primes d'équipe", icon: Banknote },
       { href: "/admin/reseau", label: "Santé du réseau", icon: HeartPulse },
@@ -167,6 +167,7 @@ const consultantGroups: { title: string | null; links: { href: string; label: st
     title: "Gains & équipe",
     links: [
       { href: "/admin/mes-gains", label: "Mes gains", icon: Banknote, match: ["/admin/mon-wallet"] },
+      { href: "/admin/mes-credits", label: "Mes crédits", icon: HandCoins },
       { href: "/admin/mes-filleuls", label: "Mon équipe", icon: UsersRound },
       { href: "/admin/mes-defis", label: "Mes défis", icon: Trophy },
     ],

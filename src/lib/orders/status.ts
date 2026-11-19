@@ -14,6 +14,7 @@ import { syncOrderStock, takeOrderStock } from "@/lib/stock";
 import { notifyOrderUpdate } from "@/lib/whatsapp/order-notify";
 import { trackEvent } from "@/lib/analytics";
 import { statusChangeError } from "@/lib/orders/payment-rules";
+import { safeReverse } from "@/lib/goods-credit";
 
 function later(task: () => Promise<unknown>) {
   try {
@@ -37,7 +38,10 @@ async function onOrderStatusChanged(id: string, status: OrderStatus) {
       await recordLivreurEarning(id).catch((e) => console.error("[livraison] part livreur", id, e));
     });
   }
-  if (status === "ANNULEE") await cancelCommissionsForOrder(id);
+  if (status === "ANNULEE") {
+    await cancelCommissionsForOrder(id);
+    await safeReverse(id);
+  }
   // Paiement à la livraison : livrée = payée, les articles sortent du stock.
   if (status === "LIVREE") await takeOrderStock(id);
   // Stock : remis à l'annulation, repris si la commande est réactivée (une seule fois).

@@ -34,6 +34,7 @@ import {
   RANK_LABELS,
 } from "@/lib/ranking";
 import { getConsultantCommission } from "@/lib/commission";
+import { resellerDebt } from "@/lib/goods-credit";
 import { getRefundedTotal } from "@/lib/revenue";
 import { Undo2, FileSpreadsheet } from "lucide-react";
 import { repairConsultantLink } from "@/lib/account-link";
@@ -195,6 +196,7 @@ async function ConsultantOverview({ userId }: { userId: string }) {
       getMonthlyLeaderboard(50),
     ]);
 
+  const goodsDebt = await resellerDebt(consultantId);
   const rankById = new Map(allRankings.map((r) => [r.consultantId, r]));
   const progress = getProgressToNextRank(rankInfo);
   const myPosition = leaderboard.findIndex((e) => e.consultantId === consultantId);
@@ -224,6 +226,16 @@ async function ConsultantOverview({ userId }: { userId: string }) {
       <div className="mt-6">
         <WalletHero {...(await walletBalance({ type: "CONSULTANT", id: consultantId }))} />
       </div>
+
+      {goodsDebt > 0 && (
+        <Link href="/admin/mes-credits" className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 hover:border-amber-400">
+          <span>
+            <span className="block text-sm font-semibold text-amber-950">Crédit de marchandises : {formatPrice(goodsDebt)} à rembourser</span>
+            <span className="block text-xs text-amber-900/80">Vos ventes payées sont défalquées automatiquement.</span>
+          </span>
+          <span className="text-sm font-semibold text-amber-950">Mes crédits →</span>
+        </Link>
+      )}
 
       <div className="mt-6">
         <LiveEarnings consultantId={consultantId} />

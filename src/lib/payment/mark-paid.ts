@@ -1,4 +1,5 @@
 import { scheduleAutoAssign } from "@/lib/delivery-dispatch";
+import { safeDeduct } from "@/lib/goods-credit";
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { runPayoutsForOrder } from "@/lib/payouts/engine";
@@ -101,6 +102,8 @@ export async function markOrderPaid(
 
   // Paiement effectif : les articles sortent du stock maintenant (une seule fois).
   await takeOrderStock(orderId).catch((e) => console.error("[stock] paiement", orderId, e));
+  // Vente d'un revendeur à crédit : défalquée de ce qu'il doit.
+  await safeDeduct(orderId);
 
   // Lien de paiement d'un revendeur : la livraison part en préparation maintenant, et le revendeur est prévenu.
   if (order.channel === "REVENDEUR" || isInstallmentOrder(order)) {
