@@ -5,12 +5,15 @@ import type { Product as DbProduct } from "@prisma/client";
 import { getLocale } from "@/lib/i18n/server";
 import { localizeProduct } from "@/lib/i18n/product";
 import { availableFirst, inStockOf } from "@/lib/availability";
+import { sellableVolumes } from "@/lib/price-from";
 
-const withStock = { variants: { select: { stock: true } } } as const;
+const withStock = { variants: { select: { stock: true, volumeLabel: true } } } as const;
 
-function toUiProduct(p: DbProduct & { variants?: { stock: number }[] }): Product {
+function toUiProduct(p: DbProduct & { variants?: { stock: number; volumeLabel?: string | null }[] }): Product {
+  // Formats en vente seulement : pas de 15 ml ni de recharge (lib/price-from).
+  const vols = p.volumes as unknown as VolumeOption[] | null;
   return {
-    inStock: inStockOf(p.stock, p.variants),
+    inStock: inStockOf(p.stock, p.variants ? sellableVolumes(p.variants.map((v) => ({ ...v, label: v.volumeLabel }))) : p.variants),
     id: p.id,
     number: p.number ?? undefined,
     choganCode: p.choganCode ?? undefined,
@@ -28,7 +31,7 @@ function toUiProduct(p: DbProduct & { variants?: { stock: number }[] }): Product
     shortDescriptionIt: p.shortDescriptionIt ?? undefined,
     longDescriptionIt: p.longDescriptionIt?.length ? p.longDescriptionIt : undefined,
     testerPrice: p.testerPrice ?? undefined,
-    volumes: (p.volumes as unknown as VolumeOption[] | null) ?? undefined,
+    volumes: vols?.length ? sellableVolumes(vols) : undefined,
     regularPrice: p.regularPrice ?? undefined,
     reviewCount: p.reviewCount,
     rating: p.rating,
@@ -68,7 +71,7 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
   return (await localizeAll([product]))[0];
 }
 
-/** Parfums proposés en petit format (30 ml ou 15 ml recharge) : le plus petit format et son prix, du moins cher au plus cher. */
+/** Parfums proposés en petit format (25 ou 30 ml ; les 15 ml ne sont pas vendus) : le plus petit format et son prix, du moins cher au plus cher. */
 export async function getSmallFormatPerfumes(): Promise<{ product: Product; label: string; price: number }[]> {
   const rows = await prisma.product.findMany({ where: { category: { startsWith: "parfum-" }, volumes: { not: Prisma.DbNull } }, orderBy: { name: "asc" }, include: withStock });
   const out: { product: Product; label: string; price: number }[] = [];

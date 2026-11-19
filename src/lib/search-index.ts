@@ -37,7 +37,7 @@ async function load() {
       family: r.family,
       notes: [...r.topNotes, ...r.heartNotes, ...r.baseNotes],
       description: [r.shortDescription, ...r.longDescription].join(" "),
-      volumes: [...volumes.map((v) => v.label ?? ""), ...r.variants.map((v) => v.volumeLabel)].filter(Boolean),
+      volumes: [...sellableVolumes(volumes).map((v) => v.label ?? ""), ...r.variants.map((v) => v.volumeLabel).filter((l) => !isUnsoldFormat(l))].filter(Boolean),
       price: startingPrice(r.regularPrice, volumes),
       photo: r.photo,
       colorFrom: r.colorFrom,
@@ -76,7 +76,7 @@ export function invalidateSearchIndex() {
 
 import { expandQueryWithAI } from "./search-ai";
 import { geminiConfigured } from "./ai/gemini";
-import { startingPrice } from "@/lib/price-from";
+import { isUnsoldFormat, sellableVolumes, startingPrice } from "@/lib/price-from";
 
 /**
  * Recherche dans le catalogue. `allowAi` autorise l'expansion IA (page de résultats seulement,

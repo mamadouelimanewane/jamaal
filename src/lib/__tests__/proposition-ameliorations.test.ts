@@ -145,3 +145,10 @@ test("prix « à partir de » : la recharge 15 ml ne sert pas de prix d'appel", 
   assert.equal(startingPrice(null, [{ label: "15 ml", price: 9_800 }, { label: "25 ml", price: 13_500 }]), 13_500);
   assert.equal(startingPrice(null, [{ label: "15 ml · recharge", price: 9_800 }]), 9_800);
 });
+
+test("formats en vente : sans 15 ml ni recharge, sauf produit qui n'existe qu'ainsi", async () => {
+  const { sellableVolumes } = await import("../price-from");
+  assert.deepEqual(sellableVolumes([{ label: "70 ml" }, { label: "30 ml" }, { label: "15 ml · recharge" }]).map((v) => v.label), ["70 ml", "30 ml"]);
+  assert.deepEqual(sellableVolumes([{ label: "15 ml" }]).map((v) => v.label), ["15 ml"]);
+  assert.deepEqual(sellableVolumes([{ label: "Format unique" }]).map((v) => v.label), ["Format unique"]);
+});

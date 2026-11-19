@@ -29,3 +29,13 @@ export function startingPrice(regularPrice: number | null | undefined, volumes: 
   if (pool.length) return Math.min(...pool.map((v) => v.price));
   return regularPrice && regularPrice > 0 ? regularPrice : null;
 }
+
+/**
+ * Formats mis en vente : sans les 15 ml ni les recharges. Si un produit n'existe que dans ces formats,
+ * ses formats sont gardés (sinon il ne pourrait plus être commandé du tout).
+ */
+export function sellableVolumes<T extends { label?: unknown }>(list: T[] | null | undefined): T[] {
+  const all = list ?? [];
+  const sold = all.filter((v) => !isUnsoldFormat(v.label));
+  return sold.length ? sold : all;
+}

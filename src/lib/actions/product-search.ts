@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { searchCatalog } from "@/lib/search-index";
+import { sellableVolumes } from "@/lib/price-from";
 
 export interface ProductSearchResult {
   id: string;
@@ -37,7 +38,8 @@ export async function searchProductsForOrder(query: string): Promise<ProductSear
     number: r.number,
     category: r.category,
     regularPrice: r.regularPrice,
-    volumes: (r.volumes as { label: string; price: number }[] | null) ?? null,
+    // Formats en vente seulement (pas de 15 ml ni de recharge).
+    volumes: r.volumes ? sellableVolumes(r.volumes as { label: string; price: number }[]) : null,
     photo: r.photo,
   }));
 }
