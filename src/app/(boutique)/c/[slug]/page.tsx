@@ -267,8 +267,13 @@ export default async function ConsultantShopPage({ params }: Props) {
                       <Link href={`/produits/${p.slug}${ref}`} data-track="produit" data-product={p.id} className="sh-link sh-display text-lg leading-snug sm:text-[22px]">{p.name}</Link>
                       {p.inspiredBy && <span className="sh-muted line-clamp-2 text-[13px]">Inspiration : {p.inspiredBy}</span>}
                       <span className="mt-2 text-[15px] font-medium tabular-nums">{price(p)}</span>
+                      {p.inStock ? (
+                        <span className="text-[13px] font-medium text-emerald-700">Disponible à Dakar</span>
+                      ) : (
+                        <span className="text-[13px] leading-snug"><strong>En rupture</strong> · vous pouvez réserver ce produit</span>
+                      )}
                       <div className="mt-auto flex gap-2 pt-3">
-                        <Link href={`/produits/${p.slug}${ref}`} data-track="produit" data-product={p.id} className="sh-btn sh-btn-primary sh-btn-small min-w-0 flex-1 px-3">Commander</Link>
+                        <Link href={`/produits/${p.slug}${ref}`} data-track="produit" data-product={p.id} className="sh-btn sh-btn-primary sh-btn-small min-w-0 flex-1 px-3">{p.inStock ? "Commander" : "Réserver"}</Link>
                         {ask && (
                           <a href={ask} data-track="whatsapp" target="_blank" rel="noopener noreferrer" aria-label={`Demander ${p.name} sur WhatsApp`} className="sh-icon-btn sh-btn-wa">
                             <WaIcon />

@@ -3,7 +3,7 @@ import type { GoodsCreditStatus, Prisma } from "@prisma/client";
 import { requireAdminPage } from "@/lib/admin-page-guard";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/currency";
-import { CREDIT_STATUS_LABELS } from "@/lib/goods-credit";
+import { CREDIT_STATUS_LABELS, parseItems } from "@/lib/goods-credit";
 import { GoodsCreditGrantForm } from "@/components/admin/GoodsCreditGrantForm";
 
 export const dynamic = "force-dynamic";
@@ -87,11 +87,12 @@ export default async function GoodsCreditsPage({ searchParams }: { searchParams:
           </form>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[760px] text-sm">
+          <table className="w-full min-w-[960px] text-sm">
             <thead className="bg-cream/60 text-left text-xs uppercase tracking-wide text-navy/60">
               <tr>
                 <th className="px-4 py-3">Crédit</th>
                 <th className="px-3 py-3">Revendeur</th>
+                <th className="px-3 py-3">Produits confiés</th>
                 <th className="px-3 py-3 text-right">Confié</th>
                 <th className="px-3 py-3 text-right">Remboursé</th>
                 <th className="px-3 py-3 text-right">Reste dû</th>
@@ -111,6 +112,20 @@ export default async function GoodsCreditsPage({ searchParams }: { searchParams:
                       {late && <span className="mt-0.5 inline-block rounded bg-red-100 px-1.5 text-[11px] font-semibold text-red-800">Échéance dépassée</span>}
                     </td>
                     <td className="px-3 py-3"><Link href={`/admin/consultants/${c.consultant.id}`} className="font-medium text-navy hover:underline">{c.consultant.name}</Link><span className="block text-xs text-navy/60">{c.consultant.city}</span></td>
+                    <td className="px-3 py-3 text-xs text-navy/80">
+                      {(() => {
+                        const items = parseItems(c.items);
+                        if (!items.length) return <span className="text-navy/50">{c.notes ? c.notes.slice(0, 60) : "Toutes ses ventes"}</span>;
+                        return (
+                          <ul className="space-y-0.5">
+                            {items.slice(0, 4).map((i, k) => (
+                              <li key={k}><span className="font-medium text-navy">{i.name}</span> × {i.qty} · {formatPrice(i.unitPrice)}</li>
+                            ))}
+                            {items.length > 4 && <li className="text-navy/55">+ {items.length - 4} autre(s)</li>}
+                          </ul>
+                        );
+                      })()}
+                    </td>
                     <td className="px-3 py-3 text-right tabular-nums">{formatPrice(c.amount)}</td>
                     <td className="px-3 py-3 text-right tabular-nums text-emerald-800">{formatPrice(c.repaid)}</td>
                     <td className="px-3 py-3 text-right font-semibold tabular-nums text-navy">{formatPrice(c.balance)}</td>

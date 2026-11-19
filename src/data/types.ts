@@ -47,6 +47,8 @@ export interface Product {
   inspiredBrand?: string;
   /** Stock disponible par format (libellé → quantité), sur la fiche produit. */
   availability?: Record<string, number>;
+  /** Disponible à Dakar (au moins un format en stock). Faux : en rupture, réservable. */
+  inStock?: boolean;
   slug: string;
   name: string;
   category: CategorySlug;

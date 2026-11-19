@@ -38,6 +38,13 @@ export function ProductCard({ product }: { product: Product }) {
       )}
       {product.reviewCount > 0 && <div className="mt-2"><StarRating rating={product.rating} count={product.reviewCount}/></div>}
       <p className="mt-2.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-navy sm:text-[11px]">{priceLabel}</p>
+      {product.inStock === false ? (
+        <p className="mt-1.5 text-[11px] leading-4 text-[#9c6254] sm:text-xs">
+          <span className="font-semibold">{t("En rupture")}</span> · {t("vous pouvez réserver ce produit")}
+        </p>
+      ) : product.inStock ? (
+        <p className="mt-1.5 text-[11px] font-medium text-emerald-800 sm:text-xs">{t("Disponible à Dakar")}</p>
+      ) : null}
     </div>
   </Link>;
 }

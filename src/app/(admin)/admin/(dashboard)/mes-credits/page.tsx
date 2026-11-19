@@ -61,7 +61,20 @@ export default async function MyCreditsPage() {
                 </div>
                 <div className="mt-2 h-1.5 rounded-full bg-cream"><div className="h-1.5 rounded-full bg-emerald-600" style={{ width: `${p}%` }} /></div>
                 {c.notes && <p className="mt-2 text-sm text-navy/75">{c.notes}</p>}
-                {items.length > 0 && <p className="mt-1 text-xs text-navy/65">Produits : {items.map((i) => `${i.name} × ${i.qty}`).join(", ")} (seules leurs ventes remboursent ce lot)</p>}
+                {items.length > 0 && (
+                  <div className="mt-3 rounded-xl bg-cream/60 p-3">
+                    <p className="text-xs font-semibold text-navy">Produits reçus à crédit</p>
+                    <ul className="mt-1.5 divide-y divide-line/70 text-sm">
+                      {items.map((i, k) => (
+                        <li key={k} className="flex items-center justify-between gap-3 py-1.5">
+                          <span className="text-navy">{i.name} <span className="text-navy/60">× {i.qty}</span></span>
+                          <span className="whitespace-nowrap text-right tabular-nums text-navy/80">{formatPrice(i.unitPrice)} <span className="text-navy/50">/u</span> · <strong className="text-navy">{formatPrice(i.unitPrice * i.qty)}</strong></span>
+                        </li>
+                      ))}
+                    </ul>
+                    <p className="mt-1.5 text-[11px] text-navy/60">Seules les ventes de ces produits remboursent ce lot.</p>
+                  </div>
+                )}
               </div>
             );
           })}

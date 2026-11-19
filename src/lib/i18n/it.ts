@@ -1120,4 +1120,7 @@ export const IT: Record<string, string> = {
   "Aucun consultant ne correspond à cette recherche.": "Nessun consulente corrisponde a questa ricerca.",
   "{n} sur {total}": "{n} su {total}",
   "Effacer la recherche": "Cancella la ricerca",
+  "En rupture": "Esaurito",
+  "vous pouvez réserver ce produit": "puoi prenotare questo prodotto",
+  "Disponible à Dakar": "Disponibile a Dakar",
 };
