@@ -904,6 +904,14 @@ model Announcement {
   body      String
   pinned    Boolean  @default(false)
   createdAt DateTime @default(now())
+  /// Revendeurs ciblés (vide = tout le réseau). Envoi depuis Statistiques des boutiques.
+  consultantIds String[] @default([])
+  /// Texte personnalisé par revendeur : { [consultantId]: { title, body } } (variables remplacées).
+  personalized  Json?
+  /// RAPPEL | AVERTISSEMENT | FELICITATIONS | INFO (annonces ciblées)
+  kind          String?
+  /// Période des statistiques utilisées (jours).
+  statsDays     Int?
 
   @@index([pinned, createdAt])
 }

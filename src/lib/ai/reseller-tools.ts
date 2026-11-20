@@ -9,6 +9,7 @@ import { prisma } from "@/lib/prisma";
 import { canonicalizePhone } from "@/lib/phone";
 import type { GeminiFunctionDeclaration } from "./gemini";
 import type { AssistantScope } from "./assistant-tools";
+import { announcementText, announcementsFor } from "@/lib/reseller-outreach";
 
 type Args = Record<string, unknown>;
 export interface ResellerToolDef {
@@ -357,7 +358,7 @@ export const RESELLER_TOOLS: Record<string, ResellerToolDef> = {
       const now = new Date();
       const { challengeStandings } = await import("@/lib/challenges");
       const [news, assets, offers, challenges, me] = await Promise.all([
-        prisma.announcement.findMany({ orderBy: [{ pinned: "desc" }, { createdAt: "desc" }], take: 6, select: { title: true, body: true, pinned: true, createdAt: true } }),
+        prisma.announcement.findMany({ where: announcementsFor(scope.consultantId), orderBy: [{ pinned: "desc" }, { createdAt: "desc" }], take: 6, select: { title: true, body: true, pinned: true, createdAt: true, personalized: true } }).then((l) => l.map((a) => ({ ...a, ...announcementText(a, scope.consultantId), personalized: undefined }))),
         prisma.marketingAsset.findMany({ orderBy: { createdAt: "desc" }, take: 20, select: { title: true, category: true, fileUrl: true } }),
         prisma.offer.findMany({ where: { active: true, startsAt: { lte: now }, endsAt: { gte: now } }, orderBy: { endsAt: "asc" }, take: 6 }),
         prisma.challenge.findMany({ where: { active: true, startsAt: { lte: now }, endsAt: { gte: now } }, take: 4 }),
