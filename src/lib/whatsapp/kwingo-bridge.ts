@@ -243,8 +243,8 @@ export async function connectKwingoAccount(input: {
   let resolvedEmail = (input.email ?? "").trim();
 
   // 1. Si Email + Mot de passe fournis :
-  //    - Essaie d'abord POST ${apiUrl}/auth/login directement sur le backend KwingoChat (aucune variable Supabase requise côté JAMAAL)
-  //    - Repli sur Supabase Auth uniquement si la route /auth/login n'existe pas encore (404) sur KwingoChat
+  //    - Authentification directe via Supabase Auth de KwingoChat (évite le middleware CSRF 403 de /api/v1)
+  //    - Repli sur POST ${apiUrl}/auth/login uniquement si Supabase Auth n'est pas configuré
   if (!accessToken) {
     if (!resolvedEmail || !input.password) {
       return {
@@ -253,60 +253,7 @@ export async function connectKwingoAccount(input: {
       };
     }
 
-    const kwingoLoginRes = await fetch(`${apiUrl}/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: resolvedEmail,
-        password: input.password,
-      }),
-      signal: AbortSignal.timeout(10_000),
-    }).catch(() => null);
-
-    if (kwingoLoginRes && kwingoLoginRes.status !== 404) {
-      if (!kwingoLoginRes.ok) {
-        const errJson = (await kwingoLoginRes.json().catch(() => null)) as {
-          error?: { message?: string } | string;
-          message?: string;
-        } | null;
-        const msg =
-          (typeof errJson?.error === "object" && errJson.error ? errJson.error.message : typeof errJson?.error === "string" ? errJson.error : null) ||
-          errJson?.message ||
-          `Identifiants KwingoChat refusés (HTTP ${kwingoLoginRes.status}).`;
-        return { ok: false, error: msg };
-      }
-
-      const loginJson = (await kwingoLoginRes.json()) as {
-        data?: {
-          access_token?: string;
-          refresh_token?: string;
-          expires_at?: number;
-          expires_in?: number;
-          company_id?: string;
-          company_name?: string;
-          user?: { email?: string };
-        };
-        access_token?: string;
-        refresh_token?: string;
-        expires_at?: number;
-        expires_in?: number;
-      };
-      const payload = loginJson.data ?? loginJson;
-      accessToken = payload.access_token ?? "";
-      refreshToken = payload.refresh_token ?? null;
-      expiresAt = payload.expires_at ?? (payload.expires_in ? Math.floor(Date.now() / 1000) + payload.expires_in : null);
-      if (loginJson.data?.user?.email) resolvedEmail = loginJson.data.user.email;
-      if (loginJson.data?.company_id && !input.companyId) {
-        input.companyId = loginJson.data.company_id;
-      }
-    } else {
-      if (!supabaseUrl || !supabaseAnonKey) {
-        return {
-          ok: false,
-          error: "Le serveur KwingoChat n'expose pas encore /api/v1/auth/login et les variables Supabase de repli ne sont pas renseignées.",
-        };
-      }
-
+    if (supabaseUrl && supabaseAnonKey) {
       const authRes = await fetch(`${supabaseUrl}/auth/v1/token?grant_type=password`, {
         method: "POST",
         headers: {
@@ -323,10 +270,18 @@ export async function connectKwingoAccount(input: {
       });
 
       if (!authRes.ok) {
-        const errJson = (await authRes.json().catch(() => null)) as { error_description?: string; msg?: string } | null;
+        const errJson = (await authRes.json().catch(() => null)) as {
+          error_description?: string;
+          msg?: string;
+          message?: string;
+        } | null;
         return {
           ok: false,
-          error: errJson?.error_description || errJson?.msg || `Identifiants KwingoChat refusés (HTTP ${authRes.status}).`,
+          error:
+            errJson?.error_description ||
+            errJson?.msg ||
+            errJson?.message ||
+            `Identifiants KwingoChat refusés (HTTP ${authRes.status}).`,
         };
       }
 
@@ -341,6 +296,46 @@ export async function connectKwingoAccount(input: {
       refreshToken = authData.refresh_token ?? null;
       expiresAt = authData.expires_at ?? (authData.expires_in ? Math.floor(Date.now() / 1000) + authData.expires_in : null);
       if (authData.user?.email) resolvedEmail = authData.user.email;
+    } else {
+      const kwingoLoginRes = await fetch(`${apiUrl}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: resolvedEmail,
+          password: input.password,
+        }),
+        signal: AbortSignal.timeout(10_000),
+      }).catch(() => null);
+
+      if (!kwingoLoginRes || !kwingoLoginRes.ok) {
+        return {
+          ok: false,
+          error: "Variables KWINGOCHAT_SUPABASE_URL / KWINGOCHAT_SUPABASE_ANON_KEY manquantes sur le serveur.",
+        };
+      }
+
+      const loginJson = (await kwingoLoginRes.json()) as {
+        data?: {
+          access_token?: string;
+          refresh_token?: string;
+          expires_at?: number;
+          expires_in?: number;
+          company_id?: string;
+          user?: { email?: string };
+        };
+        access_token?: string;
+        refresh_token?: string;
+        expires_at?: number;
+        expires_in?: number;
+      };
+      const payload = loginJson.data ?? loginJson;
+      accessToken = payload.access_token ?? "";
+      refreshToken = payload.refresh_token ?? null;
+      expiresAt = payload.expires_at ?? (payload.expires_in ? Math.floor(Date.now() / 1000) + payload.expires_in : null);
+      if (loginJson.data?.user?.email) resolvedEmail = loginJson.data.user.email;
+      if (loginJson.data?.company_id && !input.companyId) {
+        input.companyId = loginJson.data.company_id;
+      }
     }
   }
 
