@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
   },
   poweredByHeader: false,
   // Candidature : photos de la pièce d'identité (compressées dans le navigateur) + signature.
-  experimental: { serverActions: { bodySizeLimit: "4mb" } },
+  experimental: { serverActions: { bodySizeLimit: "4mb" }, agentUpgrade: "security" },
   images: {
     // Photos produits de démonstration servies par le CDN Chogan.
     remotePatterns: [

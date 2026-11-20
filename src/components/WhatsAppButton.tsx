@@ -1,7 +1,6 @@
 "use client";
 
 import { useT } from "@/components/i18n/LocaleProvider";
-import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { WHATSAPP_CONTACTS, whatsappLink } from "@/lib/contact";
 
@@ -11,42 +10,26 @@ const Icon = () => (
   </svg>
 );
 
-/** Bouton WhatsApp flottant : un clic ouvre le choix entre les numéros de la boutique. */
+/** Bouton WhatsApp flottant : redirige directement vers le numéro officiel JAMAAL Luxury (KwingoChat). */
 export function WhatsAppButton() {
   const t = useT();
-  const [open, setOpen] = useState(false);
   // Page de connexion : les boutons flottants masqueraient le formulaire sur téléphone.
   if (usePathname()?.startsWith("/espace-revendeur")) return null;
 
+  const primary = WHATSAPP_CONTACTS[0];
+
   return (
     <div className="fixed bottom-5 right-5 z-40 flex flex-col items-end gap-3">
-      {open && (
-        <div role="menu" className="w-64 rounded-2xl border border-line bg-white p-3 shadow-xl shadow-navy/10">
-          <p className="px-2 pb-2 text-xs font-semibold uppercase tracking-wide text-navy/50">{t("Écrire à JAMAAL sur WhatsApp")}</p>
-          {WHATSAPP_CONTACTS.map((c) => (
-            <a
-              key={c.number}
-              role="menuitem"
-              href={whatsappLink(c.number)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-semibold text-navy transition hover:bg-cream"
-            >
-              {c.display}
-              <span className="text-xs font-normal text-[#25a05a]">{t("Ouvrir ↗")}</span>
-            </a>
-          ))}
-        </div>
-      )}
-      <button
-        type="button"
+      <a
+        href={whatsappLink(primary.number)}
+        target="_blank"
+        rel="noopener noreferrer"
         aria-label={t("Contacter JAMAAL sur WhatsApp")}
-        aria-expanded={open}
-        onClick={() => setOpen((v) => !v)}
+        title={`${primary.display} (${primary.phone})`}
         className="flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition hover:scale-105"
       >
         <Icon />
-      </button>
+      </a>
     </div>
   );
 }

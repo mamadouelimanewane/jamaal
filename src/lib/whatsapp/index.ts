@@ -4,6 +4,7 @@ import { WHATSAPP_CONTACTS } from "@/lib/contact";
 import { canonicalizePhone, normalizePhone } from "@/lib/phone";
 import { sendViaMeta, type RichOptions } from "./meta";
 import { sendViaTwilio } from "./twilio";
+import { sendViaKwingoConnection } from "./kwingo-bridge";
 
 /**
  * Envoi de messages WhatsApp (niveau 2). Le prestataire est choisi par WHATSAPP_PROVIDER
@@ -38,7 +39,9 @@ export function whatsappConfig() {
  * Options riches (boutons, bouton lien, image) : rendues par Meta ; avec Twilio, le lien est
  * ajouté au texte. Le numéro est mis au format international (77… → 22177…).
  */
-export async function sendWhatsApp(opts: { to: string; text: string; kind: WhatsAppKind; campaignId?: string } & RichOptions): Promise<SendResult> {
+export async function sendWhatsApp(
+  opts: { to: string; text: string; kind: WhatsAppKind; campaignId?: string; templateLanguage?: string } & RichOptions,
+): Promise<SendResult> {
   const to = canonicalizePhone(opts.to);
   const body = opts.text.slice(0, 1500);
   const rich: RichOptions = { free: opts.free, template: opts.template, templateVars: opts.templateVars, buttons: opts.buttons, cta: opts.cta, imageUrl: opts.imageUrl };
@@ -46,10 +49,30 @@ export async function sendWhatsApp(opts: { to: string; text: string; kind: Whats
 
   try {
     const cfg = whatsappConfig();
-    if (!to || to.length < 8) result = { status: "ECHEC", error: "Numéro invalide" };
-    else if (!cfg.active) result = { status: "SIMULE" };
-    else if (cfg.provider === "meta") result = await sendViaMeta(to, body, rich);
-    else result = await sendViaTwilio(to, opts.cta ? `${body}\n${opts.cta.label} : ${opts.cta.url}` : body);
+    if (!to || to.length < 8) {
+      result = { status: "ECHEC", error: "Numéro invalide" };
+    } else if (cfg.active) {
+      result =
+        cfg.provider === "meta"
+          ? await sendViaMeta(to, body, rich)
+          : await sendViaTwilio(to, opts.cta ? `${body}\n${opts.cta.label} : ${opts.cta.url}` : body);
+    } else {
+      // Utilise la passerelle API Cloud KwingoChat (compte Jamaal Luxury +221 71 180 09 09) si connectée
+      const kwingo = await sendViaKwingoConnection({
+        to,
+        text: opts.cta ? `${body}\n${opts.cta.label} : ${opts.cta.url}` : body,
+        free: opts.free,
+        templateName: opts.template || process.env.WHATSAPP_TEMPLATE_NAME || "test_jamaal",
+        templateLanguage: opts.templateLanguage,
+      });
+      if (kwingo) {
+        result = kwingo.ok
+          ? { status: kwingo.simulated ? "SIMULE" : "ENVOYE", providerId: kwingo.providerId }
+          : { status: "ECHEC", error: kwingo.error };
+      } else {
+        result = { status: "SIMULE" };
+      }
+    }
   } catch (error) {
     result = { status: "ECHEC", error: error instanceof Error ? error.message.slice(0, 300) : "Erreur inconnue" };
   }

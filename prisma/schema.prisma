@@ -543,7 +543,9 @@ model Consultant {
   /// Conditions spéciales (encaissement direct, commission propre, zones de livraison propres), sinon le régime normal.
   specialTermsId String?
   specialTerms   SpecialTerms? @relation(fields: [specialTermsId], references: [id], onDelete: SetNull)
-  shopEvents ShopEvent[]
+  shopEvents     ShopEvent[]
+  customers      Customer[]       @relation("CustomerConsultant")
+  whatsappThreads WhatsAppThread[] @relation("ConsultantWhatsAppThreads")
 }
 
 model CommissionPayment {
@@ -625,12 +627,17 @@ model Customer {
   user      User?
   orders    Order[]
   referrals Referral[] @relation("CustomerReferrals")
+  /// Consultant rattaché au client (pour le routage dynamique WhatsApp / KwingoChat).
+  consultantId String?
+  consultant   Consultant? @relation("CustomerConsultant", fields: [consultantId], references: [id], onDelete: SetNull)
   /// A répondu STOP sur WhatsApp : plus aucun message automatique.
   whatsappOptOut Boolean  @default(false)
   /// Anniversaire « MM-JJ » (message et code cadeau automatiques).
   birthday       String?
   /// Profil olfactif « Parfum ADN » : parfums portés, familles et notes préférées (relances et conseils).
   scentProfile   Json?
+
+  @@index([consultantId])
 }
 
 model Notification {
@@ -1173,16 +1180,28 @@ model ChoganPriceChange {
   @@index([detectedAt])
 }
 
-/// Conversation WhatsApp avec un numéro (boîte de réception) : lecture, pause de l'assistant.
+/// Conversation WhatsApp avec un numéro (boîte de réception KwingoChat / JAMAAL) : lecture, pause de l'assistant,
+/// assignation consultant (retour de campagne via customAttributes ou routage dynamique message spontané ; null = unassigned).
 model WhatsAppThread {
-  phone          String    @id
-  name           String?
-  lastMessageAt  DateTime  @default(now())
-  lastReadAt     DateTime?
-  botPausedUntil DateTime?
-  createdAt      DateTime  @default(now())
+  phone            String      @id
+  name             String?
+  lastMessageAt    DateTime    @default(now())
+  lastReadAt       DateTime?
+  botPausedUntil   DateTime?
+  /// Consultant assigné à cette conversation (null = unassigned).
+  consultantId     String?
+  consultant       Consultant? @relation("ConsultantWhatsAppThreads", fields: [consultantId], references: [id], onDelete: SetNull)
+  assignedAt       DateTime?
+  /// Origine de l'assignation : "CAMPAGNE", "ROUTAGE_CLIENT", "LIEN_BOUTIQUE", "MANUEL" (ou null si unassigned).
+  assignedSource   String?
+  /// Attributs de contact synchronisés avec KwingoChat (assigned_to, consultant_id, consultant_name, campaign_id…).
+  customAttributes Json        @default("{}")
+  /// Identifiant du contact dans KwingoChat (si synchronisé via l'API KwingoChat).
+  kwingoContactId  String?
+  createdAt        DateTime    @default(now())
 
   @@index([lastMessageAt])
+  @@index([consultantId])
 }
 
 /// Campagne WhatsApp (message groupé à une audience ciblée).

@@ -30,6 +30,7 @@ export function ContactForm() {
       </div>
       <input required name="name" maxLength={100} autoComplete="name" placeholder={t("Votre nom")} aria-label={t("Votre nom")} className={field} />
       <input required name="email" type="email" maxLength={254} autoComplete="email" placeholder={t("Votre e-mail")} aria-label={t("Votre e-mail")} className={field} />
+      <input name="phone" type="tel" maxLength={30} autoComplete="tel" placeholder={t("Votre numéro WhatsApp (facultatif)")} aria-label={t("Votre numéro WhatsApp (facultatif)")} className={field} />
       <textarea required name="message" rows={5} minLength={5} maxLength={2000} placeholder={t("Votre message")} aria-label={t("Votre message")} className={field} />
       {state.error && (
         <p role="alert" className="rounded-xl border border-rose-dark/20 bg-rose/10 px-4 py-3 text-sm text-rose-dark">

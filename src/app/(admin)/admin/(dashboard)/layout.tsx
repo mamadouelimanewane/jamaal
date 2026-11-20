@@ -121,8 +121,7 @@ const adminGroups = [
       { href: "/admin/protocole", label: "Protocole de partenariat", icon: FileSignature },
       { href: "/admin/messages", label: "Messages de contact", icon: Mail },
       { href: "/admin/annonces", label: "Annonces aux consultants", icon: Megaphone },
-      { href: "/admin/whatsapp", label: "Centre WhatsApp", icon: Share2 },
-      { href: "/admin/whatsapp/conversations", label: "Conversations WhatsApp", icon: Mail },
+      { href: "/admin/whatsapp", label: "Messagerie WhatsApp JAMAAL", icon: Share2 },
       { href: "/admin/whatsapp/campagnes", label: "Campagnes WhatsApp", icon: Megaphone },
       { href: "/admin/journal-whatsapp", label: "Journal WhatsApp", icon: Mail },
       { href: "/admin/livraisons", label: "Livraisons", icon: Truck },
@@ -157,6 +156,7 @@ const consultantGroups: { title: string | null; links: { href: string; label: st
       { href: "/admin/mes-commandes", label: "Mes commandes", icon: ShoppingCart },
       { href: "/admin/mes-ventes", label: "Mes ventes", icon: BarChart3 },
       { href: "/admin/mes-clients", label: "Mes clients", icon: Contact },
+      { href: "/admin/mon-inbox", label: "Messagerie WhatsApp JAMAAL", icon: Mail },
     ],
   },
   {

@@ -20,6 +20,7 @@ import { downloadMetaMedia } from "./meta";
 import { sendWhatsApp, touchThread } from "./index";
 import { optCommand, parseReplyMarkers, toWhatsAppText } from "./format";
 import { createResetLink, isPasswordRequest, userByPhone } from "@/lib/password-reset-link";
+import { routeInboundClientMessage } from "./kwingo-bridge";
 
 export interface InboundMessage {
   phone: string;
@@ -164,7 +165,13 @@ export async function handleInboundWhatsApp(msg: InboundMessage): Promise<void> 
     }
   }
 
-  // 4. Client : assistant de commande.
+  // 4. Client : routage dynamique vers son consultant (ou maintien dans unassigned) + assistant de commande.
+  await routeInboundClientMessage({
+    phone: msg.phone,
+    profileName: msg.profileName,
+    text,
+  }).catch((e) => console.error("[whatsapp] routage consultant", e));
+
   if (!geminiConfigured() || !(await automationEnabled("whatsappBot"))) return;
   const thread = await prisma.whatsAppThread.findUnique({ where: { phone: msg.phone }, select: { botPausedUntil: true } }).catch(() => null);
   if (thread?.botPausedUntil && thread.botPausedUntil > new Date()) return;
