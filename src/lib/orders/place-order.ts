@@ -24,6 +24,7 @@ import { codeDiscount, offerDiscount, resolveDiscountCode } from "@/lib/offers";
 import { phoneLookupVariants } from "@/lib/phone";
 import { subscriptionDiscount } from "@/lib/subscriptions/plan";
 import { giftRedemption } from "@/lib/gift/gift";
+import { isUnsoldFormat, sellableVolumes } from "@/lib/price-from";
 
 export interface CheckoutItem {
   productId: string;
@@ -149,6 +150,10 @@ export async function placeOrder(
     if (volumes.length && item.volumeLabel === UNIQUE_FORMAT && item.price === product.regularPrice) {
       const main = volumes.find((v) => v.price === product.regularPrice) ?? volumes[0];
       item.volumeLabel = main.label;
+    }
+    // Les 15 ml et les recharges ne sont plus vendus (sauf produit qui n'existe que dans ce format).
+    if (isUnsoldFormat(item.volumeLabel) && sellableVolumes(volumes).some((v) => !isUnsoldFormat(v.label))) {
+      throw new Error(`Le format « ${item.volumeLabel} » de « ${product.name} » n'est plus vendu. Retirez-le du panier et choisissez le 30 ml ou un autre format.`);
     }
     const matchedVolume = volumes.find(
       (v) => v.label === item.volumeLabel && v.price === item.price

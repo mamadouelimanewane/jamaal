@@ -13,6 +13,8 @@ import { geminiConfigured } from "@/lib/ai/gemini";
 import { AnnouncementBar } from "@/components/AnnouncementBar";
 import { getCategoriesWithProducts } from "@/lib/db-categories";
 import { siteBaseUrl } from "@/lib/site-url";
+import { AnalyticsTracker } from "@/components/AnalyticsTracker";
+import { MetaPixel } from "@/components/MetaPixel";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -70,6 +72,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <AnnouncementBar />
         <Header categories={categories} />
         <main className="flex-1">{children}</main>
+        <AnalyticsTracker />
+        <MetaPixel pixelId={process.env.NEXT_PUBLIC_META_PIXEL_ID} />
         <Footer categories={categories} />
         <CartDrawer />
         <WhatsAppButton />

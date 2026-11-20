@@ -154,6 +154,7 @@ const SOURCE_BADGES: Record<string, { label: string; short: string }> = {
 };
 
 const ORDER_STATUS_LABELS: Record<string, string> = {
+  NON_PAYEE: "Non payée",
   EN_ATTENTE: "En attente",
   CONFIRMEE: "Confirmée",
   EXPEDIEE: "Expédiée",

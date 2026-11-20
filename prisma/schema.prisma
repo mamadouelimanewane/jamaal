@@ -14,6 +14,8 @@ enum Role {
 }
 
 enum OrderStatus {
+  /// Rien encaissé. Acompte ou partiel → EN_ATTENTE ; payée en totalité → CONFIRMEE.
+  NON_PAYEE
   EN_ATTENTE
   CONFIRMEE
   EXPEDIEE
@@ -196,6 +198,7 @@ model Product {
   variants          ProductVariant[]
   stockMovements    StockMovement[]
   reviews           Review[]
+  groupDeals        GroupDeal[]
 
   @@index([category])
   @@index([choganCode])
@@ -334,7 +337,7 @@ model Order {
   customerEmail String?
   customerPhone String?
   address       String?
-  status        OrderStatus @default(EN_ATTENTE)
+  status        OrderStatus @default(NON_PAYEE)
   total         Int
   /// Position déduite d'une adresse approximative : le livreur doit la confirmer par téléphone.
   deliveryApprox      Boolean  @default(false)
@@ -503,6 +506,7 @@ model Consultant {
   user   User?
   orders Order[]
   piece  ConsultantPiece?
+  groupDeals GroupDeal[]
 
   commissionPayments CommissionPayment[]
   commissionEntries  CommissionEntry[]
@@ -533,6 +537,8 @@ model Consultant {
   shopTheme String?   @default("maison")
   /// Phrase d'accroche ou slogan personnalisé de la boutique.
   shopTagline String?
+  /// Nom de la boutique (ex. « O'RA ») : affiché à la place du nom du revendeur sur sa page.
+  shopName    String?
   /// Personnalisation du thème : accent (0, 1 ou 2), mise en avant du haut de page, typographie, sections masquées.
   shopAccent Int @default(0)
   shopHero   String @default("portrait")
@@ -543,8 +549,9 @@ model Consultant {
   /// Conditions spéciales (encaissement direct, commission propre, zones de livraison propres), sinon le régime normal.
   specialTermsId String?
   specialTerms   SpecialTerms? @relation(fields: [specialTermsId], references: [id], onDelete: SetNull)
-  shopEvents     ShopEvent[]
-  customers      Customer[]       @relation("CustomerConsultant")
+  goodsCredits    GoodsCredit[]
+  shopEvents      ShopEvent[]
+  customers       Customer[]       @relation("CustomerConsultant")
   whatsappThreads WhatsAppThread[] @relation("ConsultantWhatsAppThreads")
 }
 
@@ -837,6 +844,8 @@ model AnalyticsEvent {
   name      String
   path      String?
   productId String?
+  consultantId String?
+  source    String?
   orderId   String?
   meta      Json?
   sessionId String?
@@ -844,6 +853,8 @@ model AnalyticsEvent {
 
   @@index([name, createdAt])
   @@index([createdAt])
+  @@index([consultantId, createdAt])
+  @@index([source, createdAt])
 }
 
 enum ApplicationStatus {
@@ -900,6 +911,14 @@ model Announcement {
   body      String
   pinned    Boolean  @default(false)
   createdAt DateTime @default(now())
+  /// Revendeurs ciblés (vide = tout le réseau). Envoi depuis Statistiques des boutiques.
+  consultantIds String[] @default([])
+  /// Texte personnalisé par revendeur : { [consultantId]: { title, body } } (variables remplacées).
+  personalized  Json?
+  /// RAPPEL | AVERTISSEMENT | FELICITATIONS | INFO (annonces ciblées)
+  kind          String?
+  /// Période des statistiques utilisées (jours).
+  statsDays     Int?
 
   @@index([pinned, createdAt])
 }
@@ -1136,6 +1155,40 @@ model Offer {
   @@index([active, endsAt])
 }
 
+/// Achat groupé : le vendeur partage une offre à plusieurs participants; le code promo n'est délivré qu'au seuil atteint.
+model GroupDeal {
+  id           String               @id @default(cuid())
+  title        String
+  description  String               @default("")
+  productId    String
+  product      Product              @relation(fields: [productId], references: [id], onDelete: Cascade)
+  volumeLabel  String
+  targetCount  Int                  @default(3)
+  discountPct  Int                  @default(10)
+  status       String               @default("OPEN")
+  consultantId String?
+  consultant   Consultant?          @relation(fields: [consultantId], references: [id], onDelete: SetNull)
+  expiresAt    DateTime
+  participants GroupDealParticipant[]
+  createdAt    DateTime             @default(now())
+
+  @@index([status, expiresAt])
+  @@index([consultantId, createdAt])
+}
+
+model GroupDealParticipant {
+  id         String    @id @default(cuid())
+  dealId     String
+  deal       GroupDeal @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  name       String
+  phone      String
+  couponCode String?   @unique
+  createdAt  DateTime  @default(now())
+
+  @@unique([dealId, phone])
+  @@index([dealId, createdAt])
+}
+
 /// Défi du mois pour les revendeurs : objectif (nombre de ventes ou chiffre d'affaires) et bonus.
 model Challenge {
   id          String    @id @default(cuid())
@@ -1351,10 +1404,64 @@ model ShopEvent {
   consultantId String
   consultant   Consultant @relation(fields: [consultantId], references: [id], onDelete: Cascade)
   kind         String
+  source       String?
   productId    String?
   sid          String?
   createdAt    DateTime   @default(now())
 
   @@index([consultantId, createdAt])
   @@index([sid])
+}
+
+enum GoodsCreditStatus {
+  EN_COURS
+  SOLDE
+  ANNULE
+}
+
+/// Crédit de marchandises : produits confiés à un revendeur, qu'il rembourse par ses ventes (défalcation automatique)
+/// ou par des versements. Admin › Crédits revendeurs ; revendeur › Mes crédits.
+model GoodsCredit {
+  id           String            @id @default(cuid())
+  /// CM-2026-0001
+  reference    String            @unique
+  consultantId String
+  consultant   Consultant        @relation(fields: [consultantId], references: [id], onDelete: Cascade)
+  /// Valeur des marchandises confiées (F).
+  amount       Int
+  /// Reste dû (F).
+  balance      Int
+  /// Déjà remboursé : ventes + versements (F).
+  repaid       Int               @default(0)
+  status       GoodsCreditStatus @default(EN_COURS)
+  /// [{ productId?, name, qty, unitPrice }] — si des produits sont listés, seules leurs ventes remboursent ce crédit.
+  items        Json              @default("[]")
+  dueDate      DateTime?
+  notes        String?
+  createdById  String?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  closedAt     DateTime?
+  deductions   GoodsCreditDeduction[]
+
+  @@index([consultantId, status])
+}
+
+/// Journal d'un crédit : défalcation sur une vente, versement, annulation d'une vente (montant négatif = rendu au solde).
+model GoodsCreditDeduction {
+  id            String      @id @default(cuid())
+  creditId      String
+  credit        GoodsCredit @relation(fields: [creditId], references: [id], onDelete: Cascade)
+  /// VENTE | VERSEMENT | ANNULATION_VENTE | ANNULATION_CREDIT
+  kind          String
+  orderId       String?
+  amount        Int
+  balanceBefore Int
+  balanceAfter  Int
+  note          String?
+  createdById   String?
+  createdAt     DateTime    @default(now())
+
+  @@index([creditId, createdAt])
+  @@index([orderId])
 }

@@ -8,6 +8,7 @@ import { OrderDetailCell } from "@/components/admin/OrderDetailCell";
 export const dynamic = "force-dynamic";
 
 const statusLabels: Record<string, string> = {
+  NON_PAYEE: "Non payée",
   EN_ATTENTE: "En attente",
   CONFIRMEE: "Confirmée",
   EXPEDIEE: "Expédiée",
@@ -16,6 +17,7 @@ const statusLabels: Record<string, string> = {
 };
 
 const statusColors: Record<string, string> = {
+  NON_PAYEE: "bg-red-100 text-red-700",
   EN_ATTENTE: "bg-amber-100 text-amber-700",
   CONFIRMEE: "bg-blue-100 text-blue-700",
   EXPEDIEE: "bg-purple-100 text-purple-700",

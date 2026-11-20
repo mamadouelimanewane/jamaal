@@ -4,6 +4,60 @@
  */
 
 export const SHOP_EVENT_KINDS = ["visite", "whatsapp", "produit"] as const;
+export const SOCIAL_SOURCES = ["whatsapp", "facebook", "instagram", "tiktok", "snapchat", "google", "autre", "direct"] as const;
+export type SocialSource = (typeof SOCIAL_SOURCES)[number];
+export const isSocialSource = (v: unknown): v is SocialSource => SOCIAL_SOURCES.includes(v as SocialSource);
+
+/**
+ * D'où vient une visite. Les liens de partage JAMAAL portent utm_source, mais une publication Facebook,
+ * Instagram ou TikTok partagée à la main n'en a pas : on reconnaît alors l'identifiant de clic ajouté
+ * par la plateforme (fbclid, ttclid, gclid…), le site d'où l'on arrive, ou le navigateur intégré à
+ * l'application (Facebook, Instagram, TikTok ouvrent les liens dans leur propre navigateur).
+ */
+export function detectSource(input: { search?: string; referrer?: string; userAgent?: string; host?: string }): SocialSource {
+  const p = new URLSearchParams(input.search ?? "");
+  const utm = (p.get("utm_source") ?? "").toLowerCase().trim();
+  const fromName = (v: string): SocialSource | null => {
+    if (!v) return null;
+    if (/whatsapp|^wa$|wa\.me/.test(v)) return "whatsapp";
+    if (/instagram|^ig$/.test(v)) return "instagram";
+    if (/facebook|^fb$|messenger/.test(v)) return "facebook";
+    if (/tiktok|bytedance|musical/.test(v)) return "tiktok";
+    if (/snapchat|^snap$/.test(v)) return "snapchat";
+    if (/google|youtube/.test(v)) return "google";
+    return null;
+  };
+  const byUtm = fromName(utm);
+  if (byUtm) return byUtm;
+  const ua = input.userAgent ?? "";
+  // Instagram ajoute lui aussi fbclid à ses liens : son navigateur intégré passe avant.
+  if (p.has("igshid") || p.has("igsh") || /Instagram/i.test(ua)) return "instagram";
+  if (p.has("ttclid")) return "tiktok";
+  if (p.has("fbclid")) return "facebook";
+  if (p.has("gclid") || p.has("gbraid") || p.has("wbraid")) return "google";
+  if (p.has("sc_cid") || p.has("ScCid")) return "snapchat";
+
+  if (/FBAN|FBAV|FB_IAB|FBIOS|Messenger/i.test(ua)) return "facebook";
+  if (/musical_ly|Bytedance|TikTok|trill_/i.test(ua)) return "tiktok";
+  if (/Snapchat/i.test(ua)) return "snapchat";
+  if (/WhatsApp/i.test(ua)) return "whatsapp";
+
+  let refHost = "";
+  try {
+    refHost = input.referrer ? new URL(input.referrer).hostname.toLowerCase() : "";
+  } catch {}
+  if (refHost && input.host && (refHost === input.host.toLowerCase() || refHost.endsWith(`.${input.host.toLowerCase()}`))) refHost = "";
+  if (refHost) {
+    if (/(^|\.)(whatsapp\.com|wa\.me)$/.test(refHost)) return "whatsapp";
+    if (/(^|\.)instagram\.com$/.test(refHost)) return "instagram";
+    if (/(^|\.)(facebook\.com|fb\.com|fb\.me|messenger\.com)$/.test(refHost)) return "facebook";
+    if (/(^|\.)tiktok\.com$/.test(refHost)) return "tiktok";
+    if (/(^|\.)snapchat\.com$/.test(refHost)) return "snapchat";
+    if (/(^|\.)google\.[a-z.]+$|(^|\.)youtube\.com$|(^|\.)bing\.com$/.test(refHost)) return "google";
+    return "autre";
+  }
+  return utm ? "autre" : "direct";
+}
 export type ShopEventKind = (typeof SHOP_EVENT_KINDS)[number];
 export const isShopEventKind = (v: unknown): v is ShopEventKind => SHOP_EVENT_KINDS.includes(v as ShopEventKind);
 
@@ -21,7 +75,7 @@ export function periodStart(days: number, now = new Date()): Date {
   return d;
 }
 
-export type StatEvent = { kind: string; sid: string | null; productId: string | null; createdAt: Date };
+export type StatEvent = { kind: string; sid: string | null; productId: string | null; source?: string | null; createdAt: Date };
 
 /** Visiteurs distincts : un identifiant de visite compte une fois ; sans identifiant, chaque visite compte. */
 export function countVisitors(events: StatEvent[]): number {

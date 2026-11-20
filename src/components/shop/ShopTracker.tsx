@@ -1,8 +1,21 @@
 "use client";
 
 import { useEffect } from "react";
+import { detectSource } from "@/lib/shop/shop-stats";
 
 const KEY = "jamaal_visite";
+const SOURCE_KEY = "jamaal_visite_source";
+
+/** Source de la visite, retenue pour la session : les pages suivantes n'ont plus l'identifiant de clic. */
+function visitSource(): string {
+  const found = detectSource({ search: window.location.search, referrer: document.referrer, userAgent: navigator.userAgent, host: window.location.hostname });
+  try {
+    const kept = sessionStorage.getItem(SOURCE_KEY);
+    if (kept && found === "direct") return kept;
+    sessionStorage.setItem(SOURCE_KEY, found);
+  } catch {}
+  return found;
+}
 
 function visitId(): string | null {
   try {
@@ -32,11 +45,12 @@ function send(payload: Record<string, unknown>) {
 export function ShopTracker({ slug }: { slug: string }) {
   useEffect(() => {
     const sid = visitId();
-    send({ slug, kind: "visite", sid });
+    const source = visitSource();
+    send({ slug, kind: "visite", sid, source });
     const onClick = (e: MouseEvent) => {
       const el = (e.target as Element | null)?.closest?.("[data-track]") as HTMLElement | null;
       if (!el) return;
-      send({ slug, kind: el.dataset.track, productId: el.dataset.product, sid });
+      send({ slug, kind: el.dataset.track, productId: el.dataset.product, sid, source });
     };
     document.addEventListener("click", onClick, { capture: true });
     return () => document.removeEventListener("click", onClick, { capture: true });

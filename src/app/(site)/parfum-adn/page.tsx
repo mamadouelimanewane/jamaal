@@ -23,11 +23,11 @@ export default async function ParfumAdnPage({ searchParams }: { searchParams: Pr
   const { ref } = await searchParams;
   const slug = (ref || (await cookies()).get("jamaal_ref")?.value || "").toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 60) || null;
   const [reseller, inspired] = await Promise.all([
-    slug ? prisma.consultant.findFirst({ where: { slug, active: true }, select: { name: true, whatsapp: true, slug: true } }).catch(() => null) : Promise.resolve(null),
+    slug ? prisma.consultant.findFirst({ where: { slug, active: true }, select: { name: true, shopName: true, whatsapp: true, slug: true } }).then((r) => (r ? { ...r, name: r.shopName ?? r.name } : null)).catch(() => null) : Promise.resolve(null),
     prisma.product.findMany({ where: { category: { startsWith: "parfum" }, inspiredBy: { not: null } }, select: { inspiredBy: true }, distinct: ["inspiredBy"], take: 600 }).catch(() => []),
   ]);
   const digits = (reseller?.whatsapp ?? "").replace(/\D/g, "").replace(/^00/, "");
-  const advisor = reseller && digits.length >= 9 ? { name: reseller.name.split(/\s+/)[0], whatsapp: digits.length === 9 ? `221${digits}` : digits } : { name: "JAMAAL", whatsapp: WHATSAPP_CONTACTS[0].number };
+  const advisor = reseller && digits.length >= 9 ? { name: reseller.shopName ?? reseller.name.split(/\s+/)[0], whatsapp: digits.length === 9 ? `221${digits}` : digits } : { name: "JAMAAL", whatsapp: WHATSAPP_CONTACTS[0].number };
   const suggestions = [...new Set([...inspired.map((p) => p.inspiredBy!.trim()), ...REFERENCE.map((r) => title(r.names[0]))].filter(Boolean))].sort((a, b) => a.localeCompare(b, "fr"));
 
   return (

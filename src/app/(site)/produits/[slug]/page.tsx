@@ -15,6 +15,7 @@ import { getReservationSettings } from "@/lib/reservation-store";
 import { ShareWhatsApp } from "@/components/ShareWhatsApp";
 import { OrderOnWhatsApp } from "@/components/OrderOnWhatsApp";
 import { ProductCard } from "@/components/ProductCard";
+import { MetaPixelEvent } from "@/components/MetaPixel";
 
 export const dynamic = "force-dynamic";
 
@@ -47,12 +48,14 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   const { slug } = await params;
   const product = await loadProduct(slug);
   if (!product) notFound();
+  // Identifiant identique au flux Meta `/api/meta/catalog` pour rapprocher fiche et article catalogue.
   const [category, reservation] = await Promise.all([getCategory(product.category), getReservationSettings()]);
   const related = (await getProductsByCategory(product.category)).filter((item) => item.id !== product.id).slice(0, 4);
   // Parfums (hors parfums d'ambiance) : textes propres aux extraits ; autres produits : textes neutres.
   const isPerfume = product.category.startsWith("parfum-") && product.category !== "parfum-ambiance";
 
   return <main className="mx-auto max-w-[1440px] px-5 pb-20 pt-6 sm:px-8 lg:px-12">
+    <MetaPixelEvent event="ViewContent" productId={product.id} value={product.regularPrice ?? undefined} />
     <nav aria-label={t("Fil d’Ariane")} className="mb-7 flex items-center gap-2 text-[10px] uppercase tracking-[0.1em] text-navy/45"><Link href="/" className="transition hover:text-navy">{t("Accueil")}</Link><span>/</span><Link href={`/collections/${product.category}`} className="transition hover:text-navy">{category?.label || t("Parfums")}</Link><span>/</span><span className="max-w-48 truncate text-navy/75">{product.name}</span></nav>
 
     <div className="grid gap-9 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16 xl:gap-24">

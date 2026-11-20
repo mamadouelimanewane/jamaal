@@ -7,15 +7,16 @@ import { startingPrice } from "@/lib/reseller-catalog";
 import { effectiveTitle, depthFromLoaded } from "@/lib/network";
 import { earnedBadges } from "@/lib/academy-store";
 import { badgeLabel } from "@/data/academy";
+import { availableFirst, inStockOf } from "@/lib/availability";
 
 export const MAX_FAVORITES = 8;
 
-export type ShopProduct = { id: string; slug: string; name: string; photo: string | null; price: number | null; multiFormat: boolean; inspiredBy: string | null };
+export type ShopProduct = { id: string; slug: string; name: string; photo: string | null; price: number | null; multiFormat: boolean; inspiredBy: string | null; inStock: boolean };
 export type ShopReview = { id: string; author: string; rating: number; comment: string; product: string; photo: string | null; mine: boolean };
 
-const productSelect = { id: true, slug: true, name: true, photo: true, regularPrice: true, volumes: true, inspiredBy: true } as const;
-type Row = { id: string; slug: string; name: string; photo: string | null; regularPrice: number | null; volumes: unknown; inspiredBy: string | null };
-const toShop = (r: Row): ShopProduct => ({ id: r.id, slug: r.slug, name: r.name, photo: r.photo, price: startingPrice(r.regularPrice, r.volumes), multiFormat: Array.isArray(r.volumes) && r.volumes.length > 1, inspiredBy: r.inspiredBy });
+const productSelect = { id: true, slug: true, name: true, photo: true, regularPrice: true, volumes: true, inspiredBy: true, stock: true, variants: { select: { stock: true } } } as const;
+type Row = { id: string; slug: string; name: string; photo: string | null; regularPrice: number | null; volumes: unknown; inspiredBy: string | null; stock: number; variants: { stock: number }[] };
+const toShop = (r: Row): ShopProduct => ({ id: r.id, slug: r.slug, name: r.name, photo: r.photo, price: startingPrice(r.regularPrice, r.volumes), multiFormat: Array.isArray(r.volumes) && r.volumes.length > 1, inspiredBy: r.inspiredBy, inStock: inStockOf(r.stock, r.variants) });
 
 /** Ordre des coups de cœur : ceux choisis par le consultant, dans son ordre ; produits disparus ignorés. Pur, testé. */
 export function orderFavorites<T extends { id: string }>(ids: string[], rows: T[]): T[] {
@@ -37,7 +38,7 @@ async function topSoldIds(consultantId: string | null, take: number): Promise<st
 export async function getConsultantShop(slug: string) {
   const c = await prisma.consultant.findFirst({
     where: { slug: slug.trim().toLowerCase(), active: true },
-    select: { id: true, name: true, city: true, whatsapp: true, slug: true, rank: true, shopPhoto: true, shopLogo: true, shopMedia: true, shopBio: true, shopTheme: true, shopTagline: true, shopAccent: true, shopHero: true, shopTypo: true, shopHidden: true, favorites: true, titleForm: true, createdAt: true, sponsorId: true, sponsor: { select: { sponsorId: true } } },
+    select: { id: true, name: true, city: true, whatsapp: true, slug: true, rank: true, shopPhoto: true, shopLogo: true, shopMedia: true, shopBio: true, shopTheme: true, shopTagline: true, shopName: true, shopAccent: true, shopHero: true, shopTypo: true, shopHidden: true, favorites: true, titleForm: true, createdAt: true, sponsorId: true, sponsor: { select: { sponsorId: true } } },
   });
   if (!c) return null;
 
@@ -75,8 +76,9 @@ export async function getConsultantShop(slug: string) {
 
   return {
     badges,
-    consultant: { id: c.id, name: c.name, city: c.city, whatsapp: c.whatsapp, slug: c.slug!, photo: c.shopPhoto, logo: c.shopLogo, media: c.shopMedia, bio: c.shopBio, tagline: c.shopTagline, themeId: c.shopTheme, look: { accent: c.shopAccent, hero: c.shopHero, typo: c.shopTypo, hidden: c.shopHidden }, title: effectiveTitle(c.rank, depthFromLoaded(c)), since: c.createdAt },
-    products,
+    consultant: { id: c.id, name: c.shopName?.trim() || c.name, ownerName: c.name, shopName: c.shopName?.trim() || null, city: c.city, whatsapp: c.whatsapp, slug: c.slug!, photo: c.shopPhoto, logo: c.shopLogo, media: c.shopMedia, bio: c.shopBio, tagline: c.shopTagline, themeId: c.shopTheme, look: { accent: c.shopAccent, hero: c.shopHero, typo: c.shopTypo, hidden: c.shopHidden }, title: effectiveTitle(c.rank, depthFromLoaded(c)), since: c.createdAt },
+    // Disponibles à Dakar d'abord (ordre du revendeur conservé dans chaque groupe).
+    products: availableFirst(products),
     chosen,
     reviews,
     stats: { clients, rating },

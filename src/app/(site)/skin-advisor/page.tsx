@@ -24,12 +24,12 @@ export default async function SkinAdvisorPage({ searchParams }: { searchParams: 
   const { ref } = await searchParams;
   const slug = (ref || (await cookies()).get("jamaal_ref")?.value || "").toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 60) || null;
   const [reseller, origin, visuals] = await Promise.all([
-    slug ? prisma.consultant.findFirst({ where: { slug, active: true }, select: { name: true, whatsapp: true, slug: true } }).catch(() => null) : Promise.resolve(null),
+    slug ? prisma.consultant.findFirst({ where: { slug, active: true }, select: { name: true, shopName: true, whatsapp: true, slug: true } }).then((r) => (r ? { ...r, name: r.shopName ?? r.name } : null)).catch(() => null) : Promise.resolve(null),
     getSiteUrl().catch(() => ""),
     getSkinVisuals(),
   ]);
   const digits = (reseller?.whatsapp ?? "").replace(/\D/g, "").replace(/^00/, "");
-  const advisor = reseller && digits.length >= 9 ? { name: reseller.name.split(/\s+/)[0], whatsapp: digits.length === 9 ? `221${digits}` : digits } : { name: "JAMAAL", whatsapp: WHATSAPP_CONTACTS[0].number };
+  const advisor = reseller && digits.length >= 9 ? { name: reseller.shopName ?? reseller.name.split(/\s+/)[0], whatsapp: digits.length === 9 ? `221${digits}` : digits } : { name: "JAMAAL", whatsapp: WHATSAPP_CONTACTS[0].number };
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14">

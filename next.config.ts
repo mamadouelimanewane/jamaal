@@ -30,7 +30,7 @@ const nextConfig: NextConfig = {
             value: [
               "default-src 'self'",
               // Next.js injecte des scripts inline ; unsafe-eval uniquement en dev.
-              `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
+              `script-src 'self' 'unsafe-inline' https://connect.facebook.net${isDev ? " 'unsafe-eval'" : ""}`,
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: blob: https:",
               "font-src 'self' data:",

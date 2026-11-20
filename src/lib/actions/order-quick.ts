@@ -1,5 +1,8 @@
 "use server";
 
+import { statusChangeError } from "@/lib/orders/payment-rules";
+import { safeDeduct } from "@/lib/goods-credit";
+
 import { scheduleAutoAssign } from "@/lib/delivery-dispatch";
 import { after } from "next/server";
 import { revalidatePath } from "next/cache";
@@ -22,9 +25,11 @@ function refresh(id: string) {
 /** Liste des commandes : confirmer une commande en attente (le stock ne bouge qu'au paiement). */
 export async function quickConfirmOrder(id: string): Promise<R> {
   const session = await requireAdmin("commandes");
-  const o = await prisma.order.findUnique({ where: { id }, select: { status: true } });
+  const o = await prisma.order.findUnique({ where: { id }, select: { status: true, paymentStatus: true, depositPaidAt: true, installmentsPaid: true } });
   if (!o) return { ok: false, error: "Commande introuvable." };
-  if (o.status !== "EN_ATTENTE") return { ok: false, error: "Déjà traitée." };
+  if (o.status === "CONFIRMEE") return { ok: false, error: "Déjà confirmée." };
+  const why = statusChangeError(o, "CONFIRMEE");
+  if (why) return { ok: false, error: why };
   await setOrderStatus(id, "CONFIRMEE");
   await logActivity(session, `Commande confirmée ${ref(id)}`, "Order", id);
   refresh(id);
@@ -58,7 +63,7 @@ export async function quickMarkPaid(id: string): Promise<R> {
   if (o.installmentCount >= 2 || o.isReservation) return { ok: false, error: "Paiement en plusieurs fois ou réservation : réglez depuis la fiche de la commande." };
   const res = await prisma.order.updateMany({
     where: { id, paymentStatus: { not: "PAYE" } },
-    data: { paymentStatus: "PAYE", paidAt: new Date(), paymentRef: `manuel:${session.user?.id ?? "admin"}`, ...(o.status === "EN_ATTENTE" ? { status: "CONFIRMEE" } : {}) },
+    data: { paymentStatus: "PAYE", paidAt: new Date(), paymentRef: `manuel:${session.user?.id ?? "admin"}`, ...(o.status === "NON_PAYEE" || o.status === "EN_ATTENTE" ? { status: "CONFIRMEE" } : {}) },
   });
   if (!res.count) return { ok: false, error: "Déjà payée." };
   if (o.deliveryMode === "LIVRAISON_JAMAAL" && !o.deliveryStatus) {
@@ -66,6 +71,7 @@ export async function quickMarkPaid(id: string): Promise<R> {
   }
   if (o.deliveryMode === "LIVRAISON_JAMAAL") scheduleAutoAssign(id);
   await takeOrderStock(id, session.user?.id ?? null);
+  await safeDeduct(id);
   after(() => runPayoutsForOrder(id));
   notifyOrderUpdate(id, "PAYEE");
   await logActivity(session, `Paiement reçu (manuel) · commande ${ref(id)}`, "Order", id);

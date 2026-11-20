@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { deleteOffer, saveOffer } from "@/lib/actions/growth";
 import { ProductPicker } from "@/components/admin/GrowthWidgets";
 import { formatPrice } from "@/lib/currency";
+import { startingPrice } from "@/lib/price-from";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Offres de fêtes" };
@@ -19,8 +20,7 @@ export default async function OffersPage({ searchParams }: { searchParams: Promi
     prisma.product.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, choganCode: true, regularPrice: true, volumes: true } }),
   ]);
   const minPrice = (p: (typeof products)[number]) => {
-    const v = ((p.volumes as { price: number }[] | null) ?? []).map((x) => x.price).filter((x) => x > 0);
-    return v.length ? Math.min(...v) : p.regularPrice;
+    return startingPrice(p.regularPrice, p.volumes) ?? p.regularPrice;
   };
   const picker = products.map((p) => ({ id: p.id, name: p.name, code: p.choganCode, price: minPrice(p) }));
   const priceOf = new Map(picker.map((p) => [p.id, p.price ?? 0]));

@@ -45,8 +45,7 @@ import { BadgePercent, BookOpen, Calculator,
   GraduationCap,
   LogOut,
   FileText,
-  BookMarked,
-} from "lucide-react";
+  BookMarked, HandCoins } from "lucide-react";
 import { auth, signOut } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ResponsiveSidebar } from "@/components/admin/ResponsiveSidebar";
@@ -56,6 +55,7 @@ import { LivreurInstallGate } from "@/components/livreur/LivreurInstallGate";
 import { accountsByPhone } from "@/lib/staff-accounts";
 import { InstallBanner } from "@/components/admin/InstallBanner";
 import { topBarRank } from "@/lib/topbar-rank";
+import { FacebookIcon } from "@/components/icons/FacebookIcon";
 import { SidebarNavLink } from "@/components/admin/SidebarNavLink";
 
 import { GlobalSearch } from "@/components/admin/GlobalSearch";
@@ -87,6 +87,7 @@ const adminGroups = [
       { href: "/admin/categories", label: "Catégories", icon: Tags },
       { href: "/admin/accueil", label: "Page d'accueil", icon: GalleryHorizontal },
       { href: "/admin/kit-marketing", label: "Kit marketing (photos, vidéos)", icon: Clapperboard },
+      { href: "/admin/produits/qualite", label: "Qualité du catalogue", icon: ShieldCheck },
       { href: "/admin/catalogue-officiel", label: "Catalogue officiel (12 pages A4)", icon: FileText },
       { href: "/admin/handbook", label: "Produits disponibles", icon: BookMarked },
     ],
@@ -95,6 +96,7 @@ const adminGroups = [
     title: "Ventes",
     links: [
       { href: "/admin/commandes", label: "Commandes", icon: ShoppingCart },
+      { href: "/admin/commandes/achats-groupes", label: "Superviser les achats groupés", icon: Users },
       { href: "/admin/reservations", label: "Réservations", icon: CalendarClock },
       { href: "/admin/paiement-echelonne", label: "Paiement en plusieurs fois", icon: CalendarClock },
       { href: "/admin/abonnements", label: "Abonnements et cartes cadeaux", icon: Repeat },
@@ -111,6 +113,7 @@ const adminGroups = [
     links: [
       { href: "/admin/consultants", label: "Consultants", icon: Users },
       { href: "/admin/conditions-speciales", label: "Conditions spéciales", icon: BadgePercent },
+      { href: "/admin/credits-revendeurs", label: "Crédits revendeurs", icon: HandCoins },
       { href: "/admin/boutiques-stats", label: "Statistiques des boutiques", icon: BarChart3 },
       { href: "/admin/primes-equipe", label: "Primes d'équipe", icon: Banknote },
       { href: "/admin/reseau", label: "Santé du réseau", icon: HeartPulse },
@@ -122,6 +125,8 @@ const adminGroups = [
       { href: "/admin/messages", label: "Messages de contact", icon: Mail },
       { href: "/admin/annonces", label: "Annonces aux consultants", icon: Megaphone },
       { href: "/admin/whatsapp", label: "Messagerie WhatsApp JAMAAL", icon: Share2 },
+      { href: "/admin/facebook", label: "Facebook et Instagram", icon: FacebookIcon },
+      { href: "/admin/whatsapp/conversations", label: "Conversations WhatsApp", icon: Mail },
       { href: "/admin/whatsapp/campagnes", label: "Campagnes WhatsApp", icon: Megaphone },
       { href: "/admin/journal-whatsapp", label: "Journal WhatsApp", icon: Mail },
       { href: "/admin/livraisons", label: "Livraisons", icon: Truck },
@@ -163,6 +168,7 @@ const consultantGroups: { title: string | null; links: { href: string; label: st
     title: "Gains & équipe",
     links: [
       { href: "/admin/mes-gains", label: "Mes gains", icon: Banknote, match: ["/admin/mon-wallet"] },
+      { href: "/admin/mes-credits", label: "Mes crédits", icon: HandCoins },
       { href: "/admin/mes-filleuls", label: "Mon équipe", icon: UsersRound },
       { href: "/admin/mes-defis", label: "Mes défis", icon: Trophy },
     ],
@@ -175,6 +181,7 @@ const consultantGroups: { title: string | null; links: { href: string; label: st
       { href: "/admin/ma-boutique", label: "Ma boutique (lien de bio)", icon: Store },
       { href: "/admin/stats-boutique", label: "Statistiques de ma boutique", icon: BarChart3 },
       { href: "/admin/ma-communication", label: "Ma communication", icon: Megaphone },
+      { href: "/admin/achats-groupes", label: "Mes achats groupés", icon: UsersRound },
       { href: "/admin/catalogue-officiel", label: "Catalogue officiel (12 pages)", icon: FileText },
       { href: "/admin/handbook", label: "Produits disponibles", icon: BookMarked },
     ],

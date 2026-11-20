@@ -4,6 +4,7 @@ import { useT } from "@/components/i18n/LocaleProvider";
 import { useMemo, useState } from "react";
 import { Product } from "@/data/types";
 import { ProductCard } from "./ProductCard";
+import { availableFirst } from "@/lib/availability";
 
 type SortKey = "pertinence" | "prix-asc" | "prix-desc" | "az" | "za";
 
@@ -11,25 +12,28 @@ function priceOf(p: Product) {
   return p.testerPrice ?? p.regularPrice ?? 0;
 }
 
+function sortBy(copy: Product[], sort: SortKey) {
+  switch (sort) {
+    case "prix-asc":
+      return copy.sort((a, b) => priceOf(a) - priceOf(b));
+    case "prix-desc":
+      return copy.sort((a, b) => priceOf(b) - priceOf(a));
+    case "az":
+      return copy.sort((a, b) => a.name.localeCompare(b.name));
+    case "za":
+      return copy.sort((a, b) => b.name.localeCompare(a.name));
+    default:
+      return copy.sort((a, b) => b.reviewCount - a.reviewCount);
+  }
+}
+
 export function CollectionGrid({ products }: { products: Product[] }) {
   const t = useT();
   const [sort, setSort] = useState<SortKey>("pertinence");
 
-  const sorted = useMemo(() => {
-    const copy = [...products];
-    switch (sort) {
-      case "prix-asc":
-        return copy.sort((a, b) => priceOf(a) - priceOf(b));
-      case "prix-desc":
-        return copy.sort((a, b) => priceOf(b) - priceOf(a));
-      case "az":
-        return copy.sort((a, b) => a.name.localeCompare(b.name));
-      case "za":
-        return copy.sort((a, b) => b.name.localeCompare(a.name));
-      default:
-        return copy.sort((a, b) => b.reviewCount - a.reviewCount);
-    }
-  }, [products, sort]);
+  // Quel que soit le tri choisi, les produits disponibles à Dakar restent en haut.
+  const sorted = useMemo(() => availableFirst(sortBy([...products], sort)), [products, sort]);
+
 
   return (
     <div>

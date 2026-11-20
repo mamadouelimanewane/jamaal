@@ -5,14 +5,17 @@ import { livreurUpdateOrderStatus } from "@/lib/actions/orders";
 import { formatPrice } from "@/lib/currency";
 import type { OrderStatus } from "@prisma/client";
 
+// La confirmation suit le paiement : le livreur fait seulement avancer l'expédition.
 const nextStatus: Partial<Record<OrderStatus, OrderStatus>> = {
-  EN_ATTENTE: "CONFIRMEE",
+  NON_PAYEE: "EXPEDIEE",
+  EN_ATTENTE: "EXPEDIEE",
   CONFIRMEE: "EXPEDIEE",
   EXPEDIEE: "LIVREE",
 };
 
 const nextLabel: Partial<Record<OrderStatus, string>> = {
-  EN_ATTENTE: "Confirmer la prise en charge",
+  NON_PAYEE: "Marquer comme expédiée",
+  EN_ATTENTE: "Marquer comme expédiée",
   CONFIRMEE: "Marquer comme expédiée",
   EXPEDIEE: "Marquer comme livrée",
 };

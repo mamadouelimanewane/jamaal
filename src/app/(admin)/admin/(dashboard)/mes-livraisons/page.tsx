@@ -32,7 +32,7 @@ export default async function MesLivraisonsPage() {
         status: { not: "ANNULEE" },
         deliveryMode: "LIVRAISON_JAMAAL",
         // Livraisons créées avant le module (sans étape) : traitées comme « attribuées ».
-        OR: [{ deliveryStatus: { in: ["ASSIGNEE", "RECUPEREE", "EN_ROUTE"] } }, { deliveryStatus: null, status: { in: ["EN_ATTENTE", "CONFIRMEE", "EXPEDIEE"] } }],
+        OR: [{ deliveryStatus: { in: ["ASSIGNEE", "RECUPEREE", "EN_ROUTE"] } }, { deliveryStatus: null, status: { in: ["NON_PAYEE", "EN_ATTENTE", "CONFIRMEE", "EXPEDIEE"] } }],
       },
       orderBy: { createdAt: "asc" },
     }),

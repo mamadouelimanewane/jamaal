@@ -25,7 +25,8 @@ const int = (v: unknown, def: number, min: number, max: number) => {
 };
 
 export const ORDER_STATUS_LABELS: Record<string, string> = {
-  EN_ATTENTE: "Reçue, en attente de confirmation",
+  NON_PAYEE: "Reçue, en attente de paiement",
+  EN_ATTENTE: "Acompte reçu, solde à régler",
   CONFIRMEE: "Confirmée, en préparation",
   EXPEDIEE: "Expédiée",
   LIVREE: "Livrée",

@@ -4,9 +4,16 @@ import { Prisma } from "@prisma/client";
 import type { Product as DbProduct } from "@prisma/client";
 import { getLocale } from "@/lib/i18n/server";
 import { localizeProduct } from "@/lib/i18n/product";
+import { availableFirst, inStockOf } from "@/lib/availability";
+import { sellableVolumes } from "@/lib/price-from";
 
-function toUiProduct(p: DbProduct): Product {
+const withStock = { variants: { select: { stock: true, volumeLabel: true } } } as const;
+
+function toUiProduct(p: DbProduct & { variants?: { stock: number; volumeLabel?: string | null }[] }): Product {
+  // Formats en vente seulement : pas de 15 ml ni de recharge (lib/price-from).
+  const vols = p.volumes as unknown as VolumeOption[] | null;
   return {
+    inStock: inStockOf(p.stock, p.variants ? sellableVolumes(p.variants.map((v) => ({ ...v, label: v.volumeLabel }))) : p.variants),
     id: p.id,
     number: p.number ?? undefined,
     choganCode: p.choganCode ?? undefined,
@@ -24,7 +31,7 @@ function toUiProduct(p: DbProduct): Product {
     shortDescriptionIt: p.shortDescriptionIt ?? undefined,
     longDescriptionIt: p.longDescriptionIt?.length ? p.longDescriptionIt : undefined,
     testerPrice: p.testerPrice ?? undefined,
-    volumes: (p.volumes as unknown as VolumeOption[] | null) ?? undefined,
+    volumes: vols?.length ? sellableVolumes(vols) : undefined,
     regularPrice: p.regularPrice ?? undefined,
     reviewCount: p.reviewCount,
     rating: p.rating,
@@ -47,8 +54,9 @@ export async function getProductsByCategory(category: string): Promise<Product[]
   const rows = await prisma.product.findMany({
     where: { category },
     orderBy: { reviewCount: "desc" },
+    include: withStock,
   });
-  return localizeAll(rows.map(toUiProduct));
+  return localizeAll(availableFirst(rows.map(toUiProduct)));
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
@@ -63,9 +71,9 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
   return (await localizeAll([product]))[0];
 }
 
-/** Parfums proposés en petit format (30 ml ou 15 ml recharge) : le plus petit format et son prix, du moins cher au plus cher. */
+/** Parfums proposés en petit format (25 ou 30 ml ; les 15 ml ne sont pas vendus) : le plus petit format et son prix, du moins cher au plus cher. */
 export async function getSmallFormatPerfumes(): Promise<{ product: Product; label: string; price: number }[]> {
-  const rows = await prisma.product.findMany({ where: { category: { startsWith: "parfum-" }, volumes: { not: Prisma.DbNull } }, orderBy: { name: "asc" } });
+  const rows = await prisma.product.findMany({ where: { category: { startsWith: "parfum-" }, volumes: { not: Prisma.DbNull } }, orderBy: { name: "asc" }, include: withStock });
   const out: { product: Product; label: string; price: number }[] = [];
   for (const row of rows) {
     const product = toUiProduct(row);
@@ -76,7 +84,7 @@ export async function getSmallFormatPerfumes(): Promise<{ product: Product; labe
     if (small) out.push({ product, label: small.v.label, price: small.v.price });
   }
   const locale = await getLocale();
-  return out.map((x) => ({ ...x, product: localizeProduct(x.product, locale) })).sort((a, b) => a.price - b.price || a.product.name.localeCompare(b.product.name, "fr"));
+  return out.map((x) => ({ ...x, product: localizeProduct(x.product, locale) })).sort((a, b) => Number(b.product.inStock !== false) - Number(a.product.inStock !== false) || a.price - b.price || a.product.name.localeCompare(b.product.name, "fr"));
 }
 
 /** Coffrets, kits et sets du catalogue Chogan (pour la page Coffrets). */
@@ -87,17 +95,20 @@ export async function getGiftSets(): Promise<Product[]> {
     },
     orderBy: { name: "asc" },
     take: 60,
+    include: withStock,
   });
-  return localizeAll(rows.map(toUiProduct));
+  return localizeAll(availableFirst(rows.map(toUiProduct)));
 }
 
 export async function getBestsellers(category?: string, count = 3): Promise<Product[]> {
   const rows = await prisma.product.findMany({
     where: category ? { category } : undefined,
     orderBy: { reviewCount: "desc" },
-    take: count,
+    take: count * 5,
+    include: withStock,
   });
-  return localizeAll(rows.map(toUiProduct));
+  // Les meilleures ventes disponibles à Dakar d'abord.
+  return localizeAll(availableFirst(rows.map(toUiProduct)).slice(0, count));
 }
 
 export async function searchProducts(query: string): Promise<Product[]> {
@@ -113,14 +124,14 @@ export async function searchProducts(query: string): Promise<Product[]> {
       ...(Number.isFinite(asNumber) && asNumber > 0 ? [{ number: asNumber }] : []),
     ],
   };
-  const rows = await prisma.product.findMany({ where, take: 40 });
-  return localizeAll(rows.map(toUiProduct));
+  const rows = await prisma.product.findMany({ where, take: 40, include: withStock });
+  return localizeAll(availableFirst(rows.map(toUiProduct)));
 }
 
 /** Produits dans l'ordre des identifiants donnés (résultats de recherche). */
 export async function getProductsByIds(ids: string[]): Promise<Product[]> {
   if (!ids.length) return [];
-  const rows = await prisma.product.findMany({ where: { id: { in: ids } } });
+  const rows = await prisma.product.findMany({ where: { id: { in: ids } }, include: withStock });
   const byId = new Map(rows.map((r) => [r.id, toUiProduct(r)]));
-  return localizeAll(ids.map((id) => byId.get(id)).filter((p): p is Product => !!p));
+  return localizeAll(availableFirst(ids.map((id) => byId.get(id)).filter((p): p is Product => !!p)));
 }

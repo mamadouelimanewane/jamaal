@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { WHATSAPP_CONTACTS, whatsappLink } from "@/lib/contact";
 import { getReseller } from "@/lib/reseller";
 import { NotReseller } from "@/components/admin/NotReseller";
+import { KINDS, announcementText, announcementsFor } from "@/lib/reseller-outreach";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +16,7 @@ export default async function MaCommunicationPage() {
 
   const [announcements, notifications] = await Promise.all([
     // Tolère l'absence de la table tant que la migration « Announcement » n'est pas appliquée.
-    prisma.announcement.findMany({ orderBy: [{ pinned: "desc" }, { createdAt: "desc" }], take: 20 }).catch(() => []),
+    prisma.announcement.findMany({ where: announcementsFor(me.id), orderBy: [{ pinned: "desc" }, { createdAt: "desc" }], take: 20 }).catch(() => []),
     prisma.notification.findMany({ where: { userId: me.userId }, orderBy: { createdAt: "desc" }, take: 6 }),
   ]);
   const hello = `Bonjour JAMAAL, je suis ${me.name} (consultant·e, ${me.city}). `;
@@ -29,16 +30,21 @@ export default async function MaCommunicationPage() {
         <section className="rounded-2xl border border-line bg-white p-5">
           <h2 className="flex items-center gap-2 font-serif-display text-lg font-semibold text-navy"><Megaphone size={18} /> Annonces de l&apos;équipe</h2>
           <div className="mt-3 flex flex-col gap-3">
-            {announcements.map((a) => (
-              <article key={a.id} className={`rounded-xl border p-4 ${a.pinned ? "border-rose bg-rose/5" : "border-line"}`}>
+            {announcements.map((a) => {
+              const txt = announcementText(a, me.id);
+              const personal = a.consultantIds.length > 0;
+              return (
+              <article key={a.id} className={`rounded-xl border p-4 ${a.kind === "AVERTISSEMENT" ? "border-red-300 bg-red-50/60" : a.pinned ? "border-rose bg-rose/5" : "border-line"}`}>
                 <div className="flex items-start justify-between gap-3">
-                  <h3 className="font-semibold text-navy">{a.title}</h3>
+                  <h3 className="font-semibold text-navy">{txt.title}</h3>
                   {a.pinned && <Pin size={14} className="mt-1 shrink-0 text-rose-dark" aria-label="Épinglée" />}
                 </div>
-                <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-navy/85">{a.body}</p>
+                {personal && <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-navy/55">Message personnel{a.kind && a.kind in KINDS ? ` · ${KINDS[a.kind as keyof typeof KINDS]}` : ""}</p>}
+                <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-navy/85">{txt.body}</p>
                 <p className="mt-2 text-xs text-navy/65">{a.createdAt.toLocaleDateString("fr-FR")}</p>
               </article>
-            ))}
+              );
+            })}
             {announcements.length === 0 && <p className="py-6 text-center text-sm text-navy/70">Aucune annonce pour le moment.</p>}
           </div>
         </section>

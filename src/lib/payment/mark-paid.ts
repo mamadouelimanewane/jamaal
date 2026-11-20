@@ -1,4 +1,5 @@
 import { scheduleAutoAssign } from "@/lib/delivery-dispatch";
+import { safeDeduct } from "@/lib/goods-credit";
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { runPayoutsForOrder } from "@/lib/payouts/engine";
@@ -11,6 +12,7 @@ import { GIFT_PREFIX } from "@/lib/gift/gift";
 import { takeOrderStock } from "@/lib/stock";
 import { dueDates, isInstallmentOrder } from "@/lib/installments";
 import { notifyInstallmentReceived } from "@/lib/installments-notify";
+import { trackEvent } from "@/lib/analytics";
 
 type Method = "WAVE" | "ORANGE_MONEY" | "STRIPE";
 
@@ -59,7 +61,7 @@ export async function markOrderPaid(
     const next = dueDates(order.createdAt, order.installmentCount, order.installmentIntervalDays)[k + 1];
     const res = await prisma.order.updateMany({
       where: { id: orderId, installmentsPaid: k, paymentStatus: { not: "PAYE" } },
-      data: { installmentsPaid: k + 1, installmentNextDue: next, installmentPaidDates: { push: new Date() }, ...(opts.externalRef ? { installmentRefs: { push: opts.externalRef } } : {}), ...(order.status === "EN_ATTENTE" ? { status: "CONFIRMEE" } : {}) },
+      data: { installmentsPaid: k + 1, installmentNextDue: next, installmentPaidDates: { push: new Date() }, ...(opts.externalRef ? { installmentRefs: { push: opts.externalRef } } : {}), ...(order.status === "NON_PAYEE" ? { status: "EN_ATTENTE" } : {}) },
     });
     if (res.count) {
       // 1re échéance reçue : les produits sont mis de côté (sortie du stock).
@@ -77,8 +79,9 @@ export async function markOrderPaid(
 
   // Réservation : l'acompte réserve le produit, sans clôturer le paiement ni verser de commission.
   if (due.part === "ACOMPTE") {
-    await markDepositPaid(orderId, opts.externalRef ?? null);
-    return true;
+    const marked = await markDepositPaid(orderId, opts.externalRef ?? null);
+    if (marked) await trackEvent({ name: "payment_confirmed", orderId, path: "/commande" }).catch((error) => console.error("[analytics] acompte", orderId, error));
+    return marked;
   }
 
   const res = await prisma.order.updateMany({
@@ -87,15 +90,20 @@ export async function markOrderPaid(
       paymentStatus: "PAYE",
       paidAt: new Date(),
       ...(opts.externalRef ? { paymentRef: opts.externalRef } : {}),
-      ...(order.status === "EN_ATTENTE" ? { status: "CONFIRMEE" } : {}),
+      // Payée en totalité : « Confirmée » (règle des statuts, lib/orders/payment-rules).
+      ...(order.status === "NON_PAYEE" || order.status === "EN_ATTENTE" ? { status: "CONFIRMEE" } : {}),
       ...(order.isReservation ? { reservationStatus: "SOLDEE" } : {}),
       ...(lastInstallment ? { installmentsPaid: order.installmentCount, installmentNextDue: null, installmentPaidDates: { push: new Date() }, ...(opts.externalRef ? { installmentRefs: { push: opts.externalRef } } : {}) } : {}),
     },
   });
   if (res.count === 0) return true; // un autre appel concurrent a déjà traité
 
+  await trackEvent({ name: "payment_confirmed", orderId, path: "/commande" }).catch((error) => console.error("[analytics] paiement", orderId, error));
+
   // Paiement effectif : les articles sortent du stock maintenant (une seule fois).
   await takeOrderStock(orderId).catch((e) => console.error("[stock] paiement", orderId, e));
+  // Vente d'un revendeur à crédit : défalquée de ce qu'il doit.
+  await safeDeduct(orderId);
 
   // Lien de paiement d'un revendeur : la livraison part en préparation maintenant, et le revendeur est prévenu.
   if (order.channel === "REVENDEUR" || isInstallmentOrder(order)) {
@@ -129,6 +137,9 @@ export async function markDepositPaid(orderId: string, externalRef: string | nul
     data: { depositPaidAt: new Date(), reservationStatus: "RESERVEE", ...(externalRef ? { paymentRef: externalRef } : {}) },
   });
   if (res.count === 0) return false;
+  // Acompte encaissé : la commande passe de « Non payée » à « En attente ».
+  const promoted = await prisma.order.updateMany({ where: { id: orderId, status: "NON_PAYEE" }, data: { status: "EN_ATTENTE" } });
+  if (promoted.count) await prisma.orderStatusHistory.create({ data: { orderId, status: "EN_ATTENTE" } }).catch(() => {});
   // Le client est prévenu tout de suite et automatiquement : commande confirmée, acompte versé, reste à payer.
   notifyOrderUpdate(orderId, "ACOMPTE");
   const order = await prisma.order.findUnique({ where: { id: orderId }, select: { customerName: true, depositAmount: true, items: { select: { productName: true, volumeLabel: true, quantity: true } } } });

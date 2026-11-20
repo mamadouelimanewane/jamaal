@@ -28,6 +28,7 @@ export async function updateMyShop(_prev: ShopState, fd: FormData): Promise<Shop
       .trim()
       .slice(0, 600) || null;
   const tagline = String(fd.get("tagline") ?? "").trim().replace(/\s+/g, " ").slice(0, 100) || null;
+  const shopName = fd.has("shopName") ? String(fd.get("shopName") ?? "").trim().replace(/\s+/g, " ").slice(0, 60) || null : undefined;
 
   const shopTheme = normalizeThemeId(String(fd.get("theme") ?? ""));
   const shopAccent = normalizeAccent(fd.get("accent"));
@@ -83,6 +84,7 @@ export async function updateMyShop(_prev: ShopState, fd: FormData): Promise<Shop
     data: {
       shopBio: bio,
       shopTagline: tagline,
+      ...(shopName !== undefined ? { shopName } : {}),
       shopTheme,
       shopAccent,
       shopHero,

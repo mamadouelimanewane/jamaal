@@ -44,7 +44,7 @@ export default async function LivraisonsPage() {
     prisma.order.count({ where: { deliveryStatus: "LIVREE", deliveredAt: { gte: new Date(new Date().setHours(0, 0, 0, 0)) } } }),
     // Toutes les autres commandes ouvertes (retrait, livrée par le consultant, sans étape de livraison) : assignables aussi.
     prisma.order.findMany({
-      where: { status: { in: ["EN_ATTENTE", "CONFIRMEE", "EXPEDIEE"] }, OR: [{ deliveryMode: { not: "LIVRAISON_JAMAAL" } }, { deliveryStatus: null }] },
+      where: { status: { in: ["NON_PAYEE", "EN_ATTENTE", "CONFIRMEE", "EXPEDIEE"] }, OR: [{ deliveryMode: { not: "LIVRAISON_JAMAAL" } }, { deliveryStatus: null }] },
       orderBy: { createdAt: "desc" },
       take: 150,
       select: { id: true, customerName: true, customerPhone: true, address: true, deliveryPlace: true, deliveryLat: true, deliveryLng: true, deliveryMode: true, total: true, paymentStatus: true, createdAt: true, consultant: { select: { name: true } }, livreur: { select: { name: true } } },

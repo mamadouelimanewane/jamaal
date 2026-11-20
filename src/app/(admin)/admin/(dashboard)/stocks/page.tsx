@@ -5,7 +5,7 @@ import { requireAdminPage } from "@/lib/admin-page-guard";
 import { getStockRows, stockTotals, type StockRow } from "@/lib/inventory-report";
 import { getCategories } from "@/lib/db-categories";
 import { formatPrice } from "@/lib/currency";
-import { StockTableRow } from "@/components/admin/StockTableRow";
+import { StockTableRow, type StockFormat } from "@/components/admin/StockTableRow";
 import { LiveSearchInput } from "@/components/admin/LiveSearchInput";
 import { filterStockRows, rankProducts } from "@/lib/admin-search";
 import { Suspense } from "react";
@@ -56,6 +56,15 @@ export default async function AdminStockPage({ searchParams }: { searchParams: P
   const pages = Math.max(1, Math.ceil(rows.length / PER_PAGE));
   const current = Math.min(pages, Math.max(1, Number(page) || 1));
   const shown = rows.slice((current - 1) * PER_PAGE, current * PER_PAGE);
+  // Tous les formats de chaque produit (même produit, ou même code Chogan), pour la fenêtre de mouvement.
+  const groupOf = (r: StockRow) => (r.productCode ? `c:${r.productCode}` : `p:${r.productId}`);
+  const formatsBy = new Map<string, StockFormat[]>();
+  for (const r of all) {
+    const g = groupOf(r);
+    const list = formatsBy.get(g) ?? [];
+    list.push({ key: r.key, productId: r.productId, variantId: r.variantId, format: r.format, code: r.code, stock: r.stock, status: r.status });
+    formatsBy.set(g, list);
+  }
   const link = (over: Record<string, string | undefined>) => {
     const p = new URLSearchParams();
     for (const [k, v] of Object.entries({ q: query, cat, statut, tri, ...over })) if (v) p.set(k, v);
@@ -152,7 +161,7 @@ export default async function AdminStockPage({ searchParams }: { searchParams: P
               </tr>
             </thead>
             <tbody>
-              {shown.map((r) => <StockTableRow key={r.key} row={r} />)}
+              {shown.map((r) => <StockTableRow key={r.key} row={r} formats={formatsBy.get(groupOf(r))} />)}
             </tbody>
           </table>
           {!shown.length && <p className="px-5 py-10 text-center text-[15px] text-navy/70">Aucun article ne correspond à ces filtres{query ? ` (« ${query} »)` : ""}. Essayez un code, un nom de parfum ou une marque.</p>}

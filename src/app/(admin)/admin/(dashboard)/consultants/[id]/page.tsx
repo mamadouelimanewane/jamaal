@@ -32,6 +32,7 @@ import {
 export const dynamic = "force-dynamic";
 
 const STATUS_LABELS: Record<string, string> = {
+  NON_PAYEE: "Non payée",
   EN_ATTENTE: "En attente",
   CONFIRMEE: "Confirmée",
   EXPEDIEE: "Expédiée",

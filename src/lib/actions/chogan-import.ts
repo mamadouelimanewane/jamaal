@@ -1,17 +1,14 @@
 "use server";
 
-import { put } from "@vercel/blob";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "./auth-guard";
 import { logActivity } from "@/lib/activity-log";
-import { getBusinessModel } from "@/lib/business-model-store";
 import { invalidateSearchIndex } from "@/lib/search-index";
-import { getCategories } from "@/lib/db-categories";
-import { classifyQuery, rankCards, type ChoganCard, type ChoganDetail } from "@/lib/chogan/parse";
+import { classifyQuery, rankCards, type ChoganCard } from "@/lib/chogan/parse";
 import { type ChoganPreview } from "@/lib/chogan/preview";
 import { createProductFromPreview, findExisting, previewFor, storePhotos, type ExistingProduct } from "@/lib/chogan/catalog-sync";
-import { ChoganError, fetchChoganDetail, fetchChoganImage, searchChogan } from "@/lib/chogan/client";
+import { ChoganError, fetchChoganDetail, searchChogan } from "@/lib/chogan/client";
 
 export type { ExistingProduct };
 

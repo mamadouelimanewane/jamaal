@@ -31,10 +31,10 @@ export default async function BusinessModelPage() {
       </div>
       {isCashFallbackActive(model) && (
         <div className="mt-6 rounded-2xl border border-amber-300 bg-amber-50 px-5 py-4 text-[15px] text-amber-950">
-          <p className="font-semibold">Paiement à la livraison proposé en secours</p>
+          <p className="font-semibold">Paiement à la livraison activé</p>
           <p className="mt-1">
-            Aucun paiement en ligne n&apos;est encore branché ({paymentProvidersStatus(model).filter((p) => p.id !== "cod").map((p) => `${p.label} : ${p.configured ? "configuré" : "non configuré"}`).join(" · ")}).
-            Pour ne pas bloquer les ventes, le panier propose le paiement à la livraison. Il disparaîtra automatiquement dès que Wave ou Orange Money sera configuré dans Vercel.
+            Aucun paiement en ligne accepté n&apos;est actuellement disponible ({paymentProvidersStatus(model).filter((p) => p.id !== "cod").map((p) => `${p.label} : ${p.configured && p.accepted ? "disponible" : p.accepted ? "non configuré" : "désactivé"}`).join(" · ")}).
+            Le panier propose le paiement à la livraison parce qu&apos;il a été activé dans le modèle économique. Désactivez-le après avoir configuré un moyen de paiement en ligne.
           </p>
         </div>
       )}

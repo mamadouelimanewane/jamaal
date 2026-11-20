@@ -1120,4 +1120,9 @@ export const IT: Record<string, string> = {
   "Aucun consultant ne correspond à cette recherche.": "Nessun consulente corrisponde a questa ricerca.",
   "{n} sur {total}": "{n} su {total}",
   "Effacer la recherche": "Cancella la ricerca",
+  "En rupture": "Esaurito",
+  "vous pouvez réserver ce produit": "puoi prenotare questo prodotto",
+  "Disponible à Dakar": "Disponibile a Dakar",
+  "Les parfums JAMAAL en petit flacon de 25 ou 30 ml : le plus accessible pour trouver votre sillage avant de choisir le grand format.": "I profumi JAMAAL in flacone piccolo da 25 o 30 ml: il modo più accessibile per trovare la tua scia prima di scegliere il formato grande.",
+  "Le même parfum, en petit flacon de 25 ou 30 ml": "Lo stesso profumo, in flacone piccolo da 25 o 30 ml",
 };

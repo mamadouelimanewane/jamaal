@@ -33,8 +33,15 @@ export function inspirationLabel(row: Pick<StockRow, "inspiredBy" | "inspiredBra
 
 const field = "rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink outline-none focus:border-navy focus:ring-2 focus:ring-navy/10";
 
-export function StockTableRow({ row }: { row: StockRow }) {
+/** Un format du produit, proposé dans la fenêtre de mouvement. */
+export type StockFormat = Pick<StockRow, "key" | "productId" | "variantId" | "format" | "code" | "stock" | "status">;
+
+export function StockTableRow({ row, formats = [] }: { row: StockRow; formats?: StockFormat[] }) {
   const [open, setOpen] = useState(false);
+  // Tous les formats du produit : on choisit dans la fenêtre celui qui bouge (celui de la ligne par défaut).
+  const choices: StockFormat[] = formats.length ? formats : [row];
+  const [pickedKey, setPickedKey] = useState(row.key);
+  const picked = choices.find((f) => f.key === pickedKey) ?? row;
   const [mode, setMode] = useState<"in" | "out" | "set">("in");
   const [state, action, pending] = useActionState(adjustStockAction, initial);
   const [tState, tAction, tPending] = useActionState(updateThresholdAction, initial);
@@ -53,7 +60,7 @@ export function StockTableRow({ row }: { row: StockRow }) {
             {row.categoryLabel}
           </span>
           {/* Sur téléphone, la dernière colonne est hors de l'écran : bouton ici aussi. */}
-          <button type="button" onClick={() => setOpen(true)} className="mt-1.5 inline-flex items-center gap-1 rounded-lg bg-navy px-3 py-1.5 text-xs font-semibold text-white sm:hidden">
+          <button type="button" onClick={() => { setPickedKey(row.key); setOpen(true); }} className="mt-1.5 inline-flex items-center gap-1 rounded-lg bg-navy px-3 py-1.5 text-xs font-semibold text-white sm:hidden">
             <ArrowLeftRight size={13} /> Saisir un mouvement
           </button>
         </td>
@@ -76,7 +83,7 @@ export function StockTableRow({ row }: { row: StockRow }) {
         <td className="whitespace-nowrap px-3 py-3 text-right text-navy/85">{row.coverageDays === null ? "—" : `${row.coverageDays} j`}</td>
         <td className="whitespace-nowrap px-3 py-3 text-right font-semibold text-navy">{row.toOrder ? fmt(row.toOrder) : "—"}</td>
         <td className="px-3 py-3 text-right">
-          <button type="button" onClick={() => setOpen(true)} aria-haspopup="dialog" className="inline-flex items-center gap-1 rounded-lg border border-line bg-white px-3 py-1.5 text-xs font-semibold text-navy hover:border-navy">
+          <button type="button" onClick={() => { setPickedKey(row.key); setOpen(true); }} aria-haspopup="dialog" className="inline-flex items-center gap-1 rounded-lg border border-line bg-white px-3 py-1.5 text-xs font-semibold text-navy hover:border-navy">
             <ArrowLeftRight size={14} /> Mouvement
           </button>
         </td>
@@ -87,7 +94,7 @@ export function StockTableRow({ row }: { row: StockRow }) {
             <div
               role="dialog"
               aria-modal="true"
-              aria-label={`Mouvement de stock : ${row.name} ${row.format}`}
+              aria-label={`Mouvement de stock : ${row.name} ${picked.format}`}
               className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:items-center sm:p-4"
               onClick={(e) => e.target === e.currentTarget && setOpen(false)}
               onKeyDown={(e) => e.key === "Escape" && setOpen(false)}
@@ -97,13 +104,38 @@ export function StockTableRow({ row }: { row: StockRow }) {
                   <div>
                     <p className="font-semibold text-ink">{row.name}</p>
                     {inspiration && <p className="text-xs font-medium text-[#8a5a44]">{inspiration}</p>}
-                    <p className="text-sm text-navy/75">{row.format}{row.code ? ` · ${row.code}` : ""} · stock actuel <strong>{fmt(row.stock)}</strong></p>
+                    <p className="text-sm text-navy/75">{picked.format}{picked.code ? ` · ${picked.code}` : ""} · stock actuel <strong>{fmt(picked.stock)}</strong></p>
                   </div>
                   <button type="button" onClick={() => setOpen(false)} aria-label="Fermer" className="rounded-lg p-2 text-navy/70 hover:bg-cream"><X size={18} /></button>
                 </div>
+                {choices.length > 1 && (
+                  <div className="mt-4">
+                    <p className="text-xs font-medium text-navy/80">Format ({choices.length})</p>
+                    <div role="radiogroup" aria-label="Format du produit" className="mt-1.5 grid grid-cols-2 gap-2 sm:grid-cols-3">
+                      {choices.map((f) => {
+                        const on = f.key === picked.key;
+                        return (
+                          <button
+                            key={f.key}
+                            type="button"
+                            role="radio"
+                            aria-checked={on}
+                            onClick={() => setPickedKey(f.key)}
+                            className={`rounded-xl border px-3 py-2 text-left text-sm ${on ? "border-navy bg-navy text-white" : "border-line bg-white text-navy hover:border-navy"}`}
+                          >
+                            <span className="block font-semibold">{f.format}</span>
+                            <span className={`block text-xs ${on ? "text-white/80" : "text-navy/65"}`}>
+                              {f.code ?? "sans code"} · stock {fmt(f.stock)}{f.status === "rupture" ? " · rupture" : ""}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
                 <form action={action} className="mt-4 flex flex-wrap items-end gap-3">
-                  <input type="hidden" name="productId" value={row.productId} />
-                  <input type="hidden" name="variantId" value={row.variantId ?? ""} />
+                  <input type="hidden" name="productId" value={picked.productId} />
+                  <input type="hidden" name="variantId" value={picked.variantId ?? ""} />
                   <input type="hidden" name="mode" value={mode} />
                   <div role="group" aria-label="Type de mouvement" className="flex rounded-lg border border-line bg-cream p-0.5 text-sm font-semibold">
                     {([["in", "Entrée"], ["out", "Sortie"], ["set", "Stock compté"]] as const).map(([m, l]) => (
@@ -122,7 +154,7 @@ export function StockTableRow({ row }: { row: StockRow }) {
                       </select>
                     </label>
                   )}
-                  <label className="min-w-[180px] flex-1 text-xs font-medium text-navy/80">
+                  <label className="basis-full text-xs font-medium text-navy/80 sm:basis-auto sm:min-w-[240px] sm:flex-1">
                     Précision
                     <input name="reason" maxLength={180} placeholder={mode === "set" ? "Inventaire du…" : "ex. casse en livraison"} className={`${field} mt-1 block w-full`} />
                   </label>

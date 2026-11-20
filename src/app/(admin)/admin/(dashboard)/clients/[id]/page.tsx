@@ -10,6 +10,7 @@ import { updateCustomerNotes } from "@/lib/actions/customers";
 export const dynamic = "force-dynamic";
 
 const statusLabels: Record<string, string> = {
+  NON_PAYEE: "Non payée",
   EN_ATTENTE: "En attente",
   CONFIRMEE: "Confirmée",
   EXPEDIEE: "Expédiée",

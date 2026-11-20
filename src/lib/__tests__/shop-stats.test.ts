@@ -41,3 +41,29 @@ test("statistiques boutique : taux et évolution", () => {
   assert.equal(trend(5, 10), -50);
   assert.equal(trend(5, 0), null);
 });
+
+import { detectSource } from "../shop/shop-stats";
+import { classifyAgent } from "../bot-guard";
+
+const FB_UA = "Mozilla/5.0 (Linux; Android 13; SM-A135F; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/119.0 Mobile Safari/537.36 [FB_IAB/FB4A;FBAV/440.0.0.30.110;]";
+const IG_UA = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 307.0.0.34.111 (iPhone14,5; iOS 17_1; fr_FR)";
+const TT_UA = "Mozilla/5.0 (Linux; Android 12; TECNO) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/110 Mobile Safari/537.36 trill_310503 BytedanceWebview/d8a21c6 musical_ly_2023";
+const CHROME = "Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Mobile Safari/537.36";
+
+test("detectSource : lien JAMAAL, identifiant de clic, navigateur intégré, site d'origine", () => {
+  assert.equal(detectSource({ search: "?utm_source=whatsapp", userAgent: FB_UA }), "whatsapp");
+  assert.equal(detectSource({ search: "?fbclid=IwAR0abc", userAgent: CHROME }), "facebook");
+  assert.equal(detectSource({ search: "", userAgent: FB_UA }), "facebook");
+  assert.equal(detectSource({ search: "", userAgent: IG_UA }), "instagram");
+  assert.equal(detectSource({ search: "?fbclid=x", userAgent: IG_UA }), "instagram");
+  assert.equal(detectSource({ search: "", userAgent: TT_UA }), "tiktok");
+  assert.equal(detectSource({ referrer: "https://l.facebook.com/", userAgent: CHROME }), "facebook");
+  assert.equal(detectSource({ referrer: "https://www.google.com/", userAgent: CHROME }), "google");
+  assert.equal(detectSource({ referrer: "https://blog.exemple.sn/x", userAgent: CHROME }), "autre");
+  assert.equal(detectSource({ referrer: "https://www.jamaal.sn/parfums", host: "www.jamaal.sn", userAgent: CHROME }), "direct");
+  assert.equal(detectSource({ userAgent: CHROME }), "direct");
+});
+
+test("les navigateurs intégrés de Facebook, Instagram et TikTok comptent comme des visiteurs", () => {
+  for (const ua of [FB_UA, IG_UA, TT_UA]) assert.equal(classifyAgent(ua), "human");
+});

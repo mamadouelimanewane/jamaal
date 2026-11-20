@@ -59,6 +59,16 @@ export default async function ShopStatsPage({ searchParams }: { searchParams: Pr
       </div>
 
       <section className="rounded-2xl border border-line bg-white p-5">
+        <h2 className="text-sm font-semibold text-navy">D&apos;où viennent vos visiteurs</h2>
+        <p className="mt-1 text-xs text-navy/65">Visites de votre boutique selon le réseau d&apos;où elles arrivent : liens partagés depuis JAMAAL, publications Facebook, Instagram ou TikTok (reconnues même si le lien a été copié à la main), recherche Google. « Direct » : lien tapé ou ouvert sans origine connue. Les réseaux ne communiquent pas les vues de vos publications, seulement les visites qu&apos;elles amènent.</p>
+        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {([ ["WhatsApp", "whatsapp"], ["Facebook", "facebook"], ["Instagram", "instagram"], ["TikTok", "tiktok"], ["Snapchat", "snapchat"], ["Google", "google"], ["Autres sites", "autre"], ["Direct / inconnu", "direct"] ] as const).map(([label, key]) => (
+            <div key={key} className="rounded-xl bg-cream/70 p-3"><p className="text-xs text-navy/65">{label}</p><p className="mt-1 text-xl font-semibold tabular-nums text-navy">{F(s.socialSources[key])}</p></div>
+          ))}
+        </div>
+      </section>
+
+      <section className="rounded-2xl border border-line bg-white p-5">
         <h2 className="text-sm font-semibold text-navy">Visiteurs par jour</h2>
         {s.visitors === 0 ? (
           <p className="mt-3 text-sm text-navy/70">Aucune visite sur cette période. Partagez votre lien de bio (Ma boutique) sur Instagram, TikTok et votre statut WhatsApp.</p>

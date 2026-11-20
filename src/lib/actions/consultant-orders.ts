@@ -220,8 +220,9 @@ async function placeConsultantOrder(formData: FormData): Promise<string> {
       channel: "REVENDEUR",
       ...(coupon ? { offerTitle: `code ${coupon.code}`, ...(coupon.source === "coupon" ? { couponId: coupon.id } : {}) } : {}),
       ...deliveryData,
-      status: "CONFIRMEE",
-      statusHistory: { create: { status: "CONFIRMEE" } },
+      // Payée tout de suite (wallet, encaissement) : « Confirmée » ; sinon « Non payée » jusqu'au paiement.
+      status: payWithWallet || (collect && isCollectMethod(collect)) ? ("CONFIRMEE" as const) : ("NON_PAYEE" as const),
+      statusHistory: { create: { status: payWithWallet || (collect && isCollectMethod(collect)) ? ("CONFIRMEE" as const) : ("NON_PAYEE" as const) } },
       items: { create: items },
       ...(deliveryData.deliveryStatus && !payLink ? { deliveryEvents: { create: { status: "A_PREPARER", note: `${deliveryNote} · ${deliveryData.deliveryDistanceKm} km du dépôt` } } } : {}),
       // Lien de paiement : la livraison ne part en préparation qu'une fois le paiement reçu (markOrderPaid).

@@ -19,6 +19,7 @@ import { formatPrice } from "@/lib/currency";
 import type { StockRow } from "@/lib/inventory-report";
 import { ShareStudio } from "@/components/admin/ShareStudio";
 import type { ShareItem } from "@/lib/share-text";
+import { startingPrice } from "@/lib/price-from";
 
 /** Produits partagés à la fois (images préparées pour chacun). */
 const MAX_SHARE = 10;
@@ -43,10 +44,13 @@ export function HandbookView({ rows, refSlug, origin }: HandbookViewProps) {
   /** Produits de la sélection (un par produit, même si plusieurs formats sont cochés). */
   const shareItems = useMemo<ShareItem[]>(() => {
     const out = new Map<string, ShareItem>();
+    const formats = new Map<string, { label: string; price: number }[]>();
     for (const r of rows) {
       if (!selectedKeys.includes(r.key) || r.stock <= 0) continue;
       const prev = out.get(r.slug);
-      const price = prev?.price != null && r.salePrice != null ? Math.min(prev.price, r.salePrice) : (prev?.price ?? r.salePrice);
+      if (r.salePrice != null) formats.set(r.slug, [...(formats.get(r.slug) ?? []), { label: r.format, price: r.salePrice }]);
+      // Prix d'appel : le plus petit flacon, pas la recharge (lib/price-from).
+      const price = startingPrice(null, formats.get(r.slug) ?? []);
       out.set(r.slug, { slug: r.slug, name: r.name, price, choganCode: r.productCode, inspiredBy: r.inspiredBy, multiFormat: !!prev });
     }
     return [...out.values()].slice(0, MAX_SHARE);

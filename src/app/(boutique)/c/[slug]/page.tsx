@@ -19,16 +19,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const shop = await getConsultantShop(slug).catch(() => null);
   if (!shop) return { title: "Boutique JAMAAL" };
-  const first = shop.consultant.name.split(/\s+/)[0];
+  const first = shop.consultant.shopName ?? shop.consultant.name.split(/\s+/)[0];
   const description =
     (shop.consultant.bio ? shop.consultant.bio.replace(/\s+/g, " ").slice(0, 160) : "") ||
     shop.consultant.tagline ||
     `La boutique de ${first}, conseiller·e JAMAAL à ${shop.consultant.city} : conseil parfum, commande sur WhatsApp et livraison.`;
   return {
-    title: `La boutique de ${first}`,
+    title: shop.consultant.shopName ?? `La boutique de ${first}`,
     description,
     openGraph: {
-      title: `La boutique de ${first} · JAMAAL`,
+      title: `${shop.consultant.shopName ?? `La boutique de ${first}`} · JAMAAL`,
       description,
       images: shop.consultant.photo ? [shop.consultant.photo] : shop.products[0]?.photo ? [shop.products[0].photo] : undefined,
     },
@@ -65,7 +65,8 @@ export default async function ConsultantShopPage({ params }: Props) {
   const { theme, hero, hidden } = look;
   const show = (s: (typeof hidden)[number]) => !hidden.includes(s);
 
-  const first = c.name.split(/\s+/)[0];
+  // Nom de boutique rempli : il remplace partout le nom (et le prénom) du revendeur.
+  const first = c.shopName ?? c.name.split(/\s+/)[0];
   const ref = `?ref=${c.slug}`;
   const origin = (await getSiteUrl().catch(() => "")).replace(/\/$/, "");
   const wa = shopWhatsAppLink(c.whatsapp, `Bonjour ${first}, je visite votre boutique JAMAAL (${origin}/c/${c.slug}) : j'aimerais un conseil parfum.`);
@@ -175,7 +176,7 @@ export default async function ConsultantShopPage({ params }: Props) {
         <section aria-label="Votre conseiller" className="mx-auto max-w-[1240px] px-4 pb-14 pt-6 sm:px-6 sm:pt-12">
           <div className="sh-accent-bg rounded-[28px] px-6 py-12 text-center sm:px-12 sm:py-16">
             <div className={c.logo ? "mx-auto inline-block rounded-2xl bg-white px-6 py-4" : ""}>{mark}</div>
-            <p className="mt-8 text-xs uppercase tracking-[0.26em]">Votre conseiller JAMAAL · {c.city}</p>
+            <p className="mt-8 text-xs uppercase tracking-[0.26em]">{c.shopName ? "Votre boutique JAMAAL" : "Votre conseiller JAMAAL"} · {c.city}</p>
             <h1 className="sh-display mt-4 text-[clamp(40px,7vw,80px)] leading-[1]">{c.name}</h1>
             <p className="sh-display mt-4 text-xl italic sm:text-2xl">{tagline}</p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
@@ -189,11 +190,11 @@ export default async function ConsultantShopPage({ params }: Props) {
         <section aria-label="Votre conseiller" className="mx-auto max-w-[920px] px-4 pb-16 pt-10 text-center sm:px-6 sm:pb-20 sm:pt-14">
           {mark}
           {avatar}
-          <p className="sh-eyebrow mt-8">La boutique de votre conseiller JAMAAL · {c.city}</p>
+          <p className="sh-eyebrow mt-8">{c.shopName ? "Boutique JAMAAL" : "La boutique de votre conseiller JAMAAL"} · {c.city}</p>
           <h1 className="sh-display mt-4 text-[clamp(42px,8vw,84px)] leading-[0.98]">{c.name}</h1>
           <p className="sh-display sh-acc mt-4 text-xl italic sm:text-2xl">{tagline}</p>
           <p className="sh-muted mx-auto mt-5 max-w-[38rem] whitespace-pre-line text-base leading-relaxed sm:text-[17px]">
-            {c.bio || `Conseiller·e JAMAAL à ${c.city}. Dites-moi ce que vous aimez porter : je vous guide vers le parfum qui vous ressemble, et je vous le fais livrer.`}
+            {c.bio || `${c.shopName ? `${c.shopName}, boutique JAMAAL à ${c.city}.` : `Conseiller·e JAMAAL à ${c.city}.`} Dites-moi ce que vous aimez porter : je vous guide vers le parfum qui vous ressemble, et je vous le fais livrer.`}
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             {waButton(`Échanger avec ${first}`)}
@@ -266,8 +267,13 @@ export default async function ConsultantShopPage({ params }: Props) {
                       <Link href={`/produits/${p.slug}${ref}`} data-track="produit" data-product={p.id} className="sh-link sh-display text-lg leading-snug sm:text-[22px]">{p.name}</Link>
                       {p.inspiredBy && <span className="sh-muted line-clamp-2 text-[13px]">Inspiration : {p.inspiredBy}</span>}
                       <span className="mt-2 text-[15px] font-medium tabular-nums">{price(p)}</span>
+                      {p.inStock ? (
+                        <span className="text-[13px] font-medium text-emerald-700">Disponible à Dakar</span>
+                      ) : (
+                        <span className="text-[13px] leading-snug"><strong>En rupture</strong> · vous pouvez réserver ce produit</span>
+                      )}
                       <div className="mt-auto flex gap-2 pt-3">
-                        <Link href={`/produits/${p.slug}${ref}`} data-track="produit" data-product={p.id} className="sh-btn sh-btn-primary sh-btn-small min-w-0 flex-1 px-3">Commander</Link>
+                        <Link href={`/produits/${p.slug}${ref}`} data-track="produit" data-product={p.id} className="sh-btn sh-btn-primary sh-btn-small min-w-0 flex-1 px-3">{p.inStock ? "Commander" : "Réserver"}</Link>
                         {ask && (
                           <a href={ask} data-track="whatsapp" target="_blank" rel="noopener noreferrer" aria-label={`Demander ${p.name} sur WhatsApp`} className="sh-icon-btn sh-btn-wa">
                             <WaIcon />
@@ -333,7 +339,7 @@ export default async function ConsultantShopPage({ params }: Props) {
             <p className="mt-3 max-w-xs text-sm leading-relaxed">Parfums et soins de la Maison JAMAAL, conseillés et livrés par votre conseiller.</p>
           </div>
           <div className="flex-[1_1_200px] text-sm leading-8">
-            <p className="text-[11px] uppercase tracking-[0.24em]">Votre conseiller</p>
+            <p className="text-[11px] uppercase tracking-[0.24em]">{c.shopName ? "La boutique" : "Votre conseiller"}</p>
             <p>{c.name} · {c.city}</p>
             {wa && <a href={wa} data-track="whatsapp" target="_blank" rel="noopener noreferrer">WhatsApp : {c.whatsapp}</a>}
           </div>
@@ -345,7 +351,7 @@ export default async function ConsultantShopPage({ params }: Props) {
           </div>
         </div>
         <p className="mx-auto max-w-[1240px] px-4 pb-7 pt-5 text-xs sm:px-6">
-          © {new Date().getFullYear()} JAMAAL Luxury Cosmetics · Boutique de {c.name}, conseiller·e agréé·e
+          © {new Date().getFullYear()} JAMAAL Luxury Cosmetics · {c.shopName ? `${c.shopName}, boutique agréée` : `Boutique de ${c.name}, conseiller·e agréé·e`}
         </p>
       </footer>
     </div>

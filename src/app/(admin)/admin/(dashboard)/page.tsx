@@ -34,6 +34,7 @@ import {
   RANK_LABELS,
 } from "@/lib/ranking";
 import { getConsultantCommission } from "@/lib/commission";
+import { resellerDebt } from "@/lib/goods-credit";
 import { getRefundedTotal } from "@/lib/revenue";
 import { Undo2, FileSpreadsheet } from "lucide-react";
 import { repairConsultantLink } from "@/lib/account-link";
@@ -42,6 +43,7 @@ import { NotReseller } from "@/components/admin/NotReseller";
 export const dynamic = "force-dynamic";
 
 const statusLabels: Record<string, string> = {
+  NON_PAYEE: "Non payée",
   EN_ATTENTE: "En attente",
   CONFIRMEE: "Confirmée",
   EXPEDIEE: "Expédiée",
@@ -70,7 +72,7 @@ async function AdminOverview() {
       (rows) => Number(rows[0]?.count ?? 0)
     ),
     prisma.order.count(),
-    prisma.order.count({ where: { status: "EN_ATTENTE" } }),
+    prisma.order.count({ where: { status: { in: ["NON_PAYEE", "EN_ATTENTE"] } } }),
     prisma.consultant.count({ where: { active: true } }),
     prisma.livreur.count({ where: { active: true } }),
     prisma.customer.count(),
@@ -89,7 +91,7 @@ async function AdminOverview() {
     { label: "Produits au catalogue", value: productCount, icon: Package, color: "navy" as const, href: "/admin/produits" },
     { label: "Stock bas", value: lowStockCount, icon: AlertTriangle, color: "amber" as const, href: "/admin/produits" },
     { label: "Commandes totales", value: orderCount, icon: ShoppingCart, color: "blue" as const, href: "/admin/commandes" },
-    { label: "Commandes en attente", value: pendingOrders, icon: ShoppingCart, color: "red" as const, href: "/admin/commandes" },
+    { label: "Non payées ou en attente", value: pendingOrders, icon: ShoppingCart, color: "red" as const, href: "/admin/commandes" },
     { label: "Retours en attente", value: pendingReturns, icon: Undo2, color: "amber" as const, href: "/admin/retours" },
     { label: "Consultants actifs", value: consultantCount, icon: Users, color: "purple" as const, href: "/admin/consultants" },
     { label: "Livreurs actifs", value: livreurCount, icon: Bike, color: "emerald" as const, href: "/admin/livreurs" },
@@ -111,6 +113,16 @@ async function AdminOverview() {
         </a>
       </div>
       <p className="mt-1 text-sm text-navy/75">Vue d&apos;ensemble de l&apos;activité JAMAAL.</p>
+
+      <section className="mt-6 rounded-2xl border border-line bg-white p-4 sm:p-5">
+        <h2 className="font-serif-display text-lg font-semibold text-navy">À traiter en priorité</h2>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {pendingOrders > 0 && <Link href="/admin/commandes" className="rounded-full bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-900">{pendingOrders} commande(s) non payée(s) ou en attente · Ouvrir</Link>}
+          {pendingReturns > 0 && <Link href="/admin/retours" className="rounded-full bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-900">{pendingReturns} retour(s) à traiter · Ouvrir</Link>}
+          {lowStockCount > 0 && <Link href="/admin/stocks" className="rounded-full bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-900">{lowStockCount} référence(s) en stock bas · Vérifier</Link>}
+          {pendingOrders === 0 && pendingReturns === 0 && lowStockCount === 0 && <p className="text-sm text-emerald-800">Aucune action urgente pour le moment.</p>}
+        </div>
+      </section>
 
       <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-3">
         {cards.map((c) => (
@@ -173,7 +185,7 @@ async function ConsultantOverview({ userId }: { userId: string }) {
   const [orderCount, pending, delivered, unread, rankInfo, team, allRankings, commission, history, leaderboard] =
     await Promise.all([
       prisma.order.count({ where: { consultantId } }),
-      prisma.order.count({ where: { consultantId, status: { in: ["EN_ATTENTE", "CONFIRMEE", "EXPEDIEE"] } } }),
+      prisma.order.count({ where: { consultantId, status: { in: ["NON_PAYEE", "EN_ATTENTE", "CONFIRMEE", "EXPEDIEE"] } } }),
       prisma.order.count({ where: { consultantId, status: "LIVREE" } }),
       prisma.notification.count({ where: { userId, read: false } }),
       getConsultantRank(consultantId),
@@ -184,6 +196,7 @@ async function ConsultantOverview({ userId }: { userId: string }) {
       getMonthlyLeaderboard(50),
     ]);
 
+  const goodsDebt = await resellerDebt(consultantId);
   const rankById = new Map(allRankings.map((r) => [r.consultantId, r]));
   const progress = getProgressToNextRank(rankInfo);
   const myPosition = leaderboard.findIndex((e) => e.consultantId === consultantId);
@@ -213,6 +226,16 @@ async function ConsultantOverview({ userId }: { userId: string }) {
       <div className="mt-6">
         <WalletHero {...(await walletBalance({ type: "CONSULTANT", id: consultantId }))} />
       </div>
+
+      {goodsDebt > 0 && (
+        <Link href="/admin/mes-credits" className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 hover:border-amber-400">
+          <span>
+            <span className="block text-sm font-semibold text-amber-950">Crédit de marchandises : {formatPrice(goodsDebt)} à rembourser</span>
+            <span className="block text-xs text-amber-900/80">Vos ventes payées sont défalquées automatiquement.</span>
+          </span>
+          <span className="text-sm font-semibold text-amber-950">Mes crédits →</span>
+        </Link>
+      )}
 
       <div className="mt-6">
         <LiveEarnings consultantId={consultantId} />

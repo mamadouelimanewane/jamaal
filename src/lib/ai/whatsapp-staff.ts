@@ -8,7 +8,7 @@
 import { prisma } from "@/lib/prisma";
 import { phoneTail } from "@/lib/phone-match";
 import { placeOrder, type CheckoutItem } from "@/lib/orders/place-order";
-import { setOrderStatus } from "@/lib/orders/status";
+import { OrderStatusError, setOrderStatus } from "@/lib/orders/status";
 import { runChat, systemPrompt, type ChatMessage } from "./assistant";
 import { runTool, toolsFor, type AssistantScope } from "./assistant-tools";
 import { pickFormat, resolveProduct } from "./whatsapp-sales";
@@ -144,7 +144,12 @@ async function changeStatus(args: Args) {
   const o = found[0];
   if (args.confirme !== true) return { aConfirmer: { numero: ref.toUpperCase(), client: o.customerName, total: o.total, statutActuel: o.status, nouveauStatut: status } };
   if (o.status === status) return { info: "La commande a déjà ce statut." };
-  await setOrderStatus(o.id, status);
+  try {
+    await setOrderStatus(o.id, status);
+  } catch (e) {
+    if (e instanceof OrderStatusError) return { erreur: e.message };
+    throw e;
+  }
   return { fait: true, numero: o.id.slice(-8).toUpperCase(), ancienStatut: o.status, nouveauStatut: status, clientPrevenu: true };
 }
 

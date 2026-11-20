@@ -7,13 +7,14 @@ import { requireAdmin, requireLivreurProfile } from "./auth-guard";
 import { OrderStatus } from "@prisma/client";
 import { placeOrder, type CheckoutCustomer, type CheckoutDelivery, type CheckoutItem } from "@/lib/orders/place-order";
 export type { CheckoutCustomer, CheckoutDelivery, CheckoutItem };
-import { setOrderStatus } from "@/lib/orders/status";
+import { OrderStatusError, setOrderStatus } from "@/lib/orders/status";
 import type { Prisma } from "@prisma/client";
 import { getBusinessModel } from "@/lib/business-model-store";
 import { isValidPoint, quoteDelivery } from "@/lib/delivery";
 import { advanceDelivery, DeliveryError, ensureJamaalDelivery } from "@/lib/delivery-engine";
 import { logActivity } from "@/lib/activity-log";
 import { backWithError } from "@/lib/form-error";
+import { trackEvent } from "@/lib/analytics";
 
 /**
  * Crée une commande publique (checkout client).
@@ -55,12 +56,15 @@ export async function createOrder(
   reservation: boolean = false,
   couponCode: string = "",
   gift: unknown = null,
-  installments: number = 0
+  installments: number = 0,
+  analyticsSessionId?: string
 ): Promise<CreateOrderResult> {
   try {
     // Les options internes (clé de limitation…) ne viennent jamais du navigateur.
     const code = typeof couponCode === "string" ? couponCode.slice(0, 40) : "";
-    return { ok: true, id: await placeOrder(customer, items, consultantId, acceptCgv, giftWrap, giftMessage, delivery, reservation, { couponCode: code, gift: giftWrap ? cleanGiftInfo(gift) : undefined, installments: Number(installments) || 0 }) };
+    const id = await placeOrder(customer, items, consultantId, acceptCgv, giftWrap, giftMessage, delivery, reservation, { couponCode: code, gift: giftWrap ? cleanGiftInfo(gift) : undefined, installments: Number(installments) || 0 });
+    await trackEvent({ name: "order_created", path: reservation ? "/reserver" : "/panier", orderId: id, sessionId: analyticsSessionId }).catch((error) => console.error("[analytics] commande", id, error));
+    return { ok: true, id };
   } catch (e) {
     const internal = !(e instanceof Error) || /^PrismaClient/.test(e.constructor.name);
     if (internal) console.error("[commande]", e);
@@ -69,9 +73,15 @@ export async function createOrder(
 }
 
 
-export async function updateOrderStatus(id: string, status: OrderStatus) {
+export async function updateOrderStatus(id: string, status: OrderStatus): Promise<{ ok: true } | { ok: false; error: string }> {
   await requireAdmin("commandes");
-  await setOrderStatus(id, status);
+  try {
+    await setOrderStatus(id, status);
+    return { ok: true };
+  } catch (e) {
+    if (e instanceof OrderStatusError) return { ok: false, error: e.message };
+    throw e;
+  }
 }
 
 /**
@@ -153,7 +163,9 @@ export async function livreurUpdateOrderStatus(id: string, status: OrderStatus) 
   const { livreur } = await requireLivreurProfile();
   const order = await prisma.order.findUnique({ where: { id } });
   if (!order || order.livreurId !== livreur.id) return;
-  await setOrderStatus(id, status);
+  await setOrderStatus(id, status).catch((e) => {
+    if (!(e instanceof OrderStatusError)) throw e;
+  });
   revalidatePath("/admin/mes-livraisons");
 }
 
@@ -191,9 +203,10 @@ export async function getOrderConfirmation(id: string) {
       installmentsPaid: true,
       installmentIntervalDays: true,
       installmentRefs: true,
-      consultant: { select: { name: true, city: true, whatsapp: true } },
+      consultant: { select: { name: true, shopName: true, city: true, whatsapp: true } },
       items: {
         select: {
+          productId: true,
           productName: true,
           volumeLabel: true,
           price: true,

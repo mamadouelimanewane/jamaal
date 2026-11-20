@@ -2,6 +2,7 @@
  * Module livraison : étapes, géolocalisation, code de remise, part du livreur.
  * Fichier serveur uniquement (appelé par les actions protégées admin / livreur).
  */
+import { safeDeduct } from "@/lib/goods-credit";
 import { creditLivreurEarnings } from "@/lib/wallet";
 import { balanceOf } from "@/lib/reservation";
 import { takeOrderStock } from "@/lib/stock";
@@ -167,14 +168,14 @@ export async function advanceDelivery(
       data: {
         deliveryStatus: to,
         ...(to === "ASSIGNEE" ? { livreurId } : {}),
-        ...(orderStatus && !(orderStatus === "CONFIRMEE" && order.status !== "EN_ATTENTE") ? { status: orderStatus } : {}),
+        ...(orderStatus && orderStatus !== "CONFIRMEE" ? { status: orderStatus } : {}),
         ...(to === "LIVREE" ? { deliveredAt: now, deliveredDistanceM } : {}),
       },
     }),
     prisma.deliveryEvent.create({
       data: { orderId, livreurId, status: to, lat: hasPoint ? point.lat : null, lng: hasPoint ? point.lng : null, note: opts.note?.trim().slice(0, 300) || null },
     }),
-    ...(orderStatus && orderStatus !== order.status ? [prisma.orderStatusHistory.create({ data: { orderId, status: orderStatus } })] : []),
+    ...(orderStatus && orderStatus !== "CONFIRMEE" && orderStatus !== order.status ? [prisma.orderStatusHistory.create({ data: { orderId, status: orderStatus } })] : []),
     ...(hasPoint && actor.kind === "livreur"
       ? [
           prisma.livreur.update({ where: { id: actor.livreurId }, data: { lastLat: point.lat, lastLng: point.lng, lastSeenAt: now } }),
@@ -284,6 +285,7 @@ export async function settleCashOnDelivery(orderId: string): Promise<number> {
     create: { ownerType: "LIVREUR", ownerId: o.livreurId, amount: -amount, kind: "ENCAISSEMENT", sourceId: `cod:${orderId}`, orderId, note: `Espèces encaissées · commande ${orderId.slice(-8).toUpperCase()} (à reverser)` },
   });
   await takeOrderStock(orderId, null).catch((e) => console.error("[livraison] stock", orderId, e));
+  await safeDeduct(orderId);
   return amount;
 }
 

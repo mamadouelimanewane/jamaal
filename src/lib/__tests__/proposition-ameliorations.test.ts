@@ -19,10 +19,10 @@ test("barre du haut : place au classement du mois", () => {
 
 test("partage : un produit, plusieurs produits, TikTok ; liens avec le code du revendeur", () => {
   const one = shareMessage([{ slug: "aqua", name: "Aqua Soul", price: 12500, inspiredBy: "Acqua di Gio" }], "https://j.sn", "awa");
-  assert.match(one, /^Aqua Soul \(inspiré de Acqua di Gio\) — 12\s500 FCFA\. Commande ici : https:\/\/j\.sn\/produits\/aqua\?ref=awa$/);
+  assert.match(one, /^Aqua Soul \(inspiré de Acqua di Gio\) — 12\s500 FCFA\. Commande ici : https:\/\/j\.sn\/produits\/aqua\?ref=awa&utm_source=whatsapp&utm_medium=social&utm_campaign=revendeur$/);
   const many = shareMessage([{ slug: "a", name: "A", price: 1000 }, { slug: "b", name: "B" }], "https://j.sn", null);
   assert.match(many, /Ma sélection JAMAAL/);
-  assert.match(many, /• A — 1\s000 FCFA : https:\/\/j\.sn\/produits\/a\n• B : https:\/\/j\.sn\/produits\/b/);
+  assert.match(many, /• A — 1\s000 FCFA : https:\/\/j\.sn\/produits\/a\?utm_source=whatsapp[^\n]*\n• B : https:\/\/j\.sn\/produits\/b\?utm_source=whatsapp/);
   const tiktok = shareMessage([{ slug: "a", name: "A" }], "https://j.sn", "awa", "tiktok");
   assert.match(tiktok, /https:\/\/j\.sn\/c\/awa/);
   assert.match(tiktok, /#JAMAAL/);
@@ -137,4 +137,18 @@ test("partage Instagram : liste des produits, renvoi au lien de la bio, hashtags
   assert.match(t, /^Aqua — 1\s000 FCFA\nRose\n/);
   assert.match(t, /lien dans ma bio : j\.sn\/c\/awa/);
   assert.match(t, /#skincare/);
+});
+
+test("prix « à partir de » : la recharge 15 ml ne sert pas de prix d'appel", async () => {
+  const { startingPrice } = await import("../price-from");
+  assert.equal(startingPrice(28_700, [{ label: "15 ml · recharge", price: 9_800 }, { label: "30 ml", price: 14_800 }, { label: "70 ml", price: 28_700 }]), 14_800);
+  assert.equal(startingPrice(null, [{ label: "15 ml", price: 9_800 }, { label: "25 ml", price: 13_500 }]), 13_500);
+  assert.equal(startingPrice(null, [{ label: "15 ml · recharge", price: 9_800 }]), 9_800);
+});
+
+test("formats en vente : sans 15 ml ni recharge, sauf produit qui n'existe qu'ainsi", async () => {
+  const { sellableVolumes } = await import("../price-from");
+  assert.deepEqual(sellableVolumes([{ label: "70 ml" }, { label: "30 ml" }, { label: "15 ml · recharge" }]).map((v) => v.label), ["70 ml", "30 ml"]);
+  assert.deepEqual(sellableVolumes([{ label: "15 ml" }]).map((v) => v.label), ["15 ml"]);
+  assert.deepEqual(sellableVolumes([{ label: "Format unique" }]).map((v) => v.label), ["Format unique"]);
 });

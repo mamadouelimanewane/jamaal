@@ -53,7 +53,7 @@ export default async function TrackingPage({
       )}
       {order.deliveryMode === "RETRAIT_CONSULTANT" && order.consultant && (
         <p className="mt-4 text-center text-sm text-navy/60">
-          {t("Votre colis est remis par votre consultant·e")} {order.consultant.name}.
+          {t("Votre colis est remis par votre consultant·e")} {order.consultant.shopName ?? order.consultant.name}.
         </p>
       )}
 
