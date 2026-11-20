@@ -51,13 +51,8 @@ export async function sendWhatsApp(
     const cfg = whatsappConfig();
     if (!to || to.length < 8) {
       result = { status: "ECHEC", error: "Numéro invalide" };
-    } else if (cfg.active) {
-      result =
-        cfg.provider === "meta"
-          ? await sendViaMeta(to, body, rich)
-          : await sendViaTwilio(to, opts.cta ? `${body}\n${opts.cta.label} : ${opts.cta.url}` : body);
     } else {
-      // Utilise la passerelle API Cloud KwingoChat (compte Jamaal Luxury +221 71 180 09 09) si connectée
+      // 1. Priorité à la passerelle API Cloud KwingoChat (compte Jamaal Luxury +221 71 180 09 09) si connectée
       const kwingo = await sendViaKwingoConnection({
         to,
         text: opts.cta ? `${body}\n${opts.cta.label} : ${opts.cta.url}` : body,
@@ -69,6 +64,11 @@ export async function sendWhatsApp(
         result = kwingo.ok
           ? { status: kwingo.simulated ? "SIMULE" : "ENVOYE", providerId: kwingo.providerId }
           : { status: "ECHEC", error: kwingo.error };
+      } else if (cfg.active) {
+        result =
+          cfg.provider === "meta"
+            ? await sendViaMeta(to, body, rich)
+            : await sendViaTwilio(to, opts.cta ? `${body}\n${opts.cta.label} : ${opts.cta.url}` : body);
       } else {
         result = { status: "SIMULE" };
       }
