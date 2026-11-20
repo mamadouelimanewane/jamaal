@@ -120,7 +120,7 @@ function later(task: () => Promise<unknown>) {
   }
 }
 
-/** Prévient l'équipe (Jamaal1 et Jamaal2). */
+/** Prévient l'équipe sur le(s) numéro(s) de lib/contact. */
 export function notifyTeamWhatsApp(text: string) {
   later(async () => {
     for (const c of WHATSAPP_CONTACTS) await sendWhatsApp({ to: c.number, text, kind: "team" });
