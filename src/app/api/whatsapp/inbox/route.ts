@@ -264,8 +264,8 @@ export async function GET(req: NextRequest) {
         .update({ where: { phone: activePhone }, data: { lastReadAt: new Date() } })
         .catch(() => { }),
     ]);
-    // Ordre chronologique strict : du plus ancien en haut au plus récent en bas
-    activeMessages = msgs.reverse();
+    // Ordre antéchronologique : les messages les plus récents en haut
+    activeMessages = msgs;
 
     const tail = phoneTail(activePhone);
     if (tail) {

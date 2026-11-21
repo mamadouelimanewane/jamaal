@@ -233,10 +233,10 @@ export function KwingoInboxWindow({
         });
         if (!res.ok) return;
         const json = (await res.json()) as InboxPayload;
-        // Garanti un affichage strictement chronologique (du plus ancien en haut au plus récent en bas)
+        // Tri strict : les messages les plus récents en haut
         if (Array.isArray(json.messages)) {
           json.messages.sort(
-            (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+            (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
           );
         }
         setData(json);
@@ -267,26 +267,25 @@ export function KwingoInboxWindow({
   }, [loadInbox]);
 
   // Défilement interne UNIQUEMENT dans le conteneur des messages (jamais la page entière) :
-  // - à l'ouverture / changement de conversation
-  // - ou lorsqu'un nouveau message arrive ET que l'utilisateur était déjà proche du bas
+  // - à l'ouverture / changement de conversation : retour en haut (messages les plus récents)
+  // - lorsqu'un nouveau message arrive en haut ET que l'utilisateur était déjà proche du haut
   useEffect(() => {
     const el = messagesContainerRef.current;
     if (!el) return;
     const currentPhone = data?.activePhone || selectedPhone || "";
     const msgs = data?.messages ?? [];
-    const latestId = msgs.length > 0 ? msgs[msgs.length - 1].id : "";
+    const latestId = msgs.length > 0 ? msgs[0].id : "";
 
     const phoneChanged = currentPhone !== lastScrolledPhoneRef.current;
     const hasNewMessage = latestId !== "" && latestId !== lastMessageIdRef.current;
 
     if (phoneChanged) {
-      el.scrollTop = el.scrollHeight;
+      el.scrollTop = 0;
       lastScrolledPhoneRef.current = currentPhone;
       lastMessageIdRef.current = latestId;
     } else if (hasNewMessage) {
-      const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
-      if (distanceFromBottom < 140) {
-        el.scrollTop = el.scrollHeight;
+      if (el.scrollTop < 140) {
+        el.scrollTop = 0;
       }
       lastMessageIdRef.current = latestId;
     }
