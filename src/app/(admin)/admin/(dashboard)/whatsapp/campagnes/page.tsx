@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/actions/auth-guard";
 import { continueCampaign } from "@/lib/actions/whatsapp-inbox";
@@ -6,6 +5,7 @@ import { campaignRecipients, parseAudience } from "@/lib/whatsapp/campaigns";
 import { whatsappConfig } from "@/lib/whatsapp";
 import { fetchKwingoMetaTemplates, getKwingoConnection } from "@/lib/whatsapp/kwingo-bridge";
 import { WhatsAppCampaignBuilder } from "@/components/admin/WhatsAppCampaignBuilder";
+import { WhatsAppSubNav } from "@/components/admin/WhatsAppSubNav";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -51,25 +51,19 @@ export default async function CampagnesPage({ searchParams }: { searchParams: Pr
   const isCloudConnected = cfg.active || kwingoConn.connected;
 
   return (
-    <div className="max-w-5xl space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="font-serif-display text-2xl font-semibold text-navy">Campagnes WhatsApp</h1>
-            <span className="rounded-full bg-navy px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-white">
-              Réservé aux administrateurs
-            </span>
-          </div>
-          <p className="mt-1 text-sm text-navy/75">
-            Choisissez un modèle approuvé par Meta (API Cloud JAMAAL Luxury +221 71 180 09 09), puis ciblez vos destinataires selon les filtres de la base et/ou en téléversant une liste Excel (<code>.xlsx</code>, <code>.csv</code>).
-          </p>
+    <div className="max-w-6xl space-y-6">
+      <WhatsAppSubNav connected={isCloudConnected} />
+
+      <div>
+        <div className="flex flex-wrap items-center gap-2">
+          <h1 className="font-serif-display text-2xl font-semibold text-navy">Campagnes WhatsApp & Import Excel</h1>
+          <span className="rounded-full bg-navy px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-white">
+            Réservé aux administrateurs
+          </span>
         </div>
-        <Link
-          href="/admin/whatsapp/conversations"
-          className="rounded-full border border-line bg-white px-4 py-2 text-sm font-semibold text-navy hover:bg-cream"
-        >
-          Messagerie WhatsApp JAMAAL
-        </Link>
+        <p className="mt-1 text-sm text-navy/75">
+          Choisissez un modèle approuvé par Meta (API Cloud JAMAAL Luxury +221 71 180 09 09), puis ciblez vos destinataires selon les filtres de la base et/ou en téléversant une liste Excel (<code>.xlsx</code>, <code>.csv</code>).
+        </p>
       </div>
 
       {!isCloudConnected && (
