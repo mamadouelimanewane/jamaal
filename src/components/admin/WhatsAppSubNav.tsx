@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ClipboardList, LayoutGrid, Megaphone, MessageSquare } from "lucide-react";
+import { BookOpen, ClipboardList, Download, LayoutGrid, Megaphone, MessageSquare } from "lucide-react";
 
 const TABS = [
   {
@@ -28,6 +28,12 @@ const TABS = [
     label: "4. Journal & Diagnostic",
     shortLabel: "Journal",
     icon: ClipboardList,
+  },
+  {
+    href: "/admin/whatsapp/manuel",
+    label: "5. Guide & Manuel",
+    shortLabel: "Manuel",
+    icon: BookOpen,
   },
 ] as const;
 
@@ -78,7 +84,15 @@ export function WhatsAppSubNav({
         })}
       </div>
 
-      <div className="flex items-center gap-2 px-2 text-xs">
+      <div className="flex flex-wrap items-center gap-2 px-2 text-xs">
+        <a
+          href="/api/export/manuel-whatsapp-docx"
+          className="inline-flex items-center gap-1.5 rounded-full border border-line bg-cream/60 px-3 py-1 font-semibold text-navy hover:bg-cream"
+          title="Télécharger le manuel complet en format Microsoft Word (.docx)"
+        >
+          <Download size={12} />
+          <span>Manuel Word (.docx)</span>
+        </a>
         <span
           className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-semibold ${
             connected !== false
