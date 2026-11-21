@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { buildWhatsAppManualDocx } from "@/lib/whatsapp/manual-docx";
+import { buildWhatsAppManualPdf } from "@/lib/whatsapp/manual-pdf";
 
 export const dynamic = "force-dynamic";
 
@@ -10,11 +10,11 @@ export async function GET() {
     return NextResponse.json({ error: "Authentification requise" }, { status: 401 });
   }
 
-  const buffer = buildWhatsAppManualDocx();
-  return new Response(new Uint8Array(buffer), {
+  const pdfBytes = await buildWhatsAppManualPdf();
+  return new Response(new Uint8Array(pdfBytes), {
     headers: {
-      "Content-Type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      "Content-Disposition": 'attachment; filename="Manuel-Messagerie-WhatsApp-JAMAAL-Luxury.docx"',
+      "Content-Type": "application/pdf",
+      "Content-Disposition": 'attachment; filename="Manuel-Messagerie-WhatsApp-JAMAAL-Luxury.pdf"',
       "Cache-Control": "no-store",
     },
   });

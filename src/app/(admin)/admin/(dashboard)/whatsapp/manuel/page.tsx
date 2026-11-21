@@ -119,11 +119,11 @@ export default async function ManuelWhatsAppPage() {
         </div>
 
         <a
-          href="/api/export/manuel-whatsapp-docx"
+          href="/api/export/manuel-whatsapp-pdf"
           className="inline-flex items-center gap-2 rounded-full bg-navy px-5 py-2.5 text-xs font-semibold text-white shadow-xs transition hover:bg-navy/90"
         >
           <Download size={15} />
-          <span>Télécharger la version Word (.docx)</span>
+          <span>Télécharger le Manuel en PDF (.pdf)</span>
         </a>
       </div>
 
@@ -273,10 +273,10 @@ export default async function ManuelWhatsAppPage() {
               <MessageSquare size={13} /> Ouvrir la Messagerie
             </Link>
             <a
-              href="/api/export/manuel-whatsapp-docx"
+              href="/api/export/manuel-whatsapp-pdf"
               className="inline-flex items-center gap-1.5 rounded-full bg-navy px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-navy/90"
             >
-              <FileText size={13} /> Télécharger en Word (.docx)
+              <FileText size={13} /> Télécharger en PDF (.pdf)
             </a>
           </div>
         </div>

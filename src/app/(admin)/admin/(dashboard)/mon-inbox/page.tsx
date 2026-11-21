@@ -26,11 +26,11 @@ export default async function MonInboxPage({
           </p>
         </div>
         <a
-          href="/api/export/manuel-whatsapp-docx"
+          href="/api/export/manuel-whatsapp-pdf"
           className="inline-flex items-center gap-1.5 rounded-full border border-line bg-white px-4 py-2 text-xs font-semibold text-navy shadow-2xs hover:bg-cream"
         >
           <Download size={14} />
-          <span>Manuel WhatsApp (.docx Word)</span>
+          <span>Manuel WhatsApp (PDF)</span>
         </a>
       </div>
 

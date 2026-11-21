@@ -86,12 +86,12 @@ export function WhatsAppSubNav({
 
       <div className="flex flex-wrap items-center gap-2 px-2 text-xs">
         <a
-          href="/api/export/manuel-whatsapp-docx"
+          href="/api/export/manuel-whatsapp-pdf"
           className="inline-flex items-center gap-1.5 rounded-full border border-line bg-cream/60 px-3 py-1 font-semibold text-navy hover:bg-cream"
-          title="Télécharger le manuel complet en format Microsoft Word (.docx)"
+          title="Télécharger le manuel complet au format PDF (.pdf)"
         >
           <Download size={12} />
-          <span>Manuel Word (.docx)</span>
+          <span>Manuel PDF</span>
         </a>
         <span
           className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-semibold ${
