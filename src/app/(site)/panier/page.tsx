@@ -2,7 +2,8 @@
 
 import { useT } from "@/components/i18n/LocaleProvider";
 import Link from "@/components/i18n/Link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { trackMeta } from "@/lib/meta-pixel";
 import { useRouter } from "next/navigation";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { useCartStore } from "@/lib/cart-store";
@@ -76,6 +77,14 @@ export default function CartPage() {
   const discountTotal = (discounts.offer?.discount ?? 0) + (codeOk?.discount ?? 0);
   // Paiement en 2 ou 3 fois : proposé à partir du montant fixé par JAMAAL, en paiement en ligne uniquement.
   const grandTotal = Math.max(0, total() - discountTotal) + deliveryFee;
+
+  // Pixel Meta : début de commande, une fois par visite du panier quand il contient des articles.
+  const checkoutTracked = useRef(false);
+  useEffect(() => {
+    if (checkoutTracked.current || !items.length) return;
+    checkoutTracked.current = true;
+    trackMeta("InitiateCheckout", { content_ids: items.map((i) => i.productId), value: total(), num_items: items.reduce((s, i) => s + i.quantity, 0) });
+  }, [items, total]);
   const onlineOptions = (paymentOptions ?? []).filter((o) => o.id !== "cod");
   const partChoices = installmentOffer && onlineOptions.length ? offeredCounts(grandTotal, installmentOffer) : [];
   const chosenParts = partChoices.includes(parts) ? parts : 1;

@@ -73,7 +73,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <Header categories={categories} />
         <main className="flex-1">{children}</main>
         <AnalyticsTracker />
-        <MetaPixel pixelId={process.env.NEXT_PUBLIC_META_PIXEL_ID} />
+        <MetaPixel />
         <Footer categories={categories} />
         <CartDrawer />
         <WhatsAppButton />

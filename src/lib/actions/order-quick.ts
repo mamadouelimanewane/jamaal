@@ -13,6 +13,7 @@ import { setOrderStatus } from "@/lib/orders/status";
 import { takeOrderStock } from "@/lib/stock";
 import { runPayoutsForOrder } from "@/lib/payouts/engine";
 import { notifyOrderUpdate } from "@/lib/whatsapp/order-notify";
+import { safeMetaPurchase } from "@/lib/meta-capi";
 
 type R = { ok: boolean; message?: string; error?: string };
 const ref = (id: string) => id.slice(-8).toUpperCase();
@@ -72,6 +73,8 @@ export async function quickMarkPaid(id: string): Promise<R> {
   if (o.deliveryMode === "LIVRAISON_JAMAAL") scheduleAutoAssign(id);
   await takeOrderStock(id, session.user?.id ?? null);
   await safeDeduct(id);
+  // Pixel Meta côté serveur : achat confirmé (compté une fois avec celui du navigateur).
+  await safeMetaPurchase(id);
   after(() => runPayoutsForOrder(id));
   notifyOrderUpdate(id, "PAYEE");
   await logActivity(session, `Paiement reçu (manuel) · commande ${ref(id)}`, "Order", id);

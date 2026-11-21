@@ -16,6 +16,7 @@ import { ShareWhatsApp } from "@/components/ShareWhatsApp";
 import { OrderOnWhatsApp } from "@/components/OrderOnWhatsApp";
 import { ProductCard } from "@/components/ProductCard";
 import { MetaPixelEvent } from "@/components/MetaPixel";
+import { startingPrice } from "@/lib/price-from";
 
 export const dynamic = "force-dynamic";
 
@@ -55,7 +56,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   const isPerfume = product.category.startsWith("parfum-") && product.category !== "parfum-ambiance";
 
   return <main className="mx-auto max-w-[1440px] px-5 pb-20 pt-6 sm:px-8 lg:px-12">
-    <MetaPixelEvent event="ViewContent" productId={product.id} value={product.regularPrice ?? undefined} />
+    <MetaPixelEvent event="ViewContent" productId={product.id} value={startingPrice(product.regularPrice, product.volumes) ?? undefined} />
     <nav aria-label={t("Fil d’Ariane")} className="mb-7 flex items-center gap-2 text-[10px] uppercase tracking-[0.1em] text-navy/45"><Link href="/" className="transition hover:text-navy">{t("Accueil")}</Link><span>/</span><Link href={`/collections/${product.category}`} className="transition hover:text-navy">{category?.label || t("Parfums")}</Link><span>/</span><span className="max-w-48 truncate text-navy/75">{product.name}</span></nav>
 
     <div className="grid gap-9 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16 xl:gap-24">

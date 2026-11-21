@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getSiteUrl } from "@/lib/site-url";
 import { CopyButton } from "@/components/admin/CopyButton";
 import { FacebookIcon } from "@/components/icons/FacebookIcon";
+import { META_PIXEL_ID } from "@/lib/meta-pixel";
 
 export const dynamic = "force-dynamic";
 
@@ -24,7 +25,8 @@ export default async function FacebookPage() {
   await requireAdmin("whatsapp", "read");
   const site = await getSiteUrl();
   const feedUrl = `${site}/api/meta/catalog`;
-  const pixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID ?? "";
+  const pixelId = META_PIXEL_ID;
+  const capiOk = !!process.env.META_CAPI_ACCESS_TOKEN?.trim();
   const pixelOk = /^\d{5,30}$/.test(pixelId);
 
   const products = await prisma.product.findMany({
@@ -70,7 +72,23 @@ export default async function FacebookPage() {
       <section className="mt-6 rounded-2xl border border-line bg-white p-5">
         <h2 className="font-serif-display text-lg font-semibold text-navy">2. Pixel Meta (mesure des campagnes)</h2>
         {pixelOk ? (
-          <Status ok>Pixel actif sur le site (identifiant {pixelId}). Il envoie : vue d&apos;un produit, ajout au panier, début de commande, achat payé, avec les mêmes identifiants produit que le catalogue.</Status>
+          <>
+            <Status ok>Pixel actif sur tout le site et sur les boutiques des revendeurs (identifiant {pixelId}).</Status>
+            <ul className="mt-3 space-y-1 text-sm text-navy/85">
+              <li><strong>PageView</strong> : chaque page visitée.</li>
+              <li><strong>ViewContent</strong> : fiche d&apos;un produit, avec son prix de départ.</li>
+              <li><strong>AddToCart</strong> : tout ajout au panier (produit, quantité, montant).</li>
+              <li><strong>InitiateCheckout</strong> : ouverture du panier pour commander (montant, nombre d&apos;articles).</li>
+              <li><strong>Purchase</strong> : seulement quand la commande est payée, avec son montant en XOF. Les identifiants produit sont ceux du catalogue.</li>
+            </ul>
+            {capiOk ? (
+              <Status ok>Achats envoyés aussi depuis le serveur (API Conversions) : chaque commande payée est comptée, y compris le paiement à la livraison et les clients qui ne reviennent pas sur la page de confirmation. Meta ne la compte qu&apos;une fois.</Status>
+            ) : (
+              <Status ok={false}>
+                API Conversions non activée : les achats ne sont comptés que si le client revoit la page de confirmation après paiement (pas les paiements à la livraison). Pour l&apos;activer : Gestionnaire d&apos;événements › votre pixel › Paramètres › API Conversions › « Générer un jeton d&apos;accès », puis dans Vercel ajoutez <code className="rounded bg-cream px-1">META_CAPI_ACCESS_TOKEN</code> avec ce jeton et relancez un déploiement.
+              </Status>
+            )}
+          </>
         ) : (
           <Status ok={false}>Pixel non installé : aucun identifiant n&apos;est renseigné. Sans lui, Meta ne peut ni mesurer les ventes de vos campagnes ni montrer à chaque personne les produits qu&apos;elle a regardés.</Status>
         )}

@@ -13,6 +13,7 @@ import { takeOrderStock } from "@/lib/stock";
 import { dueDates, isInstallmentOrder } from "@/lib/installments";
 import { notifyInstallmentReceived } from "@/lib/installments-notify";
 import { trackEvent } from "@/lib/analytics";
+import { safeMetaPurchase } from "@/lib/meta-capi";
 
 type Method = "WAVE" | "ORANGE_MONEY" | "STRIPE";
 
@@ -104,6 +105,8 @@ export async function markOrderPaid(
   await takeOrderStock(orderId).catch((e) => console.error("[stock] paiement", orderId, e));
   // Vente d'un revendeur à crédit : défalquée de ce qu'il doit.
   await safeDeduct(orderId);
+  // Pixel Meta côté serveur : achat confirmé (compté une fois avec celui du navigateur).
+  await safeMetaPurchase(orderId);
 
   // Lien de paiement d'un revendeur : la livraison part en préparation maintenant, et le revendeur est prévenu.
   if (order.channel === "REVENDEUR" || isInstallmentOrder(order)) {

@@ -18,6 +18,7 @@ import { isWalletProvider, payoutProvidersConfig, sendPayout } from "@/lib/payou
 import { notifyConsultantOfDelivery } from "@/lib/notifications";
 import { sendWhatsApp } from "@/lib/whatsapp";
 import { getSiteUrl } from "@/lib/site-url";
+import { safeMetaPurchase } from "@/lib/meta-capi";
 
 /** Transitions autorisées : étape actuelle → étapes suivantes possibles. */
 const NEXT: Record<DeliveryStatus, DeliveryStatus[]> = {
@@ -286,6 +287,8 @@ export async function settleCashOnDelivery(orderId: string): Promise<number> {
   });
   await takeOrderStock(orderId, null).catch((e) => console.error("[livraison] stock", orderId, e));
   await safeDeduct(orderId);
+  // Pixel Meta côté serveur : achat confirmé (compté une fois avec celui du navigateur).
+  await safeMetaPurchase(orderId);
   return amount;
 }
 

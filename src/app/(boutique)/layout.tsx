@@ -6,6 +6,7 @@ import {
 } from "next/font/google";
 import "../globals.css";
 import { siteBaseUrl } from "@/lib/site-url";
+import { MetaPixel } from "@/components/MetaPixel";
 
 const playfair = Playfair_Display({ variable: "--font-playfair", subsets: ["latin"], weight: ["500", "600", "700"] });
 const poppins = Poppins({ variable: "--font-poppins", subsets: ["latin"], weight: ["300", "400", "500", "600", "700"] });
@@ -57,7 +58,10 @@ export const viewport: Viewport = { themeColor: "#f6e9e3" };
 export default function BoutiqueLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr" className={`${playfair.variable} ${poppins.variable} ${fontVars} h-full antialiased`}>
-      <body className="min-h-full bg-[#fdfbfa] text-foreground">{children}</body>
+      <body className="min-h-full bg-[#fdfbfa] text-foreground">
+        {children}
+        <MetaPixel />
+      </body>
     </html>
   );
 }

@@ -2,6 +2,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { trackMeta } from "@/lib/meta-pixel";
 
 export interface CartItem {
   productId: string;
@@ -37,7 +38,9 @@ export const useCartStore = create<CartState>()(
       isOpen: false,
       open: () => set({ isOpen: true }),
       close: () => set({ isOpen: false }),
-      addItem: (item, quantity = 1) =>
+      addItem: (item, quantity = 1) => {
+        // Pixel Meta : tout ajout au panier (fiche produit, carte, boutique revendeur…).
+        trackMeta("AddToCart", { content_ids: [item.productId], value: item.price * quantity, num_items: quantity });
         set((state) => {
           const existing = state.items.find(
             (i) => i.productId === item.productId && i.volumeLabel === item.volumeLabel
@@ -51,7 +54,8 @@ export const useCartStore = create<CartState>()(
             };
           }
           return { items: [...state.items, { ...item, quantity }], isOpen: true };
-        }),
+        });
+      },
       removeItem: (productId, volumeLabel) =>
         set((state) => ({
           items: state.items.filter(
