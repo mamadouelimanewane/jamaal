@@ -448,7 +448,10 @@ export async function disconnectKwingoAccount(): Promise<void> {
  * les synchronise dans WhatsAppThread / WhatsAppMessage et applique le routage dynamique
  * vers le bon consultant JAMAAL (ou laisse dans unassigned s'il n'a pas de consultant).
  */
-export async function syncLiveFromKwingo(activePhone?: string): Promise<boolean> {
+let lastChatListSyncAt = 0;
+const lastThreadMsgsSyncAt = new Map<string, number>();
+
+export async function syncLiveFromKwingo(activePhone?: string, force = false): Promise<boolean> {
   const conn = await getKwingoConnection();
   if (!conn.connected || !conn.accessToken) return false;
 
@@ -458,130 +461,177 @@ export async function syncLiveFromKwingo(activePhone?: string): Promise<boolean>
   };
   if (conn.companyId) headers["X-Company-Id"] = conn.companyId;
 
-  // 1. Récupérer la liste des conversations depuis KwingoChat (/messages/chats)
-  const chatsRes = await fetch(`${conn.apiUrl}/messages/chats?limit=80`, {
-    method: "GET",
-    headers,
-    signal: AbortSignal.timeout(8_000),
-  }).catch(() => null);
-
-  if (!chatsRes?.ok) return false;
-
-  const chatsJson = (await chatsRes.json().catch(() => null)) as {
-    data?: {
-      wa_id?: string;
-      phone?: string;
-      name?: string;
-      lastMessage?: string;
-      lastMessageTime?: string;
-      lastMessageDirection?: string;
-      assigned_to?: string | null;
-    }[];
-  } | null;
-
-  const chats = Array.isArray(chatsJson?.data) ? chatsJson.data : Array.isArray(chatsJson) ? chatsJson : [];
-
-  for (const chat of chats) {
-    const rawPhone = chat.wa_id || chat.phone || "";
-    const phone = canonicalizePhone(rawPhone);
-    if (!phone || phone.length < 8) continue;
-
-    // Applique le routage dynamique vers le consultant JAMAAL (ou conserve l'assignation campagne / unassigned)
-    await routeInboundClientMessage({
-      phone,
-      profileName: chat.name || null,
-      text: chat.lastMessage || null,
-    }).catch(() => {});
-
-    // Si aucun message n'est encore enregistré localement pour ce numéro KwingoChat, importe le dernier message avec sa vraie date
-    if (chat.lastMessage) {
-      const hasMsg = await prisma.whatsAppMessage.findFirst({
-        where: { toNumber: phone },
-        select: { id: true },
-      });
-      if (!hasMsg) {
-        const isIn = chat.lastMessageDirection !== "outbound";
-        const msgDate = chat.lastMessageTime ? new Date(chat.lastMessageTime) : new Date();
-        await prisma.whatsAppMessage
-          .create({
-            data: {
-              direction: isIn ? "IN" : "OUT",
-              toNumber: phone,
-              kind: isIn ? "inbound" : "conseiller",
-              body: chat.lastMessage.slice(0, 1500),
-              status: isIn ? "RECU" : "ENVOYE",
-              createdAt: msgDate,
-            },
-          })
-          .catch(() => {});
-        await prisma.whatsAppThread
-          .update({
-            where: { phone },
-            data: { lastMessageAt: msgDate },
-          })
-          .catch(() => {});
-      }
-    }
-  }
-
-  // 2. Si une conversation est sélectionnée, récupérer ses messages détaillés depuis KwingoChat
-  if (activePhone) {
-    const msgRes = await fetch(`${conn.apiUrl}/messages/${encodeURIComponent(activePhone)}?limit=80`, {
+  // 1. Récupérer la liste des conversations depuis KwingoChat (/messages/chats) — au plus toutes les 30 s (sauf sync forcée)
+  const shouldSyncList = force || Date.now() - lastChatListSyncAt > 30_000;
+  if (shouldSyncList) {
+    lastChatListSyncAt = Date.now();
+    const chatsRes = await fetch(`${conn.apiUrl}/messages/chats?limit=80`, {
       method: "GET",
       headers,
       signal: AbortSignal.timeout(8_000),
     }).catch(() => null);
 
-    if (msgRes?.ok) {
-      const msgJson = (await msgRes.json().catch(() => null)) as {
-        data?:
-          | {
-              id?: string;
-              meta_message_id?: string | null;
-              body?: string;
-              direction?: string;
-              status?: string;
-              created_at?: string;
-            }[]
-          | {
-              messages?: {
+    if (chatsRes?.ok) {
+      const chatsJson = (await chatsRes.json().catch(() => null)) as {
+        data?: {
+          wa_id?: string;
+          phone?: string;
+          name?: string;
+          lastMessage?: string;
+          lastMessageTime?: string;
+          lastMessageDirection?: string;
+          assigned_to?: string | null;
+        }[];
+      } | null;
+
+      const chats = Array.isArray(chatsJson?.data) ? chatsJson.data : Array.isArray(chatsJson) ? chatsJson : [];
+
+      for (const chat of chats) {
+        const rawPhone = chat.wa_id || chat.phone || "";
+        const phone = canonicalizePhone(rawPhone);
+        if (!phone || phone.length < 8) continue;
+
+        const remoteAt = chat.lastMessageTime ? new Date(chat.lastMessageTime) : null;
+        const known = await prisma.whatsAppThread
+          .findUnique({ where: { phone }, select: { lastMessageAt: true } })
+          .catch(() => null);
+
+        const hasNewActivity =
+          !known ||
+          (remoteAt && !Number.isNaN(remoteAt.getTime()) && remoteAt.getTime() > known.lastMessageAt.getTime() + 1000);
+        if (!hasNewActivity) continue;
+
+        await routeInboundClientMessage({
+          phone,
+          profileName: chat.name || null,
+          text: chat.lastMessage || null,
+          messageAt: remoteAt,
+        }).catch(() => {});
+
+        if (chat.lastMessage) {
+          const hasMsg = await prisma.whatsAppMessage.findFirst({
+            where: { toNumber: phone },
+            select: { id: true },
+          });
+          if (!hasMsg) {
+            const isIn = chat.lastMessageDirection !== "outbound";
+            const msgDate = remoteAt && !Number.isNaN(remoteAt.getTime()) ? remoteAt : new Date();
+            await prisma.whatsAppMessage
+              .create({
+                data: {
+                  direction: isIn ? "IN" : "OUT",
+                  toNumber: phone,
+                  kind: isIn ? "inbound" : "conseiller",
+                  body: chat.lastMessage.slice(0, 1500),
+                  status: isIn ? "RECU" : "ENVOYE",
+                  createdAt: msgDate,
+                },
+              })
+              .catch(() => {});
+          }
+        }
+      }
+    }
+  }
+
+  // 2. Si une conversation est sélectionnée, récupérer ses messages détaillés depuis KwingoChat (au plus toutes les 10 s sauf sync forcée)
+  if (activePhone) {
+    const lastForPhone = lastThreadMsgsSyncAt.get(activePhone) ?? 0;
+    if (force || Date.now() - lastForPhone > 10_000) {
+      lastThreadMsgsSyncAt.set(activePhone, Date.now());
+      const msgRes = await fetch(`${conn.apiUrl}/messages/${encodeURIComponent(activePhone)}?limit=80`, {
+        method: "GET",
+        headers,
+        signal: AbortSignal.timeout(8_000),
+      }).catch(() => null);
+
+      if (msgRes?.ok) {
+        const msgJson = (await msgRes.json().catch(() => null)) as {
+          data?:
+            | {
                 id?: string;
                 meta_message_id?: string | null;
                 body?: string;
                 direction?: string;
                 status?: string;
                 created_at?: string;
-              }[];
-            };
-      } | null;
+              }[]
+            | {
+                messages?: {
+                  id?: string;
+                  meta_message_id?: string | null;
+                  body?: string;
+                  direction?: string;
+                  status?: string;
+                  created_at?: string;
+                }[];
+              };
+        } | null;
 
-      const remoteMsgs = Array.isArray(msgJson?.data)
-        ? msgJson.data
-        : msgJson?.data?.messages ?? [];
-      for (const rm of remoteMsgs) {
-        if (!rm.body) continue;
-        const providerId = rm.meta_message_id || (rm.id ? `kwingo:${rm.id}` : null);
-        if (providerId) {
-          const exists = await prisma.whatsAppMessage.findFirst({
-            where: { providerId },
-            select: { id: true },
-          });
-          if (exists) continue;
+        const remoteMsgs = Array.isArray(msgJson?.data)
+          ? msgJson.data
+          : msgJson?.data?.messages ?? [];
+
+        let newestDate: Date | null = null;
+        for (const rm of remoteMsgs) {
+          if (!rm.body) continue;
+          const bodyClean = rm.body.slice(0, 1500);
+          const isIn = rm.direction === "inbound";
+          const dir = isIn ? "IN" : "OUT";
+          const msgDate = rm.created_at ? new Date(rm.created_at) : null;
+          if (msgDate && !Number.isNaN(msgDate.getTime()) && (!newestDate || msgDate > newestDate)) {
+            newestDate = msgDate;
+          }
+
+          const providerId = rm.meta_message_id || (rm.id ? `kwingo:${rm.id}` : null);
+          if (providerId) {
+            const exists = await prisma.whatsAppMessage.findFirst({
+              where: { providerId },
+              select: { id: true },
+            });
+            if (exists) continue;
+          }
+
+          // Évite les doublons si le même message existe déjà sans providerId dans une fenêtre de ±2 min
+          if (msgDate && !Number.isNaN(msgDate.getTime())) {
+            const dup = await prisma.whatsAppMessage.findFirst({
+              where: {
+                toNumber: activePhone,
+                direction: dir,
+                body: bodyClean,
+                createdAt: {
+                  gte: new Date(msgDate.getTime() - 120_000),
+                  lte: new Date(msgDate.getTime() + 120_000),
+                },
+              },
+              select: { id: true },
+            });
+            if (dup) continue;
+          }
+
+          await prisma.whatsAppMessage
+            .create({
+              data: {
+                direction: dir,
+                toNumber: activePhone,
+                kind: isIn ? "inbound" : "conseiller",
+                body: bodyClean,
+                status: isIn ? "RECU" : rm.status === "read" ? "LU" : rm.status === "delivered" ? "LIVRE" : "ENVOYE",
+                providerId,
+                ...(msgDate && !Number.isNaN(msgDate.getTime()) ? { createdAt: msgDate } : {}),
+              },
+            })
+            .catch(() => {});
         }
-        const isIn = rm.direction === "inbound";
-        await prisma.whatsAppMessage
-          .create({
-            data: {
-              direction: isIn ? "IN" : "OUT",
-              toNumber: activePhone,
-              kind: isIn ? "inbound" : "conseiller",
-              body: rm.body.slice(0, 1500),
-              status: isIn ? "RECU" : rm.status === "read" ? "LU" : rm.status === "delivered" ? "LIVRE" : "ENVOYE",
-              providerId,
-              ...(rm.created_at ? { createdAt: new Date(rm.created_at) } : {}),
-            },
-          })
-          .catch(() => {});
+
+        if (newestDate) {
+          await prisma.whatsAppThread
+            .update({
+              where: { phone: activePhone },
+              data: { lastMessageAt: newestDate },
+            })
+            .catch(() => {});
+        }
       }
     }
   }
@@ -1114,9 +1164,12 @@ export async function routeInboundClientMessage(opts: {
   phone: string;
   profileName?: string | null;
   text?: string | null;
+  /** Date réelle du message (synchronisation KwingoChat). Par défaut : maintenant (message reçu en direct). */
+  messageAt?: Date | null;
 }): Promise<{ consultant: ResolvedConsultant | null; customAttributes: KwingoContactAttributes; routing: RoutingSource }> {
   const phone = canonicalizePhone(opts.phone);
   const now = new Date();
+  const msgAt = opts.messageAt && !Number.isNaN(opts.messageAt.getTime()) ? opts.messageAt : now;
 
   const existingThread = await prisma.whatsAppThread
     .findUnique({
@@ -1196,20 +1249,25 @@ export async function routeInboundClientMessage(opts: {
     source: routing,
   });
 
+  // Ne jamais faire reculer ni « rajeunir » artificiellement la date du dernier message :
+  // on garde la plus récente entre la date connue et la date réelle du message.
+  const prevLast = existingThread?.lastMessageAt ? new Date(existingThread.lastMessageAt) : null;
+  const nextLastMessageAt = prevLast && prevLast.getTime() > msgAt.getTime() ? prevLast : msgAt;
+
   await prisma.whatsAppThread
     .upsert({
       where: { phone },
       create: {
         phone,
         name: opts.profileName ?? null,
-        lastMessageAt: now,
+        lastMessageAt: msgAt,
         consultantId: consultant?.id ?? null,
         assignedAt: consultant ? now : null,
         assignedSource: consultant ? routing : null,
         customAttributes: customAttributes as unknown as Prisma.InputJsonValue,
       },
       update: {
-        lastMessageAt: now,
+        lastMessageAt: nextLastMessageAt,
         ...(opts.profileName ? { name: opts.profileName } : {}),
         consultantId: consultant?.id ?? null,
         assignedAt: consultant ? (existingThread?.assignedAt ?? now) : null,

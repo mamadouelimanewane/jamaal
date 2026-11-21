@@ -209,7 +209,9 @@ export function KwingoInboxWindow({
   const [connectError, setConnectError] = useState<string | null>(null);
   const [syncingKwingo, setSyncingKwingo] = useState(false);
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const lastScrolledPhoneRef = useRef<string>("");
+  const lastMessageIdRef = useRef<string>("");
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(searchQuery), 250);
@@ -231,12 +233,18 @@ export function KwingoInboxWindow({
         });
         if (!res.ok) return;
         const json = (await res.json()) as InboxPayload;
+        // Garanti un affichage strictement chronologique (du plus ancien en haut au plus récent en bas)
+        if (Array.isArray(json.messages)) {
+          json.messages.sort(
+            (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+          );
+        }
         setData(json);
         if (!selectedPhone && json.activePhone) {
           setSelectedPhone(json.activePhone);
         }
-        if (json.config.kwingoConnection?.email && !kwingoEmail) {
-          setKwingoEmail(json.config.kwingoConnection.email);
+        if (json.config.kwingoConnection?.email) {
+          setKwingoEmail((prev) => prev || json.config.kwingoConnection!.email || "");
         }
       } catch {
         // Ignore transient network errors during background polling
@@ -244,7 +252,7 @@ export function KwingoInboxWindow({
         if (!silent) setLoading(false);
       }
     },
-    [managerFilter, debouncedSearch, selectedPhone, kwingoEmail],
+    [managerFilter, debouncedSearch, selectedPhone],
   );
 
   useEffect(() => {
@@ -254,13 +262,35 @@ export function KwingoInboxWindow({
   useEffect(() => {
     const interval = setInterval(() => {
       void loadInbox(true);
-    }, 4000);
+    }, 8000);
     return () => clearInterval(interval);
   }, [loadInbox]);
 
+  // Défilement interne UNIQUEMENT dans le conteneur des messages (jamais la page entière) :
+  // - à l'ouverture / changement de conversation
+  // - ou lorsqu'un nouveau message arrive ET que l'utilisateur était déjà proche du bas
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [data?.messages?.length, selectedPhone]);
+    const el = messagesContainerRef.current;
+    if (!el) return;
+    const currentPhone = data?.activePhone || selectedPhone || "";
+    const msgs = data?.messages ?? [];
+    const latestId = msgs.length > 0 ? msgs[msgs.length - 1].id : "";
+
+    const phoneChanged = currentPhone !== lastScrolledPhoneRef.current;
+    const hasNewMessage = latestId !== "" && latestId !== lastMessageIdRef.current;
+
+    if (phoneChanged) {
+      el.scrollTop = el.scrollHeight;
+      lastScrolledPhoneRef.current = currentPhone;
+      lastMessageIdRef.current = latestId;
+    } else if (hasNewMessage) {
+      const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+      if (distanceFromBottom < 140) {
+        el.scrollTop = el.scrollHeight;
+      }
+      lastMessageIdRef.current = latestId;
+    }
+  }, [data?.activePhone, data?.messages, selectedPhone]);
 
   async function handleConnectKwingo(e: React.FormEvent) {
     e.preventDefault();
@@ -972,7 +1002,10 @@ export function KwingoInboxWindow({
               )}
 
               {/* Zone des messages — style WhatsApp clair et très lisible */}
-              <div className="flex max-h-[50vh] flex-1 flex-col gap-3 overflow-y-auto bg-[#efeae2] p-5">
+              <div
+                ref={messagesContainerRef}
+                className="flex h-[52vh] flex-1 flex-col gap-3 overflow-y-auto bg-[#efeae2] p-5"
+              >
                 {(data?.messages ?? []).map((m) => {
                   const isIn = m.direction === "IN";
                   return (
@@ -1007,7 +1040,6 @@ export function KwingoInboxWindow({
                     </div>
                   );
                 })}
-                <div ref={messagesEndRef} />
               </div>
 
               {/* Fenêtre « Modèles de réponses rapides » : Modèles approuvés par Meta + Textes rapides */}

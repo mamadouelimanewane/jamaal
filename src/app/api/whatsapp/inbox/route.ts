@@ -92,10 +92,10 @@ export async function GET(req: NextRequest) {
 
   const kwingoConn = await getKwingoConnection();
   if (kwingoConn.connected && forceSync) {
-    await syncLiveFromKwingo(selectedPhoneParam || undefined).catch(() => { });
+    await syncLiveFromKwingo(selectedPhoneParam || undefined, true).catch(() => {});
   } else if (kwingoConn.connected) {
-    // Synchronisation légère non bloquante en arrière-plan
-    void syncLiveFromKwingo(selectedPhoneParam || undefined).catch(() => { });
+    // Synchronisation légère non bloquante en arrière-plan (throttlée côté serveur)
+    void syncLiveFromKwingo(selectedPhoneParam || undefined, false).catch(() => {});
   }
 
   // Rattache automatiquement les conversations entrantes non assignées dont le numéro correspond à un client d'un parrain/consultant actif
@@ -168,10 +168,10 @@ export async function GET(req: NextRequest) {
     FROM "WhatsAppThread" t
     LEFT JOIN "Consultant" cons ON cons.id = t."consultantId"
     LEFT JOIN LATERAL (
-      SELECT body, direction
+      SELECT body, direction, "createdAt"
       FROM "WhatsAppMessage" w
       WHERE w."toNumber" = t.phone
-      ORDER BY w."createdAt" DESC
+      ORDER BY w."createdAt" DESC, w.id DESC
       LIMIT 1
     ) m ON true
     LEFT JOIN LATERAL (
@@ -183,7 +183,7 @@ export async function GET(req: NextRequest) {
       LIMIT 1
     ) last_in ON true
     WHERE ${filterSql} AND ${searchSql}
-    ORDER BY t."lastMessageAt" DESC
+    ORDER BY COALESCE(m."createdAt", t."lastMessageAt") DESC, t.phone ASC
     LIMIT 100
   `;
 
@@ -256,7 +256,7 @@ export async function GET(req: NextRequest) {
     const [msgs] = await Promise.all([
       prisma.whatsAppMessage.findMany({
         where: { toNumber: activePhone },
-        orderBy: { createdAt: "asc" },
+        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
         take: 150,
         select: { id: true, direction: true, kind: true, body: true, status: true, error: true, createdAt: true },
       }),
@@ -264,7 +264,8 @@ export async function GET(req: NextRequest) {
         .update({ where: { phone: activePhone }, data: { lastReadAt: new Date() } })
         .catch(() => { }),
     ]);
-    activeMessages = msgs;
+    // Ordre chronologique strict : du plus ancien en haut au plus récent en bas
+    activeMessages = msgs.reverse();
 
     const tail = phoneTail(activePhone);
     if (tail) {
@@ -448,7 +449,7 @@ export async function POST(req: NextRequest) {
 
   if (action === "sync_kwingo") {
     const targetPhone = body.phone ? canonicalizePhone(String(body.phone)) : undefined;
-    const synced = await syncLiveFromKwingo(targetPhone);
+    const synced = await syncLiveFromKwingo(targetPhone, true);
     return NextResponse.json({
       ok: synced,
       message: synced
