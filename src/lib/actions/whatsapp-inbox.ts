@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { canonicalizePhone } from "@/lib/phone";
 import { sendWhatsApp } from "@/lib/whatsapp";
-import { parseAudience, parseCampaignExcelBuffer, runCampaign, type CampaignRecipient } from "@/lib/whatsapp/campaigns";
+import { campaignRecipients, parseAudience, parseCampaignExcelBuffer, runCampaign, type CampaignRecipient } from "@/lib/whatsapp/campaigns";
 import { assignThreadToConsultant } from "@/lib/whatsapp/kwingo-bridge";
 import { getReseller } from "@/lib/reseller";
 import { requireAdmin } from "./auth-guard";
@@ -178,15 +178,47 @@ export async function createCampaign(formData: FormData) {
     excelFileName: excelFileName || (uploadedFile && uploadedFile.size > 0 ? uploadedFile.name : undefined),
   });
 
-  const c = await prisma.whatsAppCampaign.create({
-    data: {
-      title,
-      body,
-      audience: JSON.parse(JSON.stringify(audience)),
-      createdBy: session.user?.id ?? null,
-    },
-  });
-  if (formData.get("send") === "1") await runCampaign(c.id);
+  const recipients = await campaignRecipients(audience).catch(() => []);
+  const draftId = String(formData.get("draftId") ?? "").trim();
+  const sendMode = String(formData.get("send") ?? "0").trim();
+
+  let c: { id: string };
+  if (draftId && (sendMode === "update" || sendMode === "1")) {
+    const existing = await prisma.whatsAppCampaign.findUnique({ where: { id: draftId }, select: { id: true, status: true } });
+    if (existing && existing.status === "BROUILLON") {
+      c = await prisma.whatsAppCampaign.update({
+        where: { id: draftId },
+        data: {
+          title,
+          body,
+          audience: JSON.parse(JSON.stringify(audience)),
+          total: recipients.length,
+        },
+      });
+    } else {
+      c = await prisma.whatsAppCampaign.create({
+        data: {
+          title,
+          body,
+          audience: JSON.parse(JSON.stringify(audience)),
+          total: recipients.length,
+          createdBy: session.user?.id ?? null,
+        },
+      });
+    }
+  } else {
+    c = await prisma.whatsAppCampaign.create({
+      data: {
+        title,
+        body,
+        audience: JSON.parse(JSON.stringify(audience)),
+        total: recipients.length,
+        createdBy: session.user?.id ?? null,
+      },
+    });
+  }
+
+  if (sendMode === "1") await runCampaign(c.id);
   revalidatePath("/admin/whatsapp/campagnes");
   redirect(`/admin/whatsapp/campagnes?c=${c.id}`);
 }
@@ -194,5 +226,51 @@ export async function createCampaign(formData: FormData) {
 export async function continueCampaign(id: string) {
   await requireAdmin("whatsapp");
   await runCampaign(id);
+  revalidatePath("/admin/whatsapp/campagnes");
+}
+
+/** Lance un brouillon ou reprend une campagne à la volée. */
+export async function launchCampaignAction(formData: FormData) {
+  await requireAdmin("whatsapp");
+  const id = String(formData.get("id") ?? "").trim();
+  if (id) {
+    await runCampaign(id);
+  }
+  revalidatePath("/admin/whatsapp/campagnes");
+}
+
+/** Duplique un brouillon ou une campagne existante en nouveau brouillon prêt à modifier/lancer. */
+export async function duplicateCampaignAction(formData: FormData) {
+  const session = await requireAdmin("whatsapp");
+  const id = String(formData.get("id") ?? "").trim();
+  if (!id) return;
+  const src = await prisma.whatsAppCampaign.findUnique({ where: { id } });
+  if (!src) return;
+  const aud = parseAudience(src.audience);
+  const recipients = await campaignRecipients(aud).catch(() => []);
+  await prisma.whatsAppCampaign.create({
+    data: {
+      title: `${src.title} (copie)`.slice(0, 120),
+      body: src.body,
+      audience: JSON.parse(JSON.stringify(src.audience)),
+      status: "BROUILLON",
+      total: recipients.length || src.total,
+      sent: 0,
+      failed: 0,
+      createdBy: session.user?.id ?? null,
+    },
+  });
+  revalidatePath("/admin/whatsapp/campagnes");
+}
+
+/** Supprime un brouillon ou une campagne à la volée. */
+export async function deleteCampaignAction(formData: FormData) {
+  await requireAdmin("whatsapp");
+  const id = String(formData.get("id") ?? "").trim();
+  if (!id) return;
+  await prisma.whatsAppMessage
+    .updateMany({ where: { campaignId: id }, data: { campaignId: null } })
+    .catch(() => {});
+  await prisma.whatsAppCampaign.delete({ where: { id } }).catch(() => {});
   revalidatePath("/admin/whatsapp/campagnes");
 }

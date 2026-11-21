@@ -42,6 +42,10 @@ export interface WhatsAppCampaignBuilderProps {
   initialTemplateLanguage?: string;
   initialBody?: string;
   initialTitle?: string;
+  initialSourceMode?: CampaignSourceMode;
+  initialExcelRecipients?: CampaignRecipient[];
+  initialExcelFileName?: string;
+  editingDraftId?: string;
 }
 
 export function WhatsAppCampaignBuilder({
@@ -54,6 +58,10 @@ export function WhatsAppCampaignBuilder({
   initialTemplateLanguage,
   initialBody,
   initialTitle = "",
+  initialSourceMode = "FILTRES",
+  initialExcelRecipients = [],
+  initialExcelFileName = "",
+  editingDraftId,
 }: WhatsAppCampaignBuilderProps) {
   const defaultTemplate =
     metaTemplates.find((t) => t.templateName === initialTemplateName) ??
@@ -86,9 +94,9 @@ export function WhatsAppCampaignBuilder({
   const [ctaUrl, setCtaUrl] = useState<string>(initialAudience.ctaUrl);
 
   // État pour l'import de liste Excel / CSV
-  const [sourceMode, setSourceMode] = useState<CampaignSourceMode>("FILTRES");
-  const [excelRecipients, setExcelRecipients] = useState<CampaignRecipient[]>([]);
-  const [excelFileName, setExcelFileName] = useState<string>("");
+  const [sourceMode, setSourceMode] = useState<CampaignSourceMode>(initialSourceMode);
+  const [excelRecipients, setExcelRecipients] = useState<CampaignRecipient[]>(initialExcelRecipients);
+  const [excelFileName, setExcelFileName] = useState<string>(initialExcelFileName);
   const [excelStats, setExcelStats] = useState<{
     rawCount: number;
     skippedInvalid: number;
@@ -588,8 +596,9 @@ export function WhatsAppCampaignBuilder({
           </div>
         </div>
 
-        {/* Formulaire final d'enregistrement / envoi */}
-        <form action={createCampaign} className="mt-5 grid gap-3 sm:grid-cols-[1fr_auto_auto]">
+        {/* Formulaire final d'enregistrement en brouillon(s) / envoi */}
+        <form action={createCampaign} className="mt-5 space-y-3">
+          <input type="hidden" name="draftId" value={editingDraftId ?? ""} />
           <input type="hidden" name="target" value={initialAudience.target} />
           <input type="hidden" name="inactiveDays" value={String(initialAudience.inactiveDays)} />
           <input type="hidden" name="category" value={initialAudience.category} />
@@ -603,31 +612,45 @@ export function WhatsAppCampaignBuilder({
           <input type="hidden" name="excelFileName" value={excelFileName} />
           <input type="hidden" name="excelRecipientsJson" value={JSON.stringify(excelRecipients)} />
 
-          <input
-            name="title"
-            required
-            maxLength={120}
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Nom de la campagne (ex. Lancement Parfum KiKi n°44)"
-            className={field}
-          />
-          <button
-            name="send"
-            value="0"
-            className="rounded-full border border-line bg-white px-5 py-2.5 text-sm font-semibold text-navy hover:bg-cream"
-          >
-            Enregistrer en brouillon
-          </button>
-          <button
-            name="send"
-            value="1"
-            disabled={finalRecipients.length === 0 || !selectedTemplate.templateName}
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-6 py-2.5 text-sm font-semibold text-white shadow-xs transition hover:bg-[#1ebe5b] disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <Send size={15} />
-            <span>Envoyer à {finalRecipients.length} destinataire{finalRecipients.length > 1 ? "s" : ""}</span>
-          </button>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <input
+              name="title"
+              required
+              maxLength={120}
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Nom de la campagne ou du brouillon (ex. Lancement KiKi n°44 — Lot VIP)"
+              className={`flex-1 ${field}`}
+            />
+
+            <div className="flex flex-wrap items-center gap-2">
+              {editingDraftId && (
+                <button
+                  name="send"
+                  value="update"
+                  className="rounded-full border border-navy bg-navy/5 px-4 py-2.5 text-xs font-semibold text-navy hover:bg-navy/10"
+                >
+                  Mettre à jour ce brouillon
+                </button>
+              )}
+              <button
+                name="send"
+                value="0"
+                className="rounded-full border border-line bg-white px-5 py-2.5 text-xs font-semibold text-navy hover:bg-cream"
+              >
+                {editingDraftId ? "+ Enregistrer comme nouveau brouillon" : "+ Enregistrer en brouillon"}
+              </button>
+              <button
+                name="send"
+                value="1"
+                disabled={finalRecipients.length === 0 || !selectedTemplate.templateName}
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-5 py-2.5 text-xs font-semibold text-white shadow-xs transition hover:bg-[#1ebe5b] disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <Send size={14} />
+                <span>Lancer maintenant ({finalRecipients.length})</span>
+              </button>
+            </div>
+          </div>
         </form>
 
         <p className="mt-2 text-xs text-navy/55">
