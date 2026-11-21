@@ -1,8 +1,8 @@
 /**
- * Pixel Meta (Facebook / Instagram) de JAMAAL Luxury.
+ * Pixel Meta (Facebook / Instagram) de JAMAAL Luxury : ensemble de données « JAMAAL Site Web » du portefeuille Kwingo sa.
  * Identifiant public (il figure dans le code de chaque page) : la variable NEXT_PUBLIC_META_PIXEL_ID le remplace si besoin.
  */
-export const META_PIXEL_ID = (process.env.NEXT_PUBLIC_META_PIXEL_ID || "1883184059376286").trim();
+export const META_PIXEL_ID = (process.env.NEXT_PUBLIC_META_PIXEL_ID || "1765237614535614").trim();
 
 export type MetaEvent = "ViewContent" | "AddToCart" | "InitiateCheckout" | "Purchase";
 type Fbq = (...args: unknown[]) => void;
