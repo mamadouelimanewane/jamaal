@@ -1,11 +1,10 @@
 "use client";
 
-import { useT } from "@/components/i18n/LocaleProvider";
+import { useT, usePrice } from "@/components/i18n/LocaleProvider";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CalendarClock, Minus, Plus } from "lucide-react";
-import { formatPrice } from "@/lib/currency";
 import { createReservation } from "@/lib/actions/orders";
 import { initiatePayment } from "@/lib/actions/payment";
 import { listPaymentOptions } from "@/lib/actions/payment-options";
@@ -37,6 +36,7 @@ export function ReservationForm({
   settings: ReservationSettings;
 }) {
   const tr = useT();
+  const formatPrice = usePrice();
   const router = useRouter();
   const [format, setFormat] = useState(initialFormat);
   const [qty, setQty] = useState(initialQty);

@@ -51,3 +51,10 @@ a.sh-card:hover, .sh-product:hover { transform: translateY(-2px); box-shadow: 0 
 .sh-stars { color: var(--s-acc); letter-spacing: 3px; }
 .sh-mark { background: var(--s-soft); border: 1px solid var(--s-acc); color: var(--s-ink); }
 .sh-avatar { border: 3px solid var(--s-surface); box-shadow: 0 0 0 1px var(--s-line); }
+
+/* Boutique en arabe (revendeur au numéro mauritanien, ou ?lang=ar) : lecture de droite à gauche. */
+.sh-root[dir="rtl"] { font-family: var(--s-body), "Noto Sans Arabic", "Segoe UI", "SF Arabic", "Geeza Pro", Tahoma, Arial, sans-serif; line-height: 1.7; }
+.sh-root[dir="rtl"] .sh-display { font-family: var(--s-display), "Noto Naskh Arabic", "Amiri", "Geeza Pro", "Times New Roman", serif; letter-spacing: 0; }
+.sh-root[dir="rtl"] .italic { font-style: normal; }
+.sh-root[dir="rtl"] :is(.uppercase, .sh-eyebrow, [class*="tracking-["]):not(.sh-wordmark, .sh-acc) { letter-spacing: 0 !important; }
+.sh-root[dir="rtl"] :is(h1, h2, h3, p, blockquote, figcaption, span, a, strong) { unicode-bidi: plaintext; }

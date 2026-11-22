@@ -1,13 +1,13 @@
 "use client";
 
-import { useT } from "@/components/i18n/LocaleProvider";
+import { useLocale, useT, usePrice } from "@/components/i18n/LocaleProvider";
+import { formatPrice as formatXof } from "@/lib/currency";
 import Link from "@/components/i18n/Link";
 import { useEffect, useRef, useState } from "react";
 import { trackMeta } from "@/lib/meta-pixel";
 import { useRouter } from "next/navigation";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { useCartStore } from "@/lib/cart-store";
-import { formatPrice } from "@/lib/currency";
 import { VoiceRecorder } from "@/components/gift/VoiceRecorder";
 import { OCCASIONS } from "@/lib/gift/gift";
 import { createOrder } from "@/lib/actions/orders";
@@ -39,6 +39,8 @@ function readRefCookie(): string | null {
 
 export default function CartPage() {
   const tr = useT();
+  const formatPrice = usePrice();
+  const locale = useLocale();
   const router = useRouter();
   const { items, removeItem, updateQuantity, total, clear, syncPrices, replaceItems } = useCartStore();
   const [pricesUpdated, setPricesUpdated] = useState(false);
@@ -445,6 +447,9 @@ export default function CartPage() {
               <span>{tr("Total")}</span>
               <span>{formatPrice(Math.max(0, total() - discountTotal) + deliveryFee)}</span>
             </div>
+            {locale === "ar" && (
+              <p className="mt-1 text-xs text-navy/70">{tr("Montant payé en francs CFA : {v0}", { v0: formatXof(Math.max(0, total() - discountTotal) + deliveryFee) })}</p>
+            )}
             <div className="mt-3">
               <div className="flex gap-2">
                 <input

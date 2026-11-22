@@ -1,6 +1,7 @@
 import { getBasePath, getLocale, getT } from "@/lib/i18n/server";
 import { localizeHref, dirOf } from "@/lib/i18n/config";
 import { LocaleProvider } from "@/components/i18n/LocaleProvider";
+import { getMruRate } from "@/lib/fx";
 import type { Metadata } from "next";
 import { Playfair_Display, Poppins } from "next/font/google";
 import "../globals.css";
@@ -66,11 +67,11 @@ export async function generateMetadata(): Promise<Metadata> {
 const OG = { fr: "fr_SN", it: "it_IT", ar: "ar_SN" } as const;
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const [categories, locale] = await Promise.all([getCategoriesWithProducts(), getLocale()]);
+  const [categories, locale, mruRate] = await Promise.all([getCategoriesWithProducts(), getLocale(), getMruRate()]);
   return (
     <html lang={locale} dir={dirOf(locale)} className={`${playfair.variable} ${poppins.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col bg-background text-foreground">
-        <LocaleProvider locale={locale}>
+        <LocaleProvider locale={locale} mruRate={mruRate}>
         <AnnouncementBar />
         <Header categories={categories} />
         <main className="flex-1">{children}</main>

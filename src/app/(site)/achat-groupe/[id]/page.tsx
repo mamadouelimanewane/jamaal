@@ -1,13 +1,14 @@
+import { getPrice } from "@/lib/i18n/server";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
-import { formatPrice } from "@/lib/currency";
 import { GroupDealJoinForm } from "@/components/GroupDealJoinForm";
 
 export default async function GroupDealPublicPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const deal = await prisma.groupDeal.findUnique({ where: { id }, include: { product: { select: { name: true, photo: true, volumes: true, regularPrice: true } }, _count: { select: { participants: true } } } });
   if (!deal) notFound();
+  const formatPrice = await getPrice();
   const volume = ((deal.product.volumes as { label?: string; price?: number }[] | null) ?? []).find((v) => v.label === deal.volumeLabel);
   const price = volume?.price ?? deal.product.regularPrice ?? 0;
   const expired = deal.expiresAt <= new Date() || deal.status === "EXPIREE";

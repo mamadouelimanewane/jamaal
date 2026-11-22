@@ -1,9 +1,8 @@
-import { getT } from "@/lib/i18n/server";
+import { getT, getPrice } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import Link from "@/components/i18n/Link";
 import { getSmallFormatPerfumes } from "@/lib/db-products";
 import { ProductCard } from "@/components/ProductCard";
-import { formatPrice } from "@/lib/currency";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getT();
@@ -17,6 +16,7 @@ export const dynamic = "force-dynamic";
 
 export default async function SmallFormatsPage() {
   const t = await getT();
+  const formatPrice = await getPrice();
   const items = await getSmallFormatPerfumes();
   const cheapest = items[0]?.price;
   return (

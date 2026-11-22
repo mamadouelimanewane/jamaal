@@ -5,6 +5,7 @@ import { backWithError } from "@/lib/form-error";
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "./auth-guard";
 import { setCommissionRate, setSponsorCommissionRate, setLoyaltySettings } from "@/lib/settings";
+import { setMruRate } from "@/lib/fx";
 
 async function updateCommissionRateImpl(formData: FormData) {
   await requireAdmin("reglages");
@@ -55,5 +56,23 @@ export async function updateLoyaltySettingsAction(formData: FormData): Promise<v
     await updateLoyaltySettingsActionImpl(formData);
   } catch (e) {
     await backWithError(e, "/admin/comptabilite");
+  }
+}
+
+async function updateMruRateImpl(formData: FormData) {
+  await requireAdmin("reglages");
+  const rate = Number(String(formData.get("mruRate") ?? "").replace(",", "."));
+  if (!Number.isFinite(rate) || rate < 1 || rate > 100) throw new Error("Taux invalide : indiquez combien de FCFA vaut 1 ouguiya (ex. 14,7).");
+  await setMruRate(Math.round(rate * 1000) / 1000);
+  revalidatePath("/admin/reglages");
+  revalidatePath("/ar", "layout");
+}
+
+/** Taux de conversion FCFA → ouguiya de la version arabe du site. */
+export async function updateMruRateAction(formData: FormData): Promise<void> {
+  try {
+    await updateMruRateImpl(formData);
+  } catch (e) {
+    await backWithError(e, "/admin/reglages");
   }
 }

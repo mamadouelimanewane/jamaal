@@ -1,13 +1,12 @@
 "use client";
 
-import { useT } from "@/components/i18n/LocaleProvider";
+import { useT, usePrice } from "@/components/i18n/LocaleProvider";
 import { useEffect, useRef, useState } from "react";
 import { LocateFixed, Map as MapIcon, MapPin, Store } from "lucide-react";
 import { DeliveryMap } from "@/components/maps/DeliveryMap";
 import { ApproxNotice, LocationInput } from "@/components/maps/LocationInput";
 import { getCartDeliveryInfo, quoteDeliveryForCart, type CartDeliveryInfo } from "@/lib/actions/delivery-quote";
 import type { DeliveryQuote } from "@/lib/delivery";
-import { formatPrice } from "@/lib/currency";
 
 export type DeliveryChoice =
   | { mode: "RETRAIT" }
@@ -25,6 +24,7 @@ export type DeliveryChoice =
 /** Choix de la remise au panier : livraison géolocalisée (frais selon la distance) ou retrait. */
 export function DeliveryChooser({ productsTotal, value, onChange, recipientPhone, onAddressText }: { productsTotal: number; value: DeliveryChoice; onChange: (v: DeliveryChoice) => void; recipientPhone?: string | null; onAddressText?: (text: string) => void }) {
   const t = useT();
+  const formatPrice = usePrice();
   const [info, setInfo] = useState<CartDeliveryInfo | null>(null);
   const [locating, setLocating] = useState(false);
   const [geoError, setGeoError] = useState<string | null>(null);

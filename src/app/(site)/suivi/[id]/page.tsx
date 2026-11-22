@@ -1,7 +1,6 @@
-import { getT } from "@/lib/i18n/server";
+import { getT, getPrice } from "@/lib/i18n/server";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { formatPrice } from "@/lib/currency";
 import { DeliveryTimeline } from "@/components/DeliveryTimeline";
 import { LiveTracking } from "@/components/LiveTracking";
 
@@ -13,6 +12,7 @@ export default async function TrackingPage({
   params: Promise<{ id: string }>;
 }) {
   const t = await getT();
+  const formatPrice = await getPrice();
   const { id } = await params;
   const order = await prisma.order.findUnique({
     where: { id },

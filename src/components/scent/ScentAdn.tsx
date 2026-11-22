@@ -1,12 +1,11 @@
 "use client";
 
-import { useT } from "@/components/i18n/LocaleProvider";
+import { useT, usePrice } from "@/components/i18n/LocaleProvider";
 import { useRef, useState, useTransition } from "react";
 import Link from "@/components/i18n/Link";
 import { Dna, Loader2, MessageCircle, Plus, RotateCcw, Sparkles, X } from "lucide-react";
 import { discoverScentAdn, type AdnResult } from "@/lib/actions/scent-adn";
 import { FAMILY_LABELS, type Family } from "@/lib/scent/adn";
-import { formatPrice } from "@/lib/currency";
 
 const FAMILIES = Object.entries(FAMILY_LABELS) as [Family, string][];
 const chip = (on: boolean) => `rounded-full border px-4 py-2 text-sm transition ${on ? "border-navy bg-navy text-white" : "border-line bg-white text-navy hover:border-navy/40"}`;
@@ -16,6 +15,7 @@ type Props = { suggestions: string[]; refSlug: string | null; advisor: { name: s
 /** Parcours « Parfum ADN » : parfums portés + 4 questions → 3 parfums Chogan avec % de correspondance. */
 export function ScentAdn({ suggestions, refSlug, advisor }: Props) {
   const tr = useT();
+  const formatPrice = usePrice();
   const [worn, setWorn] = useState<string[]>([]);
   const [draft, setDraft] = useState("");
   const [gender, setGender] = useState("");

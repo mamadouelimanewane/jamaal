@@ -1,18 +1,18 @@
 "use client";
 
-import { useT } from "@/components/i18n/LocaleProvider";
+import { useT, usePrice } from "@/components/i18n/LocaleProvider";
 import { useState } from "react";
 import Link from "@/components/i18n/Link";
 import { CalendarClock, Minus, Plus, ShieldCheck, ShoppingBag } from "lucide-react";
 import type { Product } from "@/data/types";
 import { useCartStore } from "@/lib/cart-store";
-import { formatPrice } from "@/lib/currency";
 import { depositFor, type ReservationSettings } from "@/lib/reservation";
 
 const LOW = 5;
 
 export function ProductPurchasePanel({ product, reservation }: { product: Product; reservation?: ReservationSettings | null }) {
   const t = useT();
+  const formatPrice = usePrice();
   const volumes = product.volumes ?? [{ label: "Format unique", price: product.regularPrice ?? 0 }];
   const stockOf = (label: string) => product.availability?.[label] ?? Infinity;
   // Format proposé d'office : le premier disponible.

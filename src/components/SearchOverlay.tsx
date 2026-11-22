@@ -1,6 +1,6 @@
 "use client";
 
-import { useT } from "@/components/i18n/LocaleProvider";
+import { useT, usePrice } from "@/components/i18n/LocaleProvider";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "@/components/i18n/Link";
 import Image from "next/image";
@@ -8,7 +8,6 @@ import { useRouter } from "next/navigation";
 import { createPortal } from "react-dom";
 import { ArrowRight, ArrowUpRight, Clock, CornerDownLeft, Loader2, Search, Sparkles, X } from "lucide-react";
 import { useSearchStore } from "@/lib/search-store";
-import { formatPrice } from "@/lib/currency";
 import type { Category } from "@/data/types";
 
 type Suggestion = {
@@ -108,6 +107,7 @@ export function SearchOverlay({ categories }: { categories: Category[] }) {
 
 function SearchPanel({ initial, close, categories }: { initial: string; close: () => void; categories: Category[] }) {
   const tr = useT();
+  const formatPrice = usePrice();
   const router = useRouter();
   const [query, setQuery] = useState(initial);
   const [store, setStore] = useState<Record<string, Result>>({});

@@ -1,4 +1,5 @@
-import { getT } from "@/lib/i18n/server";
+import { formatPrice as formatXof } from "@/lib/currency";
+import { getT, getPrice, getLocale } from "@/lib/i18n/server";
 import Link from "@/components/i18n/Link";
 import { isInstallmentOrder, nextInstallment } from "@/lib/installments";
 import { InstallmentSchedule } from "@/components/InstallmentSchedule";
@@ -9,7 +10,6 @@ import { subscriptionDiscountPct } from "@/lib/subscriptions/run";
 import { occasionOf } from "@/lib/gift/gift";
 import { notFound } from "next/navigation";
 import { getOrderConfirmation } from "@/lib/actions/orders";
-import { formatPrice } from "@/lib/currency";
 import { ReorderButton } from "@/components/ReorderButton";
 import { PayOrderButton } from "@/components/PayOrderButton";
 import { PaymentWatcher } from "@/components/PaymentWatcher";
@@ -38,6 +38,7 @@ const paymentStatusLabels: Record<string, string> = {
 
 export default async function OrderConfirmationPage({ params, searchParams }: Props) {
   const t = await getT();
+  const formatPrice = await getPrice();
   const { id } = await params;
   const sp = await searchParams;
   let order = await getOrderConfirmation(id);
@@ -132,6 +133,9 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
             <span className="text-navy/60">{t("Total")}</span>
             <span className="font-semibold text-navy">{formatPrice(order.total)}</span>
           </div>
+          {(await getLocale()) === "ar" && (
+            <p className="mt-1 text-xs text-navy/70">{t("Montant payé en francs CFA : {v0}", { v0: formatXof(order.total) })}</p>
+          )}
           {resa && (
             <>
               <div className="mt-2 flex justify-between">

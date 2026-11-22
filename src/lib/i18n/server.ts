@@ -1,6 +1,8 @@
 import { headers } from "next/headers";
 import { LOCALE_HEADER, PATH_HEADER, isLocale, localizeHref, type Locale } from "./config";
 import { translator, type T } from "./translate";
+import { priceFormatter, type PriceFormatter } from "../currency";
+import { getMruRate } from "../fx";
 
 /** Langue de la page en cours (posée par le proxy d'après l'adresse /it/…). */
 export async function getLocale(): Promise<Locale> {
@@ -15,6 +17,12 @@ export async function getLocale(): Promise<Locale> {
 
 export async function getT(): Promise<T> {
   return translator(await getLocale());
+}
+
+/** Prix affiché dans la langue de la page : ouguiya (MRU) en arabe, FCFA sinon. */
+export async function getPrice(): Promise<PriceFormatter> {
+  const locale = await getLocale();
+  return priceFormatter(locale, locale === "ar" ? await getMruRate() : undefined);
 }
 
 /** Chemin de la page sans préfixe de langue (pour les liens hreflang et le sélecteur de langue). */

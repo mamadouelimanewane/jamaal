@@ -6,6 +6,7 @@ import { MyShopForm } from "@/components/admin/MyShopForm";
 import { CopyButton } from "@/components/admin/CopyButton";
 import { earnedBadges } from "@/lib/academy-store";
 import { badgeLabel } from "@/data/academy";
+import { isMauritanianNumber } from "@/lib/phone-country";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Ma boutique" };
@@ -29,6 +30,15 @@ export default async function MaBoutiquePage() {
             <a href={links.shop} target="_blank" rel="noopener noreferrer" className="inline-flex items-center rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-navy hover:bg-cream">Voir ma boutique ↗</a>
             <Link href="/admin/stats-boutique" className="inline-flex items-center rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-navy hover:bg-cream">Mes statistiques</Link>
           </div>
+          {isMauritanianNumber(me.whatsapp) && (
+            <div className="mt-3 rounded-xl bg-emerald-50 p-3 text-xs leading-relaxed text-emerald-900">
+              <p><strong>Numéro mauritanien (+222) : votre boutique s&apos;affiche en arabe</strong>, avec les prix en ouguiya. Vos clients peuvent passer en français avec le bouton FR en haut de la page.</p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                <CopyButton text={`${links.shop}?lang=ar`} label="Copier le lien en arabe" />
+                <CopyButton text={`${links.shop}?lang=fr`} label="Copier le lien en français" />
+              </div>
+            </div>
+          )}
           <p className="mt-3 text-xs text-navy/60">Instagram : Modifier le profil › Liens › Ajouter un lien. TikTok : Modifier le profil › Site web.</p>
         </div>
       ) : (

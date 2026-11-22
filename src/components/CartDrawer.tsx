@@ -1,13 +1,13 @@
 "use client";
 
-import { useT } from "@/components/i18n/LocaleProvider";
+import { useT, usePrice } from "@/components/i18n/LocaleProvider";
 import Link from "@/components/i18n/Link";
 import { X, Minus, Plus, Trash2 } from "lucide-react";
 import { useCartStore } from "@/lib/cart-store";
-import { formatPrice } from "@/lib/currency";
 
 export function CartDrawer() {
   const t = useT();
+  const formatPrice = usePrice();
   const { items, isOpen, close, removeItem, updateQuantity, total } = useCartStore();
 
   if (!isOpen) return null;

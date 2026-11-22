@@ -2,8 +2,10 @@ import { requireAdminPage } from "@/lib/admin-page-guard";
 import Link from "next/link";
 import { getLoyaltySettings } from "@/lib/settings";
 import { getBusinessModel } from "@/lib/business-model-store";
-import { updateLoyaltySettingsAction } from "@/lib/actions/settings";
-import { Settings, Percent, Gift } from "lucide-react";
+import { updateLoyaltySettingsAction, updateMruRateAction } from "@/lib/actions/settings";
+import { getMruRate } from "@/lib/fx";
+import { toMru } from "@/lib/currency";
+import { Settings, Percent, Gift, Coins } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -11,6 +13,7 @@ export default async function SettingsPage() {
   await requireAdminPage("reglages");
   const model = await getBusinessModel();
   const loyalty = await getLoyaltySettings();
+  const mruRate = await getMruRate();
 
   return (
     <div className="max-w-4xl">
@@ -98,6 +101,40 @@ export default async function SettingsPage() {
             >
               Enregistrer les règles de fidélité
             </button>
+          </form>
+        </div>
+
+        {/* Version arabe : prix en ouguiya */}
+        <div className="rounded-2xl border border-line bg-white p-6 shadow-sm md:col-span-2">
+          <div className="flex items-center gap-2 font-semibold text-navy">
+            <Coins size={18} className="text-emerald-700" />
+            <h2>Ouguiya (version arabe du site)</h2>
+          </div>
+          <p className="mt-1 text-xs text-navy/75">
+            Sur le site en arabe (/ar), les prix s&apos;affichent en ouguiya mauritanienne (MRU), convertis depuis le FCFA avec ce taux.
+            Le paiement reste en FCFA : le montant en FCFA est rappelé au panier et sur la commande.
+          </p>
+          <form action={updateMruRateAction} className="mt-5 flex flex-wrap items-end gap-3">
+            <div>
+              <label htmlFor="mruRate" className="block text-xs font-semibold text-navy/85">1 ouguiya (MRU) = … FCFA</label>
+              <input
+                id="mruRate"
+                type="number"
+                name="mruRate"
+                defaultValue={mruRate}
+                min="1"
+                max="100"
+                step="0.001"
+                required
+                className="mt-1 w-40 rounded-xl border border-line bg-cream/50 px-4 py-2.5 text-sm text-navy focus:border-navy focus:outline-none"
+              />
+            </div>
+            <button type="submit" className="rounded-xl bg-navy px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-navy-light">
+              Enregistrer le taux
+            </button>
+            <p className="text-xs text-navy/70">
+              Exemple : 14 800 FCFA = <strong>{toMru(14800, mruRate).toLocaleString("fr-FR")} MRU</strong>
+            </p>
           </form>
         </div>
       </div>

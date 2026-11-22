@@ -1,12 +1,11 @@
 "use client";
 
-import { useT } from "@/components/i18n/LocaleProvider";
+import { useT, usePrice } from "@/components/i18n/LocaleProvider";
 import Image from "next/image";
 import Link from "@/components/i18n/Link";
 import { useState } from "react";
 import { Gift, ShoppingBag } from "lucide-react";
 import { useCartStore } from "@/lib/cart-store";
-import { formatPrice } from "@/lib/currency";
 
 export interface OfferCardData {
   slug: string;
@@ -23,6 +22,7 @@ export interface OfferCardData {
 /** Coffret de fêtes : produits, prix barré, et ajout de tout le coffret au panier en un geste. */
 export function OfferCard({ offer, large = false }: { offer: OfferCardData; large?: boolean }) {
   const t = useT();
+  const formatPrice = usePrice();
   const addItem = useCartStore((s) => s.addItem);
   const [added, setAdded] = useState(false);
   const saving = offer.value - offer.packPrice;
