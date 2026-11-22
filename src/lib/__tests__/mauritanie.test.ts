@@ -22,3 +22,14 @@ test("ouguiya : conversion depuis le FCFA, arrondie à l'ouguiya", () => {
   assert.equal(priceFormatter("fr", 14.7)(14800), formatPrice(14800));
   assert.equal(priceFormatter("it")(14800), formatPrice(14800));
 });
+
+test("numéro saisi par un client : +222 ou 8 chiffres locaux, jamais un numéro sénégalais", async () => {
+  const { looksMauritanian } = await import("../phone-country");
+  assert.equal(looksMauritanian("+222 46 12 34 56"), true);
+  assert.equal(looksMauritanian("46 12 34 56"), true);
+  assert.equal(looksMauritanian("22123456"), true);
+  assert.equal(looksMauritanian("77 123 45 67"), false);
+  assert.equal(looksMauritanian("+221 77 123 45 67"), false);
+  assert.equal(looksMauritanian("56 12 34 56"), false);
+  assert.equal(looksMauritanian(""), false);
+});

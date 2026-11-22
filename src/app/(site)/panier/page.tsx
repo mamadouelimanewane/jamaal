@@ -15,7 +15,8 @@ import { locateFromText } from "@/lib/actions/delivery-quote";
 import { getCartPrices, loadSharedSelection, previewCartDiscounts, recoverCartDraft, saveCartDraft, type CartDiscounts } from "@/lib/actions/cart";
 import { DeliveryChooser, type DeliveryChoice } from "@/components/DeliveryChooser";
 import { getActiveConsultantsForCheckout, getCheckoutPrefill } from "@/lib/actions/public-data";
-import { forgetCheckoutMemory, loadCheckoutMemory, saveCheckoutMemory } from "@/lib/checkout-memory";
+import { forgetCheckoutMemory, loadCheckoutMemory, saveCheckoutMemory, stashCheckoutHandoff, takeCheckoutHandoff } from "@/lib/checkout-memory";
+import { looksMauritanian } from "@/lib/phone-country";
 import { OrderOnWhatsApp } from "@/components/OrderOnWhatsApp";
 import { initiatePayment } from "@/lib/actions/payment";
 import { listPaymentOptions } from "@/lib/actions/payment-options";
@@ -50,6 +51,7 @@ export default function CartPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [customer, setCustomer] = useState({ name: "", phone: "", address: "" });
+  const [arOfferDismissed, setArOfferDismissed] = useState(false);
   const [prefilled, setPrefilled] = useState(false);
   const [consultantId, setConsultantId] = useState("");
   // Destinataire : le client lui-même, ou une autre personne (cadeau, famille…).
@@ -197,6 +199,9 @@ export default function CartPage() {
   useEffect(() => {
     let alive = true;
     Promise.resolve().then(() => {
+      // Arrivée depuis l'autre langue (proposition « numéro mauritanien ») : on reprend ce qui était saisi.
+      const handoff = takeCheckoutHandoff();
+      if (alive && handoff) setCustomer((c) => ({ ...c, name: c.name || handoff.name, phone: c.phone || handoff.phone }));
       const memory = loadCheckoutMemory();
       if (alive && memory) {
         setCustomer((c) => ({ ...c, name: c.name || memory.name, phone: c.phone || memory.phone }));
@@ -488,6 +493,23 @@ export default function CartPage() {
                 onChange={(e) => setCustomer((c) => ({ ...c, phone: e.target.value }))}
                 className="rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-navy"
               />
+              {locale !== "ar" && !arOfferDismissed && looksMauritanian(customer.phone) && (
+                <div className="flex flex-wrap items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-900">
+                  <span className="min-w-0 flex-1">{tr("Numéro mauritanien : voulez-vous continuer en arabe, avec les prix en ouguiya ?")}</span>
+                  {/* Lien classique (rechargement complet) : la langue et la monnaie viennent de la mise en page du site. */}
+                  <a
+                    href="/ar/panier"
+                    lang="ar"
+                    onClick={() => stashCheckoutHandoff({ name: customer.name, phone: customer.phone })}
+                    className="rounded-full bg-emerald-700 px-3 py-1 font-semibold text-white hover:bg-emerald-800"
+                  >
+                    العربية · أوقية
+                  </a>
+                  <button type="button" onClick={() => setArOfferDismissed(true)} className="font-semibold underline">
+                    {tr("Non merci")}
+                  </button>
+                </div>
+              )}
               {prefilled && (
                 <p className="-mt-1 text-xs text-navy/65">
                   {tr("Informations pré-remplies, modifiables si vous commandez pour quelqu'un d'autre.")}{" "}

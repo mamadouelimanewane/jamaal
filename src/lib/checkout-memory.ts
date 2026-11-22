@@ -38,3 +38,26 @@ export function saveCheckoutMemory(v: { name: string; phone: string }) {
     // stockage indisponible (navigation privée) : sans conséquence
   }
 }
+
+/** Passage du panier d'une langue à l'autre : nom et téléphone déjà saisis suivent le client (onglet en cours seulement). */
+const HANDOFF = "jamaal_checkout_handoff";
+
+export function stashCheckoutHandoff(v: { name: string; phone: string }) {
+  try {
+    window.sessionStorage.setItem(HANDOFF, JSON.stringify({ name: v.name.slice(0, 120), phone: v.phone.slice(0, 30) }));
+  } catch {
+    // sans conséquence
+  }
+}
+
+export function takeCheckoutHandoff(): { name: string; phone: string } | null {
+  try {
+    const raw = window.sessionStorage.getItem(HANDOFF);
+    if (!raw) return null;
+    window.sessionStorage.removeItem(HANDOFF);
+    const v = JSON.parse(raw) as { name?: unknown; phone?: unknown };
+    return { name: typeof v.name === "string" ? v.name : "", phone: typeof v.phone === "string" ? v.phone : "" };
+  } catch {
+    return null;
+  }
+}

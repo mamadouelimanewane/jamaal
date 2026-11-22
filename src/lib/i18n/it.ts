@@ -99,6 +99,8 @@ export const IT: Record<string, string> = {
   "À la réception, le client vérifie que le colis est complet et que les flacons sont intacts et scellés. Tout produit manquant, cassé ou non conforme doit être signalé dans les 48 heures suivant la réception, sur WhatsApp, avec le numéro de commande et une photo. JAMAAL remplace alors le produit ou le rembourse.": "Al ricevimento, il cliente verifica che il pacco sia completo e che i flaconi siano intatti e sigillati. Ogni prodotto mancante, rotto o non conforme deve essere segnalato entro 48 ore dal ricevimento, su WhatsApp, con il numero d'ordine e una foto. JAMAAL sostituisce allora il prodotto o lo rimborsa.",
   "À la une chez JAMAAL": "In primo piano da JAMAAL",
   "Montant payé en francs CFA : {v0}": "Importo pagato in franchi CFA: {v0}",
+  "Numéro mauritanien : voulez-vous continuer en arabe, avec les prix en ouguiya ?": "Numero mauritano: vuoi continuare in arabo, con i prezzi in ouguiya?",
+  "Non merci": "No grazie",
   "Échantillon": "Campione",
   "À partir de": "A partire da",
   "à partir de": "a partire da",
