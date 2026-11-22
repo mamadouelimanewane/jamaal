@@ -430,6 +430,7 @@ export async function runCampaign(id: string, budgetMs = 45_000): Promise<{ sent
       to: r.phone,
       kind: "campagne",
       campaignId: id,
+      recipientName: r.name,
       text: personalize(c.body, r.name),
       free: false,
       template: chosenTemplate,

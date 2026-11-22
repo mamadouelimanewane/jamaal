@@ -801,6 +801,7 @@ export async function sendViaKwingoConnection(opts: {
 
   let resolvedTemplateName = opts.templateName;
   let resolvedLanguage = opts.templateLanguage || "fr";
+  let matchedTemplate: MetaApprovedTemplate | null = null;
 
   if (wantsTemplate) {
     const approvedList = await fetchKwingoMetaTemplates().catch(() => []);
@@ -811,6 +812,7 @@ export async function sendViaKwingoConnection(opts: {
     ) ?? approvedList.find((t) => t.templateName.toLowerCase() === (opts.templateName ?? "").toLowerCase());
 
     if (exactMatch) {
+      matchedTemplate = exactMatch;
       resolvedTemplateName = exactMatch.templateName;
       resolvedLanguage = exactMatch.language;
     } else if (isWindowOpen) {
@@ -820,13 +822,27 @@ export async function sendViaKwingoConnection(opts: {
     } else if (approvedList.length > 0) {
       // Fenêtre 24h fermée et modèle non trouvé : utiliser le premier modèle Meta français approuvé du compte
       const fallbackMeta = approvedList.find((t) => t.language.startsWith("fr")) ?? approvedList[0];
+      matchedTemplate = fallbackMeta;
       resolvedTemplateName = fallbackMeta.templateName;
       resolvedLanguage = fallbackMeta.language;
     }
   }
 
-  const buildPayload = (asTemplate: boolean) =>
-    asTemplate
+  const buildTemplateComponents = (tpl: MetaApprovedTemplate | null) => {
+    if (!tpl?.paramCount || tpl.paramCount <= 0) return undefined;
+    const rawName = (opts.recipientName ?? "").trim();
+    const firstName = rawName && !rawName.startsWith("+") ? rawName.split(/\s+/)[0] : "";
+    if (!firstName) return undefined;
+    const parameters = Array.from({ length: tpl.paramCount }, (_, idx) => ({
+      type: "text",
+      text: idx === 0 ? firstName : (tpl.exampleParams?.[idx]?.trim() || `Info ${idx + 1}`),
+    }));
+    return [{ type: "body", parameters }];
+  };
+
+  const buildPayload = (asTemplate: boolean) => {
+    const components = asTemplate ? buildTemplateComponents(matchedTemplate) : undefined;
+    return asTemplate
       ? {
           wa_id: opts.to,
           to: opts.to,
@@ -834,6 +850,7 @@ export async function sendViaKwingoConnection(opts: {
           templateName: resolvedTemplateName,
           language: resolvedLanguage,
           body: opts.text,
+          ...(components ? { components } : {}),
         }
       : {
           wa_id: opts.to,
@@ -842,6 +859,7 @@ export async function sendViaKwingoConnection(opts: {
           body: opts.text,
           message_body: opts.text,
         };
+  };
 
   const postToKwingo = async (payload: Record<string, unknown>) => {
     const res = await fetch(`${conn.apiUrl}/messages/send`, {

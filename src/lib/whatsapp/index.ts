@@ -40,7 +40,14 @@ export function whatsappConfig() {
  * ajouté au texte. Le numéro est mis au format international (77… → 22177…).
  */
 export async function sendWhatsApp(
-  opts: { to: string; text: string; kind: WhatsAppKind; campaignId?: string; templateLanguage?: string } & RichOptions,
+  opts: {
+    to: string;
+    text: string;
+    kind: WhatsAppKind;
+    campaignId?: string;
+    templateLanguage?: string;
+    recipientName?: string | null;
+  } & RichOptions,
 ): Promise<SendResult> {
   const to = canonicalizePhone(opts.to);
   const body = opts.text.slice(0, 1500);
@@ -57,6 +64,7 @@ export async function sendWhatsApp(
         to,
         text: opts.cta ? `${body}\n${opts.cta.label} : ${opts.cta.url}` : body,
         free: opts.free,
+        recipientName: opts.recipientName,
         templateName: opts.template || process.env.WHATSAPP_TEMPLATE_NAME || "test_jamaal",
         templateLanguage: opts.templateLanguage,
       });

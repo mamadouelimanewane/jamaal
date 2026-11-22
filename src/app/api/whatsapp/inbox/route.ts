@@ -555,12 +555,17 @@ export async function POST(req: NextRequest) {
   const forceTemplate = (body.useTemplate === true && viewer.mode === "SUPERVISOR") || Boolean(selectedTemplateName);
   const free = !forceTemplate && Boolean(recentInbound);
 
+  const threadInfo = await prisma.whatsAppThread
+    .findUnique({ where: { phone }, select: { name: true } })
+    .catch(() => null);
+
   // 1. Si le compte KwingoChat / Jamaal Luxury est connecté, envoi direct via l'API KwingoChat
   const kwingoRes = await sendViaKwingoConnection({
     to: phone,
     text,
     free,
     windowOpen: Boolean(recentInbound),
+    recipientName: threadInfo?.name ?? null,
     templateName: selectedTemplateName || (forceTemplate ? process.env.WHATSAPP_TEMPLATE_NAME || "test_jamaal" : undefined),
     templateLanguage: selectedTemplateLanguage,
   });
