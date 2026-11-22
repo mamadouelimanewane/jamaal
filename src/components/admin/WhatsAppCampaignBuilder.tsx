@@ -7,6 +7,7 @@ import { createCampaign, parseCampaignExcelAction } from "@/lib/actions/whatsapp
 import type {
   CampaignRecipient,
   CampaignSourceMode,
+  ConsultantActivityFilter,
   TemplateVarBinding,
   TemplateVarSource,
 } from "@/lib/whatsapp/campaigns";
@@ -117,6 +118,7 @@ export interface WhatsAppCampaignBuilderProps {
   initialAudience: {
     target: "CLIENTS" | "REVENDEURS";
     inactiveDays: number;
+    consultantActivity: ConsultantActivityFilter;
     category: string;
     consultantId: string;
     ctaLabel: string;
@@ -505,12 +507,28 @@ export function WhatsAppCampaignBuilder({
               Destinataires
               <select name="target" defaultValue={initialAudience.target} className={`mt-1 ${field}`}>
                 <option value="CLIENTS">Clients</option>
-                <option value="REVENDEURS">Revendeurs actifs</option>
+                <option value="REVENDEURS">Consultants / Revendeurs actifs</option>
               </select>
             </label>
 
             <label className="text-sm text-navy">
-              Clients sans commande depuis (jours, 0 = tous)
+              Activité des consultants (si Destinataires = Consultants)
+              <select
+                name="consultantActivity"
+                defaultValue={initialAudience.consultantActivity}
+                className={`mt-1 ${field}`}
+              >
+                <option value="TOUS">Tous les consultants actifs</option>
+                <option value="ZERO_VENTE_ZERO_VISITE">Aucune vente ni visite/publication (0 vente · 0 visite)</option>
+                <option value="ZERO_VENTE">Aucune vente réalisée (0 commande)</option>
+                <option value="INACTIF_30J">Inactifs depuis 30 jours (aucune vente ni visite)</option>
+                <option value="ACTIFS_VENTES">Consultants actifs (au moins 1 vente)</option>
+                <option value="SANS_FILLEUL">Sans filleul parrainé (0 filleul)</option>
+              </select>
+            </label>
+
+            <label className="text-sm text-navy">
+              Sans commande depuis (jours, 0 = tous)
               <input
                 name="inactiveDays"
                 type="number"
@@ -784,6 +802,7 @@ export function WhatsAppCampaignBuilder({
         <form action={createCampaign} className="mt-5 space-y-3">
           <input type="hidden" name="draftId" value={editingDraftId ?? ""} />
           <input type="hidden" name="target" value={initialAudience.target} />
+          <input type="hidden" name="consultantActivity" value={initialAudience.consultantActivity} />
           <input type="hidden" name="inactiveDays" value={String(initialAudience.inactiveDays)} />
           <input type="hidden" name="category" value={initialAudience.category} />
           <input type="hidden" name="consultantId" value={initialAudience.consultantId} />

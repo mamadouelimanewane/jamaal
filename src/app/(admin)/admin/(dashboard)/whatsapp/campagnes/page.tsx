@@ -20,6 +20,7 @@ const STATUS: Record<string, string> = { BROUILLON: "Brouillon", EN_COURS: "En c
 
 type SP = {
   target?: string;
+  consultantActivity?: string;
   inactiveDays?: string;
   category?: string;
   consultantId?: string;
@@ -45,6 +46,7 @@ export default async function CampagnesPage({ searchParams }: { searchParams: Pr
 
   const audience = parseAudience({
     target: sp.target ?? draftAudience?.target,
+    consultantActivity: sp.consultantActivity ?? draftAudience?.consultantActivity,
     inactiveDays: sp.inactiveDays ?? (draftAudience?.inactiveDays !== undefined ? String(draftAudience.inactiveDays) : undefined),
     category: sp.category ?? draftAudience?.category,
     consultantId: sp.consultantId ?? draftAudience?.consultantId,
@@ -239,6 +241,7 @@ export default async function CampagnesPage({ searchParams }: { searchParams: Pr
         filteredRecipients={recipients}
         initialAudience={{
           target: audience.target,
+          consultantActivity: audience.consultantActivity ?? "TOUS",
           inactiveDays: audience.inactiveDays ?? 0,
           category: audience.category ?? "",
           consultantId: audience.consultantId ?? "",

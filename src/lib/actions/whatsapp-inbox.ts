@@ -174,6 +174,7 @@ export async function createCampaign(formData: FormData) {
   const audience = parseAudience({
     target: formData.get("target"),
     inactiveDays: formData.get("inactiveDays"),
+    consultantActivity: formData.get("consultantActivity"),
     category: formData.get("category"),
     consultantId: formData.get("consultantId"),
     cta: { label: formData.get("ctaLabel"), url: formData.get("ctaUrl") },

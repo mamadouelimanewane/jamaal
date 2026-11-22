@@ -44,10 +44,29 @@ export interface CampaignRecipient {
 
 export type CampaignSourceMode = "FILTRES" | "EXCEL" | "FILTRES_ET_EXCEL";
 
+export type ConsultantActivityFilter =
+  | "TOUS"
+  | "ZERO_VENTE_ZERO_VISITE"
+  | "ZERO_VENTE"
+  | "INACTIF_30J"
+  | "ACTIFS_VENTES"
+  | "SANS_FILLEUL";
+
+const VALID_CONSULTANT_ACTIVITIES = new Set<ConsultantActivityFilter>([
+  "TOUS",
+  "ZERO_VENTE_ZERO_VISITE",
+  "ZERO_VENTE",
+  "INACTIF_30J",
+  "ACTIFS_VENTES",
+  "SANS_FILLEUL",
+]);
+
 export interface CampaignAudience {
   target: "CLIENTS" | "REVENDEURS";
-  /** Clients sans commande depuis N jours (0 = tous). */
+  /** Clients ou consultants sans commande depuis N jours (0 = tous). */
   inactiveDays?: number;
+  /** Filtre sur l'activité des consultants (quand target === "REVENDEURS"). */
+  consultantActivity?: ConsultantActivityFilter;
   /** Clients ayant acheté dans cette catégorie. */
   category?: string;
   /** Clients rattachés à ce revendeur. */
@@ -179,6 +198,11 @@ export function parseAudience(raw: unknown): CampaignAudience {
     if (cleanBindings.length > 0) {
       parsed.templateVarBindings = cleanBindings;
     }
+  }
+
+  const actRaw = s(a.consultantActivity, 40) as ConsultantActivityFilter;
+  if (actRaw && actRaw !== "TOUS" && VALID_CONSULTANT_ACTIVITIES.has(actRaw)) {
+    parsed.consultantActivity = actRaw;
   }
 
   if (a.sourceMode === "EXCEL" || a.sourceMode === "FILTRES_ET_EXCEL" || a.sourceMode === "FILTRES") {
@@ -455,12 +479,63 @@ export async function campaignRecipients(a: CampaignAudience): Promise<CampaignR
 
   if (mode !== "EXCEL") {
     if (a.target === "REVENDEURS") {
-      dbRows = (
-        await prisma.consultant.findMany({
-          where: { active: true },
-          select: { id: true, whatsapp: true, name: true, city: true, shopName: true, slug: true },
-        })
-      ).map((c) => ({
+      const consConds: Prisma.Sql[] = [
+        Prisma.sql`c.active = true`,
+        Prisma.sql`coalesce(c.whatsapp, '') <> ''`,
+      ];
+      const act = a.consultantActivity ?? "TOUS";
+      if (act === "ZERO_VENTE_ZERO_VISITE") {
+        consConds.push(
+          Prisma.sql`NOT EXISTS (SELECT 1 FROM "Order" o WHERE o."consultantId" = c.id AND o.status <> 'ANNULEE')`,
+        );
+        consConds.push(
+          Prisma.sql`NOT EXISTS (SELECT 1 FROM "ShopEvent" se WHERE se."consultantId" = c.id)`,
+        );
+      } else if (act === "ZERO_VENTE") {
+        consConds.push(
+          Prisma.sql`NOT EXISTS (SELECT 1 FROM "Order" o WHERE o."consultantId" = c.id AND o.status <> 'ANNULEE')`,
+        );
+      } else if (act === "INACTIF_30J") {
+        const since30 = new Date(Date.now() - 30 * 86_400_000);
+        consConds.push(
+          Prisma.sql`NOT EXISTS (SELECT 1 FROM "Order" o WHERE o."consultantId" = c.id AND o.status <> 'ANNULEE' AND o."createdAt" >= ${since30})`,
+        );
+        consConds.push(
+          Prisma.sql`NOT EXISTS (SELECT 1 FROM "ShopEvent" se WHERE se."consultantId" = c.id AND se."createdAt" >= ${since30})`,
+        );
+      } else if (act === "ACTIFS_VENTES") {
+        consConds.push(
+          Prisma.sql`EXISTS (SELECT 1 FROM "Order" o WHERE o."consultantId" = c.id AND o.status <> 'ANNULEE')`,
+        );
+      } else if (act === "SANS_FILLEUL") {
+        consConds.push(
+          Prisma.sql`NOT EXISTS (SELECT 1 FROM "Consultant" f WHERE f."sponsorId" = c.id AND f.active = true)`,
+        );
+      }
+
+      if (a.inactiveDays) {
+        const since = new Date(Date.now() - a.inactiveDays * 86_400_000);
+        consConds.push(
+          Prisma.sql`NOT EXISTS (SELECT 1 FROM "Order" o WHERE o."consultantId" = c.id AND o.status <> 'ANNULEE' AND o."createdAt" >= ${since})`,
+        );
+      }
+
+      const consRows = await prisma.$queryRaw<
+        { id: string; whatsapp: string; name: string; city: string | null; shopName: string | null; slug: string | null }[]
+      >`
+        SELECT c.id, c.whatsapp, c.name, c.city, c."shopName", c.slug
+        FROM "Consultant" c
+        WHERE ${Prisma.join(consConds, " AND ")}
+          AND NOT EXISTS (
+            SELECT 1 FROM "Customer" cust
+            WHERE cust."whatsappOptOut" = true
+              AND right(regexp_replace(cust.phone, '[^0-9]', '', 'g'), 9) = right(regexp_replace(c.whatsapp, '[^0-9]', '', 'g'), 9)
+          )
+        ORDER BY c."createdAt" ASC
+        LIMIT 5000
+      `;
+
+      dbRows = consRows.map((c) => ({
         phone: c.whatsapp,
         name: c.name,
         consultantId: c.id,
