@@ -1,23 +1,107 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import { CheckCircle2, FileSpreadsheet, Loader2, Send, Trash2, Upload, Users } from "lucide-react";
+import { CheckCircle2, FileSpreadsheet, Loader2, Send, SlidersHorizontal, Trash2, Upload, Users } from "lucide-react";
 import { SearchSelect } from "@/components/admin/SearchSelect";
 import { createCampaign, parseCampaignExcelAction } from "@/lib/actions/whatsapp-inbox";
-import type { CampaignRecipient, CampaignSourceMode } from "@/lib/whatsapp/campaigns";
+import type {
+  CampaignRecipient,
+  CampaignSourceMode,
+  TemplateVarBinding,
+  TemplateVarSource,
+} from "@/lib/whatsapp/campaigns";
 import type { MetaApprovedTemplate } from "@/lib/whatsapp/kwingo-bridge";
 
 const field =
   "w-full rounded-xl border border-line bg-white px-3 py-2 text-sm text-navy outline-none focus:border-ia focus:ring-4 focus:ring-ia/10";
+
+const VAR_SOURCE_OPTIONS: { value: TemplateVarSource; label: string; group: string }[] = [
+  { value: "PRENOM", label: "Prénom du consultant / client", group: "Attributs destinataire" },
+  { value: "NOM", label: "Nom complet du destinataire", group: "Attributs destinataire" },
+  { value: "VILLE", label: "Ville du consultant", group: "Attributs destinataire" },
+  { value: "BOUTIQUE", label: "Nom de la boutique du consultant", group: "Attributs destinataire" },
+  { value: "LIEN_BOUTIQUE", label: "Lien boutique (/c/slug)", group: "Attributs destinataire" },
+  { value: "CONSULTANT", label: "Nom du parrain / consultant rattaché", group: "Attributs destinataire" },
+  { value: "TELEPHONE", label: "Numéro WhatsApp", group: "Attributs destinataire" },
+  { value: "DATE_JOUR", label: "Date du jour (automatique)", group: "Paramètres temporels" },
+  { value: "MOIS_COURANT", label: "Mois en cours (automatique)", group: "Paramètres temporels" },
+  { value: "DATE_FIXE", label: "Date précise (calendrier)", group: "Paramètre fixe campagne" },
+  { value: "TEXTE_FIXE", label: "Texte fixe libre (heure, lieu, promo…)", group: "Paramètre fixe campagne" },
+];
+
+function formatDateFr(raw?: string): string {
+  const s = (raw ?? "").trim();
+  if (!s) return new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+    const [y, m, d] = s.split("-").map(Number);
+    return new Date(Date.UTC(y, m - 1, d, 12, 0, 0)).toLocaleDateString("fr-FR", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      timeZone: "UTC",
+    });
+  }
+  return s;
+}
+
+function buildDefaultBindings(tpl: MetaApprovedTemplate): TemplateVarBinding[] {
+  const count = tpl.paramCount ?? 0;
+  if (count <= 0) return [];
+  return Array.from({ length: count }, (_, idx) => {
+    if (idx === 0) return { source: "PRENOM" };
+    return {
+      source: "TEXTE_FIXE",
+      value: tpl.exampleParams?.[idx] || "",
+    };
+  });
+}
+
+function resolvePreviewVars(bindings: TemplateVarBinding[], sample?: CampaignRecipient): string[] {
+  const name = (sample?.name ?? "Awa Diop").trim();
+  const first = name.split(/\s+/)[0] || "Awa";
+  return bindings.map((b) => {
+    switch (b.source) {
+      case "PRENOM":
+        return first;
+      case "NOM":
+        return name;
+      case "TELEPHONE":
+        return sample?.phone ? `+${sample.phone.replace(/^\+/, "")}` : "+221770000000";
+      case "VILLE":
+        return sample?.city || "Dakar";
+      case "BOUTIQUE":
+        return sample?.shopName || name;
+      case "LIEN_BOUTIQUE":
+        return sample?.slug ? `https://www.jamaal.sn/c/${sample.slug}` : "https://www.jamaal.sn";
+      case "CONSULTANT":
+        return sample?.consultantName || "JAMAAL Luxury";
+      case "DATE_JOUR":
+        return new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+      case "MOIS_COURANT":
+        return new Date().toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+      case "DATE_FIXE":
+        return formatDateFr(b.value);
+      case "TEXTE_FIXE":
+      default:
+        return (b.value ?? "").trim() || "—";
+    }
+  });
+}
 
 function phoneTail9(raw: string): string {
   const digits = raw.replace(/\D/g, "");
   return digits.length >= 9 ? digits.slice(-9) : digits;
 }
 
-function personalizePreview(body: string, name: string): string {
+function personalizePreview(body: string, name: string, resolvedVars?: string[]): string {
+  let out = body;
+  if (resolvedVars && resolvedVars.length > 0) {
+    resolvedVars.forEach((val, idx) => {
+      out = out.replace(new RegExp(`\\{\\{${idx + 1}\\}\\}`, "g"), val);
+    });
+  }
   const first = name.trim().split(/\s+/)[0] || "Client";
-  return body
+  return out
     .replace(/\{prenom\}/gi, first)
     .replace(/\{\{1\}\}/g, first)
     .replace(/\{nom\}/gi, name.trim() || "Client")
@@ -40,6 +124,7 @@ export interface WhatsAppCampaignBuilderProps {
   };
   initialTemplateName?: string;
   initialTemplateLanguage?: string;
+  initialTemplateVarBindings?: TemplateVarBinding[];
   initialBody?: string;
   initialTitle?: string;
   initialSourceMode?: CampaignSourceMode;
@@ -56,6 +141,7 @@ export function WhatsAppCampaignBuilder({
   initialAudience,
   initialTemplateName,
   initialTemplateLanguage,
+  initialTemplateVarBindings,
   initialBody,
   initialTitle = "",
   initialSourceMode = "FILTRES",
@@ -63,7 +149,7 @@ export function WhatsAppCampaignBuilder({
   initialExcelFileName = "",
   editingDraftId,
 }: WhatsAppCampaignBuilderProps) {
-  const defaultTemplate =
+  const defaultTemplate: MetaApprovedTemplate =
     metaTemplates.find((t) => t.templateName === initialTemplateName) ??
     metaTemplates.find((t) => t.language.startsWith("fr")) ??
     metaTemplates[0] ?? {
@@ -73,22 +159,25 @@ export function WhatsAppCampaignBuilder({
       language: "fr",
       category: "MARKETING",
       text: "Bonjour {prenom}, nous vous invitons au lancement du nouveau parfum KiKi n44 qui aura lieu le 7 novembre 2026 à 15h00 au Radisson",
+      rawBody:
+        "Bonjour {{1}}, nous vous invitons au lancement du nouveau parfum KiKi n44 qui aura lieu le {{2}} à {{3}} au Radisson",
       isMetaApproved: true as const,
+      paramCount: 3,
+      exampleParams: ["Macoumba", "7 novembre 2026", "15h00"],
     };
 
-  const [selectedTemplate, setSelectedTemplate] = useState<{
-    templateName: string;
-    language: string;
-    title: string;
-    category: string;
-  }>({
-    templateName: defaultTemplate.templateName,
+  const [selectedTemplate, setSelectedTemplate] = useState<MetaApprovedTemplate>({
+    ...defaultTemplate,
     language: initialTemplateLanguage || defaultTemplate.language,
-    title: defaultTemplate.title,
-    category: defaultTemplate.category,
   });
 
-  const [body, setBody] = useState<string>(initialBody || defaultTemplate.text);
+  const [varBindings, setVarBindings] = useState<TemplateVarBinding[]>(() =>
+    initialTemplateVarBindings && initialTemplateVarBindings.length > 0
+      ? initialTemplateVarBindings
+      : buildDefaultBindings(defaultTemplate),
+  );
+
+  const [body, setBody] = useState<string>(initialBody || defaultTemplate.rawBody || defaultTemplate.text);
   const [title, setTitle] = useState<string>(initialTitle);
   const [ctaLabel, setCtaLabel] = useState<string>(initialAudience.ctaLabel);
   const [ctaUrl, setCtaUrl] = useState<string>(initialAudience.ctaUrl);
@@ -220,13 +309,9 @@ export function WhatsAppCampaignBuilder({
                 key={tpl.id}
                 type="button"
                 onClick={() => {
-                  setSelectedTemplate({
-                    templateName: tpl.templateName,
-                    language: tpl.language,
-                    title: tpl.title,
-                    category: tpl.category,
-                  });
-                  setBody(tpl.text);
+                  setSelectedTemplate(tpl);
+                  setVarBindings(buildDefaultBindings(tpl));
+                  setBody(tpl.rawBody || tpl.text);
                 }}
                 className={`flex flex-col justify-between rounded-2xl border p-3.5 text-left transition ${
                   isSelected
@@ -255,6 +340,101 @@ export function WhatsAppCampaignBuilder({
             );
           })}
         </div>
+
+        {/* Association dynamique des variables {{1}}, {{2}}, {{3}}… du modèle Meta */}
+        {varBindings.length > 0 && (
+          <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50/40 p-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#1f9d55]">
+                <SlidersHorizontal size={14} />
+                Association des variables du modèle ({varBindings.length} variable{varBindings.length > 1 ? "s" : ""})
+              </p>
+              <span className="text-[11px] text-navy/65">
+                Liez chaque variable <code>{"{{1}}"}</code>, <code>{"{{2}}"}</code>… à un attribut du consultant ou à une date/valeur fixe.
+              </span>
+            </div>
+
+            <div className="mt-3 space-y-2.5">
+              {varBindings.map((binding, idx) => (
+                <div
+                  key={idx}
+                  className="grid items-center gap-2.5 rounded-xl border border-emerald-200/80 bg-white p-2.5 sm:grid-cols-[5.5rem_1fr_1fr]"
+                >
+                  <span className="inline-flex items-center justify-center rounded-lg bg-navy px-2.5 py-1.5 font-mono text-xs font-bold text-white">
+                    {`{{${idx + 1}}}`}
+                  </span>
+
+                  <select
+                    aria-label={`Source pour la variable {{${idx + 1}}}`}
+                    value={binding.source}
+                    onChange={(e) => {
+                      const nextSrc = e.target.value as TemplateVarSource;
+                      setVarBindings((prev) =>
+                        prev.map((item, i) =>
+                          i === idx
+                            ? {
+                                source: nextSrc,
+                                value:
+                                  nextSrc === "DATE_FIXE"
+                                    ? item.value && /^\d{4}-\d{2}-\d{2}$/.test(item.value)
+                                      ? item.value
+                                      : new Date().toISOString().slice(0, 10)
+                                    : nextSrc === "TEXTE_FIXE"
+                                      ? item.value || selectedTemplate.exampleParams?.[idx] || ""
+                                      : undefined,
+                              }
+                            : item,
+                        ),
+                      );
+                    }}
+                    className={field}
+                  >
+                    {VAR_SOURCE_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+
+                  {binding.source === "DATE_FIXE" ? (
+                    <input
+                      type="date"
+                      value={binding.value ?? ""}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setVarBindings((prev) =>
+                          prev.map((item, i) => (i === idx ? { ...item, value: val } : item)),
+                        );
+                      }}
+                      className={field}
+                    />
+                  ) : binding.source === "TEXTE_FIXE" ? (
+                    <input
+                      type="text"
+                      maxLength={200}
+                      value={binding.value ?? ""}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setVarBindings((prev) =>
+                          prev.map((item, i) => (i === idx ? { ...item, value: val } : item)),
+                        );
+                      }}
+                      placeholder={selectedTemplate.exampleParams?.[idx] || "Ex. 15h00, Radisson Blu…"}
+                      className={field}
+                    />
+                  ) : (
+                    <div className="rounded-xl bg-cream/60 px-3 py-2 text-xs text-navy/75">
+                      Aperçu :{" "}
+                      <strong className="text-navy">
+                        {resolvePreviewVars([binding], finalRecipients[0])[0]}
+                      </strong>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <label className="text-sm font-medium text-navy sm:col-span-2">
@@ -587,7 +767,11 @@ export function WhatsAppCampaignBuilder({
             </span>
           </div>
           <div className="whitespace-pre-wrap rounded-xl bg-[#d9fdd3] px-4 py-3 text-sm text-navy shadow-2xs">
-            {personalizePreview(body, sampleRecipientName)}
+            {personalizePreview(
+              body,
+              sampleRecipientName,
+              varBindings.length > 0 ? resolvePreviewVars(varBindings, finalRecipients[0]) : undefined,
+            )}
             {ctaUrl && /^https:\/\//.test(ctaUrl.trim()) && (
               <span className="mt-2 block border-t border-navy/10 pt-2 text-center font-semibold text-[#0a7cff]">
                 {ctaLabel.trim() || "Voir"}
@@ -608,6 +792,7 @@ export function WhatsAppCampaignBuilder({
           <input type="hidden" name="body" value={body} />
           <input type="hidden" name="templateName" value={selectedTemplate.templateName} />
           <input type="hidden" name="templateLanguage" value={selectedTemplate.language} />
+          <input type="hidden" name="templateVarBindingsJson" value={JSON.stringify(varBindings)} />
           <input type="hidden" name="sourceMode" value={sourceMode} />
           <input type="hidden" name="excelFileName" value={excelFileName} />
           <input type="hidden" name="excelRecipientsJson" value={JSON.stringify(excelRecipients)} />

@@ -131,12 +131,23 @@ export async function createCampaign(formData: FormData) {
   const sourceMode = String(formData.get("sourceMode") ?? "FILTRES").trim();
   const excelFileName = String(formData.get("excelFileName") ?? "").trim();
   const rawExcelJson = String(formData.get("excelRecipientsJson") ?? "").trim();
+  const rawVarBindingsJson = String(formData.get("templateVarBindingsJson") ?? "").trim();
 
   if (!title || body.length < 3) {
     redirect("/admin/whatsapp/campagnes?erreur=" + encodeURIComponent("Titre et message du modèle requis."));
   }
   if (!templateName) {
     redirect("/admin/whatsapp/campagnes?erreur=" + encodeURIComponent("Veuillez sélectionner un modèle approuvé par Meta."));
+  }
+
+  let templateVarBindings: unknown[] = [];
+  if (rawVarBindingsJson) {
+    try {
+      const parsedVars = JSON.parse(rawVarBindingsJson);
+      if (Array.isArray(parsedVars)) templateVarBindings = parsedVars;
+    } catch {
+      templateVarBindings = [];
+    }
   }
 
   let excelRecipients: unknown[] = [];
@@ -168,6 +179,7 @@ export async function createCampaign(formData: FormData) {
     cta: { label: formData.get("ctaLabel"), url: formData.get("ctaUrl") },
     templateName,
     templateLanguage,
+    templateVarBindings,
     sourceMode:
       sourceMode === "EXCEL" || sourceMode === "FILTRES_ET_EXCEL"
         ? sourceMode

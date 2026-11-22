@@ -67,6 +67,7 @@ export async function sendWhatsApp(
         recipientName: opts.recipientName,
         templateName: opts.template || process.env.WHATSAPP_TEMPLATE_NAME || "test_jamaal",
         templateLanguage: opts.templateLanguage,
+        templateVars: opts.templateVars,
       });
       if (kwingo) {
         result = kwingo.ok

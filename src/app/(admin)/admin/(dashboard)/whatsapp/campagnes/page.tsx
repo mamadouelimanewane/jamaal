@@ -247,6 +247,7 @@ export default async function CampagnesPage({ searchParams }: { searchParams: Pr
         }}
         initialTemplateName={sp.templateName ?? draftAudience?.templateName}
         initialTemplateLanguage={sp.templateLanguage ?? draftAudience?.templateLanguage}
+        initialTemplateVarBindings={draftAudience?.templateVarBindings}
         initialBody={sp.body ?? editingDraft?.body}
         initialTitle={sp.title ?? editingDraft?.title}
         initialSourceMode={draftAudience?.sourceMode}

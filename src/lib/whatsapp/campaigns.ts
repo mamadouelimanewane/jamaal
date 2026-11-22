@@ -12,11 +12,33 @@ import { phoneTail } from "@/lib/phone-match";
 import { sendWhatsApp } from "./index";
 import { assignCampaignRecipientAttributes } from "./kwingo-bridge";
 
+export type TemplateVarSource =
+  | "PRENOM"
+  | "NOM"
+  | "TELEPHONE"
+  | "VILLE"
+  | "BOUTIQUE"
+  | "LIEN_BOUTIQUE"
+  | "CONSULTANT"
+  | "DATE_JOUR"
+  | "MOIS_COURANT"
+  | "DATE_FIXE"
+  | "TEXTE_FIXE";
+
+export interface TemplateVarBinding {
+  source: TemplateVarSource;
+  /** Valeur saisie pour DATE_FIXE (YYYY-MM-DD ou texte) ou TEXTE_FIXE. */
+  value?: string;
+}
+
 export interface CampaignRecipient {
   phone: string;
   name: string;
   consultantId?: string | null;
   consultantName?: string | null;
+  city?: string | null;
+  shopName?: string | null;
+  slug?: string | null;
   source?: "BASE" | "EXCEL";
 }
 
@@ -36,12 +58,90 @@ export interface CampaignAudience {
   templateName?: string;
   /** Code langue du modèle Meta approuvé (ex. fr, en_US, en). */
   templateLanguage?: string;
+  /** Association dynamique des variables {{1}}, {{2}}, {{3}}… du modèle Meta. */
+  templateVarBindings?: TemplateVarBinding[];
   /** Mode de sélection des destinataires : filtres seuls, fichier Excel seul, ou les deux combinés. */
   sourceMode?: CampaignSourceMode;
   /** Destinataires importés depuis un fichier Excel (.xlsx) ou CSV. */
   excelRecipients?: CampaignRecipient[];
   /** Nom du fichier Excel importé. */
   excelFileName?: string;
+}
+
+const VALID_VAR_SOURCES = new Set<TemplateVarSource>([
+  "PRENOM",
+  "NOM",
+  "TELEPHONE",
+  "VILLE",
+  "BOUTIQUE",
+  "LIEN_BOUTIQUE",
+  "CONSULTANT",
+  "DATE_JOUR",
+  "MOIS_COURANT",
+  "DATE_FIXE",
+  "TEXTE_FIXE",
+]);
+
+/** Formate une date ISO (YYYY-MM-DD) en français lisible (ex. "28 novembre 2026"). */
+export function formatFrenchDateValue(raw?: string): string {
+  const s = (raw ?? "").trim();
+  if (!s) {
+    return new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+  }
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+    const [y, m, d] = s.split("-").map(Number);
+    const dt = new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
+    return dt.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+  }
+  return s;
+}
+
+/** Résout la valeur exacte de chaque variable {{1}}, {{2}}, {{3}}… pour un destinataire donné. */
+export function resolveTemplateVars(
+  bindings: TemplateVarBinding[],
+  recipient: CampaignRecipient,
+  siteUrl = "https://www.jamaal.sn",
+): string[] {
+  const cleanName = (recipient.name ?? "").trim() || "Client";
+  const firstName = cleanName.split(/\s+/)[0] || "Client";
+  const baseUrl = siteUrl.replace(/\/+$/, "");
+
+  return bindings.map((b) => {
+    switch (b.source) {
+      case "PRENOM":
+        return firstName;
+      case "NOM":
+        return cleanName;
+      case "TELEPHONE":
+        return recipient.phone ? `+${recipient.phone.replace(/^\+/, "")}` : "—";
+      case "VILLE":
+        return (recipient.city ?? "").trim() || "Dakar";
+      case "BOUTIQUE":
+        return (recipient.shopName ?? "").trim() || cleanName;
+      case "LIEN_BOUTIQUE":
+        return recipient.slug ? `${baseUrl}/c/${recipient.slug}` : baseUrl;
+      case "CONSULTANT":
+        return (recipient.consultantName ?? "").trim() || "JAMAAL Luxury";
+      case "DATE_JOUR":
+        return new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+      case "MOIS_COURANT":
+        return new Date().toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+      case "DATE_FIXE":
+        return formatFrenchDateValue(b.value);
+      case "TEXTE_FIXE":
+      default:
+        return (b.value ?? "").trim() || "—";
+    }
+  });
+}
+
+/** Remplace {{1}}, {{2}}… dans un texte par les valeurs résolues (ou retombe sur personalize). */
+export function renderBodyWithTemplateVars(body: string, vars: string[], recipientName: string): string {
+  let rendered = body;
+  vars.forEach((val, idx) => {
+    rendered = rendered.replace(new RegExp(`\\{\\{${idx + 1}\\}\\}`, "g"), val);
+  });
+  return personalize(rendered, recipientName);
 }
 
 export function parseAudience(raw: unknown): CampaignAudience {
@@ -62,6 +162,24 @@ export function parseAudience(raw: unknown): CampaignAudience {
   const tplLang = s(a.templateLanguage, 20);
   if (tplName) parsed.templateName = tplName;
   if (tplLang) parsed.templateLanguage = tplLang;
+
+  if (Array.isArray(a.templateVarBindings) && a.templateVarBindings.length > 0) {
+    const cleanBindings: TemplateVarBinding[] = [];
+    for (const item of a.templateVarBindings.slice(0, 10)) {
+      if (!item || typeof item !== "object") continue;
+      const obj = item as Record<string, unknown>;
+      const src = typeof obj.source === "string" && VALID_VAR_SOURCES.has(obj.source as TemplateVarSource)
+        ? (obj.source as TemplateVarSource)
+        : "TEXTE_FIXE";
+      cleanBindings.push({
+        source: src,
+        ...(typeof obj.value === "string" && obj.value.trim() ? { value: obj.value.trim().slice(0, 200) } : {}),
+      });
+    }
+    if (cleanBindings.length > 0) {
+      parsed.templateVarBindings = cleanBindings;
+    }
+  }
 
   if (a.sourceMode === "EXCEL" || a.sourceMode === "FILTRES_ET_EXCEL" || a.sourceMode === "FILTRES") {
     parsed.sourceMode = a.sourceMode;
@@ -337,11 +455,19 @@ export async function campaignRecipients(a: CampaignAudience): Promise<CampaignR
 
   if (mode !== "EXCEL") {
     if (a.target === "REVENDEURS") {
-      dbRows = (await prisma.consultant.findMany({ where: { active: true }, select: { id: true, whatsapp: true, name: true } })).map((c) => ({
+      dbRows = (
+        await prisma.consultant.findMany({
+          where: { active: true },
+          select: { id: true, whatsapp: true, name: true, city: true, shopName: true, slug: true },
+        })
+      ).map((c) => ({
         phone: c.whatsapp,
         name: c.name,
         consultantId: c.id,
         consultantName: c.name,
+        city: c.city,
+        shopName: c.shopName,
+        slug: c.slug,
         source: "BASE" as const,
       }));
     } else {
@@ -358,7 +484,10 @@ export async function campaignRecipients(a: CampaignAudience): Promise<CampaignR
           c.phone,
           c.name,
           coalesce(${a.consultantId ?? null}, c."consultantId", last_ord."consultantId") AS "consultantId",
-          cons.name AS "consultantName"
+          cons.name AS "consultantName",
+          cons.city AS "city",
+          cons."shopName" AS "shopName",
+          cons.slug AS "slug"
         FROM "Customer" c
         LEFT JOIN LATERAL (
           SELECT o."consultantId"
@@ -426,15 +555,20 @@ export async function runCampaign(id: string, budgetMs = 45_000): Promise<{ sent
       campaignId: id,
       campaignTitle: c.title,
     });
+    const resolvedVars = audience.templateVarBindings?.length
+      ? resolveTemplateVars(audience.templateVarBindings, r)
+      : undefined;
+
     await sendWhatsApp({
       to: r.phone,
       kind: "campagne",
       campaignId: id,
       recipientName: r.name,
-      text: personalize(c.body, r.name),
+      text: resolvedVars ? renderBodyWithTemplateVars(c.body, resolvedVars, r.name) : personalize(c.body, r.name),
       free: false,
       template: chosenTemplate,
       templateLanguage: chosenLanguage,
+      ...(resolvedVars ? { templateVars: resolvedVars } : {}),
       ...(audience.cta ? { cta: audience.cta } : {}),
     });
   }

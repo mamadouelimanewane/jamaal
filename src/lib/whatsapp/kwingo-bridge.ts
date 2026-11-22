@@ -177,7 +177,7 @@ export async function getKwingoConnection(): Promise<{
               create: { key: SETTING_KEY, value: encryptedUpdated },
               update: { value: encryptedUpdated },
             })
-            .catch(() => {});
+            .catch(() => { });
         }
       }
 
@@ -440,7 +440,7 @@ export async function connectKwingoAccount(input: {
 }
 
 export async function disconnectKwingoAccount(): Promise<void> {
-  await prisma.setting.delete({ where: { key: SETTING_KEY } }).catch(() => {});
+  await prisma.setting.delete({ where: { key: SETTING_KEY } }).catch(() => { });
 }
 
 /**
@@ -506,7 +506,7 @@ export async function syncLiveFromKwingo(activePhone?: string, force = false): P
           profileName: chat.name || null,
           text: chat.lastMessage || null,
           messageAt: remoteAt,
-        }).catch(() => {});
+        }).catch(() => { });
 
         if (chat.lastMessage) {
           const hasMsg = await prisma.whatsAppMessage.findFirst({
@@ -527,7 +527,7 @@ export async function syncLiveFromKwingo(activePhone?: string, force = false): P
                   createdAt: msgDate,
                 },
               })
-              .catch(() => {});
+              .catch(() => { });
           }
         }
       }
@@ -548,24 +548,24 @@ export async function syncLiveFromKwingo(activePhone?: string, force = false): P
       if (msgRes?.ok) {
         const msgJson = (await msgRes.json().catch(() => null)) as {
           data?:
-            | {
-                id?: string;
-                meta_message_id?: string | null;
-                body?: string;
-                direction?: string;
-                status?: string;
-                created_at?: string;
-              }[]
-            | {
-                messages?: {
-                  id?: string;
-                  meta_message_id?: string | null;
-                  body?: string;
-                  direction?: string;
-                  status?: string;
-                  created_at?: string;
-                }[];
-              };
+          | {
+            id?: string;
+            meta_message_id?: string | null;
+            body?: string;
+            direction?: string;
+            status?: string;
+            created_at?: string;
+          }[]
+          | {
+            messages?: {
+              id?: string;
+              meta_message_id?: string | null;
+              body?: string;
+              direction?: string;
+              status?: string;
+              created_at?: string;
+            }[];
+          };
         } | null;
 
         const remoteMsgs = Array.isArray(msgJson?.data)
@@ -621,7 +621,7 @@ export async function syncLiveFromKwingo(activePhone?: string, force = false): P
                 ...(msgDate && !Number.isNaN(msgDate.getTime()) ? { createdAt: msgDate } : {}),
               },
             })
-            .catch(() => {});
+            .catch(() => { });
         }
 
         if (newestDate) {
@@ -630,7 +630,7 @@ export async function syncLiveFromKwingo(activePhone?: string, force = false): P
               where: { phone: activePhone },
               data: { lastMessageAt: newestDate },
             })
-            .catch(() => {});
+            .catch(() => { });
         }
       }
     }
@@ -650,6 +650,7 @@ export interface MetaApprovedTemplate {
   language: string;
   category: string;
   text: string;
+  rawBody?: string;
   isMetaApproved: true;
   paramCount?: number;
   exampleParams?: string[];
@@ -739,6 +740,7 @@ export async function fetchKwingoMetaTemplates(opts: { forceRefresh?: boolean } 
           language: t.language || "fr",
           category: t.category || "UTILITY",
           text: formatMetaTemplateBody(rawBody, examples),
+          rawBody,
           isMetaApproved: true,
           paramCount: matches.length,
           exampleParams: examples,
@@ -780,6 +782,7 @@ export async function sendViaKwingoConnection(opts: {
   recipientName?: string | null;
   templateName?: string;
   templateLanguage?: string;
+  templateVars?: string[];
 }): Promise<{ ok: boolean; providerId?: string; simulated?: boolean; error?: string } | null> {
   // Numéros fictifs de démonstration locale : ne pas les envoyer à Meta via KwingoChat, les simuler proprement
   if (/^2217780010\d\d$|^2217650020\d\d$|^221776001122$|^221781234567$/.test(opts.to)) {
@@ -829,6 +832,17 @@ export async function sendViaKwingoConnection(opts: {
   }
 
   const buildTemplateComponents = (tpl: MetaApprovedTemplate | null) => {
+    // 1. Si des valeurs explicites de variables ({{1}}, {{2}}, {{3}}…) sont fournies (mappage dynamique campagne), les utiliser directement
+    if (Array.isArray(opts.templateVars) && opts.templateVars.length > 0) {
+      const count = tpl?.paramCount && tpl.paramCount > 0 ? tpl.paramCount : opts.templateVars.length;
+      const parameters = Array.from({ length: count }, (_, idx) => ({
+        type: "text",
+        text: (opts.templateVars?.[idx] ?? tpl?.exampleParams?.[idx] ?? "—").trim() || "—",
+      }));
+      return [{ type: "body", parameters }];
+    }
+
+    // 2. Sinon injection automatique du prénom réel dans {{1}} et des exemples Meta pour les suivantes
     if (!tpl?.paramCount || tpl.paramCount <= 0) return undefined;
     const rawName = (opts.recipientName ?? "").trim();
     const firstName = rawName && !rawName.startsWith("+") ? rawName.split(/\s+/)[0] : "";
@@ -844,21 +858,21 @@ export async function sendViaKwingoConnection(opts: {
     const components = asTemplate ? buildTemplateComponents(matchedTemplate) : undefined;
     return asTemplate
       ? {
-          wa_id: opts.to,
-          to: opts.to,
-          type: "template",
-          templateName: resolvedTemplateName,
-          language: resolvedLanguage,
-          body: opts.text,
-          ...(components ? { components } : {}),
-        }
+        wa_id: opts.to,
+        to: opts.to,
+        type: "template",
+        templateName: resolvedTemplateName,
+        language: resolvedLanguage,
+        body: opts.text,
+        ...(components ? { components } : {}),
+      }
       : {
-          wa_id: opts.to,
-          to: opts.to,
-          type: "text",
-          body: opts.text,
-          message_body: opts.text,
-        };
+        wa_id: opts.to,
+        to: opts.to,
+        type: "text",
+        body: opts.text,
+        message_body: opts.text,
+      };
   };
 
   const postToKwingo = async (payload: Record<string, unknown>) => {
@@ -1035,7 +1049,7 @@ export async function resolveClientConsultant(
       SET "consultantId" = ${orderRows[0].id}
       WHERE right(regexp_replace(phone, '[^0-9]', '', 'g'), 9) = ${tail}
         AND "consultantId" IS NULL
-    `.catch(() => {});
+    `.catch(() => { });
     return { ...orderRows[0], source: "ROUTAGE_CLIENT" };
   }
 
@@ -1170,7 +1184,7 @@ export async function assignCampaignRecipientAttributes(opts: {
     phone,
     name: opts.name ?? null,
     customAttributes,
-  }).catch(() => {});
+  }).catch(() => { });
 
   return { consultant, customAttributes };
 }
@@ -1299,7 +1313,7 @@ export async function routeInboundClientMessage(opts: {
     phone,
     name: opts.profileName ?? existingThread?.name ?? null,
     customAttributes,
-  }).catch(() => {});
+  }).catch(() => { });
 
   return { consultant, customAttributes, routing };
 }
@@ -1360,14 +1374,14 @@ export async function assignThreadToConsultant(opts: {
       UPDATE "Customer"
       SET "consultantId" = ${consultant?.id ?? null}
       WHERE right(regexp_replace(phone, '[^0-9]', '', 'g'), 9) = ${tail}
-    `.catch(() => {});
+    `.catch(() => { });
   }
 
   void syncContactToKwingoApi({
     phone,
     name: existing?.name ?? null,
     customAttributes,
-  }).catch(() => {});
+  }).catch(() => { });
 
   return { consultant, customAttributes };
 }
@@ -1448,6 +1462,6 @@ export async function syncContactToKwingoApi(opts: {
   if (kwingoId) {
     await prisma.whatsAppThread
       .update({ where: { phone: opts.phone }, data: { kwingoContactId: kwingoId } })
-      .catch(() => {});
+      .catch(() => { });
   }
 }
