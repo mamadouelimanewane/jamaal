@@ -166,7 +166,7 @@ export function ApplicationForm({ sponsorCode = "", sponsorName = null, protocol
         </p>
       )}
       {/* Honeypot anti-robots : invisible pour les humains */}
-      <div aria-hidden="true" className="absolute left-[-9999px] h-0 w-0 overflow-hidden">
+      <div aria-hidden="true" className="absolute h-0 w-0 overflow-hidden [clip-path:inset(50%)]">
         <label>
           {t("Site web")}
           <input type="text" name="website" tabIndex={-1} autoComplete="off" />

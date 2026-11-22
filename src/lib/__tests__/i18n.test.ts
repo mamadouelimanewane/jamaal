@@ -35,3 +35,40 @@ test("notes, familles et descriptions types en italien", () => {
   assert.equal(familyIt("Inconnu"), "Inconnu");
   assert.equal(genericIt("Prestige — 70 ml. Produit Chogan, distribué au Sénégal par JAMAAL."), "Prestige — 70 ml. Prodotto Chogan, distribuito in Senegal da JAMAAL.");
 });
+
+test("arabe : adresses /ar, passage d'une langue à l'autre, écriture de droite à gauche", async () => {
+  const { dirOf } = await import("../i18n/config");
+  assert.deepEqual(splitLocale("/ar/produits/x"), { locale: "ar", path: "/produits/x" });
+  assert.deepEqual(splitLocale("/ar"), { locale: "ar", path: "/" });
+  assert.deepEqual(splitLocale("/arbre"), { locale: "fr", path: "/arbre" });
+  assert.equal(localizeHref("/", "ar"), "/ar");
+  assert.equal(localizeHref("/collections?x=1", "ar"), "/ar/collections?x=1");
+  assert.equal(localizeHref("/it/panier", "ar"), "/ar/panier");
+  assert.equal(localizeHref("/ar/panier", "it"), "/it/panier");
+  assert.equal(localizeHref("/ar/panier", "fr"), "/panier");
+  assert.equal(localizeHref("/admin", "ar"), "/admin");
+  assert.equal(dirOf("ar"), "rtl");
+  assert.equal(dirOf("it"), "ltr");
+});
+
+test("arabe : textes, variables, notes et descriptions types", async () => {
+  const { noteAr, familyAr } = await import("../i18n/notes-ar");
+  const { genericAr } = await import("../i18n/product");
+  const ar = translator("ar");
+  assert.equal(ar("Ajouter au panier"), "أضف إلى السلة");
+  assert.equal(ar("Plus que {stock} en stock", { stock: 2 }), "لم يتبقَّ سوى 2 في المخزون");
+  assert.equal(ar("Texte inconnu"), "Texte inconnu");
+  assert.equal(noteAr("Oud"), "العود");
+  assert.equal(familyAr("Floral boisé"), "زهري خشبي");
+  assert.equal(genericAr("Prestige — 70 ml. Produit Chogan, distribué au Sénégal par JAMAAL."), "Prestige — 70 ml. منتج Chogan، توزّعه JAMAAL في السنغال.");
+});
+
+test("arabe : chaque phrase du site est traduite, avec les mêmes variables", async () => {
+  const { IT } = await import("../i18n/it");
+  const { AR } = await import("../i18n/ar");
+  const vars = (s: string) => (s.match(/\{\w+\}/g) ?? []).filter((v) => v !== "{v1}" || !/étoile\{v1\}/.test(s)).sort().join(",");
+  for (const fr of Object.keys(IT)) {
+    assert.ok(fr in AR, `traduction arabe manquante : ${fr}`);
+    if (fr !== "{n} étoile{v1}") assert.equal(vars(AR[fr]), vars(fr), fr);
+  }
+});

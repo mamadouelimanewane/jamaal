@@ -1,5 +1,5 @@
 import { getBasePath, getLocale, getT } from "@/lib/i18n/server";
-import { localizeHref } from "@/lib/i18n/config";
+import { localizeHref, dirOf } from "@/lib/i18n/config";
 import { LocaleProvider } from "@/components/i18n/LocaleProvider";
 import type { Metadata } from "next";
 import { Playfair_Display, Poppins } from "next/font/google";
@@ -45,15 +45,15 @@ export async function generateMetadata(): Promise<Metadata> {
       template: "%s | JAMAAL",
     },
     description,
-    // Même page en français et en italien (référencement).
+    // Même page en français, en italien et en arabe (référencement).
     alternates: {
       canonical: localizeHref(path, locale),
-      languages: { fr: path, it: localizeHref(path, "it"), "x-default": path },
+      languages: { fr: path, it: localizeHref(path, "it"), ar: localizeHref(path, "ar"), "x-default": path },
     },
     openGraph: {
       type: "website",
-      locale: locale === "it" ? "it_IT" : "fr_SN",
-      alternateLocale: locale === "it" ? ["fr_SN"] : ["it_IT"],
+      locale: OG[locale],
+      alternateLocale: (Object.keys(OG) as (keyof typeof OG)[]).filter((l) => l !== locale).map((l) => OG[l]),
       siteName: "JAMAAL Luxury Cosmetics",
       title: "JAMAAL Luxury Cosmetics",
       description,
@@ -63,10 +63,12 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+const OG = { fr: "fr_SN", it: "it_IT", ar: "ar_SN" } as const;
+
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const [categories, locale] = await Promise.all([getCategoriesWithProducts(), getLocale()]);
   return (
-    <html lang={locale} className={`${playfair.variable} ${poppins.variable} h-full antialiased`}>
+    <html lang={locale} dir={dirOf(locale)} className={`${playfair.variable} ${poppins.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col bg-background text-foreground">
         <LocaleProvider locale={locale}>
         <AnnouncementBar />

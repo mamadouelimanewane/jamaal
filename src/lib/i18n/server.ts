@@ -26,9 +26,10 @@ export async function getBasePath(): Promise<string> {
   }
 }
 
-/** Adresse canonique et variantes FR/IT d'une page (balises hreflang). */
+/** Adresse canonique et variantes FR/IT/AR d'une page (balises hreflang). */
 export async function pageAlternates(path: string) {
   const locale = await getLocale();
   const it = localizeHref(path, "it");
-  return { canonical: locale === "it" ? it : path, languages: { fr: path, it, "x-default": path } };
+  const ar = localizeHref(path, "ar");
+  return { canonical: locale === "it" ? it : locale === "ar" ? ar : path, languages: { fr: path, it, ar, "x-default": path } };
 }

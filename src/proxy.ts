@@ -4,7 +4,7 @@ import { INVITE_COOKIE, INVITE_MAX_AGE, inviteCode } from "@/lib/invite-lock";
 import { guardRequest, guardResponse } from "@/lib/bot-guard-store";
 import { clientIpFromHeaders } from "@/lib/rate-limit";
 import { legacyRedirect } from "@/lib/domain-redirect";
-import { LOCALE_COOKIE, LOCALE_HEADER, PATH_HEADER, isLocalizablePath, localizeHref, splitLocale } from "@/lib/i18n/config";
+import { LOCALE_COOKIE, LOCALE_HEADER, PATH_HEADER, isLocale, isLocalizablePath, localizeHref, splitLocale } from "@/lib/i18n/config";
 
 const LOCALE_MAX_AGE = 60 * 60 * 24 * 365;
 
@@ -69,29 +69,29 @@ const handler = auth(async (req) => {
     if (verdict.action !== "allow") return guardResponse(verdict);
   }
 
-  // ——— Langue du site vitrine : /it/… = italien (réécrit vers la page française, langue passée en en-tête) ———
+  // ——— Langue du site vitrine : /it/… italien, /ar/… arabe (réécrit vers la page française, langue en en-tête) ———
   const { locale, path: basePath } = splitLocale(pathname);
   const localizable = isLocalizablePath(basePath);
   const cookieLang = req.cookies.get(LOCALE_COOKIE)?.value;
   const langParam = searchParams.get("lang");
   if (req.method === "GET" && localizable) {
     // Retour au français demandé (sélecteur FR) : on mémorise et on nettoie l'adresse.
-    if (langParam === "fr" || langParam === "it") {
+    if (isLocale(langParam)) {
       const url = req.nextUrl.clone();
       url.searchParams.delete("lang");
-      url.pathname = langParam === "it" ? localizeHref(basePath, "it") : basePath;
+      url.pathname = localizeHref(basePath, langParam);
       const res = NextResponse.redirect(url, 307);
       res.cookies.set(LOCALE_COOKIE, langParam, { path: "/", maxAge: LOCALE_MAX_AGE, sameSite: "lax" });
       return res;
     }
-    // Visiteur qui a choisi l'italien : les adresses françaises le mènent à la page italienne.
-    if (locale === "fr" && cookieLang === "it") {
+    // Visiteur qui a choisi l'italien ou l'arabe : les adresses françaises le mènent à sa langue.
+    if (locale === "fr" && (cookieLang === "it" || cookieLang === "ar")) {
       const url = req.nextUrl.clone();
-      url.pathname = localizeHref(pathname, "it");
+      url.pathname = localizeHref(pathname, cookieLang);
       return NextResponse.redirect(url, 307);
     }
   }
-  if (locale === "it" && !localizable) {
+  if (locale !== "fr" && !localizable) {
     const url = req.nextUrl.clone();
     url.pathname = basePath;
     return NextResponse.redirect(url, 308);
@@ -100,11 +100,11 @@ const handler = auth(async (req) => {
   reqHeaders.set(LOCALE_HEADER, locale);
   reqHeaders.set(PATH_HEADER, basePath);
   let response: NextResponse;
-  if (locale === "it") {
+  if (locale !== "fr") {
     const url = req.nextUrl.clone();
     url.pathname = basePath;
     response = NextResponse.rewrite(url, { request: { headers: reqHeaders } });
-    if (cookieLang !== "it") response.cookies.set(LOCALE_COOKIE, "it", { path: "/", maxAge: LOCALE_MAX_AGE, sameSite: "lax" });
+    if (cookieLang !== locale) response.cookies.set(LOCALE_COOKIE, locale, { path: "/", maxAge: LOCALE_MAX_AGE, sameSite: "lax" });
   } else {
     response = NextResponse.next({ request: { headers: reqHeaders } });
   }

@@ -61,6 +61,33 @@ body {
   font-family: var(--font-playfair), Georgia, serif;
 }
 
+/* Site en arabe (/ar) : polices qui ont les lettres arabes (Playfair et Poppins ne les ont pas). Les chiffres et les noms
+   latins (JAMAAL, Chogan, Sauvage…) gardent leur police grâce à l'ordre de la liste. */
+html[lang="ar"] body {
+  font-family: var(--font-poppins), "Noto Sans Arabic", "Segoe UI", "SF Arabic", "Geeza Pro", Tahoma, Arial, sans-serif;
+  line-height: 1.7;
+}
+html[lang="ar"] .font-serif-display {
+  font-family: var(--font-playfair), "Noto Naskh Arabic", "Amiri", "Geeza Pro", "Times New Roman", serif;
+  letter-spacing: 0;
+}
+/* Noms de produits, formats et prix en lettres latines (« Mystère Parfum homme 30 % », « 30 ml ») : chaque texte garde
+   son propre sens de lecture au lieu d'être réordonné à l'arabe. Les titres restent alignés à droite (début de ligne arabe). */
+html[lang="ar"] :is(h1, h2, h3, h4, p):not(.text-center) {
+  unicode-bidi: plaintext;
+  text-align: right;
+}
+html[lang="ar"] :is(h1, h2, h3, h4, p).text-center,
+html[lang="ar"] :is(span, a, strong, small, label, button, td, th, dd, dt) {
+  unicode-bidi: plaintext;
+}
+/* Les petites capitales espacées n'ont pas de sens en arabe. */
+html[lang="ar"] [class*="tracking-["],
+html[lang="ar"] .uppercase {
+  letter-spacing: 0 !important;
+}
+
+
 ::selection {
   background: var(--rose-light);
   color: var(--navy);
