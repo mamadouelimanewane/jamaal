@@ -17,7 +17,7 @@ test("ouguiya : conversion depuis le FCFA, arrondie à l'ouguiya", () => {
   assert.equal(toMru(14800, 14.7), 1007);
   assert.equal(toMru(14700, 14.7), 1000);
   assert.equal(toMru(14800, 0), Math.round(14800 / MRU_DEFAULT_RATE));
-  assert.equal(formatMru(147000, 14.7).replace(/\s/g, " "), "10 000 أوقية");
+  assert.equal(formatMru(147000, 14.7).replace(/[\u2066\u2069]/g, "").replace(/\s/g, " "), "10 000 MRU");
   assert.equal(priceFormatter("ar", 14.7)(14700), formatMru(14700, 14.7));
   assert.equal(priceFormatter("fr", 14.7)(14800), formatPrice(14800));
   assert.equal(priceFormatter("it")(14800), formatPrice(14800));

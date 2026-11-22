@@ -14,8 +14,12 @@ export function toMru(xof: number, rate: number = MRU_DEFAULT_RATE): number {
   return Math.round(xof / r);
 }
 
+/**
+ * « 3 347 MRU », isolé de gauche à droite (caractères Unicode LRI…PDI) : dans une phrase en arabe,
+ * le montant reste lisible dans le même ordre partout (sinon « MRU 3 347 » sur certaines lignes).
+ */
 export function formatMru(xof: number, rate: number = MRU_DEFAULT_RATE): string {
-  return toMru(xof, rate).toLocaleString("fr-FR") + " أوقية";
+  return "\u2066" + toMru(xof, rate).toLocaleString("fr-FR") + " MRU\u2069";
 }
 
 export type PriceFormatter = (xof: number) => string;

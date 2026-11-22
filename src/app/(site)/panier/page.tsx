@@ -503,7 +503,7 @@ export default function CartPage() {
                     onClick={() => stashCheckoutHandoff({ name: customer.name, phone: customer.phone })}
                     className="rounded-full bg-emerald-700 px-3 py-1 font-semibold text-white hover:bg-emerald-800"
                   >
-                    العربية · أوقية
+                    العربية · MRU
                   </a>
                   <button type="button" onClick={() => setArOfferDismissed(true)} className="font-semibold underline">
                     {tr("Non merci")}
