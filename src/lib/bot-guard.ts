@@ -64,6 +64,7 @@ const MACHINE_PATHS = [
   "/api/chogan-relay",
   "/api/auth/",
   "/api/whatsapp/catalogue", // a sa propre protection (clé ou robot Meta)
+  "/api/meta/catalog", // flux produits lu par Meta Commerce (informations publiques), quel que soit son robot
 ];
 
 export const isMachinePath = (pathname: string) => MACHINE_PATHS.some((p) => pathname === p.replace(/\/$/, "") || pathname.startsWith(p));

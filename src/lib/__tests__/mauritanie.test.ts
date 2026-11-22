@@ -33,3 +33,8 @@ test("numéro saisi par un client : +222 ou 8 chiffres locaux, jamais un numéro
   assert.equal(looksMauritanian("56 12 34 56"), false);
   assert.equal(looksMauritanian(""), false);
 });
+
+test("le flux catalogue Meta n'est jamais bloqué par la protection anti-robots", async () => {
+  const { isMachinePath } = await import("../bot-guard");
+  assert.equal(isMachinePath("/api/meta/catalog"), true);
+});
