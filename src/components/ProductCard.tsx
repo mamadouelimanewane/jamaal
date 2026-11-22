@@ -1,6 +1,6 @@
 "use client";
 
-import { useT, usePrice } from "@/components/i18n/LocaleProvider";
+import { useT, usePrice, useLocale } from "@/components/i18n/LocaleProvider";
 import Link from "@/components/i18n/Link";
 import { ArrowUpRight } from "lucide-react";
 import type { Product } from "@/data/types";
@@ -11,6 +11,7 @@ import { startingPrice } from "@/lib/price-from";
 export function ProductCard({ product }: { product: Product }) {
   const t = useT();
   const formatPrice = usePrice();
+  const locale = useLocale();
   const priceLabel = product.testerPrice
     ? `${t("Échantillon")} · ${formatPrice(product.testerPrice)}`
     : `${t("À partir de")} ${formatPrice(startingPrice(product.regularPrice, product.volumes) ?? 0)}`;
@@ -43,7 +44,7 @@ export function ProductCard({ product }: { product: Product }) {
         <p className="mt-1.5 text-[11px] leading-4 text-[#9c6254] sm:text-xs">
           <span className="font-semibold">{t("En rupture")}</span> · {t("vous pouvez réserver ce produit")}
         </p>
-      ) : product.inStock ? (
+      ) : product.inStock && locale !== "ar" ? (
         <p className="mt-1.5 text-[11px] font-medium text-emerald-800 sm:text-xs">{t("Disponible à Dakar")}</p>
       ) : null}
     </div>
