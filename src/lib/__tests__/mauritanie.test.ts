@@ -38,3 +38,16 @@ test("le flux catalogue Meta n'est jamais bloqué par la protection anti-robots"
   const { isMachinePath } = await import("../bot-guard");
   assert.equal(isMachinePath("/api/meta/catalog"), true);
 });
+
+test("catalogue Meta d'un revendeur : son code sur chaque lien produit", async () => {
+  const { catalogProductLink, cleanRef, resellerCatalogUrl } = await import("../meta-catalog");
+  assert.equal(catalogProductLink("https://www.jamaal.sn", "zeus", null), "https://www.jamaal.sn/produits/zeus");
+  assert.equal(
+    catalogProductLink("https://www.jamaal.sn/", "zeus", "aissatou"),
+    "https://www.jamaal.sn/produits/zeus?ref=aissatou&utm_source=facebook&utm_medium=paid&utm_campaign=catalogue-revendeur",
+  );
+  assert.equal(cleanRef(" Aissatou "), "aissatou");
+  assert.equal(cleanRef("<script>"), null);
+  assert.equal(cleanRef(""), null);
+  assert.equal(resellerCatalogUrl("https://www.jamaal.sn", "awa-parfums"), "https://www.jamaal.sn/api/meta/catalog?ref=awa-parfums");
+});

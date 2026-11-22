@@ -7,6 +7,7 @@ import { QrCard } from "@/components/admin/QrCard";
 import { NotReseller } from "@/components/admin/NotReseller";
 import { MarketingComposer } from "@/components/admin/MarketingComposer";
 import { resellerCatalog } from "@/lib/reseller-catalog";
+import { MetaAdsGuide } from "@/components/admin/MetaAdsGuide";
 
 export const dynamic = "force-dynamic";
 
@@ -74,6 +75,8 @@ export default async function MonMarketingPage({ searchParams }: { searchParams:
           </div>
         </div>
       )}
+
+      {links.shop && me.slug && <MetaAdsGuide origin={links.origin} slug={me.slug} shop={links.shop} shopName={me.shopName?.trim() || me.name.split(/\s+/)[0]} />}
 
       <div id="partager" className="mt-6 scroll-mt-24 rounded-2xl border border-line bg-white p-5">
         <h2 className="font-serif-display text-lg font-semibold text-navy">Partager des produits</h2>
