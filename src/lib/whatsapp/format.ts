@@ -18,11 +18,27 @@ export function toWhatsAppText(markdown: string, origin: string): string {
     .slice(0, 3800);
 }
 
-/** Message entrant « STOP » / « START » (désinscription des messages automatiques). */
+/** Message entrant « STOP » / « START » ou clic sur un bouton « Se désabonner » (désinscription des messages automatiques). */
 export function optCommand(text: string): "STOP" | "START" | null {
   const t = text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toUpperCase().replace(/[^A-Z]/g, "");
-  if (["STOP", "STOPP", "ARRET", "ARRETER", "DESABONNER", "UNSUBSCRIBE"].includes(t)) return "STOP";
-  if (["START", "REPRENDRE", "ABONNER"].includes(t)) return "START";
+  if (
+    [
+      "STOP",
+      "STOPP",
+      "ARRET",
+      "ARRETER",
+      "DESABONNER",
+      "SEDESABONNER",
+      "STOPSEDESABONNER",
+      "STOPPROMOTIONS",
+      "ARRETERLESPROMOTIONS",
+      "ARRETERLESMESSAGES",
+      "UNSUBSCRIBE",
+    ].includes(t)
+  ) {
+    return "STOP";
+  }
+  if (["START", "REPRENDRE", "ABONNER", "SABONNER"].includes(t)) return "START";
   return null;
 }
 
