@@ -17,3 +17,9 @@ export function catalogProductLink(base: string, productSlug: string, ref: strin
 
 /** Adresse du catalogue personnel d'un revendeur, à coller dans son Commerce Manager. */
 export const resellerCatalogUrl = (origin: string, slug: string) => `${origin.replace(/\/$/, "")}/api/meta/catalog?ref=${encodeURIComponent(slug)}`;
+
+/** Catalogue JAMAAL créé dans le Commerce Manager de Kwingo sa (modifiable par META_CATALOG_ID dans Vercel). */
+export const META_CATALOG_ID = (process.env.META_CATALOG_ID ?? "2474248936440691").trim();
+
+/** Prix de départ au-delà duquel un produit du catalogue est signalé « à vérifier » dans l'admin. */
+export const PRICE_CHECK_ABOVE = 100_000;
