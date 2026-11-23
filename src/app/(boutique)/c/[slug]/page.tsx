@@ -303,7 +303,8 @@ export default async function ConsultantShopPage({ params, searchParams }: Props
                       {p.inspiredBy && <span className="sh-muted line-clamp-2 text-[13px]">{t("Inspiration :")} {p.inspiredBy}</span>}
                       <span className="mt-2 text-[15px] font-medium tabular-nums">{price(p)}</span>
                       {p.inStock ? (
-                        <span className="text-[13px] font-medium text-emerald-700">{t("Disponible à Dakar")}</span>
+                        // Boutique en arabe (clientèle mauritanienne) : pas de « Disponible à Dakar ».
+                        ar ? null : <span className="text-[13px] font-medium text-emerald-700">{t("Disponible à Dakar")}</span>
                       ) : (
                         <span className="text-[13px] leading-snug"><strong>{t("En rupture")}</strong> · {t("vous pouvez réserver ce produit")}</span>
                       )}
