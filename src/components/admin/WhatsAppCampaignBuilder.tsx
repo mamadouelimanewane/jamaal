@@ -1,7 +1,20 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import { CheckCircle2, FileSpreadsheet, Loader2, Send, SlidersHorizontal, Trash2, Upload, Users } from "lucide-react";
+import {
+  CheckCircle2,
+  Download,
+  Eye,
+  EyeOff,
+  FileSpreadsheet,
+  Loader2,
+  Search,
+  Send,
+  SlidersHorizontal,
+  Trash2,
+  Upload,
+  Users,
+} from "lucide-react";
 import { SearchSelect } from "@/components/admin/SearchSelect";
 import { createCampaign, parseCampaignExcelAction } from "@/lib/actions/whatsapp-inbox";
 import type {
@@ -197,6 +210,12 @@ export function WhatsAppCampaignBuilder({
   const [excelError, setExcelError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Visualisation / recherche / export de la liste finale des destinataires
+  const [showRecipientsList, setShowRecipientsList] = useState<boolean>(
+    () => filteredRecipients.length > 0 && filteredRecipients.length <= 8,
+  );
+  const [recipientSearch, setRecipientSearch] = useState<string>("");
+
   async function handleExcelFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -276,6 +295,54 @@ export function WhatsAppCampaignBuilder({
     [finalRecipients],
   );
   const unassignedCount = finalRecipients.length - assignedCount;
+
+  const visibleRecipients = useMemo(() => {
+    const q = recipientSearch.trim().toLowerCase();
+    if (!q) return finalRecipients;
+    return finalRecipients.filter(
+      (r) =>
+        r.name.toLowerCase().includes(q) ||
+        r.phone.toLowerCase().includes(q) ||
+        (r.city ?? "").toLowerCase().includes(q) ||
+        (r.consultantName ?? "").toLowerCase().includes(q),
+    );
+  }, [finalRecipients, recipientSearch]);
+
+  function handleDownloadRecipientsCsv() {
+    if (finalRecipients.length === 0) return;
+    const esc = (v: string | null | undefined) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+    const headers = ["Nom", "Telephone_WhatsApp", "Ville", "Boutique", "Consultant_Rattache", "Source"];
+    const lines = [
+      headers.join(";"),
+      ...finalRecipients.map((r) =>
+        [
+          esc(r.name),
+          esc(`+${r.phone.replace(/^\+/, "")}`),
+          esc(r.city ?? ""),
+          esc(r.shopName ?? ""),
+          esc(r.consultantName ?? "unassigned"),
+          esc(r.source === "EXCEL" ? "Excel" : "Base filtrée"),
+        ].join(";"),
+      ),
+    ];
+    // BOM UTF-8 pour ouverture directe avec les accents dans Microsoft Excel
+    const blob = new Blob(["\uFEFF" + lines.join("\r\n")], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    const slugTitle = (title || "campagne-whatsapp")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "")
+      .slice(0, 40);
+    a.download = `destinataires-${slugTitle || "whatsapp"}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
 
   const sampleRecipientName = finalRecipients[0]?.name ?? "Awa Diop";
 
@@ -769,11 +836,127 @@ export function WhatsAppCampaignBuilder({
         </p>
 
         {finalRecipients.length > 0 && (
-          <p className="mt-1 text-xs text-navy/70">
-            Routage automatique des retours KwingoChat : <strong>{assignedCount}</strong> rattaché(s) à un consultant
-            (retours auto-assignés dans son Inbox) · <strong>{unassignedCount}</strong> sans consultant (
-            <code className="rounded bg-cream px-1 py-0.5">unassigned</code>).
-          </p>
+          <div className="mt-3 space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-line bg-cream/35 px-3.5 py-2.5">
+              <p className="text-xs text-navy/75">
+                Routage automatique des retours KwingoChat : <strong>{assignedCount}</strong> rattaché(s) à un consultant ·{" "}
+                <strong>{unassignedCount}</strong> sans consultant (
+                <code className="rounded bg-white px-1 py-0.5">unassigned</code>).
+              </p>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowRecipientsList((v) => !v)}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-navy/25 bg-white px-3.5 py-1.5 text-xs font-semibold text-navy hover:bg-cream"
+                >
+                  {showRecipientsList ? <EyeOff size={13} /> : <Eye size={13} />}
+                  <span>
+                    {showRecipientsList
+                      ? "Masquer la liste"
+                      : `Visualiser la liste (${finalRecipients.length})`}
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDownloadRecipientsCsv}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-navy px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-navy/90"
+                  title="Télécharger la liste complète des destinataires filtrés au format Excel (.csv)"
+                >
+                  <Download size={13} />
+                  <span>Télécharger (.csv Excel)</span>
+                </button>
+              </div>
+            </div>
+
+            {showRecipientsList && (
+              <div className="rounded-xl border border-line bg-white p-3">
+                <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-xs font-semibold text-navy">
+                    Liste des destinataires sélectionnés ({visibleRecipients.length}
+                    {recipientSearch.trim() ? ` / ${finalRecipients.length}` : ""})
+                  </p>
+                  {finalRecipients.length > 6 && (
+                    <div className="relative w-full sm:w-64">
+                      <Search
+                        size={13}
+                        className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-navy/45"
+                      />
+                      <input
+                        type="search"
+                        value={recipientSearch}
+                        onChange={(e) => setRecipientSearch(e.target.value)}
+                        placeholder="Filtrer par nom, numéro, ville…"
+                        className="w-full rounded-full border border-line bg-cream/40 py-1.5 pl-8 pr-3 text-xs text-navy outline-none focus:border-ia"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <div className="max-h-64 overflow-y-auto rounded-lg border border-line">
+                  <table className="w-full text-left text-xs">
+                    <thead className="sticky top-0 bg-cream text-[11px] uppercase text-navy/70">
+                      <tr>
+                        <th className="px-3 py-2">#</th>
+                        <th className="px-3 py-2">Destinataire</th>
+                        <th className="px-3 py-2">Numéro WhatsApp</th>
+                        <th className="px-3 py-2">Ville / Boutique</th>
+                        <th className="px-3 py-2">Source</th>
+                        <th className="px-3 py-2">Routage retour</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-line/60">
+                      {visibleRecipients.slice(0, 200).map((r, idx) => (
+                        <tr key={r.phone} className="hover:bg-cream/35">
+                          <td className="px-3 py-1.5 text-navy/45">{idx + 1}</td>
+                          <td className="px-3 py-1.5 font-medium text-navy">{r.name}</td>
+                          <td className="px-3 py-1.5 font-mono text-navy/80">+{r.phone.replace(/^\+/, "")}</td>
+                          <td className="px-3 py-1.5 text-navy/70">
+                            {[r.city, r.shopName].filter(Boolean).join(" · ") || "—"}
+                          </td>
+                          <td className="px-3 py-1.5">
+                            <span
+                              className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                                r.source === "EXCEL"
+                                  ? "bg-emerald-50 text-[#1f9d55] border border-emerald-200"
+                                  : "bg-cream text-navy/80"
+                              }`}
+                            >
+                              {r.source === "EXCEL" ? "Excel" : "Base filtrée"}
+                            </span>
+                          </td>
+                          <td className="px-3 py-1.5">
+                            {r.consultantName || r.consultantId ? (
+                              <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-medium text-blue-800">
+                                {r.consultantName || "Consultant assigné"}
+                              </span>
+                            ) : (
+                              <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-800">
+                                unassigned
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                      {visibleRecipients.length === 0 && (
+                        <tr>
+                          <td colSpan={6} className="px-3 py-6 text-center text-navy/55">
+                            Aucun destinataire ne correspond à « {recipientSearch} ».
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                  {visibleRecipients.length > 200 && (
+                    <p className="bg-cream/50 px-3 py-2 text-center text-[11px] text-navy/65">
+                      Affichage limité aux 200 premiers sur {visibleRecipients.length}. Utilisez{" "}
+                      <strong>« Télécharger (.csv Excel) »</strong> pour obtenir la liste complète.
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         )}
 
         {/* Bulle d'aperçu WhatsApp */}
