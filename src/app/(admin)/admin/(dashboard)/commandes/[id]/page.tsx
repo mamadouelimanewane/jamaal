@@ -1,4 +1,5 @@
-import { notFound, redirect } from "next/navigation";
+import { notFound, redirect, unstable_rethrow } from "next/navigation";
+import { quickMarkPaid } from "@/lib/actions/order-quick";
 import { paymentStage, statusChangeError } from "@/lib/orders/payment-rules";
 import { paymentLine } from "@/lib/special-terms";
 import { isInstallmentOrder } from "@/lib/installments";
@@ -32,10 +33,12 @@ export default async function AdminOrderDetailPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ statut?: string }>;
+  searchParams: Promise<{ statut?: string; ok?: string }>;
 }) {
   const { id } = await params;
-  const statutError = (await searchParams).statut?.slice(0, 300) ?? null;
+  const sp = await searchParams;
+  const statutError = sp.statut?.slice(0, 300) ?? null;
+  const statutOk = sp.ok?.slice(0, 200) ?? null;
   const [order, consultants, livreurs] = await Promise.all([
     prisma.order.findUnique({
       where: { id },
@@ -54,15 +57,57 @@ export default async function AdminOrderDetailPage({
   const protocol = host?.startsWith("localhost") ? "http" : "https";
   const trackingUrl = `${protocol}://${host}/suivi/${order.id}`;
 
+  // Paiement reçu hors paiement en ligne (Wave ou Orange Money sur le numéro de la boutique, espèces…) :
+  // possible sauf paiement en plusieurs fois et réservation (réglés par leur échéancier / acompte).
+  const canMarkPaid = order.paymentStatus !== "PAYE" && order.status !== "ANNULEE" && order.status !== "LIVREE" && order.installmentCount < 2 && !order.isReservation;
+
   async function changeStatus(formData: FormData) {
     "use server";
-    const res = await updateOrderStatus(id, formData.get("status") as OrderStatus);
-    if (res && !res.ok) redirect(`/admin/commandes/${id}?statut=${encodeURIComponent(res.error)}#statut`);
-    redirect(`/admin/commandes/${id}#statut`);
+    const target = formData.get("status") as OrderStatus;
+    let error: string | null = null;
+    let ok: string | null = null;
+    try {
+      const o = await prisma.order.findUnique({ where: { id }, select: { status: true, paymentStatus: true, installmentCount: true, isReservation: true } });
+      const payable = !!o && o.paymentStatus !== "PAYE" && o.status !== "ANNULEE" && o.status !== "LIVREE" && o.installmentCount < 2 && !o.isReservation;
+      if (target === "CONFIRMEE" && payable && (o.status === "NON_PAYEE" || o.status === "EN_ATTENTE")) {
+        // « Confirmée » choisie sur une commande non payée : c'est le paiement total qui arrive.
+        const res = await quickMarkPaid(id);
+        if (res.ok) ok = "Paiement enregistré : commande « Confirmée » (stock et commissions à jour).";
+        else error = res.error ?? "Paiement non enregistré.";
+      } else {
+        const res = await updateOrderStatus(id, target);
+        if (res.ok) ok = `Statut enregistré : « ${statusLabels[target] ?? target} ».`;
+        else error = res.error;
+      }
+    } catch (e) {
+      unstable_rethrow(e);
+      console.error("[commande] changement de statut", id, target, e);
+      error = `Le statut n'a pas pu être enregistré (${e instanceof Error ? e.message.slice(0, 160) : "erreur inconnue"}). Réessayez ; si cela continue, envoyez ce message à l'équipe technique.`;
+    }
+    redirect(`/admin/commandes/${id}?${error ? `statut=${encodeURIComponent(error)}` : `ok=${encodeURIComponent(ok ?? "")}`}#statut`);
   }
-  // Statuts avant expédition : un seul possible, celui qui correspond au paiement.
+
+  const wasPending = order.status === "NON_PAYEE" || order.status === "EN_ATTENTE";
+  async function markPaid() {
+    "use server";
+    let error: string | null = null;
+    try {
+      const res = await quickMarkPaid(id);
+      if (!res.ok) error = res.error ?? "Paiement non enregistré.";
+    } catch (e) {
+      unstable_rethrow(e);
+      console.error("[commande] paiement reçu", id, e);
+      error = `Le paiement n'a pas pu être enregistré (${e instanceof Error ? e.message.slice(0, 160) : "erreur inconnue"}).`;
+    }
+    const done = wasPending ? "Paiement enregistré : commande « Confirmée » (stock et commissions à jour)." : "Paiement enregistré (stock et commissions à jour).";
+    redirect(`/admin/commandes/${id}?${error ? `statut=${encodeURIComponent(error)}` : `ok=${encodeURIComponent(done)}`}#statut`);
+  }
+
+  // Statuts avant expédition : ils suivent le paiement. « Confirmée » reste possible sur une commande
+  // non payée : la choisir enregistre le paiement total.
   const payStage = paymentStage(order);
-  const allowed = (s: OrderStatus) => !statusChangeError(order, s);
+  const confirmByPaying = canMarkPaid && (order.status === "NON_PAYEE" || order.status === "EN_ATTENTE");
+  const allowed = (s: OrderStatus) => !statusChangeError(order, s) || (s === "CONFIRMEE" && confirmByPaying);
 
   return (
     <div className="max-w-2xl">
@@ -130,12 +175,28 @@ export default async function AdminOrderDetailPage({
       {order.giftWrap && <div className="mt-4 rounded-xl border border-rose/30 bg-rose/5 p-4"><p className="text-sm font-semibold text-navy">Préparation cadeau</p>{order.giftOccasion && <p className="mt-1 text-sm text-navy/85">Occasion : {occasionOf(order.giftOccasion)?.label ?? order.giftOccasion}</p>}{order.giftFrom && <p className="mt-1 text-sm text-navy/85">De la part de : {order.giftFrom}</p>}{order.giftMessage && <p className="mt-1 text-sm text-navy/85">Message : {order.giftMessage}</p>}{order.giftVoiceUrl && <div className="mt-2"><p className="text-xs text-navy/70">Message vocal (à faire écouter ou transmettre au destinataire) :</p><audio src={order.giftVoiceUrl} controls className="mt-1 w-full max-w-sm" /></div>}</div>}
       {order.subscriptionId && <p className="mt-4 rounded-xl bg-ia-light px-4 py-2 text-sm text-ia-dark">Commande d&apos;un abonnement de réassort. <Link href="/admin/abonnements" className="font-semibold underline">Voir les abonnements</Link></p>}
 
+      {canMarkPaid && (
+        <form action={markPaid} className="mt-6 flex flex-wrap items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50/70 p-5">
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold text-emerald-900">Le client a payé {formatPrice(order.total)} ?</p>
+            <p className="mt-0.5 text-xs text-emerald-900/80">
+              Wave ou Orange Money sur le numéro de la boutique, espèces… Vérifiez que l&apos;argent est bien arrivé, puis enregistrez-le :
+              la commande passe « Confirmée », les articles sortent du stock et les commissions sont créditées.
+            </p>
+          </div>
+          <button className="w-full rounded-full bg-emerald-700 px-5 py-2 text-sm font-semibold text-white hover:bg-emerald-800 sm:w-fit">
+            Paiement reçu · confirmer
+          </button>
+        </form>
+      )}
+
       <form id="statut" action={changeStatus} className="mt-6 flex scroll-mt-24 flex-wrap items-center gap-3 rounded-2xl border border-line bg-white p-5">
         <label className="text-sm font-medium text-navy/85">Statut</label>
         <select name="status" defaultValue={order.status} className="rounded-lg border border-line px-3 py-2 text-sm">
           {statuses.map((s) => (
             <option key={s} value={s} disabled={!allowed(s)}>
               {statusLabels[s]}
+              {s === "CONFIRMEE" && confirmByPaying ? " (paiement total reçu)" : ""}
               {!allowed(s) ? (s === "CONFIRMEE" ? " (paiement total requis)" : s === "EN_ATTENTE" ? (payStage === "TOTAL" ? " (déjà payée)" : " (acompte requis)") : " (paiement déjà reçu)") : ""}
             </option>
           ))}
@@ -148,6 +209,7 @@ export default async function AdminOrderDetailPage({
           {payStage === "AUCUN" ? " Rien n'est encaissé pour l'instant." : payStage === "PARTIEL" ? " Un acompte ou une partie est encaissé." : " Payée en totalité."}
         </p>
         {statutError && <p role="alert" className="w-full rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">{statutError}</p>}
+        {statutOk && !statutError && <p role="status" className="w-full rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-800">{statutOk}</p>}
       </form>
 
       {order.isReservation && (
