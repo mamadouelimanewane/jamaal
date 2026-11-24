@@ -129,10 +129,42 @@ function later(task: () => Promise<unknown>) {
   }
 }
 
-/** Prévient l'équipe sur le(s) numéro(s) de lib/contact. */
+/** Prévient l'équipe (numéros des administrateurs actifs, jamais le numéro Business émetteur +221 71 180 09 09 lui-même). */
 export function notifyTeamWhatsApp(text: string) {
   later(async () => {
-    for (const c of WHATSAPP_CONTACTS) await sendWhatsApp({ to: c.number, text, kind: "team" });
+    const businessTails = new Set(WHATSAPP_CONTACTS.map((c) => c.number.replace(/\D/g, "").slice(-9)));
+    const targets = new Map<string, string>();
+
+    const envAdmins = (process.env.WHATSAPP_ADMIN_NUMBERS ?? process.env.ADMIN_WHATSAPP_NUMBERS ?? "")
+      .split(/[,;\s]+/)
+      .map((s) => canonicalizePhone(s))
+      .filter((p) => p.length >= 8);
+    for (const p of envAdmins) {
+      const tail = p.slice(-9);
+      if (!businessTails.has(tail)) targets.set(tail, p);
+    }
+
+    if (targets.size === 0) {
+      const admins = await prisma.user
+        .findMany({
+          where: { role: "ADMIN", active: true, phone: { not: null } },
+          select: { phone: true },
+          take: 10,
+        })
+        .catch(() => []);
+      for (const a of admins) {
+        if (!a.phone) continue;
+        const p = canonicalizePhone(a.phone);
+        const tail = p.slice(-9);
+        if (p.length >= 8 && !businessTails.has(tail)) {
+          targets.set(tail, p);
+        }
+      }
+    }
+
+    for (const phone of targets.values()) {
+      await sendWhatsApp({ to: phone, text, kind: "team" });
+    }
   });
 }
 

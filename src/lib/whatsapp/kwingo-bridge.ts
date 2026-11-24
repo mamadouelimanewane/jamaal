@@ -789,6 +789,16 @@ export async function sendViaKwingoConnection(opts: {
     return { ok: true, simulated: true, providerId: `sim-${Date.now()}` };
   }
 
+  // Protection Meta Error #100 : le numéro Business JAMAAL Luxury (+221 71 180 09 09) ne peut jamais s'envoyer un message à lui-même
+  const cleanTail = opts.to.replace(/\D/g, "").slice(-9);
+  if (cleanTail === "711800909") {
+    return {
+      ok: false,
+      error:
+        "Le numéro +221 71 180 09 09 est le numéro Business émetteur lui-même : Meta refuse qu'un compte s'envoie un message à lui-même (#100).",
+    };
+  }
+
   const conn = await getKwingoConnection();
   if (!conn.connected || !conn.accessToken) return null;
 
@@ -831,13 +841,16 @@ export async function sendViaKwingoConnection(opts: {
     }
   }
 
+  const sanitizeMetaParam = (val: string) =>
+    val.replace(/[\r\n\t]+/g, " ").replace(/ {4,}/g, "   ").trim().slice(0, 500) || "—";
+
   const buildTemplateComponents = (tpl: MetaApprovedTemplate | null) => {
     // 1. Si des valeurs explicites de variables ({{1}}, {{2}}, {{3}}…) sont fournies (mappage dynamique campagne), les utiliser directement
     if (Array.isArray(opts.templateVars) && opts.templateVars.length > 0) {
       const count = tpl?.paramCount && tpl.paramCount > 0 ? tpl.paramCount : opts.templateVars.length;
       const parameters = Array.from({ length: count }, (_, idx) => ({
         type: "text",
-        text: (opts.templateVars?.[idx] ?? tpl?.exampleParams?.[idx] ?? "—").trim() || "—",
+        text: sanitizeMetaParam(opts.templateVars?.[idx] ?? tpl?.exampleParams?.[idx] ?? "—"),
       }));
       return [{ type: "body", parameters }];
     }
@@ -849,7 +862,7 @@ export async function sendViaKwingoConnection(opts: {
     if (!firstName) return undefined;
     const parameters = Array.from({ length: tpl.paramCount }, (_, idx) => ({
       type: "text",
-      text: idx === 0 ? firstName : (tpl.exampleParams?.[idx]?.trim() || `Info ${idx + 1}`),
+      text: sanitizeMetaParam(idx === 0 ? firstName : (tpl.exampleParams?.[idx]?.trim() || `Info ${idx + 1}`)),
     }));
     return [{ type: "body", parameters }];
   };
