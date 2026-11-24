@@ -57,8 +57,8 @@ export function LiveTracking({ orderId }: { orderId: string }) {
   for (const e of data.events) at.set(e.status, e.at);
   const failure = [...data.events].reverse().find((e) => e.status === "ECHEC");
 
-  const points: MapPoint[] = [{ id: "depot", kind: "depot", lat: data.depot.lat, lng: data.depot.lng, label: data.depot.label }];
-  if (data.destination) points.push({ id: "dest", kind: "destination", ...data.destination, label: "Votre adresse" });
+  const points: MapPoint[] = [{ id: "depot", kind: "depot", lat: data.depot.lat, lng: data.depot.lng, label: t(data.depot.label) }];
+  if (data.destination) points.push({ id: "dest", kind: "destination", ...data.destination, label: t("Votre adresse") });
   if (data.livreur?.lat != null && data.livreur?.lng != null) points.push({ id: "livreur", kind: "livreur", lat: data.livreur.lat, lng: data.livreur.lng, label: data.livreur.name, heading: data.livreur.heading, accuracy: data.livreur.accuracy });
   const hasLivreur = points.some((p) => p.id === "livreur");
   const paths: MapPath[] = [];
@@ -69,7 +69,7 @@ export function LiveTracking({ orderId }: { orderId: string }) {
     <div className="space-y-5">
       <div className="rounded-2xl border border-line bg-white p-5">
         <p className="text-sm text-navy/70">{t("État de la livraison")}</p>
-        <p className={`text-xl font-semibold ${failed ? "text-red-700" : "text-navy"}`}>{data.deliveryLabel}</p>
+        <p className={`text-xl font-semibold ${failed ? "text-red-700" : "text-navy"}`}>{data.deliveryLabel ? t(data.deliveryLabel) : null}</p>
         {data.etaMinutes != null && !failed && data.deliveryStatus !== "LIVREE" && (
           <p className="mt-1 flex items-start gap-2 text-[15px] text-emerald-800">
             <Clock size={16} className="mt-1 shrink-0" />
@@ -87,7 +87,7 @@ export function LiveTracking({ orderId }: { orderId: string }) {
 
       {data.destination && data.deliveryStatus !== "LIVREE" && (
         <div>
-          <DeliveryMap points={points} paths={paths} route={hasLivreur && !data.route ? ["livreur", "dest"] : undefined} height={320} ariaLabel="Carte du suivi de livraison" />
+          <DeliveryMap points={points} paths={paths} route={hasLivreur && !data.route ? ["livreur", "dest"] : undefined} height={320} ariaLabel={t("Carte du suivi de livraison")} />
           <p className="mt-1.5 text-xs text-navy/60">
             {hasLivreur ? t("Trait vert : trajet restant par la route · pointillés gris : trajet déjà fait par le livreur.") : t("Trajet prévu depuis notre dépôt. La position du livreur apparaît dès qu'il est en route.")}
           </p>

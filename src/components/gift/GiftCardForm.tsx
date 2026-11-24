@@ -45,7 +45,7 @@ export function GiftCardForm({ methods, refSlug, cancelled }: Props) {
             {GIFT_AMOUNTS.map((a) => <button key={a} type="button" aria-pressed={!custom && amount === a} onClick={() => { setAmount(a); setCustom(""); }} className={chip(!custom && amount === a)}>{a.toLocaleString("fr-FR")} F</button>)}
           </div>
           <label className="mt-3 block text-sm text-navy">{t("Autre montant (FCFA)")}
-            <input value={custom} onChange={(e) => setCustom(e.target.value)} inputMode="numeric" placeholder={`${GIFT_MIN.toLocaleString("fr-FR")} à ${GIFT_MAX.toLocaleString("fr-FR")}`} className={`${input} max-w-xs`} />
+            <input value={custom} onChange={(e) => setCustom(e.target.value)} inputMode="numeric" placeholder={t("{v0} à {v1}", { v0: GIFT_MIN.toLocaleString("fr-FR"), v1: GIFT_MAX.toLocaleString("fr-FR") })} className={`${input} max-w-xs`} />
           </label>
           <p className="mt-4 text-sm font-semibold text-navy">{t("L'occasion")}</p>
           <div className="mt-2 flex flex-wrap gap-2">
@@ -79,7 +79,7 @@ export function GiftCardForm({ methods, refSlug, cancelled }: Props) {
         <div className="rounded-3xl bg-gradient-to-br from-navy to-[#3a2a3f] p-6 text-white shadow-lg">
           <p className="flex items-center gap-2 text-xs uppercase tracking-widest text-white/70"><Gift size={14} /> {t("Carte cadeau JAMAAL")}</p>
           <p className="mt-6 font-serif-display text-4xl">{Number.isFinite(finalAmount) && finalAmount > 0 ? finalAmount.toLocaleString("fr-FR") : "—"} <span className="text-lg">FCFA</span></p>
-          <p className="mt-4 text-sm text-white/80">{t("Pour")} {f.recipientName || "…"}{occasionPhrase(occasion)}</p>
+          <p className="mt-4 text-sm text-white/80">{t("Pour")} {f.recipientName || "…"}{occasionPhrase(occasion) ? ` ${t(occasionPhrase(occasion).trim())}` : ""}</p>
           <p className="text-sm text-white/80">{t("De")} {f.buyerName || "…"}</p>
           <p className="mt-4 font-mono text-sm tracking-widest text-white/60">{t("JML-••••-••••")}</p>
         </div>

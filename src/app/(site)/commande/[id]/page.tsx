@@ -152,7 +152,7 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
           {!resa && <div className="mt-2 flex justify-between">
             <span className="text-navy/60">{t("Paiement")}</span>
             <span className="font-semibold text-navy">
-              {paymentMethodLabels[paymentMethod] ?? paymentMethod}
+              {t(paymentMethodLabels[paymentMethod] ?? paymentMethod)}
               {" · "}
               <span
                 className={
@@ -165,7 +165,7 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
               >
                 {isPaid
                   ? t("Payé")
-                  : paymentStatusLabels[paymentStatus] ?? paymentStatus}
+                  : t(paymentStatusLabels[paymentStatus] ?? paymentStatus)}
               </span>
             </span>
           </div>}

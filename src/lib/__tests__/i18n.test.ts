@@ -96,7 +96,7 @@ test("anglais : textes, notes, familles et phrases types", async () => {
   assert.equal(en("Texte inconnu"), "Texte inconnu");
   assert.equal(noteEn("Fève tonka"), "Tonka bean");
   assert.equal(familyEn("Floral boisé"), "Floral woody");
-  assert.equal(genericEn("Prestige — 70 ml. Produit Chogan, distribué au Sénégal par JAMAAL."), "Prestige — 70 ml. Chogan product, distributed in Senegal by JAMAAL.");
+  assert.equal(genericEn("Prestige — 70 ml. Produit Chogan, distribué au Sénégal par JAMAAL."), "Prestige — 70 ml. Chogan product, distributed in Senegal and The Gambia by JAMAAL.");
 });
 
 test("anglais : chaque phrase du site (et de la boutique revendeur) est traduite, avec les mêmes variables", async () => {
@@ -107,4 +107,12 @@ test("anglais : chaque phrase du site (et de la boutique revendeur) est traduite
     assert.ok(fr in EN, `traduction anglaise manquante : ${fr}`);
     assert.equal(vars(EN[fr]), vars(fr), fr);
   }
+});
+
+test("délai de réservation saisi dans l'admin, dans la langue de la page", async () => {
+  const { localizeDelay } = await import("../i18n/translate");
+  assert.equal(localizeDelay("15 à 21 jours", translator("en")), "15 to 21 days");
+  assert.equal(localizeDelay("15 à 21 jours", translator("fr")), "15 à 21 jours");
+  assert.equal(localizeDelay("10 jours", translator("en")), "10 days");
+  assert.equal(localizeDelay("Sous 3 semaines", translator("en")), "Sous 3 semaines");
 });

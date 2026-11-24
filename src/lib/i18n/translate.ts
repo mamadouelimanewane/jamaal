@@ -34,3 +34,14 @@ export function pick<V>(locale: Locale, fr: V, it: V | null | undefined): V {
   if (Array.isArray(it) && !it.length) return fr;
   return it;
 }
+
+/**
+ * Délai saisi dans l'admin (« 15 à 21 jours ») dans la langue de la page ; un autre texte passe par le dictionnaire.
+ */
+export function localizeDelay(label: string, t: T): string {
+  const m = label.trim().match(/^(\d+)\s*(?:à|-|–)\s*(\d+)\s*jours?$/i);
+  if (m) return t("{v0} à {v1} jours", { v0: m[1], v1: m[2] });
+  const one = label.trim().match(/^(\d+)\s*jours?$/i);
+  if (one) return t("{v0} jours", { v0: one[1] });
+  return t(label);
+}

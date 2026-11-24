@@ -1,4 +1,5 @@
 import { getT } from "@/lib/i18n/server";
+import { localizeDelay } from "@/lib/i18n/translate";
 import type { Metadata } from "next";
 import Link from "@/components/i18n/Link";
 import { getAccountingSettings } from "@/lib/accounting/ledger";
@@ -104,7 +105,7 @@ export default async function CgvPage() {
       <H id="vendeur">{t("2. Vendeur")}</H>
       <ul className="mt-3 list-disc space-y-1 pl-5">
         <li>{company?.name || "JAMAAL"}</li>
-        {company?.address && <li>{t("Adresse :")} {company.address}</li>}
+        {company?.address && <li>{t("Adresse :")} {t(company.address)}</li>}
         {company?.ninea && <li>{t("NINEA :")} {company.ninea}</li>}
         {company?.rccm && <li>{t("RCCM :")} {company.rccm}</li>}
         <li>
@@ -173,7 +174,7 @@ export default async function CgvPage() {
       <H id="reservation">{t("9. Réservation")}</H>
       {resa.enabled ? (
         <p className="mt-3">
-          {t("Un format en rupture de stock peut être réservé : le client paie un acompte de")} {resa.depositPercent} {t("% du prix des produits, JAMAAL commande le produit (délai indicatif :")} {resa.delayLabel}{t(") et prévient le client à son arrivée ; le solde se règle alors en ligne, à la livraison ou au retrait.")}
+          {t("Un format en rupture de stock peut être réservé : le client paie un acompte de")} {resa.depositPercent} {t("% du prix des produits, JAMAAL commande le produit (délai indicatif :")} {localizeDelay(resa.delayLabel, t)}{t(") et prévient le client à son arrivée ; le solde se règle alors en ligne, à la livraison ou au retrait.")}
           {resa.refundable
             ? t(" Si le client annule avant l'arrivée du produit, l'acompte lui est remboursé.")
             : t(" L'acompte n'est pas remboursé si le client annule après la réservation.")}{" "}

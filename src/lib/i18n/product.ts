@@ -32,10 +32,10 @@ export function genericAr(text: string): string {
 
 /** Mêmes phrases types en anglais (version gambienne). */
 const GENERIC_EN: [RegExp, string][] = [
-  [/\. Produit Chogan, distribué au Sénégal par JAMAAL\.$/, ". Chogan product, distributed in Senegal by JAMAAL."],
+  [/\. Produit Chogan, distribué au Sénégal par JAMAAL\.$/, ". Chogan product, distributed in Senegal and The Gambia by JAMAAL."],
   [/\. Produit Chogan\.$/, ". Chogan product."],
   [/ Format : ([^.]+)\.$/, " Size: $1."],
-  [/^Produit officiel de la gamme Chogan, distribué au Sénégal par JAMAAL, revendeur officiel de la marque CHOGAN \(Italie\)\.$/, "Official product from the Chogan range, distributed in Senegal by JAMAAL, official reseller of the CHOGAN brand (Italy)."],
+  [/^Produit officiel de la gamme Chogan, distribué au Sénégal par JAMAAL, revendeur officiel de la marque CHOGAN \(Italie\)\.$/, "Official product from the Chogan range, distributed in Senegal and The Gambia by JAMAAL, official reseller of the CHOGAN brand (Italy)."],
   [/^Extrait de parfum concentré à 30 %\.$/, "Perfume extract concentrated at 30%."],
 ];
 

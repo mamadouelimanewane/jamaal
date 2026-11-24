@@ -153,7 +153,7 @@ export function HomeCarousel({ slides }: { slides: Slide[] }) {
                 type="button"
                 role="tab"
                 aria-selected={i === index}
-                aria-label={`${s.eyebrow || s.title.replace(/\*/g, "")} (${i + 1}/${count})`}
+                aria-label={`${tr(s.eyebrow || s.title).replace(/\*/g, "")} (${i + 1}/${count})`}
                 onClick={() => go(i)}
                 className={`h-1.5 rounded-full bg-white transition-all ${i === index ? "w-9 opacity-95" : "w-4 opacity-40 hover:opacity-70"}`}
               />

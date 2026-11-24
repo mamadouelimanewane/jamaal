@@ -1,4 +1,5 @@
 "use client";
+import { localizeDelay } from "@/lib/i18n/translate";
 
 import { useT, usePrice } from "@/components/i18n/LocaleProvider";
 import Image from "next/image";
@@ -155,7 +156,7 @@ export function ReservationForm({
           </div>
           <div className="min-w-0">
             <p className="font-semibold text-navy">{product.name}</p>
-            <p className="mt-1 text-sm text-navy/70">{tr("Produit en cours de commande · disponible sous")} <strong>{settings.delayLabel}</strong></p>
+            <p className="mt-1 text-sm text-navy/70">{tr("Produit en cours de commande · disponible sous")} <strong>{localizeDelay(settings.delayLabel, tr)}</strong></p>
             {formats.length > 1 ? (
               <select value={format} onChange={(e) => setFormat(e.target.value)} aria-label={tr("Format")} className={`mt-2 max-w-xs ${field}`}>
                 {formats.map((f) => <option key={f.label} value={f.label}>{tr(f.label)} — {formatPrice(f.price)}</option>)}
@@ -205,7 +206,7 @@ export function ReservationForm({
           <div className="flex justify-between text-navy/80"><dt>{tr("Solde à l'arrivée")}</dt><dd>{formatPrice(balance)}</dd></div>
         </dl>
         <ul className="list-disc space-y-1 pl-5 text-xs leading-5 text-navy/75">
-          <li>{tr("Délai annoncé :")} {settings.delayLabel} {tr("après la réservation.")}</li>
+          <li>{tr("Délai annoncé :")} {localizeDelay(settings.delayLabel, tr)} {tr("après la réservation.")}</li>
           <li>{tr("Nous vous prévenons sur WhatsApp dès l'arrivée ; vous réglez alors le solde en ligne, à la livraison ou au retrait.")}</li>
           <li>{settings.refundable ? tr("Acompte remboursé si vous annulez avant l'arrivée du produit.") : tr("L'acompte n'est pas remboursable en cas d'annulation.")}</li>
         </ul>
