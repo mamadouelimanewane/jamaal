@@ -2,6 +2,7 @@ import { getBasePath, getLocale, getT } from "@/lib/i18n/server";
 import { localizeHref, dirOf } from "@/lib/i18n/config";
 import { LocaleProvider } from "@/components/i18n/LocaleProvider";
 import { getRateFor } from "@/lib/fx";
+import { siteWhatsAppFor } from "@/lib/site-whatsapp";
 import type { Metadata } from "next";
 import { Playfair_Display, Poppins } from "next/font/google";
 import "../globals.css";
@@ -68,11 +69,11 @@ const OG = { fr: "fr_SN", it: "it_IT", ar: "ar_SN", en: "en_GM" } as const;
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const [categories, locale] = await Promise.all([getCategoriesWithProducts(), getLocale()]);
-  const rate = await getRateFor(locale);
+  const [rate, whatsapp] = await Promise.all([getRateFor(locale), siteWhatsAppFor(locale)]);
   return (
     <html lang={locale} dir={dirOf(locale)} className={`${playfair.variable} ${poppins.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col bg-background text-foreground">
-        <LocaleProvider locale={locale} rate={rate}>
+        <LocaleProvider locale={locale} rate={rate} whatsapp={whatsapp}>
         <AnnouncementBar />
         <Header categories={categories} />
         <main className="flex-1">{children}</main>

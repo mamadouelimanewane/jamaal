@@ -1,9 +1,9 @@
 "use client";
 
-import { useLocale, useT } from "@/components/i18n/LocaleProvider";
+import { useLocale, useT, useSiteWhatsApp } from "@/components/i18n/LocaleProvider";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { submitApplication, type ApplicationState } from "@/lib/actions/applications";
-import { WHATSAPP_CONTACTS, whatsappLink } from "@/lib/contact";
+import { whatsappLink } from "@/lib/contact";
 import { fillProtocol, ID_TYPES, pieceLabel, type ProtocolDoc } from "@/lib/protocol";
 import { ProtocolText } from "@/components/ProtocolText";
 import { SignaturePad } from "@/components/SignaturePad";
@@ -24,6 +24,7 @@ const stepNum = "flex h-7 w-7 shrink-0 items-center justify-center rounded-full 
 
 export function ApplicationForm({ sponsorCode = "", sponsorName = null, protocol }: { sponsorCode?: string; sponsorName?: string | null; protocol: ProtocolDoc }) {
   const t = useT();
+  const siteWa = useSiteWhatsApp();
   const locale = useLocale();
   const [state, setState] = useState<ApplicationState>(initial);
   const [pending, startPrep] = useTransition();
@@ -137,7 +138,7 @@ export function ApplicationForm({ sponsorCode = "", sponsorName = null, protocol
           <div className="mt-6 border-t border-line pt-5">
             <p className="text-sm font-semibold text-navy">{t("Gagnez du temps : prévenez l'équipe sur WhatsApp")}</p>
             <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:justify-center">
-              {WHATSAPP_CONTACTS.map((c) => (
+              {[siteWa].map((c) => (
                 <a
                   key={c.number}
                   href={whatsappLink(
@@ -215,7 +216,7 @@ export function ApplicationForm({ sponsorCode = "", sponsorName = null, protocol
             <input id="sponsorCode" name="sponsorCode" value={f.sponsorCode} onChange={set("sponsorCode")} required minLength={2} maxLength={48} placeholder={t("ex. aminata")} className={input} />
             <p className="mt-1.5 text-xs text-navy/70">
               {t("Demandez-le à la personne qui vous a invité·e. Pas de parrain ?")}{" "}
-              <a href={whatsappLink(WHATSAPP_CONTACTS[0].number, "Bonjour JAMAAL, je souhaite devenir consultant·e mais je n'ai pas de code de parrainage.")} target="_blank" rel="noopener noreferrer" className="font-semibold text-rose-dark underline">{t("Demandez un code à JAMAAL")}</a>.
+              <a href={whatsappLink(siteWa.number, "Bonjour JAMAAL, je souhaite devenir consultant·e mais je n'ai pas de code de parrainage.")} target="_blank" rel="noopener noreferrer" className="font-semibold text-rose-dark underline">{t("Demandez un code à JAMAAL")}</a>.
             </p>
           </div>
           <div className="sm:col-span-2">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useT, usePrice } from "@/components/i18n/LocaleProvider";
+import { useLocale, useT, usePrice } from "@/components/i18n/LocaleProvider";
 import { useEffect, useRef, useState } from "react";
 import { LocateFixed, Map as MapIcon, MapPin, Store } from "lucide-react";
 import { DeliveryMap } from "@/components/maps/DeliveryMap";
@@ -25,6 +25,8 @@ export type DeliveryChoice =
 export function DeliveryChooser({ productsTotal, value, onChange, recipientPhone, onAddressText }: { productsTotal: number; value: DeliveryChoice; onChange: (v: DeliveryChoice) => void; recipientPhone?: string | null; onAddressText?: (text: string) => void }) {
   const t = useT();
   const formatPrice = usePrice();
+  // Version anglaise (Gambie) : les revendeurs gambiens remettent les commandes ; pas de livraison JAMAAL depuis Dakar.
+  const gambia = useLocale() === "en";
   const [info, setInfo] = useState<CartDeliveryInfo | null>(null);
   const [locating, setLocating] = useState(false);
   const [geoError, setGeoError] = useState<string | null>(null);
@@ -86,13 +88,13 @@ export function DeliveryChooser({ productsTotal, value, onChange, recipientPhone
     <fieldset className="min-w-0 space-y-3">
       <legend className="text-sm font-semibold text-navy">{t("Livraison")}</legend>
       <div className="flex flex-col gap-2">
-        <label className={option(value.mode === "LIVRAISON")}>
+        {!gambia && <label className={option(value.mode === "LIVRAISON")}>
           <input type="radio" name="deliveryMode" checked={value.mode === "LIVRAISON"} onChange={() => onChange({ mode: "LIVRAISON", lat, lng, quote: null, approx: false, place: null })} className="mt-1" />
           <span><span className="flex items-center gap-1.5 font-semibold text-navy"><MapPin size={15} /> {t("Livraison chez moi")}</span><span className="text-navy/75">{t("Frais selon la distance")}</span></span>
-        </label>
+        </label>}
         <label className={option(value.mode === "RETRAIT")}>
           <input type="radio" name="deliveryMode" checked={value.mode === "RETRAIT"} onChange={() => onChange({ mode: "RETRAIT" })} className="mt-1" />
-          <span><span className="flex items-center gap-1.5 font-semibold text-navy"><Store size={15} /> {t("Retrait")}</span><span className="text-navy/75">{t("Chez mon consultant, sans frais")}</span></span>
+          <span><span className="flex items-center gap-1.5 font-semibold text-navy"><Store size={15} /> {gambia ? t("Retrait ou livraison par votre revendeur") : t("Retrait")}</span><span className="text-navy/75">{gambia ? t("Votre revendeur JAMAAL en Gambie vous contacte pour la remise, sans frais") : t("Chez mon consultant, sans frais")}</span></span>
         </label>
       </div>
 

@@ -1,13 +1,13 @@
 "use client";
 
-import { useT } from "@/components/i18n/LocaleProvider";
+import { useT, useSiteWhatsApp } from "@/components/i18n/LocaleProvider";
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Loader2, RotateCcw, SendHorizontal, Sparkles, X } from "lucide-react";
 import { askAssistantApi } from "@/lib/assistant-client";
 import type { ChatMessage } from "@/lib/ai/assistant";
 import { ChatMarkdown } from "@/components/ChatMarkdown";
-import { WHATSAPP_CONTACTS, whatsappLink } from "@/lib/contact";
+import { whatsappLink } from "@/lib/contact";
 
 const SUGGESTIONS = [
   "Un parfum frais pour homme",
@@ -25,6 +25,7 @@ const WELCOME =
 /** Conseillère virtuelle de la boutique : bulle flottante au-dessus du bouton WhatsApp. */
 export function ShopAssistant() {
   const tr = useT();
+  const siteWa = useSiteWhatsApp();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -171,7 +172,7 @@ export function ShopAssistant() {
             {error && (
               <p className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">
                 {tr(error)}{" "}
-                <a href={whatsappLink(WHATSAPP_CONTACTS[0].number)} target="_blank" rel="noopener noreferrer" className="font-semibold underline">
+                <a href={whatsappLink(siteWa.number)} target="_blank" rel="noopener noreferrer" className="font-semibold underline">
                   WhatsApp
                 </a>
               </p>
@@ -209,7 +210,7 @@ export function ShopAssistant() {
             </div>
             <p className="mt-2 text-center text-[11px] text-navy/55">
               {tr("Assistante IA : vérifiez les informations importantes.")}{" "}
-              <a href={whatsappLink(WHATSAPP_CONTACTS[0].number)} target="_blank" rel="noopener noreferrer" className="font-semibold text-[#1f8f4e] underline">
+              <a href={whatsappLink(siteWa.number)} target="_blank" rel="noopener noreferrer" className="font-semibold text-[#1f8f4e] underline">
                 {tr("Parler à un conseiller")}
               </a>
             </p>

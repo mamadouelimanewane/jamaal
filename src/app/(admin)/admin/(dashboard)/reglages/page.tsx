@@ -2,7 +2,9 @@ import { requireAdminPage } from "@/lib/admin-page-guard";
 import Link from "next/link";
 import { getLoyaltySettings } from "@/lib/settings";
 import { getBusinessModel } from "@/lib/business-model-store";
-import { updateGmdRateAction, updateLoyaltySettingsAction, updateMruRateAction } from "@/lib/actions/settings";
+import { updateGambiaWhatsAppAction, updateGmdRateAction, updateLoyaltySettingsAction, updateMruRateAction } from "@/lib/actions/settings";
+import { getGambiaWhatsApp } from "@/lib/site-whatsapp";
+import { displayIntlPhone } from "@/lib/contact";
 import { getGmdRate, getMruRate } from "@/lib/fx";
 import { toGmd, toMru } from "@/lib/currency";
 import { Settings, Percent, Gift, Coins } from "lucide-react";
@@ -13,7 +15,7 @@ export default async function SettingsPage() {
   await requireAdminPage("reglages");
   const model = await getBusinessModel();
   const loyalty = await getLoyaltySettings();
-  const [mruRate, gmdRate] = await Promise.all([getMruRate(), getGmdRate()]);
+  const [mruRate, gmdRate, gmWhatsapp] = await Promise.all([getMruRate(), getGmdRate(), getGambiaWhatsApp()]);
 
   return (
     <div className="max-w-4xl">
@@ -168,6 +170,27 @@ export default async function SettingsPage() {
             </button>
             <p className="text-xs text-navy/70">
               Exemple : 14 800 FCFA = <strong>{toGmd(14800, gmdRate).toLocaleString("fr-FR")} GMD</strong>
+            </p>
+          </form>
+          <form action={updateGambiaWhatsAppAction} className="mt-5 flex flex-wrap items-end gap-3 border-t border-line pt-5">
+            <div>
+              <label htmlFor="gmWhatsapp" className="block text-xs font-semibold text-navy/85">Numéro WhatsApp pour la Gambie</label>
+              <input
+                id="gmWhatsapp"
+                type="tel"
+                name="gmWhatsapp"
+                defaultValue={gmWhatsapp ? displayIntlPhone(gmWhatsapp) : ""}
+                placeholder="+220 770 12 34"
+                className="mt-1 w-56 rounded-xl border border-line bg-cream/50 px-4 py-2.5 text-sm text-navy focus:border-navy focus:outline-none"
+              />
+            </div>
+            <button type="submit" className="rounded-xl bg-navy px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-navy-light">
+              Enregistrer le numéro
+            </button>
+            <p className="w-full text-xs text-navy/70">
+              Affiché sur le site en anglais (bouton WhatsApp, Contact, conditions de vente, « Commander sur WhatsApp ») et donné aux clients pour payer par
+              Wave Gambia, QMoney ou Afrimoney. Laissez vide pour garder le numéro JAMAAL habituel (+221 71 180 09 09).
+              {gmWhatsapp ? "" : " Aucun numéro gambien n'est réglé pour l'instant."}
             </p>
           </form>
         </div>

@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { requireAdmin } from "./auth-guard";
 import { setCommissionRate, setSponsorCommissionRate, setLoyaltySettings } from "@/lib/settings";
 import { setGmdRate, setMruRate } from "@/lib/fx";
+import { setGambiaWhatsApp } from "@/lib/site-whatsapp";
 
 async function updateCommissionRateImpl(formData: FormData) {
   await requireAdmin("reglages");
@@ -90,6 +91,18 @@ async function updateGmdRateImpl(formData: FormData) {
 export async function updateGmdRateAction(formData: FormData): Promise<void> {
   try {
     await updateGmdRateImpl(formData);
+  } catch (e) {
+    await backWithError(e, "/admin/reglages");
+  }
+}
+
+/** Numéro WhatsApp affiché aux clients gambiens (version anglaise du site) ; vide = numéro JAMAAL habituel. */
+export async function updateGambiaWhatsAppAction(formData: FormData): Promise<void> {
+  try {
+    await requireAdmin("reglages");
+    await setGambiaWhatsApp(String(formData.get("gmWhatsapp") ?? ""));
+    revalidatePath("/admin/reglages");
+    revalidatePath("/en", "layout");
   } catch (e) {
     await backWithError(e, "/admin/reglages");
   }

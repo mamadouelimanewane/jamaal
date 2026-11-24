@@ -1,7 +1,9 @@
 import { getT } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import { ContactForm } from "@/components/ContactForm";
-import { WHATSAPP_CONTACTS, whatsappLink } from "@/lib/contact";
+import { whatsappLink } from "@/lib/contact";
+import { siteWhatsAppFor } from "@/lib/site-whatsapp";
+import { getLocale } from "@/lib/i18n/server";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getT();
@@ -13,6 +15,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function ContactPage() {
   const t = await getT();
+  // Version anglaise (Gambie) : numéro WhatsApp gambien s'il est réglé (Admin › Réglages).
+  const contacts = [await siteWhatsAppFor(await getLocale())];
   return (
     <div className="mx-auto max-w-2xl px-4 py-14 sm:px-6">
       <h1 className="font-serif-display text-3xl font-semibold text-navy">{t("Contactez-nous")}</h1>
@@ -21,7 +25,7 @@ export default async function ContactPage() {
       </p>
 
       <div className="mt-6 flex flex-wrap gap-3">
-        {WHATSAPP_CONTACTS.map((c) => (
+        {contacts.map((c) => (
           <a
             key={c.number}
             href={whatsappLink(c.number)}

@@ -1,8 +1,8 @@
 "use client";
 
-import { useT } from "@/components/i18n/LocaleProvider";
+import { useSiteWhatsApp, useT } from "@/components/i18n/LocaleProvider";
 import { usePathname } from "next/navigation";
-import { WHATSAPP_CONTACTS, whatsappLink } from "@/lib/contact";
+import { WHATSAPP_GREETING, whatsappLink } from "@/lib/contact";
 
 const Icon = () => (
   <svg viewBox="0 0 32 32" className="h-7 w-7 fill-white" aria-hidden="true">
@@ -13,15 +13,14 @@ const Icon = () => (
 /** Bouton WhatsApp flottant : redirige directement vers le numéro officiel JAMAAL Luxury (KwingoChat). */
 export function WhatsAppButton() {
   const t = useT();
+  const primary = useSiteWhatsApp();
   // Page de connexion : les boutons flottants masqueraient le formulaire sur téléphone.
   if (usePathname()?.startsWith("/espace-revendeur")) return null;
-
-  const primary = WHATSAPP_CONTACTS[0];
 
   return (
     <div className="fixed bottom-5 right-5 z-40 flex flex-col items-end gap-3">
       <a
-        href={whatsappLink(primary.number)}
+        href={whatsappLink(primary.number, t(WHATSAPP_GREETING))}
         target="_blank"
         rel="noopener noreferrer"
         aria-label={t("Contacter JAMAAL sur WhatsApp")}

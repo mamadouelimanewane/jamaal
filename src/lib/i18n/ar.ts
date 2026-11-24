@@ -1200,4 +1200,5 @@ export const AR: Record<string, string> = {
   "Leader": "قائد",
   "Parrain": "عرّاب",
   "Consultant": "مستشار",
+  "Bonjour JAMAAL Luxury, je souhaite des informations.": "مرحبًا JAMAAL Luxury، أرغب في الحصول على معلومات.",
 };

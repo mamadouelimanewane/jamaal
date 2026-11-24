@@ -11,3 +11,12 @@ export const WHATSAPP_GREETING = "Bonjour JAMAAL Luxury, je souhaite des informa
 
 export const whatsappLink = (number: string, text: string = WHATSAPP_GREETING) =>
   `https://wa.me/${number}?text=${encodeURIComponent(text)}`;
+
+export type SiteWhatsApp = { number: string; display: string; phone: string };
+
+/** « 2207701234 » → « +220 770 12 34 » (affichage d'un numéro gambien). */
+export function displayIntlPhone(digits: string): string {
+  const d = digits.replace(/\D/g, "");
+  if (/^220\d{7}$/.test(d)) return `+220 ${d.slice(3, 6)} ${d.slice(6, 8)} ${d.slice(8)}`;
+  return `+${d}`;
+}

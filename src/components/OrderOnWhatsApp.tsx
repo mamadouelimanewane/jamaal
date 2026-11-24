@@ -3,7 +3,7 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { getConsultantLabelBySlug } from "@/lib/actions/public-data";
 import { WHATSAPP_CONTACTS } from "@/lib/contact";
-import { useT } from "@/components/i18n/LocaleProvider";
+import { useSiteWhatsApp, useT } from "@/components/i18n/LocaleProvider";
 
 const readRef = () => document.cookie.split("; ").find((c) => c.startsWith("jamaal_ref="))?.split("=")[1] ?? "";
 const subscribe = () => () => {};
@@ -15,10 +15,10 @@ export const ORDER_NUMBER = (process.env.NEXT_PUBLIC_WHATSAPP_BUSINESS_NUMBER ||
  * Message pré-rempli (pur, testé) : articles, puis le revendeur qui a partagé le lien. Avec son nom
  * (« Awa Diop (Dakar) »), le code reste affiché pour que l'assistant le reconnaisse sans ambiguïté.
  */
-export function orderWhatsAppText(lines: string[], ref: string, sellerName?: string | null): string {
+export function orderWhatsAppText(lines: string[], ref: string, sellerName?: string | null, greeting = "Bonjour JAMAAL, je souhaite commander :"): string {
   const code = ref ? decodeURIComponent(ref) : "";
   const seller = !code ? "" : sellerName ? `Revendeur : ${sellerName} — code ${code}` : `Revendeur : ${code}`;
-  return [`Bonjour JAMAAL, je souhaite commander :`, ...lines.map((l) => `• ${l}`), seller].filter(Boolean).join("\n");
+  return [greeting, ...lines.map((l) => `• ${l}`), seller].filter(Boolean).join("\n");
 }
 
 /**
@@ -27,6 +27,9 @@ export function orderWhatsAppText(lines: string[], ref: string, sellerName?: str
  */
 export function OrderOnWhatsApp({ lines, label = "Commander sur WhatsApp", className = "" }: { lines: string[]; label?: string; className?: string }) {
   const t = useT();
+  const site = useSiteWhatsApp();
+  // Version anglaise avec un numéro gambien réglé : ce numéro ; sinon le numéro WhatsApp Business de JAMAAL.
+  const number = site.number.startsWith("220") ? site.number : ORDER_NUMBER;
   const ref = useSyncExternalStore(subscribe, readRef, () => "");
   const [sellerName, setSellerName] = useState<string | null>(null);
   useEffect(() => {
@@ -39,7 +42,7 @@ export function OrderOnWhatsApp({ lines, label = "Commander sur WhatsApp", class
   if (!lines.length) return null;
   return (
     <a
-      href={`https://wa.me/${ORDER_NUMBER}?text=${encodeURIComponent(orderWhatsAppText(lines, ref, sellerName))}`}
+      href={`https://wa.me/${number}?text=${encodeURIComponent(orderWhatsAppText(lines, ref, sellerName, t("Bonjour JAMAAL, je souhaite commander :")))}`}
       target="_blank"
       rel="noopener noreferrer"
       className={`inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#1ebe5b] ${className}`}

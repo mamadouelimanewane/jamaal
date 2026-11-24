@@ -1,6 +1,6 @@
 "use client";
 
-import { useLocale, useT, usePrice } from "@/components/i18n/LocaleProvider";
+import { useLocale, useT, usePrice, useSiteWhatsApp } from "@/components/i18n/LocaleProvider";
 import { formatPrice as formatXof } from "@/lib/currency";
 import Link from "@/components/i18n/Link";
 import { useEffect, useRef, useState } from "react";
@@ -43,10 +43,12 @@ export default function CartPage() {
   const tr = useT();
   const formatPrice = usePrice();
   const locale = useLocale();
+  const siteWa = useSiteWhatsApp();
   const router = useRouter();
   const { items, removeItem, updateQuantity, total, clear, syncPrices, replaceItems } = useCartStore();
   const [pricesUpdated, setPricesUpdated] = useState(false);
-  const [delivery, setDelivery] = useState<DeliveryChoice>({ mode: "LIVRAISON", lat: null, lng: null, quote: null });
+  // Version anglaise (Gambie) : remise par le revendeur gambien, pas de livraison JAMAAL depuis Dakar.
+  const [delivery, setDelivery] = useState<DeliveryChoice>(locale === "en" ? { mode: "RETRAIT" } : { mode: "LIVRAISON", lat: null, lng: null, quote: null });
   const deliveryFee = delivery.mode === "LIVRAISON" && delivery.quote?.ok ? delivery.quote.fee : 0;
   const [pricesChecked, setPricesChecked] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -242,11 +244,13 @@ export default function CartPage() {
     listPaymentOptions()
       .then((opts) => {
         setPaymentOptions(opts);
-        if (opts.length) setPaymentMethod(opts[0].id);
+        // Gambie : paiement au revendeur à la remise (espèces, Wave Gambia, QMoney, Afrimoney) proposé d'abord.
+        const cod = locale === "en" ? opts.find((o) => o.id === "cod") : undefined;
+        if (opts.length) setPaymentMethod(cod ? cod.id : opts[0].id);
       })
       .catch(() => setPaymentOptions([]));
     getInstallmentOffer().then(setInstallmentOffer).catch(() => setInstallmentOffer(null));
-  }, []);
+  }, [locale]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -643,6 +647,13 @@ export default function CartPage() {
               ) : (
                 <p role="alert" className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-900">
                   {tr("Le paiement en ligne n'est pas encore disponible. Contactez-nous sur WhatsApp pour passer votre commande.")}
+                </p>
+              )}
+              {locale === "en" && (
+                <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-xs leading-relaxed text-emerald-900">
+                  {siteWa.number.startsWith("220")
+                    ? tr("Vous payez depuis la Gambie ? Choisissez « Paiement à la livraison » : vous réglez votre revendeur JAMAAL en dalasi, en espèces ou par Wave Gambia, QMoney ou Afrimoney au {v0}. Votre commande est confirmée dès réception du paiement. Wave et Orange Money Sénégal (en FCFA) restent possibles.", { v0: siteWa.phone })
+                    : tr("Vous payez depuis la Gambie ? Choisissez « Paiement à la livraison » : vous réglez votre revendeur JAMAAL en dalasi, en espèces ou par Wave Gambia, QMoney ou Afrimoney. Votre commande est confirmée dès réception du paiement. Wave et Orange Money Sénégal (en FCFA) restent possibles.")}
                 </p>
               )}
 

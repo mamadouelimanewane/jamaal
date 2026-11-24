@@ -10,7 +10,9 @@ import { REMIND_DAYS_BEFORE } from "@/lib/subscriptions/plan";
 import { GIFT_VALIDITY_DAYS } from "@/lib/gift/gift";
 import { LOYALTY_FCFA_PER_POINT, LOYALTY_REDEEM_MIN_POINTS, LOYALTY_REDEEM_VALUE_FCFA } from "@/lib/loyalty";
 import { UNPAID_CANCEL_DAYS } from "@/lib/installments";
-import { WHATSAPP_CONTACTS, whatsappLink } from "@/lib/contact";
+import { whatsappLink } from "@/lib/contact";
+import { siteWhatsAppFor } from "@/lib/site-whatsapp";
+import { getLocale } from "@/lib/i18n/server";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getT();
@@ -41,6 +43,8 @@ function H({ id, children }: { id: string; children: React.ReactNode }) {
  */
 export default async function CgvPage() {
   const t = await getT();
+  // Version anglaise (Gambie) : numéro WhatsApp gambien s'il est réglé (Admin › Réglages).
+  const contacts = [await siteWhatsAppFor(await getLocale())];
   const [acc, model, resa, inst, subPct] = await Promise.all([
     getAccountingSettings().catch(() => null),
     getBusinessModel(),
@@ -104,7 +108,7 @@ export default async function CgvPage() {
         {company?.ninea && <li>{t("NINEA :")} {company.ninea}</li>}
         {company?.rccm && <li>{t("RCCM :")} {company.rccm}</li>}
         <li>
-          {t("Contact : sur WhatsApp (")}{WHATSAPP_CONTACTS.map((c, i) => (
+          {t("Contact : sur WhatsApp (")}{contacts.map((c, i) => (
             <span key={c.number}>
               {i > 0 && t(" ou ")}
               <a href={whatsappLink(c.number)} target="_blank" rel="noopener noreferrer" className="font-semibold text-rose-dark underline">{c.display}</a>
