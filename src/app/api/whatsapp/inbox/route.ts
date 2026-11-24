@@ -147,7 +147,7 @@ export async function GET(req: NextRequest) {
     SELECT
       t.phone,
       t.name,
-      t."lastMessageAt",
+      COALESCE(m."createdAt", t."lastMessageAt") AS "lastMessageAt",
       t."lastReadAt",
       t."botPausedUntil",
       t."consultantId",

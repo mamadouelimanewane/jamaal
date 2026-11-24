@@ -788,10 +788,12 @@ export function KwingoInboxWindow({
                               {t.unreadCount}
                             </span>
                           )}
-                          <span className="text-[11px] text-navy/50">
-                            {new Date(t.lastMessageAt).toLocaleDateString("fr-FR", {
+                          <span className="shrink-0 whitespace-nowrap text-[11px] text-navy/55">
+                            {new Date(t.lastMessageAt).toLocaleString("fr-FR", {
                               day: "2-digit",
                               month: "2-digit",
+                              hour: "2-digit",
+                              minute: "2-digit",
                             })}
                           </span>
                         </div>
