@@ -72,3 +72,39 @@ test("arabe : chaque phrase du site est traduite, avec les mêmes variables", as
     if (fr !== "{n} étoile{v1}") assert.equal(vars(AR[fr]), vars(fr), fr);
   }
 });
+
+test("anglais (Gambie) : adresses /en, passage d'une langue à l'autre", async () => {
+  const { dirOf, convertsPrices } = await import("../i18n/config");
+  assert.deepEqual(splitLocale("/en/produits/x"), { locale: "en", path: "/produits/x" });
+  assert.deepEqual(splitLocale("/en"), { locale: "en", path: "/" });
+  assert.deepEqual(splitLocale("/entretien"), { locale: "fr", path: "/entretien" });
+  assert.equal(localizeHref("/panier", "en"), "/en/panier");
+  assert.equal(localizeHref("/ar/panier", "en"), "/en/panier");
+  assert.equal(localizeHref("/en/panier", "fr"), "/panier");
+  assert.equal(localizeHref("/admin", "en"), "/admin");
+  assert.equal(dirOf("en"), "ltr");
+  assert.equal(convertsPrices("en"), true);
+  assert.equal(convertsPrices("it"), false);
+});
+
+test("anglais : textes, notes, familles et phrases types", async () => {
+  const { noteEn, familyEn } = await import("../i18n/notes-en");
+  const { genericEn } = await import("../i18n/product");
+  const en = translator("en");
+  assert.equal(en("Ajouter au panier"), "Add to cart");
+  assert.equal(en("Plus que {stock} en stock", { stock: 2 }), "Only 2 left in stock");
+  assert.equal(en("Texte inconnu"), "Texte inconnu");
+  assert.equal(noteEn("Fève tonka"), "Tonka bean");
+  assert.equal(familyEn("Floral boisé"), "Floral woody");
+  assert.equal(genericEn("Prestige — 70 ml. Produit Chogan, distribué au Sénégal par JAMAAL."), "Prestige — 70 ml. Chogan product, distributed in Senegal by JAMAAL.");
+});
+
+test("anglais : chaque phrase du site (et de la boutique revendeur) est traduite, avec les mêmes variables", async () => {
+  const { AR } = await import("../i18n/ar");
+  const { EN } = await import("../i18n/en");
+  const vars = (s: string) => (s.match(/\{\w+\}/g) ?? []).sort().join(",");
+  for (const fr of Object.keys(AR)) {
+    assert.ok(fr in EN, `traduction anglaise manquante : ${fr}`);
+    assert.equal(vars(EN[fr]), vars(fr), fr);
+  }
+});

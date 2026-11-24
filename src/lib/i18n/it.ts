@@ -100,6 +100,7 @@ export const IT: Record<string, string> = {
   "À la une chez JAMAAL": "In primo piano da JAMAAL",
   "Montant payé en francs CFA : {v0}": "Importo pagato in franchi CFA: {v0}",
   "Numéro mauritanien : voulez-vous continuer en arabe, avec les prix en ouguiya ?": "Numero mauritano: vuoi continuare in arabo, con i prezzi in ouguiya?",
+  "Numéro gambien : voulez-vous continuer en anglais, avec les prix en dalasi ?": "Numero gambiano: vuoi continuare in inglese, con i prezzi in dalasi?",
   "Non merci": "No grazie",
   "Échantillon": "Campione",
   "À partir de": "A partire da",

@@ -100,6 +100,7 @@ export const AR: Record<string, string> = {
   "À la une chez JAMAAL": "جديد JAMAAL",
   "Montant payé en francs CFA : {v0}": "المبلغ المدفوع بالفرنك الإفريقي (FCFA): {v0}",
   "Numéro mauritanien : voulez-vous continuer en arabe, avec les prix en ouguiya ?": "رقم موريتاني: هل تريد المتابعة بالعربية مع الأسعار بـ MRU؟",
+  "Numéro gambien : voulez-vous continuer en anglais, avec les prix en dalasi ?": "رقم غامبي: هل تريد المتابعة بالإنجليزية مع الأسعار بالدالاسي؟",
   "Non merci": "لا، شكرًا",
   "Échantillon": "عيّنة",
   "À partir de": "ابتداءً من",

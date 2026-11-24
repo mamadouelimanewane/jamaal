@@ -1,15 +1,15 @@
 /**
- * Site vitrine en trois langues : français (par défaut, adresses sans préfixe), italien (/it/…) et arabe (/ar/…, écrit
- * de droite à gauche). Le back-office, les API, les boutiques des revendeurs (/c/…) restent en français.
+ * Site vitrine en quatre langues : français (par défaut, adresses sans préfixe), italien (/it/…), arabe (/ar/…, écrit
+ * de droite à gauche, marché mauritanien, prix en ouguiya) et anglais (/en/…, marché gambien, prix en dalasi). Le back-office, les API, les boutiques des revendeurs (/c/…) restent en français.
  */
-export const LOCALES = ["fr", "it", "ar"] as const;
+export const LOCALES = ["fr", "it", "ar", "en"] as const;
 export type Locale = (typeof LOCALES)[number];
 export const DEFAULT_LOCALE: Locale = "fr";
 /** Langues avec un préfixe d'adresse. */
-export const PREFIXED: readonly Exclude<Locale, "fr">[] = ["it", "ar"];
+export const PREFIXED: readonly Exclude<Locale, "fr">[] = ["it", "ar", "en"];
 
-export const LOCALE_NAMES: Record<Locale, string> = { fr: "Français", it: "Italiano", ar: "العربية" };
-export const LOCALE_SHORT: Record<Locale, string> = { fr: "FR", it: "IT", ar: "ع" };
+export const LOCALE_NAMES: Record<Locale, string> = { fr: "Français", it: "Italiano", ar: "العربية", en: "English" };
+export const LOCALE_SHORT: Record<Locale, string> = { fr: "FR", it: "IT", ar: "ع", en: "EN" };
 
 /** Sens d'écriture de la langue. */
 export const dirOf = (l: Locale): "rtl" | "ltr" => (l === "ar" ? "rtl" : "ltr");
@@ -21,7 +21,10 @@ export const LOCALE_HEADER = "x-jamaal-locale";
 /** Chemin d'origine (avec /it ou /ar) pour les liens hreflang. */
 export const PATH_HEADER = "x-jamaal-path";
 
-export const isLocale = (v: unknown): v is Locale => v === "fr" || v === "it" || v === "ar";
+export const isLocale = (v: unknown): v is Locale => v === "fr" || v === "it" || v === "ar" || v === "en";
+
+/** Langues dont les prix sont convertis depuis le FCFA (le paiement reste en FCFA). */
+export const convertsPrices = (l: Locale) => l === "ar" || l === "en";
 
 /** Pages qui existent dans les autres langues (le site public). */
 export function isLocalizablePath(pathname: string): boolean {

@@ -51,3 +51,22 @@ test("catalogue Meta d'un revendeur : son code sur chaque lien produit", async (
   assert.equal(cleanRef(""), null);
   assert.equal(resellerCatalogUrl("https://www.jamaal.sn", "awa-parfums"), "https://www.jamaal.sn/api/meta/catalog?ref=awa-parfums");
 });
+
+test("Gambie : numéro +220, dalasi, langue proposée selon le numéro", async () => {
+  const { isGambianNumber, looksGambian, languageForPhone, shopLanguageForNumber } = await import("../phone-country");
+  const { formatGmd, toGmd, priceFormatter } = await import("../currency");
+  assert.equal(isGambianNumber("+220 770 12 34"), true);
+  assert.equal(isGambianNumber("00220 3012345"), true);
+  assert.equal(isGambianNumber("+221 77 123 45 67"), false);
+  assert.equal(looksGambian("770 12 34"), true);
+  assert.equal(looksGambian("77 123 45 67"), false);
+  assert.equal(languageForPhone("+220 770 12 34"), "en");
+  assert.equal(languageForPhone("+222 46 12 34 56"), "ar");
+  assert.equal(languageForPhone("77 123 45 67"), null);
+  assert.equal(shopLanguageForNumber("+220 770 12 34"), "en");
+  assert.equal(shopLanguageForNumber("770 12 34"), null);
+  assert.equal(toGmd(14800, 8.1), 1827);
+  assert.equal(formatGmd(148000, 8.1), "18,272 GMD");
+  assert.equal(priceFormatter("en", 8.1)(14800), "1,827 GMD");
+  assert.equal(priceFormatter("en")(8100), "1,000 GMD");
+});

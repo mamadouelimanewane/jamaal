@@ -1,8 +1,9 @@
 import type { Locale } from "./config";
 import { IT } from "./it";
 import { AR } from "./ar";
+import { EN } from "./en";
 
-const DICT: Record<Exclude<Locale, "fr">, Record<string, string>> = { it: IT, ar: AR };
+const DICT: Record<Exclude<Locale, "fr">, Record<string, string>> = { it: IT, ar: AR, en: EN };
 
 export type TParams = Record<string, string | number>;
 /** Traduit un texte français (la phrase française sert de clé ; sans traduction, le français reste). */

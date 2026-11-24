@@ -7,9 +7,9 @@ import { Dna, Gift, LayoutGrid, MessageCircle, ShoppingBag, Sparkles } from "luc
 import { getConsultantShop, shopWhatsAppLink } from "@/lib/shop/consultant-shop";
 import { priceLabel } from "@/lib/share-text";
 import { translator, type T } from "@/lib/i18n/translate";
-import { isMauritanianNumber } from "@/lib/phone-country";
-import { formatMru } from "@/lib/currency";
-import { getMruRate } from "@/lib/fx";
+import { shopLanguageForNumber } from "@/lib/phone-country";
+import { priceFormatter } from "@/lib/currency";
+import { getRateFor } from "@/lib/fx";
 import { getSiteUrl } from "@/lib/site-url";
 import { shopLook } from "@/lib/shop/themes";
 import { ShopTracker } from "@/components/shop/ShopTracker";
@@ -17,16 +17,23 @@ import "./shop.css";
 
 type Props = { params: Promise<{ slug: string }>; searchParams: Promise<{ lang?: string }> };
 
-type ShopLang = "fr" | "ar";
+type ShopLang = "fr" | "ar" | "en";
 
 /**
- * Langue de la boutique : arabe d'office quand le revendeur a un numéro mauritanien (+222),
- * français sinon ; le visiteur peut changer avec ?lang=fr ou ?lang=ar.
+ * Langue de la boutique : arabe d'office quand le revendeur a un numéro mauritanien (+222, prix en ouguiya),
+ * anglais pour un numéro gambien (+220, prix en dalasi), français sinon ; le visiteur peut changer avec ?lang=fr|ar|en.
  */
 function shopLang(whatsapp: string, asked?: string): ShopLang {
-  if (asked === "fr" || asked === "ar") return asked;
-  return isMauritanianNumber(whatsapp) ? "ar" : "fr";
+  if (asked === "fr" || asked === "ar" || asked === "en") return asked;
+  return shopLanguageForNumber(whatsapp) ?? "fr";
 }
+
+/** Langues proposées par le bouton en haut de la boutique : français, plus la langue du pays du revendeur (et celle affichée). */
+const SWITCH: { lang: ShopLang; label: string }[] = [
+  { lang: "fr", label: "FR" },
+  { lang: "en", label: "English" },
+  { lang: "ar", label: "العربية" },
+];
 
 export const dynamic = "force-dynamic";
 
@@ -60,11 +67,11 @@ const initials = (name: string) =>
     .map((w) => w[0]!.toUpperCase())
     .join("");
 
-const priceIn = (lang: ShopLang, t: T, mruRate: number) => (p: { price: number | null; multiFormat: boolean }) =>
+const priceIn = (lang: ShopLang, t: T, rate: number | undefined) => (p: { price: number | null; multiFormat: boolean }) =>
   !p.price
     ? t("Prix sur demande")
-    : lang === "ar"
-      ? `${p.multiFormat ? `${t("À partir de")} ` : ""}${formatMru(p.price, mruRate)}`
+    : lang !== "fr"
+      ? `${p.multiFormat ? `${t("À partir de")} ` : ""}${priceFormatter(lang, rate)(p.price)}`
       : priceLabel(p.price, p.multiFormat).replace(/^à/, "À");
 
 function WaIcon({ size = 18 }: { size?: number }) {
@@ -88,15 +95,16 @@ export default async function ConsultantShopPage({ params, searchParams }: Props
 
   // Nom de boutique rempli : il remplace partout le nom (et le prénom) du revendeur.
   const first = c.shopName ?? c.name.split(/\s+/)[0];
-  // Numéro mauritanien : boutique proposée en arabe, prix en ouguiya ; bouton FR / ع pour changer.
+  // Numéro mauritanien : boutique en arabe (ouguiya) ; numéro gambien : en anglais (dalasi) ; bouton pour changer.
   const lang = shopLang(c.whatsapp, sp.lang);
   const ar = lang === "ar";
-  const offerArabic = ar || isMauritanianNumber(c.whatsapp);
+  const home = shopLanguageForNumber(c.whatsapp);
+  const switchTo = SWITCH.filter((o) => o.lang === "fr" || o.lang === home || o.lang === lang);
   const t = translator(lang);
-  const price = priceIn(lang, t, ar ? await getMruRate() : 0);
+  const price = priceIn(lang, t, await getRateFor(lang));
   const ref = `?ref=${c.slug}`;
-  // Liens vers le site : version arabe (/ar/…) quand la boutique est en arabe.
-  const site = ar ? "/ar" : "";
+  // Liens vers le site : version de la même langue (/ar/…, /en/…).
+  const site = lang === "fr" ? "" : `/${lang}`;
   const origin = (await getSiteUrl().catch(() => "")).replace(/\/$/, "");
   const wa = shopWhatsAppLink(c.whatsapp, t("Bonjour {v0}, je visite votre boutique JAMAAL ({v1}) : j'aimerais un conseil parfum.", { v0: first, v1: `${origin}/c/${c.slug}` }));
   const waProduct = (name: string) =>
@@ -171,10 +179,11 @@ export default async function ConsultantShopPage({ params, searchParams }: Props
       <ShopTracker slug={c.slug} />
       <p className="sh-band px-4 py-2.5 text-center text-[11px] uppercase tracking-[0.14em] sm:text-xs">
         {t("Conseil et commande sur WhatsApp · Paiement Wave, Orange Money ou à la livraison")}
-        {offerArabic && (
+        {switchTo.length > 1 && (
           <span dir="ltr" className="ms-3 inline-flex gap-1 align-middle normal-case tracking-normal">
-            <Link href={`/c/${c.slug}?lang=fr`} aria-current={!ar ? "true" : undefined} className={`rounded-full px-2 py-0.5 ${!ar ? "bg-white/25 font-semibold" : "opacity-80 hover:opacity-100"}`} lang="fr">FR</Link>
-            <Link href={`/c/${c.slug}?lang=ar`} aria-current={ar ? "true" : undefined} className={`rounded-full px-2 py-0.5 ${ar ? "bg-white/25 font-semibold" : "opacity-80 hover:opacity-100"}`} lang="ar">العربية</Link>
+            {switchTo.map((o) => (
+              <Link key={o.lang} href={`/c/${c.slug}?lang=${o.lang}`} aria-current={o.lang === lang ? "true" : undefined} className={`rounded-full px-2 py-0.5 ${o.lang === lang ? "bg-white/25 font-semibold" : "opacity-80 hover:opacity-100"}`} lang={o.lang}>{o.label}</Link>
+            ))}
           </span>
         )}
       </p>
@@ -303,8 +312,8 @@ export default async function ConsultantShopPage({ params, searchParams }: Props
                       {p.inspiredBy && <span className="sh-muted line-clamp-2 text-[13px]">{t("Inspiration :")} {p.inspiredBy}</span>}
                       <span className="mt-2 text-[15px] font-medium tabular-nums">{price(p)}</span>
                       {p.inStock ? (
-                        // Boutique en arabe (clientèle mauritanienne) : pas de « Disponible à Dakar ».
-                        ar ? null : <span className="text-[13px] font-medium text-emerald-700">{t("Disponible à Dakar")}</span>
+                        // Boutique en arabe ou en anglais (clientèle mauritanienne ou gambienne) : pas de « Disponible à Dakar ».
+                        lang !== "fr" ? null : <span className="text-[13px] font-medium text-emerald-700">{t("Disponible à Dakar")}</span>
                       ) : (
                         <span className="text-[13px] leading-snug"><strong>{t("En rupture")}</strong> · {t("vous pouvez réserver ce produit")}</span>
                       )}

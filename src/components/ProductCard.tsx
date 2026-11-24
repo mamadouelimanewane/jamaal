@@ -44,7 +44,7 @@ export function ProductCard({ product }: { product: Product }) {
         <p className="mt-1.5 text-[11px] leading-4 text-[#9c6254] sm:text-xs">
           <span className="font-semibold">{t("En rupture")}</span> · {t("vous pouvez réserver ce produit")}
         </p>
-      ) : product.inStock && locale !== "ar" ? (
+      ) : product.inStock && (locale === "fr" || locale === "it") ? (
         <p className="mt-1.5 text-[11px] font-medium text-emerald-800 sm:text-xs">{t("Disponible à Dakar")}</p>
       ) : null}
     </div>

@@ -3,15 +3,16 @@
 import { createContext, useContext, useMemo } from "react";
 import type { Locale } from "@/lib/i18n/config";
 import { translator, type T } from "@/lib/i18n/translate";
-import { MRU_DEFAULT_RATE, priceFormatter, type PriceFormatter } from "@/lib/currency";
+import { priceFormatter, type PriceFormatter } from "@/lib/currency";
 
 const Ctx = createContext<Locale>("fr");
-const RateCtx = createContext<number>(MRU_DEFAULT_RATE);
+/** Taux de la monnaie affichée (FCFA pour 1 ouguiya ou 1 dalasi) ; undefined = taux par défaut ou FCFA. */
+const RateCtx = createContext<number | undefined>(undefined);
 
-export function LocaleProvider({ locale, mruRate = MRU_DEFAULT_RATE, children }: { locale: Locale; mruRate?: number; children: React.ReactNode }) {
+export function LocaleProvider({ locale, rate, children }: { locale: Locale; rate?: number; children: React.ReactNode }) {
   return (
     <Ctx.Provider value={locale}>
-      <RateCtx.Provider value={mruRate}>{children}</RateCtx.Provider>
+      <RateCtx.Provider value={rate}>{children}</RateCtx.Provider>
     </Ctx.Provider>
   );
 }
@@ -26,7 +27,7 @@ export function useT(): T {
   return useMemo(() => translator(locale), [locale]);
 }
 
-/** Prix affiché dans la langue de la page : ouguiya (MRU) en arabe, FCFA sinon. */
+/** Prix affiché dans la langue de la page : ouguiya (MRU) en arabe, dalasi (GMD) en anglais, FCFA sinon. */
 export function usePrice(): PriceFormatter {
   const locale = useContext(Ctx);
   const rate = useContext(RateCtx);

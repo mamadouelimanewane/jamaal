@@ -22,9 +22,30 @@ export function formatMru(xof: number, rate: number = MRU_DEFAULT_RATE): string 
   return "\u2066" + toMru(xof, rate).toLocaleString("fr-FR") + " MRU\u2069";
 }
 
+/**
+ * Version anglaise (marché gambien) : prix en dalasi (GMD), convertis depuis le FCFA.
+ * Taux = nombre de FCFA pour 1 dalasi (Admin > Réglages). Le paiement, lui, reste en FCFA.
+ */
+export const GMD_DEFAULT_RATE = 8.1;
+
+export function toGmd(xof: number, rate: number = GMD_DEFAULT_RATE): number {
+  const r = Number.isFinite(rate) && rate > 0 ? rate : GMD_DEFAULT_RATE;
+  return Math.round(xof / r);
+}
+
+/** « 1,827 GMD » (séparateur de milliers anglais). */
+export function formatGmd(xof: number, rate: number = GMD_DEFAULT_RATE): string {
+  return toGmd(xof, rate).toLocaleString("en-GB") + " GMD";
+}
+
 export type PriceFormatter = (xof: number) => string;
 
-/** Formateur de prix d'une langue : ouguiya pour l'arabe, FCFA sinon. */
-export function priceFormatter(locale: string, mruRate: number = MRU_DEFAULT_RATE): PriceFormatter {
-  return locale === "ar" ? (n) => formatMru(n, mruRate) : formatPrice;
+/**
+ * Formateur de prix d'une langue : ouguiya pour l'arabe, dalasi pour l'anglais, FCFA sinon.
+ * `rate` = taux de la monnaie de cette langue (FCFA pour 1 unité) ; absent, le taux par défaut.
+ */
+export function priceFormatter(locale: string, rate?: number): PriceFormatter {
+  if (locale === "ar") return (n) => formatMru(n, rate ?? MRU_DEFAULT_RATE);
+  if (locale === "en") return (n) => formatGmd(n, rate ?? GMD_DEFAULT_RATE);
+  return formatPrice;
 }

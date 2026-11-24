@@ -2,9 +2,9 @@ import { requireAdminPage } from "@/lib/admin-page-guard";
 import Link from "next/link";
 import { getLoyaltySettings } from "@/lib/settings";
 import { getBusinessModel } from "@/lib/business-model-store";
-import { updateLoyaltySettingsAction, updateMruRateAction } from "@/lib/actions/settings";
-import { getMruRate } from "@/lib/fx";
-import { toMru } from "@/lib/currency";
+import { updateGmdRateAction, updateLoyaltySettingsAction, updateMruRateAction } from "@/lib/actions/settings";
+import { getGmdRate, getMruRate } from "@/lib/fx";
+import { toGmd, toMru } from "@/lib/currency";
 import { Settings, Percent, Gift, Coins } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -13,7 +13,7 @@ export default async function SettingsPage() {
   await requireAdminPage("reglages");
   const model = await getBusinessModel();
   const loyalty = await getLoyaltySettings();
-  const mruRate = await getMruRate();
+  const [mruRate, gmdRate] = await Promise.all([getMruRate(), getGmdRate()]);
 
   return (
     <div className="max-w-4xl">
@@ -134,6 +134,40 @@ export default async function SettingsPage() {
             </button>
             <p className="text-xs text-navy/70">
               Exemple : 14 800 FCFA = <strong>{toMru(14800, mruRate).toLocaleString("fr-FR")} MRU</strong>
+            </p>
+          </form>
+        </div>
+
+        {/* Version anglaise (Gambie) : prix en dalasi */}
+        <div className="rounded-2xl border border-line bg-white p-6 shadow-sm md:col-span-2">
+          <div className="flex items-center gap-2 font-semibold text-navy">
+            <Coins size={18} className="text-emerald-700" />
+            <h2>Dalasi (version anglaise du site, Gambie)</h2>
+          </div>
+          <p className="mt-1 text-xs text-navy/75">
+            Sur le site en anglais (/en), les prix s&apos;affichent en dalasi gambien (GMD), convertis depuis le FCFA avec ce taux.
+            Le paiement reste en FCFA : le montant en FCFA est rappelé au panier et sur la commande.
+          </p>
+          <form action={updateGmdRateAction} className="mt-5 flex flex-wrap items-end gap-3">
+            <div>
+              <label htmlFor="gmdRate" className="block text-xs font-semibold text-navy/85">1 dalasi (GMD) = … FCFA</label>
+              <input
+                id="gmdRate"
+                type="number"
+                name="gmdRate"
+                defaultValue={gmdRate}
+                min="1"
+                max="100"
+                step="0.001"
+                required
+                className="mt-1 w-40 rounded-xl border border-line bg-cream/50 px-4 py-2.5 text-sm text-navy focus:border-navy focus:outline-none"
+              />
+            </div>
+            <button type="submit" className="rounded-xl bg-navy px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-navy-light">
+              Enregistrer le taux
+            </button>
+            <p className="text-xs text-navy/70">
+              Exemple : 14 800 FCFA = <strong>{toGmd(14800, gmdRate).toLocaleString("fr-FR")} GMD</strong>
             </p>
           </form>
         </div>

@@ -1,3 +1,4 @@
+import { convertsPrices } from "@/lib/i18n/config";
 import { formatPrice as formatXof } from "@/lib/currency";
 import { getT, getPrice, getLocale } from "@/lib/i18n/server";
 import Link from "@/components/i18n/Link";
@@ -133,7 +134,7 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
             <span className="text-navy/60">{t("Total")}</span>
             <span className="font-semibold text-navy">{formatPrice(order.total)}</span>
           </div>
-          {(await getLocale()) === "ar" && (
+          {convertsPrices(await getLocale()) && (
             <p className="mt-1 text-xs text-navy/70">{t("Montant payé en francs CFA : {v0}", { v0: formatXof(order.total) })}</p>
           )}
           {resa && (

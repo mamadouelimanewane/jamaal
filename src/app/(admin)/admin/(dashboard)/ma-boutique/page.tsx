@@ -6,7 +6,7 @@ import { MyShopForm } from "@/components/admin/MyShopForm";
 import { CopyButton } from "@/components/admin/CopyButton";
 import { earnedBadges } from "@/lib/academy-store";
 import { badgeLabel } from "@/data/academy";
-import { isMauritanianNumber } from "@/lib/phone-country";
+import { isGambianNumber, isMauritanianNumber } from "@/lib/phone-country";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Ma boutique" };
@@ -35,6 +35,15 @@ export default async function MaBoutiquePage() {
               <p><strong>Numéro mauritanien (+222) : votre boutique s&apos;affiche en arabe</strong>, avec les prix en ouguiya. Vos clients peuvent passer en français avec le bouton FR en haut de la page.</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 <CopyButton text={`${links.shop}?lang=ar`} label="Copier le lien en arabe" />
+                <CopyButton text={`${links.shop}?lang=fr`} label="Copier le lien en français" />
+              </div>
+            </div>
+          )}
+          {isGambianNumber(me.whatsapp) && (
+            <div className="mt-3 rounded-xl bg-emerald-50 p-3 text-xs leading-relaxed text-emerald-900">
+              <p><strong>Numéro gambien (+220) : votre boutique s&apos;affiche en anglais</strong>, avec les prix en dalasi. Vos clients peuvent passer en français avec le bouton FR en haut de la page.</p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                <CopyButton text={`${links.shop}?lang=en`} label="Copier le lien en anglais" />
                 <CopyButton text={`${links.shop}?lang=fr`} label="Copier le lien en français" />
               </div>
             </div>

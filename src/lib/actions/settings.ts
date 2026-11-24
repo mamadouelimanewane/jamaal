@@ -5,7 +5,7 @@ import { backWithError } from "@/lib/form-error";
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "./auth-guard";
 import { setCommissionRate, setSponsorCommissionRate, setLoyaltySettings } from "@/lib/settings";
-import { setMruRate } from "@/lib/fx";
+import { setGmdRate, setMruRate } from "@/lib/fx";
 
 async function updateCommissionRateImpl(formData: FormData) {
   await requireAdmin("reglages");
@@ -72,6 +72,24 @@ async function updateMruRateImpl(formData: FormData) {
 export async function updateMruRateAction(formData: FormData): Promise<void> {
   try {
     await updateMruRateImpl(formData);
+  } catch (e) {
+    await backWithError(e, "/admin/reglages");
+  }
+}
+
+async function updateGmdRateImpl(formData: FormData) {
+  await requireAdmin("reglages");
+  const rate = Number(String(formData.get("gmdRate") ?? "").replace(",", "."));
+  if (!Number.isFinite(rate) || rate < 1 || rate > 100) throw new Error("Taux invalide : indiquez combien de FCFA vaut 1 dalasi (ex. 8,1).");
+  await setGmdRate(Math.round(rate * 1000) / 1000);
+  revalidatePath("/admin/reglages");
+  revalidatePath("/en", "layout");
+}
+
+/** Taux de conversion FCFA → dalasi de la version anglaise (gambienne) du site. */
+export async function updateGmdRateAction(formData: FormData): Promise<void> {
+  try {
+    await updateGmdRateImpl(formData);
   } catch (e) {
     await backWithError(e, "/admin/reglages");
   }

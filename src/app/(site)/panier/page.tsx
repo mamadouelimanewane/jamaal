@@ -16,7 +16,8 @@ import { getCartPrices, loadSharedSelection, previewCartDiscounts, recoverCartDr
 import { DeliveryChooser, type DeliveryChoice } from "@/components/DeliveryChooser";
 import { getActiveConsultantsForCheckout, getCheckoutPrefill } from "@/lib/actions/public-data";
 import { forgetCheckoutMemory, loadCheckoutMemory, saveCheckoutMemory, stashCheckoutHandoff, takeCheckoutHandoff } from "@/lib/checkout-memory";
-import { looksMauritanian } from "@/lib/phone-country";
+import { languageForPhone } from "@/lib/phone-country";
+import { convertsPrices } from "@/lib/i18n/config";
 import { OrderOnWhatsApp } from "@/components/OrderOnWhatsApp";
 import { initiatePayment } from "@/lib/actions/payment";
 import { listPaymentOptions } from "@/lib/actions/payment-options";
@@ -51,7 +52,9 @@ export default function CartPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [customer, setCustomer] = useState({ name: "", phone: "", address: "" });
-  const [arOfferDismissed, setArOfferDismissed] = useState(false);
+  // Numéro étranger (Mauritanie, Gambie) : on propose la langue et la monnaie du pays, une fois le numéro saisi.
+  const [phoneDone, setPhoneDone] = useState("");
+  const [langOfferDismissed, setLangOfferDismissed] = useState(false);
   const [prefilled, setPrefilled] = useState(false);
   const [consultantId, setConsultantId] = useState("");
   // Destinataire : le client lui-même, ou une autre personne (cadeau, famille…).
@@ -452,7 +455,7 @@ export default function CartPage() {
               <span>{tr("Total")}</span>
               <span>{formatPrice(Math.max(0, total() - discountTotal) + deliveryFee)}</span>
             </div>
-            {locale === "ar" && (
+            {convertsPrices(locale) && (
               <p className="mt-1 text-xs text-navy/70">{tr("Montant payé en francs CFA : {v0}", { v0: formatXof(Math.max(0, total() - discountTotal) + deliveryFee) })}</p>
             )}
             <div className="mt-3">
@@ -491,25 +494,35 @@ export default function CartPage() {
                 placeholder={tr("Téléphone")}
                 value={customer.phone}
                 onChange={(e) => setCustomer((c) => ({ ...c, phone: e.target.value }))}
+                onBlur={(e) => setPhoneDone(e.target.value)}
                 className="rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-navy"
               />
-              {locale !== "ar" && !arOfferDismissed && looksMauritanian(customer.phone) && (
-                <div className="flex flex-wrap items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-900">
-                  <span className="min-w-0 flex-1">{tr("Numéro mauritanien : voulez-vous continuer en arabe, avec les prix en ouguiya ?")}</span>
-                  {/* Lien classique (rechargement complet) : la langue et la monnaie viennent de la mise en page du site. */}
-                  <a
-                    href="/ar/panier"
-                    lang="ar"
-                    onClick={() => stashCheckoutHandoff({ name: customer.name, phone: customer.phone })}
-                    className="rounded-full bg-emerald-700 px-3 py-1 font-semibold text-white hover:bg-emerald-800"
-                  >
-                    العربية · MRU
-                  </a>
-                  <button type="button" onClick={() => setArOfferDismissed(true)} className="font-semibold underline">
-                    {tr("Non merci")}
-                  </button>
-                </div>
-              )}
+              {(() => {
+                // Vérifié à la sortie du champ (pas pendant la frappe : un numéro sénégalais incomplet ressemblerait à un autre pays).
+                const target = phoneDone === customer.phone ? languageForPhone(customer.phone) : null;
+                if (!target || target === locale || langOfferDismissed) return null;
+                return (
+                  <div className="flex flex-wrap items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-900">
+                    <span className="min-w-0 flex-1">
+                      {target === "ar"
+                        ? tr("Numéro mauritanien : voulez-vous continuer en arabe, avec les prix en ouguiya ?")
+                        : tr("Numéro gambien : voulez-vous continuer en anglais, avec les prix en dalasi ?")}
+                    </span>
+                    {/* Lien classique (rechargement complet) : la langue et la monnaie viennent de la mise en page du site. */}
+                    <a
+                      href={`/${target}/panier`}
+                      lang={target}
+                      onClick={() => stashCheckoutHandoff({ name: customer.name, phone: customer.phone })}
+                      className="rounded-full bg-emerald-700 px-3 py-1 font-semibold text-white hover:bg-emerald-800"
+                    >
+                      {target === "ar" ? "العربية · MRU" : "English · GMD"}
+                    </a>
+                    <button type="button" onClick={() => setLangOfferDismissed(true)} className="font-semibold underline">
+                      {tr("Non merci")}
+                    </button>
+                  </div>
+                );
+              })()}
               {prefilled && (
                 <p className="-mt-1 text-xs text-navy/65">
                   {tr("Informations pré-remplies, modifiables si vous commandez pour quelqu'un d'autre.")}{" "}

@@ -85,7 +85,7 @@ const handler = auth(async (req) => {
       return res;
     }
     // Visiteur qui a choisi l'italien ou l'arabe : les adresses françaises le mènent à sa langue.
-    if (locale === "fr" && (cookieLang === "it" || cookieLang === "ar")) {
+    if (locale === "fr" && isLocale(cookieLang) && cookieLang !== "fr") {
       const url = req.nextUrl.clone();
       url.pathname = localizeHref(pathname, cookieLang);
       return NextResponse.redirect(url, 307);

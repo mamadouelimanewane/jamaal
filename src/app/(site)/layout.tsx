@@ -1,7 +1,7 @@
 import { getBasePath, getLocale, getT } from "@/lib/i18n/server";
 import { localizeHref, dirOf } from "@/lib/i18n/config";
 import { LocaleProvider } from "@/components/i18n/LocaleProvider";
-import { getMruRate } from "@/lib/fx";
+import { getRateFor } from "@/lib/fx";
 import type { Metadata } from "next";
 import { Playfair_Display, Poppins } from "next/font/google";
 import "../globals.css";
@@ -49,7 +49,7 @@ export async function generateMetadata(): Promise<Metadata> {
     // Même page en français, en italien et en arabe (référencement).
     alternates: {
       canonical: localizeHref(path, locale),
-      languages: { fr: path, it: localizeHref(path, "it"), ar: localizeHref(path, "ar"), "x-default": path },
+      languages: { fr: path, it: localizeHref(path, "it"), ar: localizeHref(path, "ar"), en: localizeHref(path, "en"), "x-default": path },
     },
     openGraph: {
       type: "website",
@@ -64,14 +64,15 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-const OG = { fr: "fr_SN", it: "it_IT", ar: "ar_SN" } as const;
+const OG = { fr: "fr_SN", it: "it_IT", ar: "ar_SN", en: "en_GM" } as const;
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const [categories, locale, mruRate] = await Promise.all([getCategoriesWithProducts(), getLocale(), getMruRate()]);
+  const [categories, locale] = await Promise.all([getCategoriesWithProducts(), getLocale()]);
+  const rate = await getRateFor(locale);
   return (
     <html lang={locale} dir={dirOf(locale)} className={`${playfair.variable} ${poppins.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col bg-background text-foreground">
-        <LocaleProvider locale={locale} mruRate={mruRate}>
+        <LocaleProvider locale={locale} rate={rate}>
         <AnnouncementBar />
         <Header categories={categories} />
         <main className="flex-1">{children}</main>
