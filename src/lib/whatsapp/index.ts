@@ -108,8 +108,9 @@ export async function sendWhatsApp(
   return result;
 }
 
-/** Met à jour la conversation de ce numéro (boîte de réception). */
+/** Met à jour la conversation de ce numéro (boîte de réception), en excluant le numéro Business émetteur lui-même. */
 export async function touchThread(phone: string, opts: { name?: string | null; inbound?: boolean } = {}) {
+  if (phone.replace(/\D/g, "").slice(-9) === "711800909") return;
   const now = new Date();
   await prisma.whatsAppThread
     .upsert({

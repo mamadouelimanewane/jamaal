@@ -182,7 +182,9 @@ export async function GET(req: NextRequest) {
       ORDER BY wi."createdAt" DESC
       LIMIT 1
     ) last_in ON true
-    WHERE ${filterSql} AND ${searchSql}
+    WHERE ${filterSql}
+      AND ${searchSql}
+      AND right(regexp_replace(t.phone, '[^0-9]', '', 'g'), 9) <> '711800909'
     ORDER BY COALESCE(m."createdAt", t."lastMessageAt") DESC, t.phone ASC
     LIMIT 100
   `;
@@ -200,6 +202,7 @@ export async function GET(req: NextRequest) {
       prisma.$queryRaw<{ consultantId: string | null; n: bigint }[]>`
         SELECT "consultantId", count(*)::bigint AS n
         FROM "WhatsAppThread"
+        WHERE right(regexp_replace(phone, '[^0-9]', '', 'g'), 9) <> '711800909'
         GROUP BY "consultantId"
       `,
     ]);

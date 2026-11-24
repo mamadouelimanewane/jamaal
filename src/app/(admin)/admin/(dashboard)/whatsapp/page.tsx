@@ -20,8 +20,8 @@ export default async function CentreEtModelesWhatsAppPage() {
   const [kwingoConn, metaTemplates, totalThreads, unassignedThreads, sent7d, custom] = await Promise.all([
     getKwingoConnection(),
     fetchKwingoMetaTemplates().catch(() => []),
-    prisma.whatsAppThread.count().catch(() => 0),
-    prisma.whatsAppThread.count({ where: { consultantId: null } }).catch(() => 0),
+    prisma.whatsAppThread.count({ where: { NOT: { phone: { endsWith: "711800909" } } } }).catch(() => 0),
+    prisma.whatsAppThread.count({ where: { consultantId: null, NOT: { phone: { endsWith: "711800909" } } } }).catch(() => 0),
     prisma.whatsAppMessage
       .count({
         where: {
