@@ -8,6 +8,7 @@ import { prisma } from "@/lib/prisma";
 import { automationEnabled, claimAutomation } from "@/lib/automation-settings";
 import { generateContent, geminiConfigured, textOf } from "@/lib/ai/gemini";
 import { sendWhatsApp, whatsappConfig } from "@/lib/whatsapp";
+import { META_AUTO_TEMPLATES, cleanTemplateVar } from "@/lib/whatsapp/auto-templates";
 
 type Pick = { name: string; slug: string; price: number | null; inspiredBy: string | null; inspiredBrand: string | null; family: string | null };
 
@@ -80,11 +81,16 @@ export async function sendMorningKit(origin: string, now = new Date(), opts: { b
     if (!r.whatsapp || !r.slug) continue;
     if (!(await claimAutomation(`kit:${day}:${r.id}`))) continue;
     const link = `${origin}/produits/${p.slug}?ref=${r.slug}`;
+    const first = r.name.split(/\s+/)[0] || "Consultant";
     await sendWhatsApp({
       to: r.whatsapp,
       kind: "kit",
+      recipientName: r.name,
       imageUrl: `${origin}/api/visuel/${p.slug}?ref=${r.slug}&format=carre`,
-      text: `☀️ Bonjour ${r.name.split(/\s+/)[0]} ! Produit du jour : *${p.name}*.\nEnregistrez l'image, publiez-la en statut avec ce texte :\n\n${text}\n${link}\n\n(Répondez « stop kit » pour ne plus recevoir le kit du matin.)`,
+      text: `☀️ Bonjour ${first} ! Produit du jour : *${p.name}*.\nEnregistrez l'image, publiez-la en statut avec ce texte :\n\n${text}\n${link}\n\n(Répondez « stop kit » pour ne plus recevoir le kit du matin.)`,
+      template: META_AUTO_TEMPLATES.KIT_MATIN,
+      templateLanguage: "fr",
+      templateVars: [cleanTemplateVar(first, 60, "Consultant"), cleanTemplateVar(p.name, 120), link],
     });
     sent++;
   }

@@ -10,6 +10,7 @@ import { randomInt } from "node:crypto";
 import { prisma } from "@/lib/prisma";
 import { ordersByPhoneSince, phoneOptedOut } from "@/lib/phone-match";
 import { sendWhatsApp, whatsappConfig } from "@/lib/whatsapp";
+import { META_AUTO_TEMPLATES, cleanTemplateVar } from "@/lib/whatsapp/auto-templates";
 import { automationEnabled, claimAutomation } from "@/lib/automation-settings";
 import { messageText, type MessageKey } from "@/lib/whatsapp/message-templates";
 
@@ -62,7 +63,21 @@ async function reminder45(origin: string, now: Date, budget: { left: number }): 
     const link = item.product?.slug ? `${origin}/produits/${item.product.slug}${ref}` : `${origin}/collections${ref}`;
     const reseller = o.consultant?.active ? o.consultant.name : null;
     const original = relance45Text({ firstName: firstName(o.customerName), product: item.productName, link, reseller });
-    await sendWhatsApp({ to: phone, kind: "relance", text: await withStop("relance45", { prenom: firstName(o.customerName), produit: item.productName, lien: link, signature: reseller ? `${reseller}, votre conseiller·e JAMAAL` : "L'équipe JAMAAL" }, original) });
+    const sig = reseller ? `${reseller}, votre conseiller·e JAMAAL` : "L'équipe JAMAAL";
+    await sendWhatsApp({
+      to: phone,
+      kind: "relance",
+      recipientName: o.customerName,
+      text: await withStop("relance45", { prenom: firstName(o.customerName), produit: item.productName, lien: link, signature: sig }, original),
+      template: META_AUTO_TEMPLATES.RELANCE_CLIENT,
+      templateLanguage: "fr",
+      templateVars: [
+        cleanTemplateVar(firstName(o.customerName), 60, "Client"),
+        cleanTemplateVar(`Cela fait environ 45 jours que vous avez choisi ${item.productName} : votre flacon est-il bientôt fini ?`, 220),
+        link,
+        cleanTemplateVar(sig, 80),
+      ],
+    });
     budget.left--;
     sent++;
   }
@@ -80,7 +95,20 @@ async function birthdays(origin: string, now: Date, budget: { left: number }): P
     if (!(await claimAutomation(`anniversaire:${c.id}:${now.getUTCFullYear()}`))) continue;
     const code = `ANNIV-${randomInt(1000, 9999)}${c.id.slice(-2).toUpperCase()}`;
     await prisma.coupon.create({ data: { code, type: "POURCENTAGE", value: 10, usageLimit: 1, expiresAt: new Date(now.getTime() + 15 * DAY) } });
-    await sendWhatsApp({ to: c.phone, kind: "relance", text: await withStop("anniversaire", { prenom: firstName(c.name), code, jours: 15, lien: `${origin}/collections` }, birthdayText({ firstName: firstName(c.name), code, days: 15, origin })) });
+    await sendWhatsApp({
+      to: c.phone,
+      kind: "relance",
+      recipientName: c.name,
+      text: await withStop("anniversaire", { prenom: firstName(c.name), code, jours: 15, lien: `${origin}/collections` }, birthdayText({ firstName: firstName(c.name), code, days: 15, origin })),
+      template: META_AUTO_TEMPLATES.ANNIVERSAIRE,
+      templateLanguage: "fr",
+      templateVars: [
+        cleanTemplateVar(firstName(c.name), 60, "Client"),
+        code,
+        "15",
+        `${origin}/collections`,
+      ],
+    });
     budget.left--;
     sent++;
   }
@@ -110,7 +138,20 @@ async function abandonedCarts(origin: string, now: Date, budget: { left: number 
     const items = ((cart.items as { name?: string; volumeLabel?: string }[] | null) ?? []).map((i) => `${i.name ?? "article"}${i.volumeLabel ? ` (${i.volumeLabel})` : ""}`);
     const articles = `${items.slice(0, 3).join(", ")}${items.length > 3 ? "…" : ""}`;
     const recoveryUrl = `${origin}/panier?reprise=${encodeURIComponent(cart.id)}`;
-    await sendWhatsApp({ to: cart.phone, kind: "relance", text: await withStop("panier", { prenom: firstName(cart.name), articles, lien: recoveryUrl }, cartText({ firstName: firstName(cart.name), items, origin, recoveryUrl })) });
+    await sendWhatsApp({
+      to: cart.phone,
+      kind: "relance",
+      recipientName: cart.name,
+      text: await withStop("panier", { prenom: firstName(cart.name), articles, lien: recoveryUrl }, cartText({ firstName: firstName(cart.name), items, origin, recoveryUrl })),
+      template: META_AUTO_TEMPLATES.RELANCE_CLIENT,
+      templateLanguage: "fr",
+      templateVars: [
+        cleanTemplateVar(firstName(cart.name), 60, "Client"),
+        cleanTemplateVar(`Votre panier JAMAAL vous attend : ${articles}`, 220),
+        recoveryUrl,
+        "L'équipe JAMAAL Luxury",
+      ],
+    });
     await prisma.abandonedCart.update({ where: { id: cart.id }, data: { remindedAt: now } });
     budget.left--;
     sent++;

@@ -9,6 +9,7 @@ import { rateLimit, clientIpFromHeaders } from "@/lib/rate-limit";
 import { canonicalizePhone } from "@/lib/phone";
 import { createResetLink, notifyAdminsOfResetRequest, userByPhone } from "@/lib/password-reset-link";
 import { sendWhatsApp, whatsappConfig } from "@/lib/whatsapp";
+import { META_AUTO_TEMPLATES, cleanTemplateVar } from "@/lib/whatsapp/auto-templates";
 
 const hashToken = (token: string) => createHash("sha256").update(token).digest("hex");
 const escapeHtml = (value: string) => value.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" })[char] ?? char);
@@ -68,11 +69,21 @@ async function sendResetByWhatsApp(raw: string) {
   if (!whatsappConfig().active) return;
   const url = await createResetLink(user.id, 24);
   if (!url) return;
+  const first = user.name.split(/\s+/)[0] || "Membre";
   await sendWhatsApp({
     to: canonicalizePhone(user.whatsapp),
     kind: "reseller",
-    text: `Bonjour ${user.name.split(/\s+/)[0]}, voici votre lien JAMAAL pour choisir un nouveau mot de passe (valable 24 h). Si vous n'avez rien demandé, ignorez ce message.`,
+    recipientName: user.name,
+    text: `Bonjour ${first}, voici votre lien JAMAAL pour choisir un nouveau mot de passe (valable 24 h). Si vous n'avez rien demandé, ignorez ce message.`,
     cta: { label: "Choisir mon mot de passe", url },
+    template: META_AUTO_TEMPLATES.ALERTE_CONSULTANT,
+    templateLanguage: "fr",
+    templateVars: [
+      cleanTemplateVar(first, 60, "Membre"),
+      "Réinitialisation de votre mot de passe",
+      "Utilisez ce lien valable 24 heures pour choisir votre nouveau mot de passe",
+      url,
+    ],
   });
 }
 

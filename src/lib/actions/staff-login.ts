@@ -13,6 +13,7 @@ import { getSiteUrl } from "@/lib/site-url";
 import { staffAccountByPhone } from "@/lib/staff-accounts";
 import { phoneTail } from "@/lib/phone-match";
 import { sendWhatsApp, whatsappConfig } from "@/lib/whatsapp";
+import { META_AUTO_TEMPLATES, cleanTemplateVar } from "@/lib/whatsapp/auto-templates";
 
 /** Pages de connexion autorisées (retour avec message). */
 const BASES = new Set(["/admin/login", "/espace-revendeur", "/admin/livreur"]);
@@ -90,11 +91,21 @@ export async function whatsappLoginLink(formData: FormData) {
       data: { tokenHash: createHash("sha256").update(`login:${token}`).digest("hex"), userId: account.id, expiresAt: new Date(Date.now() + 30 * 60_000) },
     });
     const url = `${(await getSiteUrl()).replace(/\/$/, "")}/admin/acces?token=${encodeURIComponent(token)}`;
+    const first = account.name.split(/\s+/)[0] || "Membre";
     await sendWhatsApp({
       to: canonicalizePhone(account.whatsapp),
       kind: "reseller",
-      text: `Bonjour ${account.name.split(/\s+/)[0]}, voici votre lien pour ouvrir votre espace JAMAAL (valable 30 minutes, une seule fois). Si vous n'avez rien demandé, ignorez ce message.`,
+      recipientName: account.name,
+      text: `Bonjour ${first}, voici votre lien pour ouvrir votre espace JAMAAL (valable 30 minutes, une seule fois). Si vous n'avez rien demandé, ignorez ce message.`,
       cta: { label: "Ouvrir mon espace", url },
+      template: META_AUTO_TEMPLATES.ALERTE_CONSULTANT,
+      templateLanguage: "fr",
+      templateVars: [
+        cleanTemplateVar(first, 60, "Membre"),
+        "Accès à votre espace JAMAAL Luxury",
+        "Utilisez ce lien personnel valable 30 minutes",
+        url,
+      ],
     });
   }
   redirect(`${from}?lien=envoye${keep}`);

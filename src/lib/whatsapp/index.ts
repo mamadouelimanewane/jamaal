@@ -5,6 +5,7 @@ import { canonicalizePhone, normalizePhone } from "@/lib/phone";
 import { sendViaMeta, type RichOptions } from "./meta";
 import { sendViaTwilio } from "./twilio";
 import { sendViaKwingoConnection } from "./kwingo-bridge";
+import { resolveAutoTemplate } from "./auto-templates";
 
 /**
  * Envoi de messages WhatsApp (niveau 2). Le prestataire est choisi par WHATSAPP_PROVIDER
@@ -59,15 +60,49 @@ export async function sendWhatsApp(
     if (!to || to.length < 8) {
       result = { status: "ECHEC", error: "Numéro invalide" };
     } else {
+      // Déterminer automatiquement si la fenêtre de 24 h est ouverte pour ce destinataire
+      let windowOpen = opts.free === true;
+      if (opts.free === undefined) {
+        const recentInbound = await prisma.whatsAppMessage
+          .findFirst({
+            where: {
+              toNumber: to,
+              direction: "IN",
+              createdAt: { gte: new Date(Date.now() - 86_400_000) },
+            },
+            select: { id: true },
+          })
+          .catch(() => null);
+        windowOpen = Boolean(recentInbound);
+      }
+
+      // Associer automatiquement le modèle Meta officiel correspondant (et ses variables {{1}}..{{n}})
+      // lorsqu'aucun modèle explicite n'a été passé et que la fenêtre 24 h est fermée.
+      const autoTpl =
+        !opts.template
+          ? resolveAutoTemplate({
+              kind: opts.kind,
+              text: body,
+              recipientName: opts.recipientName,
+              cta: opts.cta,
+            })
+          : null;
+
+      const effectiveFree = opts.free !== undefined ? opts.free : windowOpen;
+      const effectiveTemplate = opts.template || autoTpl?.template || process.env.WHATSAPP_TEMPLATE_NAME || "jamaal_suivi_commande";
+      const effectiveLanguage = opts.templateLanguage || autoTpl?.templateLanguage || "fr";
+      const effectiveVars = opts.templateVars?.length ? opts.templateVars : autoTpl?.templateVars;
+
       // 1. Priorité à la passerelle API Cloud KwingoChat (compte Jamaal Luxury +221 71 180 09 09) si connectée
       const kwingo = await sendViaKwingoConnection({
         to,
         text: opts.cta ? `${body}\n${opts.cta.label} : ${opts.cta.url}` : body,
-        free: opts.free,
+        free: effectiveFree,
+        windowOpen,
         recipientName: opts.recipientName,
-        templateName: opts.template || process.env.WHATSAPP_TEMPLATE_NAME || "test_jamaal",
-        templateLanguage: opts.templateLanguage,
-        templateVars: opts.templateVars,
+        templateName: effectiveTemplate,
+        templateLanguage: effectiveLanguage,
+        templateVars: effectiveVars,
       });
       if (kwingo) {
         result = kwingo.ok

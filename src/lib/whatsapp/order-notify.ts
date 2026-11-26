@@ -10,6 +10,7 @@ import { automationEnabled } from "@/lib/automation-settings";
 import { phoneOptedOut } from "@/lib/phone-match";
 import { sendWhatsApp } from "./index";
 import { messageText, type MessageKey } from "./message-templates";
+import { META_AUTO_TEMPLATES, cleanTemplateVar } from "./auto-templates";
 
 export type OrderEvent = "CREEE" | "PAYEE" | "ACOMPTE" | "CONFIRMEE" | "EXPEDIEE" | "ANNULEE" | "LIVREE";
 
@@ -106,14 +107,53 @@ export async function sendOrderUpdate(orderId: string, event: OrderEvent): Promi
       if (sub) {
         const vars = { prenom: o.customerName.split(/\s+/)[0] || o.customerName, numero: ref(o.id), montant: fcfa(o.total), remise: `${sub.discountPct} %`, lien: `${site}/abonnement/${sub.token}` };
         const original = `Bonjour ${vars.prenom}, votre réassort JAMAAL n° ${vars.numero} est prêt : ${vars.montant} (remise abonné ${vars.remise} incluse). Payez en un clic avec le bouton ci-dessous. Gérer mon abonnement : ${vars.lien}`;
-        await sendWhatsApp({ to: o.customerPhone, kind: "suivi", text: await messageText("abonnement_commande", vars, original), cta: { label: o.paymentStatus === "PAYE" ? "Suivre ma commande" : "Payer en un clic", url: `${site}/${o.paymentStatus === "PAYE" ? "suivi" : "commande"}/${o.id}` } });
+        await sendWhatsApp({
+          to: o.customerPhone,
+          kind: "suivi",
+          recipientName: o.customerName,
+          text: await messageText("abonnement_commande", vars, original),
+          cta: { label: o.paymentStatus === "PAYE" ? "Suivre ma commande" : "Payer en un clic", url: `${site}/${o.paymentStatus === "PAYE" ? "suivi" : "commande"}/${o.id}` },
+          template: META_AUTO_TEMPLATES.SUIVI_COMMANDE,
+          templateLanguage: "fr",
+          templateVars: [
+            cleanTemplateVar(vars.prenom, 60, "Client"),
+            vars.numero,
+            cleanTemplateVar(`Votre réassort est prêt : ${vars.montant} (remise abonné ${vars.remise} incluse)`, 240),
+            `${site}/${o.paymentStatus === "PAYE" ? "suivi" : "commande"}/${o.id}`,
+          ],
+        });
         return;
       }
     }
     const msg = orderMessage(event, o, site);
     if (!msg) return;
     const { key, vars } = orderMessageVars(event, o);
-    await sendWhatsApp({ to: o.customerPhone, kind: "suivi", text: await messageText(key, vars, msg.text), cta: msg.cta });
+    const rendered = await messageText(key, vars, msg.text);
+    const isPayEvent = event === "PAYEE" || event === "ACOMPTE";
+    const trackingUrl = msg.cta?.url || `${site}/suivi/${o.id}`;
+    await sendWhatsApp({
+      to: o.customerPhone,
+      kind: "suivi",
+      recipientName: o.customerName,
+      text: rendered,
+      cta: msg.cta,
+      template: isPayEvent ? META_AUTO_TEMPLATES.PAIEMENT_ECHEANCE : META_AUTO_TEMPLATES.SUIVI_COMMANDE,
+      templateLanguage: "fr",
+      templateVars: isPayEvent
+        ? [
+            cleanTemplateVar(vars.prenom, 60, "Client"),
+            vars.numero,
+            cleanTemplateVar(fcfa(o.total), 40),
+            cleanTemplateVar(rendered, 240),
+            trackingUrl,
+          ]
+        : [
+            cleanTemplateVar(vars.prenom, 60, "Client"),
+            vars.numero,
+            cleanTemplateVar(rendered, 240),
+            trackingUrl,
+          ],
+    });
   } catch (e) {
     console.error("[whatsapp] suivi commande", orderId, event, e);
   }

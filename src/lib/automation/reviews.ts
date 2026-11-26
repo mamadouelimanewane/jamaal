@@ -5,6 +5,7 @@
 import { prisma } from "@/lib/prisma";
 import { phoneOptedOut } from "@/lib/phone-match";
 import { sendWhatsApp, whatsappConfig } from "@/lib/whatsapp";
+import { META_AUTO_TEMPLATES, cleanTemplateVar } from "@/lib/whatsapp/auto-templates";
 import { automationEnabled, claimAutomation } from "@/lib/automation-settings";
 import { reviewLink } from "@/lib/review-token";
 import { messageText } from "@/lib/whatsapp/message-templates";
@@ -35,16 +36,19 @@ export async function requestReviews(origin: string, now = new Date()) {
     const phone = o.customerPhone!;
     if ((await phoneOptedOut(phone)) || (await prisma.review.count({ where: { orderId: o.id } }))) continue;
     if (!(await claimAutomation(`avis:${o.id}`))) continue;
+    const firstName = (o.customerName ?? "").split(/\s+/)[0] || "Client";
+    const products = [...new Set(o.items.map((i) => i.productName))];
+    const prodLabel = products.length > 1 ? "vos produits" : products[0] || "vos produits";
+    const link = reviewLink(origin, o.id);
+    const custom = await messageText("avis", { prenom: firstName, produits: products.length > 1 ? "vos produits" : `*${products[0]}*`, lien: link }, "");
     await sendWhatsApp({
       to: phone,
       kind: "avis",
-      text: await (async () => {
-        const firstName = (o.customerName ?? "").split(/\s+/)[0];
-        const products = [...new Set(o.items.map((i) => i.productName))];
-        const link = reviewLink(origin, o.id);
-        const custom = await messageText("avis", { prenom: firstName, produits: products.length > 1 ? "vos produits" : `*${products[0]}*`, lien: link }, "");
-        return custom ? `${custom}\n\n(Répondez STOP pour ne plus recevoir ces messages.)` : reviewRequestText({ firstName, products, link });
-      })(),
+      recipientName: o.customerName,
+      text: custom ? `${custom}\n\n(Répondez STOP pour ne plus recevoir ces messages.)` : reviewRequestText({ firstName, products, link }),
+      template: META_AUTO_TEMPLATES.DEMANDE_AVIS,
+      templateLanguage: "fr",
+      templateVars: [cleanTemplateVar(firstName, 60, "Client"), cleanTemplateVar(prodLabel, 120), link],
     });
     sent++;
   }

@@ -5,6 +5,7 @@
 import { prisma } from "@/lib/prisma";
 import { getSiteUrl } from "@/lib/site-url";
 import { sendWhatsApp, notifyTeamWhatsApp } from "@/lib/whatsapp";
+import { META_AUTO_TEMPLATES, cleanTemplateVar } from "@/lib/whatsapp/auto-templates";
 import { messageText } from "@/lib/whatsapp/message-templates";
 import { addDays } from "@/lib/subscriptions/plan";
 import { GIFT_PREFIX, GIFT_VALIDITY_DAYS, newGiftCode, occasionPhrase } from "./gift";
@@ -57,12 +58,43 @@ export async function sendGiftCard(id: string): Promise<boolean> {
     lien,
   };
   const original = `🎁 Bonjour ${vars.prenom}, ${vars.expediteur} vous offre une carte cadeau JAMAAL de ${vars.montant}${vars.occasion} !${vars.message ? `\n${vars.message}` : ""}${card.voiceUrl ? "\n🎙️ Un message vocal vous attend sur la carte." : ""}\nVotre code : *${card.code}*. Choisissez vos parfums et soins, livrés chez vous : ${lien}`;
-  const sent = await sendWhatsApp({ to: card.recipientPhone, text: await messageText("carte_cadeau", vars, original), kind: "client", cta: { label: "Voir ma carte cadeau", url: lien } });
+  const sent = await sendWhatsApp({
+    to: card.recipientPhone,
+    text: await messageText("carte_cadeau", vars, original),
+    kind: "client",
+    recipientName: card.recipientName,
+    cta: { label: "Voir ma carte cadeau", url: lien },
+    template: META_AUTO_TEMPLATES.CARTE_CADEAU,
+    templateLanguage: "fr",
+    templateVars: [
+      cleanTemplateVar(vars.prenom, 60, "Client"),
+      cleanTemplateVar(vars.expediteur, 80, "Un proche"),
+      cleanTemplateVar(vars.montant, 40),
+      card.code,
+      cleanTemplateVar(card.message || "Profitez de nos parfums et soins livrés chez vous", 180),
+      lien,
+    ],
+  });
   if (sent.status !== "ECHEC") await prisma.giftCard.update({ where: { id }, data: { sentAt: new Date() } });
   if (card.buyerPhone) {
     const bv = { prenom: firstName(card.buyerName), destinataire: firstName(card.recipientName), montant: fcfa(card.amount), code: card.code };
     const bo = `Merci ${bv.prenom} ! Votre carte cadeau de ${bv.montant} (code ${bv.code}) vient d'être envoyée à ${bv.destinataire} sur WhatsApp. 🎁`;
-    await sendWhatsApp({ to: card.buyerPhone, text: await messageText("carte_cadeau_acheteur", bv, bo), kind: "client" });
+    await sendWhatsApp({
+      to: card.buyerPhone,
+      text: await messageText("carte_cadeau_acheteur", bv, bo),
+      kind: "client",
+      recipientName: card.buyerName,
+      template: META_AUTO_TEMPLATES.CARTE_CADEAU,
+      templateLanguage: "fr",
+      templateVars: [
+        cleanTemplateVar(bv.prenom, 60, "Client"),
+        "L'équipe JAMAAL Luxury",
+        cleanTemplateVar(bv.montant, 40),
+        bv.code,
+        cleanTemplateVar(`Votre carte cadeau vient bien d'être envoyée à ${bv.destinataire}`, 180),
+        lien,
+      ],
+    });
   }
   return sent.status !== "ECHEC";
 }
