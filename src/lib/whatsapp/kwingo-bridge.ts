@@ -455,6 +455,12 @@ export async function syncLiveFromKwingo(activePhone?: string, force = false): P
   const conn = await getKwingoConnection();
   if (!conn.connected || !conn.accessToken) return false;
 
+  const clearedRow = await prisma.setting
+    .findUnique({ where: { key: "whatsapp_inbox_cleared_at" } })
+    .catch(() => null);
+  const clearedAtMs = clearedRow?.value ? Date.parse(clearedRow.value) : NaN;
+  const hasCutoff = !Number.isNaN(clearedAtMs) && clearedAtMs > 0;
+
   const headers: Record<string, string> = {
     Authorization: `Bearer ${conn.accessToken}`,
     "X-Bridge-Secret": conn.accessToken,
@@ -492,6 +498,9 @@ export async function syncLiveFromKwingo(activePhone?: string, force = false): P
         if (!phone || phone.length < 8) continue;
 
         const remoteAt = chat.lastMessageTime ? new Date(chat.lastMessageTime) : null;
+        if (hasCutoff && (!remoteAt || Number.isNaN(remoteAt.getTime()) || remoteAt.getTime() <= clearedAtMs)) {
+          continue;
+        }
         const known = await prisma.whatsAppThread
           .findUnique({ where: { phone }, select: { lastMessageAt: true } })
           .catch(() => null);
@@ -579,6 +588,9 @@ export async function syncLiveFromKwingo(activePhone?: string, force = false): P
           const isIn = rm.direction === "inbound";
           const dir = isIn ? "IN" : "OUT";
           const msgDate = rm.created_at ? new Date(rm.created_at) : null;
+          if (hasCutoff && (!msgDate || Number.isNaN(msgDate.getTime()) || msgDate.getTime() <= clearedAtMs)) {
+            continue;
+          }
           if (msgDate && !Number.isNaN(msgDate.getTime()) && (!newestDate || msgDate > newestDate)) {
             newestDate = msgDate;
           }

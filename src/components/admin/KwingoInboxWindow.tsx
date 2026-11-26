@@ -385,6 +385,7 @@ export function KwingoInboxWindow({
       } else {
         setMessageText("");
         setSelectedMetaTemplate(null);
+        setSelectedInternalQuickText(null);
         setShowTemplates(false);
         setFeedback({ ok: true, text: json.message || "Réponse envoyée via l'API Cloud." });
         await loadInbox(true);
@@ -1052,7 +1053,9 @@ export function KwingoInboxWindow({
                         Modèles de réponses rapides
                       </p>
                       <p className="text-[11px] text-navy/65">
-                        Seuls les modèles approuvés par Meta sont utilisables pour l&apos;envoi par API Cloud. Les textes rapides internes JAMAAL sont réservés au WhatsApp personnel.
+                        {activeThread.windowOpen
+                          ? "Fenêtre 24 h ouverte : vous pouvez utiliser les modèles Meta ou les textes rapides internes JAMAAL via l'API Cloud."
+                          : "Hors fenêtre 24 h : seuls les modèles approuvés par Meta sont utilisables pour l'envoi par API Cloud. Les textes rapides internes JAMAAL sont réservés au WhatsApp personnel."}
                       </p>
                     </div>
                     <button
@@ -1119,15 +1122,27 @@ export function KwingoInboxWindow({
                       </div>
                     </div>
 
-                    {/* 2. Textes rapides internes JAMAAL (non utilisables par API Cloud) */}
+                    {/* 2. Textes rapides internes JAMAAL (utilisables en texte libre dans la fenêtre 24h, WhatsApp personnel hors 24h) */}
                     <div>
                       <div className="mb-1.5 flex flex-wrap items-center justify-between gap-2">
-                        <p className="text-[11px] font-bold uppercase tracking-wider text-amber-800">
-                          2. Textes rapides internes JAMAAL (Non utilisables par API Cloud)
+                        <p
+                          className={`text-[11px] font-bold uppercase tracking-wider ${
+                            activeThread.windowOpen ? "text-navy" : "text-amber-800"
+                          }`}
+                        >
+                          {activeThread.windowOpen
+                            ? "2. Textes rapides internes JAMAAL (Utilisables par API Cloud · 24h ouverte)"
+                            : "2. Textes rapides internes JAMAAL (Non utilisables par API Cloud hors 24h)"}
                         </p>
-                        <span className="rounded-full border border-amber-300 bg-amber-50 px-2.5 py-0.5 text-[10px] font-bold text-amber-800">
-                          ⚠️ Non utilisables par API Cloud · WhatsApp personnel uniquement
-                        </span>
+                        {activeThread.windowOpen ? (
+                          <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-[10px] font-bold text-[#1f9d55]">
+                            ✓ Utilisable par API Cloud (texte libre 24h)
+                          </span>
+                        ) : (
+                          <span className="rounded-full border border-amber-300 bg-amber-50 px-2.5 py-0.5 text-[10px] font-bold text-amber-800">
+                            ⚠️ Non utilisables par API Cloud hors 24h · WhatsApp personnel uniquement
+                          </span>
+                        )}
                       </div>
                       <div className="grid gap-2 sm:grid-cols-2">
                         {(data?.templates ?? [])
@@ -1151,15 +1166,25 @@ export function KwingoInboxWindow({
                                 }}
                                 className={`rounded-xl border p-2.5 text-left text-xs transition ${
                                   isSelectedInternal
-                                    ? "border-amber-400 bg-amber-50/70"
-                                    : "border-line bg-white hover:border-amber-400"
+                                    ? activeThread.windowOpen
+                                      ? "border-[#25D366] bg-emerald-50/70"
+                                      : "border-amber-400 bg-amber-50/70"
+                                    : activeThread.windowOpen
+                                      ? "border-line bg-white hover:border-[#25D366]"
+                                      : "border-line bg-white hover:border-amber-400"
                                 }`}
                               >
                                 <div className="flex items-center justify-between gap-2">
                                   <p className="truncate font-semibold text-navy">{tpl.title}</p>
-                                  <span className="shrink-0 rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-800">
-                                    Non utilisable API Cloud
-                                  </span>
+                                  {activeThread.windowOpen ? (
+                                    <span className="shrink-0 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-[#1f9d55]">
+                                      Texte libre · 24h
+                                    </span>
+                                  ) : (
+                                    <span className="shrink-0 rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-800">
+                                      Non utilisable API Cloud
+                                    </span>
+                                  )}
                                 </div>
                                 <p className="mt-0.5 line-clamp-2 text-navy/65">{tpl.text}</p>
                               </button>
@@ -1203,11 +1228,11 @@ export function KwingoInboxWindow({
                   </div>
                 )}
 
-                {selectedInternalQuickText && (
+                {selectedInternalQuickText && !activeThread.windowOpen && (
                   <div className="mb-2.5 flex items-center justify-between rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900">
                     <span>
                       ⚠️ Texte rapide interne JAMAAL sélectionné (<strong>{selectedInternalQuickText.title}</strong>) :{" "}
-                      <strong>non utilisable pour un envoi par API Cloud</strong>. Utilisez le bouton{" "}
+                      <strong>non utilisable par API Cloud hors fenêtre 24 h</strong>. Utilisez le bouton{" "}
                       <strong>« Répondre avec mon WhatsApp personnel (Mobile / PC) »</strong> ou choisissez un modèle approuvé Meta.
                     </span>
                     <button
@@ -1243,8 +1268,7 @@ export function KwingoInboxWindow({
                       if (
                         e.key === "Enter" &&
                         (e.ctrlKey || e.metaKey) &&
-                        activeThread.windowOpen &&
-                        !selectedInternalQuickText
+                        activeThread.windowOpen
                       ) {
                         e.preventDefault();
                         void handleSendCloudApi(false);
@@ -1260,8 +1284,8 @@ export function KwingoInboxWindow({
                     - Hors 24h : WhatsApp personnel uniquement pour un parrain/consultant (l'envoi par modèle Cloud est réservé aux administrateurs) */}
                 <div className="mt-3 flex flex-wrap items-center justify-between gap-2.5 pt-1">
                   <p className="text-xs text-navy/60">
-                    {selectedInternalQuickText
-                      ? "Ce texte rapide interne JAMAAL n'est pas utilisable via l'API Cloud : envoyez-le depuis votre WhatsApp personnel."
+                    {selectedInternalQuickText && !activeThread.windowOpen
+                      ? "Ce texte rapide interne JAMAAL n'est pas utilisable via l'API Cloud hors fenêtre 24 h : envoyez-le depuis votre WhatsApp personnel."
                       : activeThread.windowOpen
                         ? "Le client a écrit il y a moins de 24 h : répondez ici via l'API Cloud ou depuis votre WhatsApp personnel."
                         : isSupervisor
@@ -1273,21 +1297,13 @@ export function KwingoInboxWindow({
                     {activeThread.windowOpen ? (
                       <button
                         type="button"
-                        disabled={sending || !messageText.trim() || Boolean(selectedInternalQuickText)}
+                        disabled={sending || !messageText.trim()}
                         onClick={() => void handleSendCloudApi(false)}
-                        title={
-                          selectedInternalQuickText
-                            ? "Les textes rapides internes JAMAAL ne sont pas utilisables par l'API Cloud. Choisissez un modèle approuvé par Meta ou envoyez via votre WhatsApp personnel."
-                            : "Envoyer la réponse dans la conversation via l'API Cloud JAMAAL Luxury"
-                        }
+                        title="Envoyer la réponse dans la conversation via l'API Cloud JAMAAL Luxury"
                         className="inline-flex items-center gap-2 rounded-full bg-[#25D366] px-4 py-2.5 text-xs font-semibold text-white shadow-xs transition hover:bg-[#1ebe5b] disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         {sending ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
-                        <span>
-                          {selectedInternalQuickText
-                            ? "API Cloud indisponible (texte interne)"
-                            : "Répondre ici (API Cloud · 24h)"}
-                        </span>
+                        <span>Répondre ici (API Cloud · 24h)</span>
                       </button>
                     ) : (
                       isSupervisor && (

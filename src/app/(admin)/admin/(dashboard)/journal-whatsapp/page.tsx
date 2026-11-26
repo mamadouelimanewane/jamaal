@@ -5,6 +5,7 @@ import { getKwingoConnection } from "@/lib/whatsapp/kwingo-bridge";
 import Link from "next/link";
 import { WhatsAppTestForm } from "@/components/admin/WhatsAppTestForm";
 import { WhatsAppSubNav } from "@/components/admin/WhatsAppSubNav";
+import { WhatsAppMaintenancePanel } from "@/components/admin/WhatsAppMaintenancePanel";
 import { daysAgo, groupFailures } from "@/lib/whatsapp/diagnose";
 import { AUTOMATIONS, automationStates } from "@/lib/automation-settings";
 import { resendWhatsAppMessage } from "@/lib/actions/whatsapp-admin";
@@ -40,7 +41,7 @@ export default async function JournalWhatsAppPage() {
   await requireAdmin("whatsapp", "read");
   const cfg = whatsappConfig();
   const since = daysAgo(7);
-  const [kwingoConn, messages, week, failures, autos] = await Promise.all([
+  const [kwingoConn, messages, week, failures, autos, totalThreads, totalMessages, clearedSetting] = await Promise.all([
     getKwingoConnection(),
     prisma.whatsAppMessage.findMany({ orderBy: { createdAt: "desc" }, take: 100 }).catch(() => null),
     prisma
@@ -58,6 +59,9 @@ export default async function JournalWhatsAppPage() {
       })
       .catch(() => []),
     automationStates().catch(() => null),
+    prisma.whatsAppThread.count().catch(() => 0),
+    prisma.whatsAppMessage.count().catch(() => 0),
+    prisma.setting.findUnique({ where: { key: "whatsapp_inbox_cleared_at" } }).catch(() => null),
   ]);
 
   const isCloudActive = kwingoConn.connected || cfg.active;
@@ -188,6 +192,13 @@ export default async function JournalWhatsAppPage() {
           </section>
         </div>
       </div>
+
+      {/* Outil admin : Sauvegarde JSON, nettoyage complet et restauration */}
+      <WhatsAppMaintenancePanel
+        totalThreads={totalThreads}
+        totalMessages={totalMessages}
+        clearedAt={clearedSetting?.value ?? null}
+      />
 
       {/* Tableau du journal des 100 derniers messages */}
       <section className="overflow-x-auto rounded-2xl border border-line bg-white shadow-2xs">
