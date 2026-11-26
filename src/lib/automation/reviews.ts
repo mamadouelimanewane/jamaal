@@ -4,7 +4,7 @@
  */
 import { prisma } from "@/lib/prisma";
 import { phoneOptedOut } from "@/lib/phone-match";
-import { sendWhatsApp, whatsappConfig } from "@/lib/whatsapp";
+import { isWhatsAppReady, sendWhatsApp } from "@/lib/whatsapp";
 import { META_AUTO_TEMPLATES, cleanTemplateVar } from "@/lib/whatsapp/auto-templates";
 import { automationEnabled, claimAutomation } from "@/lib/automation-settings";
 import { reviewLink } from "@/lib/review-token";
@@ -18,7 +18,7 @@ export function reviewRequestText(o: { firstName: string; products: string[]; li
 
 export async function requestReviews(origin: string, now = new Date()) {
   if (!(await automationEnabled("reviews"))) return "désactivé";
-  if (!whatsappConfig().active) return "WhatsApp non configuré : aucune demande envoyée";
+  if (!(await isWhatsAppReady())) return "WhatsApp non configuré : aucune demande envoyée";
   const orders = await prisma.order.findMany({
     where: {
       status: "LIVREE",

@@ -9,7 +9,7 @@
 import { randomInt } from "node:crypto";
 import { prisma } from "@/lib/prisma";
 import { ordersByPhoneSince, phoneOptedOut } from "@/lib/phone-match";
-import { sendWhatsApp, whatsappConfig } from "@/lib/whatsapp";
+import { isWhatsAppReady, sendWhatsApp } from "@/lib/whatsapp";
 import { META_AUTO_TEMPLATES, cleanTemplateVar } from "@/lib/whatsapp/auto-templates";
 import { automationEnabled, claimAutomation } from "@/lib/automation-settings";
 import { messageText, type MessageKey } from "@/lib/whatsapp/message-templates";
@@ -161,7 +161,7 @@ async function abandonedCarts(origin: string, now: Date, budget: { left: number 
 
 export async function runRelances(origin: string, now = new Date()) {
   // Sans envoi WhatsApp configuré, on n'« use » pas les relances (elles partiront une fois configuré).
-  if (!whatsappConfig().active) return "WhatsApp non configuré : aucune relance envoyée";
+  if (!(await isWhatsAppReady())) return "WhatsApp non configuré : aucune relance envoyée";
   const budget = { left: MAX_PER_RUN };
   const [on45, onBirthday, onCart] = await Promise.all([automationEnabled("relance45"), automationEnabled("birthday"), automationEnabled("cart")]);
   return {

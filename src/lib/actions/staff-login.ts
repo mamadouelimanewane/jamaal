@@ -12,7 +12,7 @@ import { canonicalizePhone } from "@/lib/phone";
 import { getSiteUrl } from "@/lib/site-url";
 import { staffAccountByPhone } from "@/lib/staff-accounts";
 import { phoneTail } from "@/lib/phone-match";
-import { sendWhatsApp, whatsappConfig } from "@/lib/whatsapp";
+import { isWhatsAppReady, sendWhatsApp } from "@/lib/whatsapp";
 import { META_AUTO_TEMPLATES, cleanTemplateVar } from "@/lib/whatsapp/auto-templates";
 
 /** Pages de connexion autorisées (retour avec message). */
@@ -77,7 +77,7 @@ export async function whatsappLoginLink(formData: FormData) {
   const phone = String(formData.get("phone") ?? "").trim().slice(0, 30);
   const keep = `&id=${encodeURIComponent(phone)}`;
   if (phone.replace(/\D/g, "").length < 9) redirect(`${from}?lien=numero${keep}`);
-  if (!whatsappConfig().active) redirect(`${from}?lien=indispo${keep}`);
+  if (!(await isWhatsAppReady())) redirect(`${from}?lien=indispo${keep}`);
   const ip = clientIpFromHeaders(await headers());
   const [byIp, byPhone] = await Promise.all([
     rateLimit(`login-link-ip:${ip}`, { limit: 8, windowMs: 3_600_000 }),

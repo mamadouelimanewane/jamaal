@@ -4,7 +4,7 @@ import { WHATSAPP_CONTACTS } from "@/lib/contact";
 import { canonicalizePhone, normalizePhone } from "@/lib/phone";
 import { sendViaMeta, type RichOptions } from "./meta";
 import { sendViaTwilio } from "./twilio";
-import { sendViaKwingoConnection } from "./kwingo-bridge";
+import { getKwingoConnection, sendViaKwingoConnection } from "./kwingo-bridge";
 import { resolveAutoTemplate } from "./auto-templates";
 
 /**
@@ -33,6 +33,13 @@ export function whatsappConfig() {
     template: process.env.WHATSAPP_TEMPLATE_NAME ?? "",
     webhookReady: !!(process.env.WHATSAPP_VERIFY_TOKEN && process.env.WHATSAPP_APP_SECRET),
   };
+}
+
+/** Vrai si la passerelle API Cloud KwingoChat est connectée OU si Meta/Twilio direct est configuré. */
+export async function isWhatsAppReady(): Promise<boolean> {
+  if (whatsappConfig().active) return true;
+  const kwingo = await getKwingoConnection().catch(() => null);
+  return Boolean(kwingo?.connected);
 }
 
 /**

@@ -18,7 +18,7 @@ import { watchChoganPrices } from "./chogan-watch";
 import { sweepMissedCommissions } from "@/lib/payouts/engine";
 import { creditLivreurEarnings } from "@/lib/wallet";
 import { alertChallengesAlmostDone } from "@/lib/whatsapp/alerts";
-import { whatsappConfig } from "@/lib/whatsapp";
+import { isWhatsAppReady } from "@/lib/whatsapp";
 import { runInstallmentReminders, runUnpaidPaymentLinks } from "@/lib/installments-notify";
 import { recordAutomationRun } from "@/lib/automation/run-log";
 import { prisma } from "@/lib/prisma";
@@ -43,7 +43,7 @@ export async function runDailyJobs(origin: string, opts: { budgetMs?: number; no
   // Retraits des membres : renvoi des demandes en attente et relecture des versements Wave en cours.
   await step("retraits", () => retryPendingWithdrawals());
   await step("defis", () => awardChallenges(now));
-  if (whatsappConfig().active) await step("defis80", () => alertChallengesAlmostDone(now));
+  if (await isWhatsAppReady()) await step("defis80", () => alertChallengesAlmostDone(now));
   await step("relances", () => runRelances(origin, now));
   await step("echeances", () => runInstallmentReminders(now));
   await step("liensImpayes", () => runUnpaidPaymentLinks(now));

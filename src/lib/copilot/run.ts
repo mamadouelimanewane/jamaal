@@ -6,7 +6,7 @@
 import { prisma } from "@/lib/prisma";
 import { automationEnabled, claimAutomation } from "@/lib/automation-settings";
 import { ordersByPhoneSince, phoneTail } from "@/lib/phone-match";
-import { sendWhatsApp, whatsappConfig } from "@/lib/whatsapp";
+import { isWhatsAppReady, sendWhatsApp } from "@/lib/whatsapp";
 import { productOfTheDay } from "@/lib/automation/morning-kit";
 import { buildCopilotPlan, copilotWhatsAppText, RELANCE_MAX_DAYS, RELANCE_MIN_DAYS, type CopilotAction, type CopilotInput } from "./plan";
 
@@ -111,7 +111,7 @@ export async function sendCopilots(origin: string, now = new Date(), opts: { bud
   if (!(await automationEnabled("copilot"))) return "désactivé";
   const started = Date.now();
   const site = origin.replace(/\/$/, "");
-  const live = whatsappConfig().active;
+  const live = await isWhatsAppReady();
   const consultants = await prisma.consultant.findMany({ where: { active: true, kitMatin: true }, select: { id: true, name: true, whatsapp: true } });
   let sent = 0;
   let plans = 0;

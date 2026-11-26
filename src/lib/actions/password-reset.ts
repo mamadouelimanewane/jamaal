@@ -8,7 +8,7 @@ import { prisma } from "@/lib/prisma";
 import { rateLimit, clientIpFromHeaders } from "@/lib/rate-limit";
 import { canonicalizePhone } from "@/lib/phone";
 import { createResetLink, notifyAdminsOfResetRequest, userByPhone } from "@/lib/password-reset-link";
-import { sendWhatsApp, whatsappConfig } from "@/lib/whatsapp";
+import { isWhatsAppReady, sendWhatsApp } from "@/lib/whatsapp";
 import { META_AUTO_TEMPLATES, cleanTemplateVar } from "@/lib/whatsapp/auto-templates";
 
 const hashToken = (token: string) => createHash("sha256").update(token).digest("hex");
@@ -66,7 +66,7 @@ async function sendResetByWhatsApp(raw: string) {
   if (!user) return;
   // Toujours prévenir l'équipe : si le message WhatsApp n'arrive pas, elle envoie un lien d'accès à la main.
   await notifyAdminsOfResetRequest(user);
-  if (!whatsappConfig().active) return;
+  if (!(await isWhatsAppReady())) return;
   const url = await createResetLink(user.id, 24);
   if (!url) return;
   const first = user.name.split(/\s+/)[0] || "Membre";

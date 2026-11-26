@@ -7,7 +7,7 @@
 import { prisma } from "@/lib/prisma";
 import { automationEnabled, claimAutomation } from "@/lib/automation-settings";
 import { generateContent, geminiConfigured, textOf } from "@/lib/ai/gemini";
-import { sendWhatsApp, whatsappConfig } from "@/lib/whatsapp";
+import { isWhatsAppReady, sendWhatsApp } from "@/lib/whatsapp";
 import { META_AUTO_TEMPLATES, cleanTemplateVar } from "@/lib/whatsapp/auto-templates";
 
 type Pick = { name: string; slug: string; price: number | null; inspiredBy: string | null; inspiredBrand: string | null; family: string | null };
@@ -68,7 +68,7 @@ async function statusText(p: Pick): Promise<string> {
 
 export async function sendMorningKit(origin: string, now = new Date(), opts: { budgetMs?: number } = {}) {
   if (!(await automationEnabled("morningKit"))) return "désactivé";
-  if (!whatsappConfig().active) return "WhatsApp non configuré";
+  if (!(await isWhatsAppReady())) return "WhatsApp non configuré";
   const p = await productOfTheDay(now);
   if (!p) return "aucun produit en stock";
   const text = await statusText(p);
