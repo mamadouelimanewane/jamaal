@@ -110,23 +110,90 @@ export async function POST(req: NextRequest) {
   const action = String(body.action ?? "");
 
   if (action === "clear") {
-    const clearedAt = new Date().toISOString();
-    const [delMsgs, delThreads] = await prisma.$transaction([
-      prisma.whatsAppMessage.deleteMany({}),
-      prisma.whatsAppThread.deleteMany({}),
-      prisma.setting.upsert({
-        where: { key: CLEARED_AT_KEY },
-        create: { key: CLEARED_AT_KEY, value: clearedAt },
-        update: { value: clearedAt },
-      }),
-    ]);
+    const rawUntil = typeof body.untilDate === "string" ? body.untilDate.trim() : "";
+    let cutoffDate = new Date();
+    let isPartialByDate = false;
+
+    if (rawUntil) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(rawUntil)) {
+        return NextResponse.json(
+          { ok: false, error: "Date de fin invalide (format attendu : AAAA-MM-JJ)." },
+          { status: 400 },
+        );
+      }
+      // Dakar = UTC+0 toute l'année : fin de journée incluse
+      const parsed = new Date(`${rawUntil}T23:59:59.999Z`);
+      if (Number.isNaN(parsed.getTime())) {
+        return NextResponse.json({ ok: false, error: "Date de fin invalide." }, { status: 400 });
+      }
+      cutoffDate = parsed;
+      isPartialByDate = true;
+    }
+
+    const clearedAtIso = cutoffDate.toISOString();
+
+    // Ne jamais reculer une date de coupure déjà plus récente
+    const existingCleared = await prisma.setting
+      .findUnique({ where: { key: CLEARED_AT_KEY } })
+      .catch(() => null);
+    const existingMs = existingCleared?.value ? Date.parse(existingCleared.value) : NaN;
+    const effectiveClearedAt =
+      !Number.isNaN(existingMs) && existingMs > cutoffDate.getTime()
+        ? existingCleared!.value
+        : clearedAtIso;
+
+    let deletedMessages = 0;
+    let deletedThreads = 0;
+
+    if (isPartialByDate) {
+      const result = await prisma.$transaction(async (tx) => {
+        const delMsgs = await tx.whatsAppMessage.deleteMany({
+          where: { createdAt: { lte: cutoffDate } },
+        });
+        const remainingPhones = await tx.whatsAppMessage.findMany({
+          distinct: ["toNumber"],
+          select: { toNumber: true },
+        });
+        const keepPhones = remainingPhones.map((r) => r.toNumber);
+        const delThreads = await tx.whatsAppThread.deleteMany({
+          where: {
+            lastMessageAt: { lte: cutoffDate },
+            ...(keepPhones.length > 0 ? { phone: { notIn: keepPhones } } : {}),
+          },
+        });
+        await tx.setting.upsert({
+          where: { key: CLEARED_AT_KEY },
+          create: { key: CLEARED_AT_KEY, value: effectiveClearedAt },
+          update: { value: effectiveClearedAt },
+        });
+        return { deletedMessages: delMsgs.count, deletedThreads: delThreads.count };
+      });
+      deletedMessages = result.deletedMessages;
+      deletedThreads = result.deletedThreads;
+    } else {
+      const [delMsgs, delThreads] = await prisma.$transaction([
+        prisma.whatsAppMessage.deleteMany({}),
+        prisma.whatsAppThread.deleteMany({}),
+        prisma.setting.upsert({
+          where: { key: CLEARED_AT_KEY },
+          create: { key: CLEARED_AT_KEY, value: effectiveClearedAt },
+          update: { value: effectiveClearedAt },
+        }),
+      ]);
+      deletedMessages = delMsgs.count;
+      deletedThreads = delThreads.count;
+    }
+
+    const untilLabel = isPartialByDate
+      ? ` jusqu'au ${cutoffDate.toLocaleDateString("fr-FR", { timeZone: "UTC" })} inclus`
+      : " (tout l'historique)";
 
     return NextResponse.json({
       ok: true,
-      deletedMessages: delMsgs.count,
-      deletedThreads: delThreads.count,
-      clearedAt,
-      message: `Messagerie vidée : ${delMsgs.count} message(s) et ${delThreads.count} conversation(s) supprimé(s). Les modèles sont conservés et la coupure KwingoChat est active.`,
+      deletedMessages,
+      deletedThreads,
+      clearedAt: effectiveClearedAt,
+      message: `Purge effectuée${untilLabel} : ${deletedMessages} message(s) et ${deletedThreads} conversation(s) supprimé(s). Les modèles sont conservés et la coupure KwingoChat est active.`,
     });
   }
 

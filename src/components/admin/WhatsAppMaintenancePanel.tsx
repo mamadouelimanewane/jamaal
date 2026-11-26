@@ -14,10 +14,15 @@ export function WhatsAppMaintenancePanel({
   clearedAt: string | null;
 }) {
   const router = useRouter();
+  const [untilDate, setUntilDate] = useState("");
   const [confirmClear, setConfirmClear] = useState(false);
   const [busy, setBusy] = useState<"clear" | "restore" | null>(null);
   const [feedback, setFeedback] = useState<{ ok: boolean; text: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const formattedUntil = untilDate
+    ? new Date(`${untilDate}T12:00:00Z`).toLocaleDateString("fr-FR", { timeZone: "UTC" })
+    : null;
 
   async function handleClearInbox() {
     if (!confirmClear || busy) return;
@@ -27,7 +32,10 @@ export function WhatsAppMaintenancePanel({
       const res = await fetch("/api/whatsapp/maintenance", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "clear" }),
+        body: JSON.stringify({
+          action: "clear",
+          ...(untilDate ? { untilDate } : {}),
+        }),
       });
       const json = (await res.json()) as { ok?: boolean; message?: string; error?: string };
       if (!res.ok || !json.ok) {
@@ -128,15 +136,36 @@ export function WhatsAppMaintenancePanel({
           </a>
         </div>
 
-        {/* 2. Vider toute la messagerie */}
+        {/* 2. Vider / purger la messagerie */}
         <div className="flex flex-col justify-between rounded-xl border border-rose/30 bg-rose/5 p-4">
           <div>
             <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-rose-dark">
-              <AlertTriangle size={14} /> 2. Vider la messagerie
+              <AlertTriangle size={14} /> 2. Purger la messagerie
             </p>
             <p className="mt-1 text-xs text-navy/75">
-              Supprime <strong>tous</strong> les messages et conversations (y compris ceux du jour) et bloque le ré-import KwingoChat antérieur. Les modèles sont conservés.
+              Supprime les messages et conversations vides jusqu&apos;à la date choisie (ou <strong>tout</strong> si vide) et bloque le ré-import KwingoChat antérieur. Les modèles sont conservés.
             </p>
+            <label className="mt-2.5 block text-[11px] font-semibold text-navy">
+              Jusqu&apos;au (inclus, facultatif)
+              <div className="mt-1 flex items-center gap-1.5">
+                <input
+                  type="date"
+                  value={untilDate}
+                  onChange={(e) => setUntilDate(e.target.value)}
+                  className="w-full rounded-lg border border-line bg-white px-2.5 py-1.5 text-xs text-navy outline-none focus:border-navy"
+                />
+                {untilDate && (
+                  <button
+                    type="button"
+                    onClick={() => setUntilDate("")}
+                    className="shrink-0 rounded-lg border border-line bg-white px-2 py-1.5 text-[11px] font-semibold text-navy/70 hover:text-navy"
+                    title="Effacer la date (tout purger)"
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
+            </label>
             <label className="mt-2.5 flex cursor-pointer items-start gap-2 text-[11px] text-navy">
               <input
                 type="checkbox"
@@ -144,7 +173,11 @@ export function WhatsAppMaintenancePanel({
                 onChange={(e) => setConfirmClear(e.target.checked)}
                 className="mt-0.5 rounded border-line"
               />
-              <span>J&apos;ai téléchargé la sauvegarde et je confirme vouloir vider tous les messages.</span>
+              <span>
+                {formattedUntil
+                  ? `J'ai téléchargé la sauvegarde et je confirme la purge jusqu'au ${formattedUntil} inclus.`
+                  : "J'ai téléchargé la sauvegarde et je confirme vouloir vider tous les messages."}
+              </span>
             </label>
           </div>
           <button
@@ -154,7 +187,7 @@ export function WhatsAppMaintenancePanel({
             className="mt-3 inline-flex items-center justify-center gap-2 rounded-full bg-rose-dark px-4 py-2 text-xs font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-45"
           >
             {busy === "clear" ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
-            <span>Vider tous les messages</span>
+            <span>{formattedUntil ? `Purger jusqu'au ${formattedUntil}` : "Vider tous les messages"}</span>
           </button>
         </div>
 
