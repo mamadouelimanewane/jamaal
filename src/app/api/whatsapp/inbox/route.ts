@@ -92,10 +92,10 @@ export async function GET(req: NextRequest) {
 
   const kwingoConn = await getKwingoConnection();
   if (kwingoConn.connected && forceSync) {
-    await syncLiveFromKwingo(selectedPhoneParam || undefined, true).catch(() => {});
+    await syncLiveFromKwingo(selectedPhoneParam || undefined, true).catch(() => { });
   } else if (kwingoConn.connected) {
     // Synchronisation légère non bloquante en arrière-plan (throttlée côté serveur)
-    void syncLiveFromKwingo(selectedPhoneParam || undefined, false).catch(() => {});
+    void syncLiveFromKwingo(selectedPhoneParam || undefined, false).catch(() => { });
   }
 
   // Rattache automatiquement les conversations entrantes non assignées dont le numéro correspond à un client d'un parrain/consultant actif
@@ -267,8 +267,8 @@ export async function GET(req: NextRequest) {
         .update({ where: { phone: activePhone }, data: { lastReadAt: new Date() } })
         .catch(() => { }),
     ]);
-    // Ordre antéchronologique : les messages les plus récents en haut
-    activeMessages = msgs;
+    // Ordre chronologique WhatsApp : les messages les plus anciens en haut, le dernier message en bas
+    activeMessages = [...msgs].reverse();
 
     const tail = phoneTail(activePhone);
     if (tail) {

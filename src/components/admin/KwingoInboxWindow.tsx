@@ -233,11 +233,12 @@ export function KwingoInboxWindow({
         });
         if (!res.ok) return;
         const json = (await res.json()) as InboxPayload;
-        // Tri strict : les messages les plus récents en haut
+        // Tri chronologique WhatsApp : les messages les plus anciens en haut, le dernier message en bas
         if (Array.isArray(json.messages)) {
-          json.messages.sort(
-            (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-          );
+          json.messages.sort((a, b) => {
+            const diff = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+            return diff !== 0 ? diff : a.id.localeCompare(b.id);
+          });
         }
         setData(json);
         if (!selectedPhone && json.activePhone) {
@@ -266,26 +267,34 @@ export function KwingoInboxWindow({
     return () => clearInterval(interval);
   }, [loadInbox]);
 
-  // Défilement interne UNIQUEMENT dans le conteneur des messages (jamais la page entière) :
-  // - à l'ouverture / changement de conversation : retour en haut (messages les plus récents)
-  // - lorsqu'un nouveau message arrive en haut ET que l'utilisateur était déjà proche du haut
+  // Défilement interne UNIQUEMENT dans le conteneur des messages (comme dans WhatsApp) :
+  // - à l'ouverture / changement de conversation : positionnement direct sur le dernier message en bas
+  // - lorsqu'un nouveau message arrive en bas ET que l'utilisateur était déjà proche du bas
   useEffect(() => {
     const el = messagesContainerRef.current;
     if (!el) return;
     const currentPhone = data?.activePhone || selectedPhone || "";
     const msgs = data?.messages ?? [];
-    const latestId = msgs.length > 0 ? msgs[0].id : "";
+    const latestId = msgs.length > 0 ? msgs[msgs.length - 1].id : "";
 
     const phoneChanged = currentPhone !== lastScrolledPhoneRef.current;
     const hasNewMessage = latestId !== "" && latestId !== lastMessageIdRef.current;
 
+    const scrollToBottom = () => {
+      requestAnimationFrame(() => {
+        const node = messagesContainerRef.current;
+        if (node) node.scrollTop = node.scrollHeight;
+      });
+    };
+
     if (phoneChanged) {
-      el.scrollTop = 0;
+      scrollToBottom();
       lastScrolledPhoneRef.current = currentPhone;
       lastMessageIdRef.current = latestId;
     } else if (hasNewMessage) {
-      if (el.scrollTop < 140) {
-        el.scrollTop = 0;
+      const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+      if (distanceFromBottom < 180) {
+        scrollToBottom();
       }
       lastMessageIdRef.current = latestId;
     }
