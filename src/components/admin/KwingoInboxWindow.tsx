@@ -273,27 +273,33 @@ export function KwingoInboxWindow({
   useEffect(() => {
     const el = messagesContainerRef.current;
     if (!el) return;
-    const currentPhone = data?.activePhone || selectedPhone || "";
+    const activeLoadedPhone = data?.activePhone || "";
+    if (!activeLoadedPhone) return;
+    // Attendre que les messages du contact fraîchement sélectionné soient bien chargés
+    if (selectedPhone && activeLoadedPhone !== selectedPhone) return;
+
     const msgs = data?.messages ?? [];
     const latestId = msgs.length > 0 ? msgs[msgs.length - 1].id : "";
 
-    const phoneChanged = currentPhone !== lastScrolledPhoneRef.current;
+    const phoneChanged = activeLoadedPhone !== lastScrolledPhoneRef.current;
     const hasNewMessage = latestId !== "" && latestId !== lastMessageIdRef.current;
 
     const scrollToBottom = () => {
+      const node = messagesContainerRef.current;
+      if (node) node.scrollTop = node.scrollHeight;
       requestAnimationFrame(() => {
-        const node = messagesContainerRef.current;
-        if (node) node.scrollTop = node.scrollHeight;
+        const n = messagesContainerRef.current;
+        if (n) n.scrollTop = n.scrollHeight;
       });
     };
 
     if (phoneChanged) {
       scrollToBottom();
-      lastScrolledPhoneRef.current = currentPhone;
+      lastScrolledPhoneRef.current = activeLoadedPhone;
       lastMessageIdRef.current = latestId;
     } else if (hasNewMessage) {
       const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
-      if (distanceFromBottom < 180) {
+      if (distanceFromBottom < 200) {
         scrollToBottom();
       }
       lastMessageIdRef.current = latestId;
@@ -659,11 +665,11 @@ export function KwingoInboxWindow({
         </div>
       )}
 
-      {/* Fenêtre principale épurée en 2 colonnes claires et lisibles */}
-      <div className="grid min-h-[74vh] overflow-hidden rounded-2xl border border-line bg-white shadow-sm lg:grid-cols-[22rem_1fr]">
+      {/* Fenêtre principale épurée en 2 colonnes à défilement indépendant (comme WhatsApp Web) */}
+      <div className="grid h-[78vh] min-h-[540px] max-h-[860px] overflow-hidden rounded-2xl border border-line bg-white shadow-sm lg:grid-cols-[22rem_1fr]">
         {/* COLONNE GAUCHE : Liste des conversations */}
         <aside
-          className={`flex flex-col border-b border-line bg-white lg:border-b-0 lg:border-r ${
+          className={`flex min-h-0 flex-col overflow-hidden border-b border-line bg-white lg:border-b-0 lg:border-r ${
             showMobileChat ? "hidden lg:flex" : "flex"
           }`}
         >
@@ -735,8 +741,8 @@ export function KwingoInboxWindow({
             )}
           </div>
 
-          {/* Liste des fils de discussion */}
-          <div className="max-h-[64vh] flex-1 divide-y divide-line/60 overflow-y-auto">
+          {/* Liste des fils de discussion (défilement indépendant) */}
+          <div className="min-h-0 flex-1 divide-y divide-line/60 overflow-y-auto overscroll-contain">
             {loading && !data ? (
               <div className="flex items-center justify-center gap-2 p-10 text-sm text-navy/60">
                 <Loader2 size={16} className="animate-spin" /> Chargement des conversations…
@@ -854,7 +860,7 @@ export function KwingoInboxWindow({
 
         {/* COLONNE DROITE : Fenêtre de conversation épurée + Double choix de réponse */}
         <section
-          className={`flex min-w-0 flex-col bg-white ${
+          className={`flex min-h-0 min-w-0 flex-col overflow-hidden bg-white ${
             showMobileChat ? "flex" : "hidden lg:flex"
           }`}
         >
@@ -1012,10 +1018,10 @@ export function KwingoInboxWindow({
                 </div>
               )}
 
-              {/* Zone des messages — style WhatsApp clair et très lisible */}
+              {/* Zone des messages — style WhatsApp clair avec défilement interne indépendant */}
               <div
                 ref={messagesContainerRef}
-                className="flex h-[52vh] flex-1 flex-col gap-3 overflow-y-auto bg-[#efeae2] p-5"
+                className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto overscroll-contain bg-[#efeae2] p-5"
               >
                 {(data?.messages ?? []).map((m) => {
                   const isIn = m.direction === "IN";
