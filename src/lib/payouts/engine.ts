@@ -53,7 +53,7 @@ export async function plannedCommissions(orderId: string, model?: BusinessModel)
       paymentStatus: true,
       paymentMethod: true,
       consultant: {
-        select: { id: true, name: true, rank: true, specialTerms: true, sponsor: { select: { id: true, name: true, sponsorId: true, sponsor: { select: { id: true, name: true } } } } },
+        select: { id: true, name: true, rank: true, specialTerms: true, sponsor: { select: { id: true, name: true, sponsorId: true, archivedAt: true, sponsor: { select: { id: true, name: true, archivedAt: true } } } } },
       },
     },
   });
@@ -69,8 +69,9 @@ export async function plannedCommissions(orderId: string, model?: BusinessModel)
     // Conditions spéciales du vendeur : ses taux propres remplacent ceux du modèle économique.
     const rates = withSpecialRates(commissionRatesFor(effectiveTitle(seller.rank, depth), !!sponsor?.sponsorId, m), seller.specialTerms);
     rows.push({ consultantId: seller.id, name: seller.name, level: "VENTE", rate: rates.seller, base, amount: 0 });
-    if (sponsor) rows.push({ consultantId: sponsor.id, name: sponsor.name, level: "NIVEAU_1", rate: rates.level1, base, amount: 0 });
-    if (sponsor && grand) rows.push({ consultantId: grand.id, name: grand.name, level: "NIVEAU_2", rate: rates.level2, base, amount: 0 });
+    // Parrain ou grand-parrain archivé (compte supprimé) : sa part n'est versée à personne, elle reste dans la marge JAMAAL.
+    if (sponsor && !sponsor.archivedAt) rows.push({ consultantId: sponsor.id, name: sponsor.name, level: "NIVEAU_1", rate: rates.level1, base, amount: 0 });
+    if (sponsor && grand && !grand.archivedAt) rows.push({ consultantId: grand.id, name: grand.name, level: "NIVEAU_2", rate: rates.level2, base, amount: 0 });
   }
   for (const r of rows) r.amount = Math.round((base * r.rate) / 100);
   return { order, base, rows: rows.filter((r) => r.amount > 0), payable: isPayable(order, m) };

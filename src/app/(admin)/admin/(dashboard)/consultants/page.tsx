@@ -73,7 +73,7 @@ export default async function AdminConsultantsPage({ searchParams }: { searchPar
       </div>
       <p className="mt-1 text-sm text-navy/75">
         {archives
-          ? "Comptes supprimés : toutes leurs informations sont conservées (ventes, commissions, wallet, crédits, filleuls). « Restaurer » rouvre la connexion et la boutique."
+          ? "Comptes supprimés : toutes leurs informations sont conservées (ventes, commissions, wallet, crédits, filleuls). Les commissions sur les ventes de leurs filleuls restent à JAMAAL. « Restaurer » rouvre la connexion et la boutique."
           : "Classement du mois en cours — Gold, Silver puis Bronze selon le CA généré et les filleuls actifs."}
       </p>
       <div className="mt-3 flex gap-2 text-sm">
