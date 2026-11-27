@@ -70,9 +70,17 @@ export function ReservationSettingsForm({ settings }: { settings: ReservationSet
       <label className="text-xs font-medium text-navy/85">Délai annoncé au client
         <input name="delayLabel" defaultValue={settings.delayLabel} maxLength={60} required placeholder="15 à 21 jours" className={field} />
       </label>
-      <label className="flex items-center gap-2 text-sm text-ink sm:col-span-2">
-        <input type="checkbox" name="refundable" defaultChecked={settings.refundable} /> Acompte remboursé si le client annule avant l&apos;arrivée du produit
+      <label className="text-xs font-medium text-navy/85">Annulation gratuite par le client pendant (heures)
+        <input name="freeCancelHours" type="number" min={0} max={720} step={1} defaultValue={settings.freeCancelHours} required className={field} />
       </label>
+      <label className="text-xs font-medium text-navy/85">Ensuite, pénalité retenue (% de la somme payée)
+        <input name="penaltyPercent" type="number" min={0} max={50} step={1} defaultValue={settings.penaltyPercent} required className={field} />
+      </label>
+      <p className="text-xs text-navy/70 sm:col-span-2">
+        L&apos;argent payé reste bloqué jusqu&apos;à l&apos;arrivée du produit. Si le client annule (depuis sa page de commande), il est rendu tout de suite
+        dans son avoir, moins la pénalité au-delà du délai gratuit. Si JAMAAL annule, tout est rendu. Ces conditions sont affichées au client
+        à la réservation et envoyées sur WhatsApp.
+      </p>
       <div className="flex items-center gap-3 sm:col-span-2">
         <button disabled={pending} className="rounded-full bg-navy px-5 py-2 text-sm font-semibold text-white hover:bg-navy-light disabled:opacity-60">{pending ? "Enregistrement…" : "Enregistrer"}</button>
         {state.message && <span role="status" className="text-sm text-emerald-800">{state.message}</span>}

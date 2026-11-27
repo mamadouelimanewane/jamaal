@@ -114,7 +114,11 @@ export function parsePct(raw: unknown): number | null | "invalid" {
 
 const METHOD_LABELS: Record<string, string> = { A_LA_LIVRAISON: "À la livraison", WAVE: "Wave", ORANGE_MONEY: "Orange Money", STRIPE: "Carte bancaire", WALLET: "Wallet du revendeur" };
 /** Ligne « Paiement » d'une fiche commande. */
-export function paymentLine(o: { paymentMethod: string; paymentStatus: string; paymentRef?: string | null }): string {
+export function paymentLine(o: { paymentMethod: string; paymentStatus: string; paymentRef?: string | null; total?: number; paidBeforeChange?: number }): string {
   const how = collectedLabel(o.paymentRef) ?? METHOD_LABELS[o.paymentMethod] ?? o.paymentMethod;
+  // Produit remplacé par un plus cher : déjà payé, complément attendu.
+  if (o.paymentStatus !== "PAYE" && (o.paidBeforeChange ?? 0) > 0 && o.total != null) {
+    return `${how} · ${o.paidBeforeChange!.toLocaleString("fr-FR")} F payés, complément de ${Math.max(0, o.total - o.paidBeforeChange!).toLocaleString("fr-FR")} F en attente`;
+  }
   return `${how} · ${o.paymentStatus === "PAYE" ? "payé" : o.paymentStatus === "ECHOUE" ? "échec" : "en attente"}`;
 }

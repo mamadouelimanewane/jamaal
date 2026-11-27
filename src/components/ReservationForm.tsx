@@ -208,7 +208,13 @@ export function ReservationForm({
         <ul className="list-disc space-y-1 pl-5 text-xs leading-5 text-navy/75">
           <li>{tr("Délai annoncé :")} {localizeDelay(settings.delayLabel, tr)} {tr("après la réservation.")}</li>
           <li>{tr("Nous vous prévenons sur WhatsApp dès l'arrivée ; vous réglez alors le solde en ligne, à la livraison ou au retrait.")}</li>
-          <li>{settings.refundable ? tr("Acompte remboursé si vous annulez avant l'arrivée du produit.") : tr("L'acompte n'est pas remboursable en cas d'annulation.")}</li>
+          <li>{tr("Votre argent est conservé, bloqué jusqu'à l'arrivée du produit. Vous recevez tout de suite un message WhatsApp avec le délai et ces conditions.")}</li>
+          <li>
+            {settings.penaltyPercent > 0
+              ? tr("Annulation gratuite pendant {v0} h après la réservation ; ensuite {v1} % de la somme payée sont retenus. Le reste vous est rendu tout de suite dans votre avoir JAMAAL.", { v0: settings.freeCancelHours, v1: settings.penaltyPercent })
+              : tr("Annulation possible à tout moment avant l'arrivée : la somme payée vous est rendue dans votre avoir JAMAAL.")}
+          </li>
+          <li>{tr("Si JAMAAL ne peut pas obtenir le produit, tout vous est rendu.")}</li>
         </ul>
         {options && options.length > 0 && method ? (
           <PaymentMethodSelector options={options} value={method} onChange={setMethod} />

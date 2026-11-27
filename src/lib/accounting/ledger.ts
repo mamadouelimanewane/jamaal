@@ -125,7 +125,7 @@ async function buildLedger() {
       select: {
         id: true, customerName: true, total: true, deliveryFee: true, status: true, paymentMethod: true, paymentStatus: true, paidAt: true,
         deliveredAt: true, updatedAt: true, createdAt: true, isReservation: true, depositAmount: true, depositPaidAt: true, refundedAt: true, refundChannel: true,
-        installmentCount: true, installmentPaidDates: true,
+        installmentCount: true, installmentPaidDates: true, paidBeforeChange: true, avoirRefunded: true, refundPenalty: true,
       },
     }),
     prisma.return.findMany({ where: { status: "REMBOURSE" }, select: { id: true, orderId: true, amount: true, reason: true, processedAt: true, createdAt: true, order: { select: { customerName: true, paymentMethod: true } } } }),

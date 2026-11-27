@@ -18,7 +18,8 @@ import { notifyTeamWhatsApp } from "@/lib/whatsapp";
 import { alertWalletCredits, alertWithdrawalPaid } from "@/lib/whatsapp/alerts";
 import { notifyWalletCredits, type WalletCreditNotice } from "./wallet-notify";
 
-export type OwnerType = "CONSULTANT" | "LIVREUR";
+/** CUSTOMER : avoir d'un client (remboursement d'une différence, d'une réservation annulée), voir customer-wallet.ts. */
+export type OwnerType = "CONSULTANT" | "LIVREUR" | "CUSTOMER";
 export type Owner = { type: OwnerType; id: string };
 type Tx = Prisma.TransactionClient;
 
@@ -32,6 +33,8 @@ export const KIND_LABELS: Record<string, string> = {
   ANNULATION: "Annulation",
   AJUSTEMENT: "Ajustement JAMAAL",
   ENCAISSEMENT: "Espèces encaissées (à reverser)",
+  AVOIR: "Avoir client",
+  PENALITE: "Pénalité d'annulation",
   REVERSEMENT: "Espèces reversées à JAMAAL",
 };
 export const STATUS_LABELS: Record<string, string> = { EN_ATTENTE: "En attente", VALIDE: "Validé", ECHEC: "Échec", ANNULE: "Annulé" };
@@ -79,6 +82,11 @@ export async function ownerWallet(owner: Owner) {
   if (owner.type === "CONSULTANT") {
     const c = await prisma.consultant.findUnique({ where: { id: owner.id }, select: { name: true, walletProvider: true, walletNumber: true, walletHolderName: true, whatsapp: true, email: true } });
     return c ? { name: c.name, provider: c.walletProvider, number: c.walletNumber, holder: c.walletHolderName ?? c.name, phone: c.whatsapp, email: c.email } : null;
+  }
+  if (owner.type === "CUSTOMER") {
+    // Avoir client : versé sur le numéro du client (Wave par défaut), à la demande de l'admin.
+    const cu = await prisma.customer.findUnique({ where: { id: owner.id }, select: { name: true, phone: true, email: true } });
+    return cu ? { name: cu.name, provider: "WAVE", number: cu.phone, holder: cu.name, phone: cu.phone, email: cu.email } : null;
   }
   const l = await prisma.livreur.findUnique({ where: { id: owner.id }, select: { name: true, walletProvider: true, walletNumber: true, phone: true } });
   return l ? { name: l.name, provider: l.walletProvider, number: l.walletNumber, holder: l.name, phone: l.phone, email: null } : null;

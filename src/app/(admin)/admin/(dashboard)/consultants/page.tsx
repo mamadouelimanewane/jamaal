@@ -6,7 +6,7 @@ import { titleFromLoaded } from "@/lib/network";
 import { NetworkTitleBadge } from "@/components/admin/NetworkTitleBadge";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/currency";
-import { deleteConsultant } from "@/lib/actions/consultants";
+import { archiveConsultantAction, restoreConsultant } from "@/lib/actions/consultants";
 import { startViewAsReseller } from "@/lib/actions/view-as";
 import { ResellerAccess } from "@/components/admin/ResellerAccess";
 import { getConsultantRankings } from "@/lib/ranking";
@@ -17,10 +17,13 @@ export const dynamic = "force-dynamic";
 
 const rankOrder = { GOLD: 0, SILVER: 1, BRONZE: 2 } as const;
 
-export default async function AdminConsultantsPage() {
+export default async function AdminConsultantsPage({ searchParams }: { searchParams: Promise<{ archives?: string }> }) {
+  // « Supprimer » archive le consultant : la liste montre les actifs, ou les archivés (avec Restaurer).
+  const archives = (await searchParams).archives === "1";
   const pendingInvites = await pendingInstallInvites(true);
-  const [consultants, rankings] = await Promise.all([
+  const [consultants, rankings, archivedCount] = await Promise.all([
     prisma.consultant.findMany({
+      where: { archivedAt: archives ? { not: null } : null },
       include: {
         user: true,
         sponsor: { select: { name: true, sponsorId: true } },
@@ -28,6 +31,7 @@ export default async function AdminConsultantsPage() {
       },
     }),
     getConsultantRankings(),
+    prisma.consultant.count({ where: { archivedAt: { not: null } } }),
   ]);
 
   const rankById = new Map(rankings.map((r) => [r.consultantId, r]));
@@ -45,7 +49,7 @@ export default async function AdminConsultantsPage() {
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="font-serif-display text-2xl font-semibold text-navy">
-          Consultants ({consultants.length})
+          {archives ? "Consultants archivés" : "Consultants"} ({consultants.length})
         </h1>
         <div className="flex flex-wrap items-start gap-2">
           {pendingInvites > 0 ? (
@@ -68,8 +72,14 @@ export default async function AdminConsultantsPage() {
         </div>
       </div>
       <p className="mt-1 text-sm text-navy/75">
-        Classement du mois en cours — Gold, Silver puis Bronze selon le CA généré et les filleuls actifs.
+        {archives
+          ? "Comptes supprimés : toutes leurs informations sont conservées (ventes, commissions, wallet, crédits, filleuls). « Restaurer » rouvre la connexion et la boutique."
+          : "Classement du mois en cours — Gold, Silver puis Bronze selon le CA généré et les filleuls actifs."}
       </p>
+      <div className="mt-3 flex gap-2 text-sm">
+        <Link href="/admin/consultants" className={`rounded-full px-3 py-1.5 font-semibold ${archives ? "border border-line text-navy hover:bg-cream" : "bg-navy text-white"}`}>Actifs</Link>
+        <Link href="/admin/consultants?archives=1" className={`rounded-full px-3 py-1.5 font-semibold ${archives ? "bg-navy text-white" : "border border-line text-navy hover:bg-cream"}`}>Archivés ({archivedCount})</Link>
+      </div>
 
       <div className="mt-5">
         <ListSearch target="consultants-table" total={consultants.length} placeholder="Rechercher : nom, ville, téléphone, e-mail, parrain…" />
@@ -147,11 +157,18 @@ export default async function AdminConsultantsPage() {
                     >
                       Modifier
                     </Link>
-                    <form action={deleteConsultant.bind(null, c.id)} className="inline">
-                      <button className="text-xs font-semibold text-rose-dark hover:underline">
-                        Supprimer
-                      </button>
-                    </form>
+                    {c.archivedAt ? (
+                      <form action={restoreConsultant.bind(null, c.id)} className="inline">
+                        <button className="text-xs font-semibold text-emerald-700 hover:underline">Restaurer</button>
+                      </form>
+                    ) : (
+                      <RowAction
+                        label="Supprimer"
+                        danger
+                        run={archiveConsultantAction.bind(null, c.id)}
+                        confirm={`Supprimer ${c.name} ? Il ne pourra plus se connecter et sa boutique sera fermée. Toutes ses informations restent conservées (ventes, commissions, wallet, crédits, filleuls) dans « Archivés », d'où vous pourrez le restaurer.`}
+                      />
+                    )}
                   </td>
                 </tr>
               );

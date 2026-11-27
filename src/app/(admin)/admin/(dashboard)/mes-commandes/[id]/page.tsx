@@ -1,3 +1,6 @@
+import { ReplaceItem } from "@/components/orders/ReplaceItem";
+import { ItemChanges } from "@/components/orders/ItemChanges";
+import { replacementRefusal } from "@/lib/orders/replace-item";
 import { notFound, redirect } from "next/navigation";
 import { SendCodeButton } from "@/components/admin/SendCodeButton";
 import { paymentLine } from "@/lib/special-terms";
@@ -74,14 +77,26 @@ export default async function MesCommandeDetailPage({
         <h2 className="mb-3 text-sm font-semibold text-navy">Articles</h2>
         <ul className="flex flex-col gap-2">
           {order.items.map((item) => (
-            <li key={item.id} className="flex justify-between text-sm">
-              <span className="text-navy/90">
-                {item.productName} — {item.volumeLabel} × {item.quantity}
-              </span>
-              <span className="font-medium text-navy">{formatPrice(item.price * item.quantity)}</span>
+            <li key={item.id} className="text-sm">
+              <div className="flex justify-between">
+                <span className="text-navy/90">
+                  {item.productName} — {item.volumeLabel} × {item.quantity}
+                </span>
+                <span className="font-medium text-navy">{formatPrice(item.price * item.quantity)}</span>
+              </div>
+              {!replacementRefusal(order, "REVENDEUR") && (
+                <ReplaceItem
+                  orderId={order.id}
+                  mode="revendeur"
+                  paid={order.paymentStatus === "PAYE" || order.paidBeforeChange > 0}
+                  reservation={order.isReservation}
+                  item={{ id: item.id, name: item.productName, volume: item.volumeLabel, price: item.price, quantity: item.quantity }}
+                />
+              )}
             </li>
           ))}
         </ul>
+        <ItemChanges orderId={order.id} />
         {order.deliveryFee > 0 && (
           <div className="mt-3 flex justify-between border-t border-line pt-3 text-sm text-navy/90">
             <span>Livraison{order.deliveryDistanceKm != null ? ` (${order.deliveryDistanceKm} km)` : ""}</span>

@@ -1,3 +1,9 @@
+import { ReplaceItem } from "@/components/orders/ReplaceItem";
+import { CancelReservation } from "@/components/orders/CancelReservation";
+import { paidOnReservation } from "@/lib/orders/reservation-cancel";
+import { cancellationTerms, freeCancelUntil } from "@/lib/reservation";
+import { getReservationSettings } from "@/lib/reservation-store";
+import { replacementRefusal } from "@/lib/orders/replace-item";
 import { convertsPrices } from "@/lib/i18n/config";
 import { formatPrice as formatXof } from "@/lib/currency";
 import { getT, getPrice, getLocale } from "@/lib/i18n/server";
@@ -37,6 +43,9 @@ const paymentStatusLabels: Record<string, string> = {
   ECHOUE: "Échec du paiement",
 };
 
+/** Heure de la requête (page dynamique). */
+const now = () => new Date();
+
 export default async function OrderConfirmationPage({ params, searchParams }: Props) {
   const t = await getT();
   const formatPrice = await getPrice();
@@ -63,6 +72,20 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
   const betweenInstallments = !!inst && order.installmentsPaid >= 1 && !!order.paymentRef && order.installmentRefs.includes(order.paymentRef);
   const isPending = paymentStatus === "EN_ATTENTE" && !isPaid && !linkNotStarted && !betweenInstallments;
   const due = amountDue(order);
+  // Remplacement d'un produit : possible tant que la commande n'est pas partie (voir replacementRefusal).
+  const canReplace = !replacementRefusal(order, "CLIENT");
+  // Réservation : le client peut l'annuler (somme payée rendue dans son avoir, pénalité après le délai gratuit).
+  const resaSettings = order.isReservation ? await getReservationSettings() : null;
+  const resaPaid = paidOnReservation(order);
+  const resaCancel =
+    resaSettings && order.status !== "ANNULEE" && order.reservationStatus !== "SOLDEE" && order.reservationStatus !== "ANNULEE"
+      ? {
+          paid: resaPaid,
+          penalty: cancellationTerms(resaPaid, order.createdAt, now(), resaSettings, true).penalty,
+          freeUntil: freeCancelUntil(order.createdAt, resaSettings).toISOString(),
+          penaltyPercent: resaSettings.penaltyPercent,
+        }
+      : null;
   const resa = order.isReservation ? ((order.reservationStatus ?? "ACOMPTE_ATTENDU") as ReservationStatus) : null;
   const balance = Math.max(0, order.total - order.depositAmount);
   const [subPct, existingSub] = await Promise.all([
@@ -119,7 +142,7 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
         {resa ? (
           due && due.amount > 0 && <PayOrderButton orderId={order.id} label={due.part === "ACOMPTE" ? t("Payer l'acompte ({v0})", { v0: formatPrice(due.amount) }) : t("Payer le solde ({v0})", { v0: formatPrice(due.amount) })} />
         ) : (
-          !isPaid && <PayOrderButton orderId={order.id} label={inst ? t("Payer l'échéance {n}/{of} ({v2})", { n: inst.n, of: inst.of, v2: formatPrice(inst.amount) }) : undefined} />
+          !isPaid && <PayOrderButton orderId={order.id} label={inst ? t("Payer l'échéance {n}/{of} ({v2})", { n: inst.n, of: inst.of, v2: formatPrice(inst.amount) }) : order.paidBeforeChange > 0 && due ? t("Payer le complément ({v0})", { v0: formatPrice(due.amount) }) : undefined} />
         )}
         {isInstallmentOrder(order) && <InstallmentSchedule order={order} className="mt-6" />}
 
@@ -148,6 +171,18 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
                 <span className="font-semibold text-navy">{formatPrice(balance)}</span>
               </div>
             </>
+          )}
+          {!resa && order.paidBeforeChange > 0 && !isPaid && (
+            <div className="mt-2 flex justify-between">
+              <span className="text-navy/60">{t("Déjà payé")}</span>
+              <span className="font-semibold text-navy">{formatPrice(order.paidBeforeChange)} · {t("complément")} {formatPrice(Math.max(0, order.total - order.paidBeforeChange))}</span>
+            </div>
+          )}
+          {order.avoirRefunded > 0 && (
+            <div className="mt-2 flex justify-between">
+              <span className="text-navy/60">{t("Rendu dans votre avoir")}</span>
+              <span className="font-semibold text-emerald-700">{formatPrice(order.avoirRefunded)}</span>
+            </div>
           )}
           {!resa && <div className="mt-2 flex justify-between">
             <span className="text-navy/60">{t("Paiement")}</span>
@@ -181,23 +216,52 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pr
 
         {order.giftWrap && <div className="mt-4 rounded-xl border border-rose/30 bg-rose/5 p-4 text-left text-sm"><p className="font-semibold text-navy">{t("Commande cadeau")}</p>{order.giftFrom && <p className="mt-1 text-navy/70">{t("De la part de")} {order.giftFrom}{order.giftOccasion ? ` · ${occasionOf(order.giftOccasion)?.label ?? ""}` : ""}</p>}{order.giftMessage && <p className="mt-1 text-navy/70">« {order.giftMessage} »</p>}{order.giftVoiceUrl && <audio src={order.giftVoiceUrl} controls className="mt-2 w-full" />}</div>}
 
+        {resaCancel && <CancelReservation orderId={order.id} {...resaCancel} />}
+        {order.isReservation && order.status === "ANNULEE" && order.refundedAt && (
+          <p className="mt-6 rounded-xl bg-emerald-50 px-4 py-3 text-left text-sm text-emerald-900">
+            {t("Réservation annulée : {v0} rendus dans votre avoir JAMAAL.", { v0: formatPrice(order.avoirRefunded) })}
+            {order.refundPenalty > 0 ? ` ${t("Pénalité retenue : {v0}.", { v0: formatPrice(order.refundPenalty) })}` : ""}
+          </p>
+        )}
+
         {!order.isReservation && order.customerPhone && order.status !== "ANNULEE" && !order.subscriptionId && <SubscribeOffer orderId={order.id} discountPct={subPct} existingToken={existingSub?.token ?? null} />}
 
         <ul className="mt-6 space-y-2 text-left text-sm">
           {order.items.map((item, i) => (
-            <li key={i} className="flex justify-between border-b border-line/60 pb-2">
-              <span className="text-navy/80">
-                {item.productName}{" "}
-                <span className="text-xs text-navy/50">
-                  ({item.volumeLabel} × {item.quantity})
+            <li key={i} className="border-b border-line/60 pb-2">
+              <div className="flex justify-between">
+                <span className="text-navy/80">
+                  {item.productName}{" "}
+                  <span className="text-xs text-navy/50">
+                    ({item.volumeLabel} × {item.quantity})
+                  </span>
                 </span>
-              </span>
-              <span className="font-medium text-navy">
-                {formatPrice(item.price * item.quantity)}
-              </span>
+                <span className="font-medium text-navy">
+                  {formatPrice(item.price * item.quantity)}
+                </span>
+              </div>
+              {canReplace && (
+                <ReplaceItem
+                  orderId={order.id}
+                  mode="client"
+                  paid={isPaid || order.paidBeforeChange > 0}
+                  reservation={order.isReservation}
+                  item={{ id: item.id, name: item.productName, volume: item.volumeLabel, price: item.price, quantity: item.quantity }}
+                />
+              )}
             </li>
           ))}
         </ul>
+        {order.itemChanges.length > 0 && (
+          <ul className="mt-3 space-y-1 text-left text-xs text-navy/70">
+            {order.itemChanges.map((c) => (
+              <li key={c.id}>
+                {t("Remplacé le {v0} : « {v1} » par « {v2} »", { v0: c.createdAt.toLocaleDateString("fr-FR"), v1: `${c.oldName} (${c.oldVolume})`, v2: `${c.newName} (${c.newVolume})` })}
+                {c.settlement === "AVOIR" ? ` · ${t("différence rendue dans votre avoir")}` : c.settlement === "COMPLEMENT" ? ` · ${t("complément à payer")}` : ""}
+              </li>
+            ))}
+          </ul>
+        )}
 
         <div className="mt-8 flex flex-col gap-3">
           <ReorderButton orderId={order.id} />

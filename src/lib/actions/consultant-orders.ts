@@ -1,5 +1,6 @@
 "use server";
 
+import { safeDeduct } from "@/lib/goods-credit";
 import { scheduleAutoAssign } from "@/lib/delivery-dispatch";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -189,7 +190,7 @@ async function placeConsultantOrder(formData: FormData): Promise<string> {
     const r = await resolveDiscountCode(typedCode, { phone: customerPhone || null, consultantId: consultant.id });
     if (!r) throw new Error("Code promo inconnu.");
     if ("error" in r) throw new Error(r.error);
-    if (r.source === "giftcard") throw new Error("Une carte cadeau s'utilise sur le site, au panier du client.");
+    if (r.source === "giftcard" || r.source === "avoir") throw new Error(r.source === "avoir" ? "Un avoir s'utilise sur le site, au panier du client." : "Une carte cadeau s'utilise sur le site, au panier du client.");
     if (r.source === "promo" && r.consultantId !== consultant.id) throw new Error("Ce code appartient à un autre conseiller.");
     const off = codeDiscount(r.kind, r.value, Math.max(0, productsTotal - discountAmount));
     if (off > 0) {
@@ -241,6 +242,8 @@ async function placeConsultantOrder(formData: FormData): Promise<string> {
     : await prisma.order.create({ data: orderData });
   // Payée (wallet ou encaissée par le revendeur) : les commissions de la chaîne sont enregistrées tout de suite.
   if (payWithWallet || collect) after(() => runPayoutsForOrder(order.id));
+  // Vente encaissée par le revendeur : défalquée de son crédit marchandises (devient « espèces à reverser »).
+  if (collect && isCollectMethod(collect)) after(() => safeDeduct(order.id));
   if (deliveryData.deliveryStatus && !payLink) scheduleAutoAssign(order.id);
 
   if (coupon) {

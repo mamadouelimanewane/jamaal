@@ -132,7 +132,7 @@ async function shopInfo() {
           principe: "Un format en cours de commande peut être réservé depuis sa fiche produit (bouton « Réserver ce format »).",
           acomptePourcent: reservation.depositPercent,
           delai: reservation.delayLabel,
-          acompteRemboursableSiAnnulation: reservation.refundable,
+          annulation: `Le client annule depuis sa page de commande : gratuit pendant ${reservation.freeCancelHours} h après la réservation, ensuite ${reservation.penaltyPercent} % de la somme payée retenus ; le reste est rendu tout de suite dans son avoir JAMAAL. Si JAMAAL annule, tout est rendu.`,
         }
       : null,
     fidelite: `1 point par tranche de ${LOYALTY_FCFA_PER_POINT} FCFA d'achat ; ${LOYALTY_REDEEM_MIN_POINTS} points = ${LOYALTY_REDEEM_VALUE_FCFA} FCFA de réduction`,

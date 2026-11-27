@@ -175,9 +175,11 @@ export default async function CgvPage() {
       {resa.enabled ? (
         <p className="mt-3">
           {t("Un format en rupture de stock peut être réservé : le client paie un acompte de")} {resa.depositPercent} {t("% du prix des produits, JAMAAL commande le produit (délai indicatif :")} {localizeDelay(resa.delayLabel, t)}{t(") et prévient le client à son arrivée ; le solde se règle alors en ligne, à la livraison ou au retrait.")}
-          {resa.refundable
-            ? t(" Si le client annule avant l'arrivée du produit, l'acompte lui est remboursé.")
-            : t(" L'acompte n'est pas remboursé si le client annule après la réservation.")}{" "}
+          {" "}
+          {t("La somme payée est conservée, bloquée jusqu'à l'arrivée du produit ; le délai et ces conditions sont envoyés au client sur WhatsApp dès la réservation.")}{" "}
+          {resa.penaltyPercent > 0
+            ? t("Le client peut annuler depuis sa page de commande : gratuitement pendant {v0} h après la réservation, ensuite {v1} % de la somme payée sont retenus ; le reste lui est rendu immédiatement dans son avoir JAMAAL, utilisable sur une prochaine commande ou versé sur demande.", { v0: resa.freeCancelHours, v1: resa.penaltyPercent })
+            : t("Le client peut annuler depuis sa page de commande : la somme payée lui est rendue immédiatement dans son avoir JAMAAL.")}{" "}
           {t("Si le produit ne peut finalement pas être obtenu, l'acompte est intégralement remboursé.")}
         </p>
       ) : (

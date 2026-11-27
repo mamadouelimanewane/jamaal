@@ -52,6 +52,7 @@ async function startPayment(
       reservationStatus: true,
       installmentCount: true,
       installmentsPaid: true,
+      paidBeforeChange: true,
     },
   });
 

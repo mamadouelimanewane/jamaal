@@ -21,7 +21,7 @@ export function WalletPill({ balance, tone = "dark", href = "/admin/mon-wallet" 
  * Adresse du wallet selon le titulaire : chez le revendeur, retraits et dépôts sont dans « Mes gains » ;
  * le livreur garde sa page « Mon wallet ».
  */
-export const walletPath = (ownerType: "CONSULTANT" | "LIVREUR") => (ownerType === "CONSULTANT" ? "/admin/mes-gains" : "/admin/mon-wallet");
+export const walletPath = (ownerType: "CONSULTANT" | "LIVREUR" | "CUSTOMER") => (ownerType === "CONSULTANT" ? "/admin/mes-gains" : ownerType === "CUSTOMER" ? "/admin/clients" : "/admin/mon-wallet");
 
 export function WalletHero({ balance, pendingOut, pendingIn, earned, held = 0, compact = false, href = "/admin/mes-gains" }: { balance: number; pendingOut: number; pendingIn: number; earned: number; held?: number; compact?: boolean; href?: string }) {
   return (

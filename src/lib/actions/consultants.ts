@@ -137,10 +137,29 @@ async function updateConsultantImpl(id: string, formData: FormData) {
   redirect("/admin/consultants");
 }
 
+/**
+ * « Supprimer » un consultant = l'archiver : rien n'est effacé (fiche, ventes, commissions, wallet, crédits de
+ * marchandises, filleuls, historiques). Il ne peut plus se connecter et sa boutique est fermée ; restaurable.
+ */
 async function deleteConsultantImpl(id: string) {
-  await requireAdmin("revendeurs");
-  // Le compte de connexion part avec la fiche : sinon il resterait un compte revendeur sans fiche.
-  await prisma.$transaction([prisma.user.deleteMany({ where: { consultantId: id, role: "CONSULTANT" } }), prisma.consultant.delete({ where: { id } })]);
+  const session = await requireAdmin("revendeurs");
+  await prisma.$transaction([
+    prisma.consultant.update({ where: { id }, data: { archivedAt: new Date(), active: false } }),
+    prisma.user.updateMany({ where: { consultantId: id, role: "CONSULTANT" }, data: { active: false } }),
+  ]);
+  await logActivity(session, "Consultant archivé (données conservées)", "Consultant", id).catch(() => {});
+  revalidatePath("/admin/consultants");
+  revalidatePath("/admin/utilisateurs");
+  revalidatePath("/consultants");
+}
+
+async function restoreConsultantImpl(id: string) {
+  const session = await requireAdmin("revendeurs");
+  await prisma.$transaction([
+    prisma.consultant.update({ where: { id }, data: { archivedAt: null, active: true } }),
+    prisma.user.updateMany({ where: { consultantId: id, role: "CONSULTANT" }, data: { active: true } }),
+  ]);
+  await logActivity(session, "Consultant restauré", "Consultant", id).catch(() => {});
   revalidatePath("/admin/consultants");
   revalidatePath("/admin/utilisateurs");
   revalidatePath("/consultants");
@@ -168,5 +187,24 @@ export async function deleteConsultant(id: string): Promise<void> {
     await deleteConsultantImpl(id);
   } catch (e) {
     await backWithError(e, "/admin/consultants");
+  }
+}
+
+/** Remet un consultant archivé en activité (connexion et boutique rouvertes). */
+export async function restoreConsultant(id: string): Promise<void> {
+  try {
+    await restoreConsultantImpl(id);
+  } catch (e) {
+    await backWithError(e, "/admin/consultants?archives=1");
+  }
+}
+
+/** « Supprimer » depuis la liste : archive (avec message de confirmation affiché dans la ligne). */
+export async function archiveConsultantAction(id: string): Promise<{ ok: boolean; message?: string; error?: string }> {
+  try {
+    await deleteConsultantImpl(id);
+    return { ok: true, message: "Supprimé : compte archivé, informations conservées." };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Suppression impossible." };
   }
 }

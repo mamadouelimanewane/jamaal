@@ -412,6 +412,13 @@ model Order {
   paidAt        DateTime?
   paymentRef    String?
   /// Commande annulée après encaissement (ou acompte de réservation) : remboursement effectué au client.
+  /// Somme déjà payée quand un remplacement plus cher a rouvert le paiement (le client paie le complément).
+  paidBeforeChange Int    @default(0)
+  /// Somme de la commande rendue dans l'avoir du client (remplacement moins cher, réservation annulée).
+  avoirRefunded    Int    @default(0)
+  /// Pénalité retenue quand le client annule sa réservation après le délai gratuit.
+  refundPenalty    Int    @default(0)
+  itemChanges      OrderItemChange[]
   refundedAt    DateTime?
   refundNote    String?
   /// Canal du remboursement (CAISSE, WAVE, ORANGE_MONEY, BANQUE) ou CONSERVE (acompte gardé par JAMAAL).
@@ -479,6 +486,8 @@ model Consultant {
   city      String
   whatsapp  String
   email     String?
+  /// Compte « supprimé » par l'admin : archivé, toutes ses données sont gardées (restaurable).
+  archivedAt DateTime?
   active    Boolean  @default(true)
   slug      String?  @unique
   createdAt DateTime @default(now())
@@ -628,6 +637,8 @@ model Customer {
   address       String?
   notes         String?
   loyaltyPoints Int      @default(0)
+  /// Code personnel pour utiliser son avoir (wallet client) au panier ; créé au premier avoir.
+  avoirCode     String?  @unique
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -1089,7 +1100,7 @@ model ProtocolSignature {
 /// Solde = mouvements VALIDE + retraits EN_ATTENTE (bloqués jusqu'au versement).
 model WalletTransaction {
   id          String   @id @default(cuid())
-  /// "CONSULTANT" ou "LIVREUR"
+  /// "CONSULTANT", "LIVREUR" ou "CUSTOMER" (avoir du client)
   ownerType   String
   ownerId     String
   /// Montant signé (FCFA) : crédit > 0, débit < 0
@@ -1463,5 +1474,31 @@ model GoodsCreditDeduction {
   createdAt     DateTime    @default(now())
 
   @@index([creditId, createdAt])
+  @@index([orderId])
+}
+
+/// Remplacement d'un produit dans une commande pas encore livrée (par le client, son revendeur ou l'admin).
+model OrderItemChange {
+  id           String   @id @default(cuid())
+  orderId      String
+  order        Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  oldProductId String?
+  oldName      String
+  oldVolume    String
+  oldPrice     Int
+  newProductId String
+  newName      String
+  newVolume    String
+  newPrice     Int
+  quantity     Int
+  /// Écart signé sur le total : > 0 complément à payer, < 0 rendu
+  difference   Int
+  /// AUCUN (commande pas encore payée), COMPLEMENT (à payer), AVOIR (rendu au client), WALLET (wallet du revendeur)
+  settlement   String
+  /// CLIENT, REVENDEUR ou ADMIN
+  byRole       String
+  byName       String?
+  createdAt    DateTime @default(now())
+
   @@index([orderId])
 }

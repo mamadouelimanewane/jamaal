@@ -1,3 +1,6 @@
+import { ReplaceItem } from "@/components/orders/ReplaceItem";
+import { ItemChanges } from "@/components/orders/ItemChanges";
+import { replacementRefusal } from "@/lib/orders/replace-item";
 import { notFound, redirect, unstable_rethrow } from "next/navigation";
 import { quickMarkPaid } from "@/lib/actions/order-quick";
 import { paymentStage, statusChangeError } from "@/lib/orders/payment-rules";
@@ -156,14 +159,26 @@ export default async function AdminOrderDetailPage({
         <h2 className="mb-3 text-sm font-semibold text-navy">Articles</h2>
         <ul className="flex flex-col gap-2">
           {order.items.map((item) => (
-            <li key={item.id} className="flex justify-between text-sm">
-              <span className="text-navy/90">
-                {item.productName} — {item.volumeLabel} × {item.quantity}
-              </span>
-              <span className="font-medium text-navy">{formatPrice(item.price * item.quantity)}</span>
+            <li key={item.id} className="text-sm">
+              <div className="flex justify-between">
+                <span className="text-navy/90">
+                  {item.productName} — {item.volumeLabel} × {item.quantity}
+                </span>
+                <span className="font-medium text-navy">{formatPrice(item.price * item.quantity)}</span>
+              </div>
+              {!replacementRefusal(order, "ADMIN") && (
+                <ReplaceItem
+                  orderId={order.id}
+                  mode="admin"
+                  paid={order.paymentStatus === "PAYE" || order.paidBeforeChange > 0}
+                  reservation={order.isReservation}
+                  item={{ id: item.id, name: item.productName, volume: item.volumeLabel, price: item.price, quantity: item.quantity }}
+                />
+              )}
             </li>
           ))}
         </ul>
+        <ItemChanges orderId={order.id} />
         <div className="mt-3 flex justify-between border-t border-line pt-3 text-base font-semibold text-navy">
           <span>Total</span>
           <span>{formatPrice(order.total)}</span>
@@ -178,7 +193,7 @@ export default async function AdminOrderDetailPage({
       {canMarkPaid && (
         <form action={markPaid} className="mt-6 flex flex-wrap items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50/70 p-5">
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold text-emerald-900">Le client a payé {formatPrice(order.total)} ?</p>
+            <p className="text-sm font-semibold text-emerald-900">{order.paidBeforeChange > 0 ? <>Le client a payé le complément de {formatPrice(Math.max(0, order.total - order.paidBeforeChange))} ?</> : <>Le client a payé {formatPrice(order.total)} ?</>}</p>
             <p className="mt-0.5 text-xs text-emerald-900/80">
               Wave ou Orange Money sur le numéro de la boutique, espèces… Vérifiez que l&apos;argent est bien arrivé, puis enregistrez-le :
               la commande passe « Confirmée », les articles sortent du stock et les commissions sont créditées.

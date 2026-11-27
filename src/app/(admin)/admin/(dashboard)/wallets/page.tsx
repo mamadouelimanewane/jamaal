@@ -32,7 +32,10 @@ export default async function WalletsAdminPage() {
     prisma.commissionEntry.findMany({ where: { status: { in: ["A_VERSER", "EN_REVUE"] }, amount: { gt: 0 } }, orderBy: { createdAt: "asc" }, take: 30, include: { consultant: { select: { name: true } } } }),
   ]);
   const names = new Map<string, string>([...consultants.map((c) => [`CONSULTANT:${c.id}`, c.name] as const), ...livreurs.map((l) => [`LIVREUR:${l.id}`, l.name] as const)]);
-  const label = (t: { ownerType: string; ownerId: string }) => `${names.get(`${t.ownerType}:${t.ownerId}`) ?? "?"} (${t.ownerType === "LIVREUR" ? "livreur" : "revendeur"})`;
+  // Avoirs des clients (wallet client) : nom du client.
+  const customerIds = [...new Set([...sums, ...pending, ...recent].filter((t) => t.ownerType === "CUSTOMER").map((t) => t.ownerId))];
+  if (customerIds.length) for (const c of await prisma.customer.findMany({ where: { id: { in: customerIds } }, select: { id: true, name: true } })) names.set(`CUSTOMER:${c.id}`, c.name);
+  const label = (t: { ownerType: string; ownerId: string }) => `${names.get(`${t.ownerType}:${t.ownerId}`) ?? "?"} (${t.ownerType === "LIVREUR" ? "livreur" : t.ownerType === "CUSTOMER" ? "avoir client" : "revendeur"})`;
   const balances = sums.map((s) => ({ key: `${s.ownerType}:${s.ownerId}`, label: label(s), amount: s._sum.amount ?? 0 })).filter((b) => b.amount !== 0).sort((a, b) => b.amount - a.amount);
   const owed = balances.reduce((t, b) => t + Math.max(0, b.amount), 0);
   const withdrawals = pending.filter((t) => t.kind === "RETRAIT");

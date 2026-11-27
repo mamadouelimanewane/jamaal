@@ -20,7 +20,7 @@ const fcfa = (n: number) => `${n.toLocaleString("fr-FR")} FCFA`;
 /** Texte et bouton du message (pur, testé). */
 export function orderMessage(
   event: OrderEvent,
-  o: { id: string; customerName: string; total: number; paymentStatus: string; channel: string; deliveryMode: string; isReservation?: boolean; depositAmount?: number; reservationDelay?: string | null },
+  o: { id: string; customerName: string; total: number; paymentStatus: string; channel: string; deliveryMode: string; isReservation?: boolean; depositAmount?: number; reservationDelay?: string | null; cancelPolicy?: string | null },
   site: string
 ): { text: string; cta?: { label: string; url: string } } | null {
   const first = o.customerName.split(/\s+/)[0] || o.customerName;
@@ -33,7 +33,8 @@ export function orderMessage(
       if (o.isReservation) {
         const deposit = o.depositAmount ?? 0;
         return {
-          text: `Bonjour ${first}, votre réservation JAMAAL n° ${ref(o.id)} est enregistrée. Pour la confirmer, réglez l'acompte de ${fcfa(deposit)} (reste ${fcfa(Math.max(0, o.total - deposit))} à l'arrivée du produit). Dès réception, nous commandons votre produit et vous écrivons ici.`,
+          // Produit en rupture : délai, argent conservé jusqu'à l'arrivée et conditions d'annulation, dès la réservation.
+          text: `Bonjour ${first}, votre réservation JAMAAL n° ${ref(o.id)} est enregistrée${o.reservationDelay ? ` : produit commandé, délai ${o.reservationDelay}` : ""}. Réglez l'acompte de ${fcfa(deposit)} pour la confirmer (reste ${fcfa(Math.max(0, o.total - deposit))} à l'arrivée). Votre argent est conservé, bloqué jusqu'à l'arrivée du produit.${o.cancelPolicy ? ` Conditions : ${o.cancelPolicy}.` : ""}`,
           cta: pay,
         };
       }
@@ -45,7 +46,7 @@ export function orderMessage(
       // Réservation : l'acompte est reçu, la commande est confirmée ; on rappelle le montant versé et le reste à payer.
       const deposit = o.depositAmount ?? 0;
       return {
-        text: `Acompte reçu ✅ Merci ${first} ! Votre réservation JAMAAL n° ${ref(o.id)} est confirmée. Montant versé : ${fcfa(deposit)}. Reste à payer à l'arrivée du produit : ${fcfa(Math.max(0, o.total - deposit))}.${o.reservationDelay ? ` Délai annoncé : ${o.reservationDelay}.` : ""} Nous vous prévenons dès que votre produit est arrivé.`,
+        text: `Acompte reçu ✅ Merci ${first} ! Réservation JAMAAL n° ${ref(o.id)} confirmée : ${fcfa(deposit)} versés, conservés jusqu'à l'arrivée du produit. Reste ${fcfa(Math.max(0, o.total - deposit))} à l'arrivée.${o.reservationDelay ? ` Délai annoncé : ${o.reservationDelay}.` : ""}${o.cancelPolicy ? ` Conditions : ${o.cancelPolicy}.` : ""} Nous vous prévenons dès l'arrivée.`,
         cta: track,
       };
     }
@@ -67,7 +68,7 @@ export function orderMessage(
 /** Message modifiable (Admin › Journal WhatsApp) et ses variables, pour un évènement. Pur, testé. */
 export function orderMessageVars(
   event: OrderEvent,
-  o: { id: string; customerName: string; total: number; paymentStatus: string; deliveryMode: string; isReservation?: boolean; depositAmount?: number; reservationDelay?: string | null }
+  o: { id: string; customerName: string; total: number; paymentStatus: string; deliveryMode: string; isReservation?: boolean; depositAmount?: number; reservationDelay?: string | null; cancelPolicy?: string | null }
 ): { key: MessageKey; vars: Record<string, string> } {
   const prenom = o.customerName.split(/\s+/)[0] || o.customerName;
   const deposit = o.depositAmount ?? 0;
@@ -75,10 +76,10 @@ export function orderMessageVars(
   switch (event) {
     case "CREEE":
       return o.isReservation
-        ? { key: "suivi_reservation", vars: { ...base, acompte: fcfa(deposit), reste: fcfa(Math.max(0, o.total - deposit)) } }
+        ? { key: "suivi_reservation", vars: { ...base, acompte: fcfa(deposit), reste: fcfa(Math.max(0, o.total - deposit)), delai: o.reservationDelay ? ` : produit commandé, délai ${o.reservationDelay}` : "", conditions: o.cancelPolicy ? ` Conditions : ${o.cancelPolicy}.` : "" } }
         : { key: "suivi_creee", vars: { ...base, paiement: o.paymentStatus === "PAYE" ? " Paiement bien reçu." : " Vous pouvez la payer par Wave ou Orange Money depuis votre page de commande." } };
     case "ACOMPTE":
-      return { key: "suivi_acompte", vars: { ...base, acompte: fcfa(deposit), reste: fcfa(Math.max(0, o.total - deposit)), delai: o.reservationDelay ? ` Délai annoncé : ${o.reservationDelay}.` : "" } };
+      return { key: "suivi_acompte", vars: { ...base, acompte: fcfa(deposit), reste: fcfa(Math.max(0, o.total - deposit)), delai: o.reservationDelay ? ` Délai annoncé : ${o.reservationDelay}.` : "", conditions: o.cancelPolicy ? ` Conditions : ${o.cancelPolicy}.` : "" } };
     case "PAYEE":
       return { key: "suivi_payee", vars: base };
     case "CONFIRMEE":
@@ -97,7 +98,7 @@ export async function sendOrderUpdate(orderId: string, event: OrderEvent): Promi
     if (!(await automationEnabled("orderTracking"))) return;
     const o = await prisma.order.findUnique({
       where: { id: orderId },
-      select: { id: true, customerName: true, customerPhone: true, total: true, paymentStatus: true, channel: true, deliveryMode: true, deliveryTarget: true, isReservation: true, depositAmount: true, reservationDelay: true, subscriptionId: true },
+      select: { id: true, customerName: true, customerPhone: true, total: true, paymentStatus: true, channel: true, deliveryMode: true, deliveryTarget: true, isReservation: true, depositAmount: true, reservationDelay: true, subscriptionId: true, createdAt: true },
     });
     if (!o?.customerPhone || (await phoneOptedOut(o.customerPhone))) return;
     const site = await getSiteUrl().catch(() => process.env.NEXT_PUBLIC_SITE_URL ?? "");
@@ -125,9 +126,17 @@ export async function sendOrderUpdate(orderId: string, event: OrderEvent): Promi
         return;
       }
     }
-    const msg = orderMessage(event, o, site);
+    // Réservation : conditions d'annulation (gratuite pendant N h, ensuite X % retenus) dans le message.
+    let cancelPolicy: string | null = null;
+    if (o.isReservation && (event === "CREEE" || event === "ACOMPTE")) {
+      const { getReservationSettings } = await import("@/lib/reservation-store");
+      const { cancelPolicyText } = await import("@/lib/reservation");
+      cancelPolicy = cancelPolicyText(await getReservationSettings());
+    }
+    const withPolicy = { ...o, cancelPolicy };
+    const msg = orderMessage(event, withPolicy, site);
     if (!msg) return;
-    const { key, vars } = orderMessageVars(event, o);
+    const { key, vars } = orderMessageVars(event, withPolicy);
     const rendered = await messageText(key, vars, msg.text);
     const isPayEvent = event === "PAYEE" || event === "ACOMPTE";
     const trackingUrl = msg.cta?.url || `${site}/suivi/${o.id}`;

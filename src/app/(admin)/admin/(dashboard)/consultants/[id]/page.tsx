@@ -1,3 +1,4 @@
+import { restoreConsultant } from "@/lib/actions/consultants";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
@@ -107,6 +108,17 @@ export default async function ConsultantProfilePage({
 
   return (
     <div className="max-w-5xl">
+      {consultant.archivedAt && (
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+          <p>
+            <strong>Compte supprimé le {consultant.archivedAt.toLocaleDateString("fr-FR")}</strong> : il ne peut plus se connecter et sa boutique est fermée.
+            Toutes ses informations sont conservées ci-dessous (ventes, commissions, wallet, crédits, filleuls).
+          </p>
+          <form action={restoreConsultant.bind(null, consultant.id)}>
+            <button className="rounded-full bg-emerald-700 px-4 py-1.5 text-xs font-semibold text-white hover:bg-emerald-800">Restaurer le compte</button>
+          </form>
+        </div>
+      )}
       {/* ── Header ── */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex items-center gap-3">

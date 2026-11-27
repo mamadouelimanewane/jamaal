@@ -32,6 +32,7 @@ export const DEFAULT_ACCOUNTS: AccountDef[] = [
   { code: "4449", label: "État, crédit de TVA à reporter" },
   { code: "4452", label: "TVA récupérable sur achats et charges" },
   { code: "447", label: "État, impôts retenus à la source" },
+  { code: "4191", label: "Clients, avoirs (wallet client)" },
   { code: "4671", label: "Revendeurs, wallets (commissions et primes)" },
   { code: "4672", label: "Livreurs, wallets (parts de livraison)" },
   { code: "471", label: "Compte d'attente" },

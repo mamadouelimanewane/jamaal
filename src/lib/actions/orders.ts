@@ -203,9 +203,16 @@ export async function getOrderConfirmation(id: string) {
       installmentsPaid: true,
       installmentIntervalDays: true,
       installmentRefs: true,
+      deliveryStatus: true,
+      paidBeforeChange: true,
+      avoirRefunded: true,
+      refundPenalty: true,
+      refundedAt: true,
+      itemChanges: { orderBy: { createdAt: "asc" }, select: { id: true, oldName: true, oldVolume: true, newName: true, newVolume: true, difference: true, settlement: true, createdAt: true } },
       consultant: { select: { name: true, shopName: true, city: true, whatsapp: true } },
       items: {
         select: {
+          id: true,
           productId: true,
           productName: true,
           volumeLabel: true,

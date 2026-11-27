@@ -110,6 +110,10 @@ export type OrderInput = {
   /** Paiement en plusieurs fois : nombre d'échéances (0 = en une fois) et dates des échéances payées. */
   installmentCount?: number;
   installmentPaidDates?: Date[];
+  /** Remplacement d'un produit : déjà payé avant un complément, somme rendue dans l'avoir, pénalité retenue. */
+  paidBeforeChange?: number;
+  avoirRefunded?: number;
+  refundPenalty?: number;
 };
 
 /** Échéances déjà payées (montant et date), passées chacune en encaissement à sa date. */
@@ -133,7 +137,9 @@ export function recognitionDate(o: OrderInput): Date {
 export function cashReceived(o: OrderInput): number {
   const deposit = o.isReservation && o.depositPaidAt ? o.depositAmount : 0;
   const inst = installmentReceipts(o).reduce((sum, r) => sum + r.amount, 0);
-  const main = o.paymentStatus === "PAYE" && o.paymentMethod !== "WALLET" ? o.total - deposit - inst : 0;
+  // Payée : le total, plus ce qui a été rendu dans l'avoir (encaissé puis rendu) ; sinon, ce qui a été payé avant un
+  // remplacement plus cher (complément pas encore réglé).
+  const main = o.paymentStatus === "PAYE" && o.paymentMethod !== "WALLET" ? o.total - deposit - inst + (o.avoirRefunded ?? 0) : o.paymentMethod !== "WALLET" ? (o.paidBeforeChange ?? 0) : 0;
   return deposit + inst + Math.max(0, main);
 }
 
@@ -173,8 +179,9 @@ export function postOrder(o: OrderInput, s: PostingSettings): Entry[] {
         lines: [D("411", o.total, { aux }), C("701", products - vatP), C("7071", delivery - vatD), C("4431", vatP + vatD)],
       })
     );
-    // 3. Paiement du solde (le paiement par wallet est passé avec le mouvement du wallet)
-    const rest = o.total - prepaid;
+    // 3. Paiement du solde (le paiement par wallet est passé avec le mouvement du wallet). Une somme rendue dans
+    // l'avoir (remplacement moins cher) avait bien été encaissée : elle s'ajoute ici, l'avoir la reprend (4191).
+    const rest = o.total - prepaid + (o.isReservation ? 0 : o.avoirRefunded ?? 0);
     if (rest > 0) {
       if (o.paymentStatus === "PAYE" && o.paymentMethod !== "WALLET") {
         out.push(receipt(`ENC-${o.id}`, o.paidAt ?? R, o.paymentMethod, rest, aux, `Encaissement ${aux}`, o.id, s));
@@ -182,6 +189,9 @@ export function postOrder(o: OrderInput, s: PostingSettings): Entry[] {
         out.push(receipt(`ENC-${o.id}`, R, "A_LA_LIVRAISON", rest, aux, `Encaissement à la livraison ${aux}`, o.id, s));
       }
     }
+  } else if (o.status !== "ANNULEE" && o.paymentStatus !== "PAYE" && o.paymentMethod !== "WALLET" && (o.paidBeforeChange ?? 0) > 0) {
+    // Remplacement plus cher sur une commande payée : le premier paiement est encaissé, le complément est attendu.
+    out.push(receipt(`ENC-${o.id}`, o.paidAt ?? o.updatedAt, o.paymentMethod, o.paidBeforeChange!, aux, `Encaissement ${aux} (complément attendu)`, o.id, s));
   } else if (o.status === "ANNULEE" && o.paymentStatus === "PAYE" && o.paymentMethod !== "WALLET") {
     // Payée puis annulée : l'argent a bien été reçu, il reste dû au client (411 créditeur).
     const rest = o.total - prepaid;
@@ -191,7 +201,11 @@ export function postOrder(o: OrderInput, s: PostingSettings): Entry[] {
   // 4. Remboursement d'une commande annulée, ou acompte conservé
   if (!recognized && o.status === "ANNULEE" && o.refundedAt) {
     const owed = cashReceived(o) + (o.paymentMethod === "WALLET" && o.paymentStatus === "PAYE" ? o.total : 0);
-    if (owed > 0) {
+    if (owed > 0 && o.refundChannel === "AVOIR") {
+      // Rendu dans l'avoir du client : le mouvement de l'avoir passe la somme rendue (411 → 4191) ; reste la pénalité.
+      const penalty = Math.min(owed, o.refundPenalty ?? 0);
+      if (penalty > 0) out.push(make({ id: `PEN-${o.id}`, date: o.refundedAt, journal: "OD", label: `Pénalité d'annulation ${aux}`, ref, source, lines: [D("411", penalty, { aux }), C("758", penalty)] }));
+    } else if (owed > 0) {
       const kept = o.refundChannel === "CONSERVE";
       out.push(
         make({
@@ -242,7 +256,7 @@ export type WalletTxInput = {
   date: Date;
 };
 
-export const memberAccount = (ownerType: string) => (ownerType === "LIVREUR" ? "4672" : "4671");
+export const memberAccount = (ownerType: string) => (ownerType === "LIVREUR" ? "4672" : ownerType === "CUSTOMER" ? "4191" : "4671");
 
 export function postWalletTx(t: WalletTxInput): Entry | null {
   if (t.status !== "VALIDE" || t.amount === 0) return null;
@@ -251,6 +265,11 @@ export function postWalletTx(t: WalletTxInput): Entry | null {
   const a = Math.abs(t.amount);
   const base = { id: `W-${t.id}`, date: t.date, ref: t.orderId && !t.orderId.startsWith("PRIME") ? `#${shortId(t.orderId)}` : undefined, source: { type: "WALLET" as const, id: t.id, href: "/admin/wallets" } };
   const charge = t.ownerType === "LIVREUR" ? "612" : "6322";
+  // Avoir client : somme due au client (trop-perçu d'une commande, réservation annulée) ; rendu par la commande
+  // suivante (PAIEMENT) ou versé sur Wave (RETRAIT).
+  if (t.ownerType === "CUSTOMER" && (t.kind === "AVOIR" || t.kind === "ANNULATION")) {
+    return make({ ...base, journal: "OD", label: `Avoir client ${aux}`, lines: t.amount > 0 ? [D("411", a, { aux }), C(m, a, { aux })] : [D(m, a, { aux }), C("411", a, { aux })] });
+  }
   switch (t.kind) {
     case "COMMISSION":
     case "PRIME":

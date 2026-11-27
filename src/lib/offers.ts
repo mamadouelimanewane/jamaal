@@ -61,6 +61,8 @@ export type DiscountCodeRef =
   | { source: "promo"; id: string; code: string; kind: "PERCENT"; value: number; consultantId: string }
   /** Carte cadeau : value = solde restant, déduit des produits ET de la livraison. */
   | { source: "giftcard"; id: string; code: string; kind: "FIXED"; value: number; consultantId: string | null }
+  /** Avoir du client (wallet client) : id = fiche client, value = solde ; utilisé comme une carte cadeau. */
+  | { source: "avoir"; id: string; code: string; kind: "FIXED"; value: number; consultantId: null }
   | { error: string };
 
 /**
@@ -95,6 +97,15 @@ export async function resolveDiscountCode(raw: string, ctx: CouponCtx = {}): Pro
     if (card.status !== "ACTIVE" || card.balance <= 0) return { error: "Cette carte cadeau a déjà été entièrement utilisée." };
     if (card.expiresAt && card.expiresAt.getTime() < now) return { error: "Cette carte cadeau a expiré." };
     return { source: "giftcard", id: card.id, code: card.code, kind: "FIXED", value: card.balance, consultantId: card.consultantId };
+  }
+  if (/^AV-[A-Z0-9]{6}$/.test(code)) {
+    const owner = await prisma.customer.findFirst({ where: { avoirCode: code }, select: { id: true, avoirCode: true } });
+    if (owner?.avoirCode) {
+      const { avoirBalance } = await import("@/lib/customer-wallet");
+      const balance = await avoirBalance(owner.id);
+      if (balance <= 0) return { error: "Cet avoir a déjà été entièrement utilisé." };
+      return { source: "avoir", id: owner.id, code: owner.avoirCode, kind: "FIXED", value: balance, consultantId: null };
+    }
   }
   return null;
 }

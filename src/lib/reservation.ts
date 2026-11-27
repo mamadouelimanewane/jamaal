@@ -11,8 +11,12 @@ export interface ReservationSettings {
   depositPercent: number;
   /** Délai annoncé au client. */
   delayLabel: string;
-  /** L'acompte est-il remboursé si le client annule avant l'arrivée du produit ? */
+  /** Ancien réglage (avant la pénalité) : gardé pour compatibilité, plus utilisé. */
   refundable: boolean;
+  /** Annulation par le client : gratuite pendant ce nombre d'heures après la réservation… */
+  freeCancelHours: number;
+  /** … puis ce pourcentage de la somme payée est retenu (le reste va dans l'avoir du client). */
+  penaltyPercent: number;
 }
 
 export const DEFAULT_RESERVATION: ReservationSettings = {
@@ -20,6 +24,8 @@ export const DEFAULT_RESERVATION: ReservationSettings = {
   depositPercent: 30,
   delayLabel: "15 à 21 jours",
   refundable: true,
+  freeCancelHours: 24,
+  penaltyPercent: 10,
 };
 
 export function normalizeReservation(raw: unknown): ReservationSettings {
@@ -31,6 +37,8 @@ export function normalizeReservation(raw: unknown): ReservationSettings {
     depositPercent: Number.isFinite(pct) && pct >= 10 && pct <= 100 ? pct : DEFAULT_RESERVATION.depositPercent,
     delayLabel: delay || DEFAULT_RESERVATION.delayLabel,
     refundable: typeof r.refundable === "boolean" ? r.refundable : DEFAULT_RESERVATION.refundable,
+    freeCancelHours: Number.isInteger(Number(r.freeCancelHours)) && Number(r.freeCancelHours) >= 0 && Number(r.freeCancelHours) <= 720 ? Number(r.freeCancelHours) : DEFAULT_RESERVATION.freeCancelHours,
+    penaltyPercent: Number.isInteger(Number(r.penaltyPercent)) && Number(r.penaltyPercent) >= 0 && Number(r.penaltyPercent) <= 50 ? Number(r.penaltyPercent) : DEFAULT_RESERVATION.penaltyPercent,
   };
 }
 
@@ -59,6 +67,8 @@ export interface PayableOrder {
   /** Paiement en plusieurs fois (src/lib/installments.ts) : nombre d'échéances (0 = en une fois) et échéances payées. */
   installmentCount?: number;
   installmentsPaid?: number;
+  /** Déjà payé avant un remplacement plus cher (il reste le complément à payer). */
+  paidBeforeChange?: number;
 }
 
 /**
@@ -71,7 +81,7 @@ export function amountDue(o: PayableOrder): { amount: number; part: "ACOMPTE" | 
     if (paid >= o.installmentCount!) return null;
     return { amount: splitAmounts(o.total, o.installmentCount!)[paid], part: "ECHEANCE" };
   }
-  if (!o.isReservation) return { amount: o.total, part: "TOTAL" };
+  if (!o.isReservation) return { amount: Math.max(0, o.total - (o.paidBeforeChange ?? 0)), part: "TOTAL" };
   if (o.reservationStatus === "ANNULEE" || o.reservationStatus === "SOLDEE") return null;
   if (!o.depositPaidAt) return { amount: o.depositAmount, part: "ACOMPTE" };
   if (o.reservationStatus !== "DISPONIBLE") return null;
@@ -102,4 +112,34 @@ export function arrivalMessage(o: {
   const digits = (o.customerPhone ?? "").replace(/\D/g, "").replace(/^00/, "");
   const phone = digits.length === 9 ? `221${digits}` : digits;
   return { text, url: phone.length >= 8 ? `https://wa.me/${phone}?text=${encodeURIComponent(text)}` : null };
+}
+
+/**
+ * Annulation d'une réservation : somme rendue (dans l'avoir du client) et pénalité retenue.
+ * Annulée par JAMAAL : tout est rendu. Par le client : gratuit pendant freeCancelHours après la réservation,
+ * ensuite penaltyPercent % de la somme payée est retenu. Pur.
+ */
+export function cancellationTerms(
+  paid: number,
+  reservedAt: Date | string,
+  now: Date,
+  s: Pick<ReservationSettings, "freeCancelHours" | "penaltyPercent">,
+  byCustomer: boolean,
+): { penalty: number; refund: number; free: boolean } {
+  const amount = Math.max(0, Math.round(paid));
+  const hours = (now.getTime() - new Date(reservedAt).getTime()) / 3_600_000;
+  const free = !byCustomer || hours <= s.freeCancelHours;
+  const penalty = free ? 0 : Math.round((amount * s.penaltyPercent) / 100);
+  return { penalty, refund: amount - penalty, free };
+}
+
+/** Fin de l'annulation gratuite. */
+export function freeCancelUntil(reservedAt: Date | string, s: Pick<ReservationSettings, "freeCancelHours">): Date {
+  return new Date(new Date(reservedAt).getTime() + s.freeCancelHours * 3_600_000);
+}
+
+/** Conditions d'annulation en une phrase (messages WhatsApp, page de réservation). */
+export function cancelPolicyText(s: Pick<ReservationSettings, "freeCancelHours" | "penaltyPercent">): string {
+  if (s.penaltyPercent === 0) return "annulation possible à tout moment avant l'arrivée, somme payée rendue en avoir";
+  return `annulation gratuite pendant ${s.freeCancelHours} h, ensuite ${s.penaltyPercent} % de la somme payée retenus`;
 }

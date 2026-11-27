@@ -32,3 +32,21 @@ test("un format confié (30 ml) n'est remboursé que par les ventes de ce format
   const r = allocateSale(o, [{ id: "c1", balance: 100_000, items: [{ productId: "a", name: "A", qty: 3, unitPrice: 14_800, format: "30 ml" }] }]);
   assert.deepEqual(r, [{ creditId: "c1", amount: 14_800 }]);
 });
+
+test("crédit marchandises : ventes qui font baisser la dette", async () => {
+  const { countsForCredit } = await import("../goods-credit");
+  const base = { paymentStatus: "PAYE", status: "CONFIRMEE" };
+  assert.equal(countsForCredit({ ...base, paymentMethod: "WAVE", paymentRef: null }), true);
+  assert.equal(countsForCredit({ ...base, paymentMethod: "WALLET", paymentRef: "encaisse:ESPECES" }), true);
+  assert.equal(countsForCredit({ ...base, paymentMethod: "WALLET", paymentRef: "wallet" }), false);
+  assert.equal(countsForCredit({ ...base, paymentStatus: "EN_ATTENTE", paymentMethod: "WAVE", paymentRef: null }), false);
+  assert.equal(countsForCredit({ ...base, status: "ANNULEE", paymentMethod: "WAVE", paymentRef: null }), false);
+});
+
+test("crédit marchandises : « 70ml » et « 70 ml » sont le même format", () => {
+  const plan = allocateSale(
+    { total: 20000, deliveryFee: 0, items: [{ productId: "p1", price: 20000, quantity: 1, volumeLabel: "70ml" }] },
+    [{ id: "c1", balance: 50000, items: parseItems([{ productId: "p1", name: "X", qty: 3, unitPrice: 20000, format: "70 ML" }]) }],
+  );
+  assert.deepEqual(plan, [{ creditId: "c1", amount: 20000 }]);
+});

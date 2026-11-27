@@ -1,7 +1,6 @@
 "use server";
 
 import { paymentStage, statusForPayment } from "@/lib/orders/payment-rules";
-import { safeReverse } from "@/lib/goods-credit";
 
 import { scheduleAutoAssign } from "@/lib/delivery-dispatch";
 import { revalidatePath } from "next/cache";
@@ -9,12 +8,13 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "./auth-guard";
 import { logActivity } from "@/lib/activity-log";
 import { markDepositPaid } from "@/lib/payment/mark-paid";
-import { moveStock, resolveStockRef, StockError, syncOrderStock } from "@/lib/stock";
+import { moveStock, resolveStockRef, StockError } from "@/lib/stock";
 import { arrivalMessage, normalizeReservation } from "@/lib/reservation";
-import { getReservationSettings, saveReservationSettings } from "@/lib/reservation-store";
+import { saveReservationSettings } from "@/lib/reservation-store";
 import { getSiteUrl } from "@/lib/site-url";
 import { sendWhatsApp } from "@/lib/whatsapp";
 import { formatPrice } from "@/lib/currency";
+import { cancelReservation } from "@/lib/orders/reservation-cancel";
 
 export type ReservationActionResult = { ok: boolean; message?: string; error?: string; whatsappUrl?: string };
 
@@ -37,9 +37,13 @@ export async function saveReservationSettingsAction(_prev: ReservationActionResu
   if (!Number.isInteger(pct) || pct < 10 || pct > 100) return { ok: false, error: "L'acompte doit être compris entre 10 et 100 %." };
   const delay = String(formData.get("delayLabel") ?? "").trim();
   if (!delay) return { ok: false, error: "Indiquez le délai annoncé au client." };
-  const s = normalizeReservation({ enabled: formData.get("enabled") === "on", depositPercent: pct, delayLabel: delay, refundable: formData.get("refundable") === "on" });
+  const hours = Number(formData.get("freeCancelHours"));
+  const penalty = Number(formData.get("penaltyPercent"));
+  if (!Number.isInteger(hours) || hours < 0 || hours > 720) return { ok: false, error: "Annulation gratuite : entre 0 et 720 heures." };
+  if (!Number.isInteger(penalty) || penalty < 0 || penalty > 50) return { ok: false, error: "Pénalité : entre 0 et 50 %." };
+  const s = normalizeReservation({ enabled: formData.get("enabled") === "on", depositPercent: pct, delayLabel: delay, refundable: true, freeCancelHours: hours, penaltyPercent: penalty });
   await saveReservationSettings(s);
-  await logActivity(session, `Réservations : ${s.enabled ? "actives" : "désactivées"}, acompte ${s.depositPercent} %, délai « ${s.delayLabel} »`, "Setting");
+  await logActivity(session, `Réservations : ${s.enabled ? "actives" : "désactivées"}, acompte ${s.depositPercent} %, délai « ${s.delayLabel} », annulation gratuite ${s.freeCancelHours} h puis ${s.penaltyPercent} % retenus`, "Setting");
   refresh();
   revalidatePath("/produits/[slug]", "page");
   return { ok: true, message: "Réglages enregistrés." };
@@ -112,23 +116,12 @@ export async function reservationArrivedAction(orderId: string): Promise<Reserva
   return { ok: true, message: "Produit attribué au client : la commande passe en préparation, le client est prévenu.", whatsappUrl };
 }
 
-/** Annule une réservation ; remet le stock s'il avait été attribué. */
+/** Annulation par JAMAAL : la somme payée est rendue en entier dans l'avoir du client ; le stock attribué revient. */
 export async function reservationCancelAction(orderId: string): Promise<ReservationActionResult> {
   const session = await requireAdmin("commandes");
-  const order = await prisma.order.findUnique({ where: { id: orderId }, select: { reservationStatus: true, depositPaidAt: true, depositAmount: true, paymentStatus: true } });
-  if (!order || !order.reservationStatus || ["ANNULEE", "SOLDEE"].includes(order.reservationStatus)) return { ok: false, error: "Cette réservation ne peut plus être annulée ici." };
-  await prisma.order.update({ where: { id: orderId }, data: { status: "ANNULEE", reservationStatus: "ANNULEE", deliveryStatus: null } });
-  await prisma.orderStatusHistory.create({ data: { orderId, status: "ANNULEE" } });
-  await safeReverse(orderId);
-  await syncOrderStock(orderId, session.user?.id ?? null);
+  const r = await cancelReservation(orderId, { byCustomer: false, userId: session.user?.id ?? null });
+  if (!r.ok) return { ok: false, error: r.error };
   await logActivity(session, `Réservation annulée · ${short(orderId)}`, "Order", orderId);
   refresh(orderId);
-  const settings = await getReservationSettings();
-  const beforeArrival = order.reservationStatus === "ACOMPTE_ATTENDU" || order.reservationStatus === "RESERVEE";
-  const refund = !order.depositPaidAt
-    ? ""
-    : settings.refundable && beforeArrival
-      ? ` Acompte de ${formatPrice(order.depositAmount)} à rembourser au client : notez-le dans Comptabilité › Trésorerie une fois fait.`
-      : ` Acompte de ${formatPrice(order.depositAmount)} conservé (conditions de réservation).`;
-  return { ok: true, message: `Réservation annulée.${refund}` };
+  return { ok: true, message: r.message };
 }

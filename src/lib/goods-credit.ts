@@ -4,6 +4,7 @@
  * (en ligne, « Paiement reçu » ou espèces encaissées par le livreur) est défalquée automatiquement de ce qu'il doit,
  * en commençant par le crédit le plus ancien. Une vente annulée rend son montant au crédit.
  */
+import { COLLECT_REF_PREFIX } from "./special-terms";
 import type { GoodsCreditStatus, Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/currency";
@@ -34,7 +35,8 @@ export function parseItems(v: unknown): CreditItem[] {
 
 type OrderForCredit = { total: number; deliveryFee: number; items: { productId: string | null; price: number; quantity: number; volumeLabel?: string | null }[] };
 
-const normFormat = (s: string | null | undefined) => (s ?? "").toLowerCase().replace(/\s+/g, " ").trim();
+/** « 70 ml », « 70ml », « 70 ML » : même format. */
+const normFormat = (s: string | null | undefined) => (s ?? "").toLowerCase().replace(/\s+/g, "");
 
 /** La ligne de commande correspond-elle à un produit confié (et à son format, s'il est précisé) ? */
 function lineMatches(items: CreditItem[], line: OrderForCredit["items"][number]) {
@@ -87,15 +89,24 @@ export async function resellerDebt(consultantId: string) {
 }
 
 /**
- * Défalque une vente payée des crédits du revendeur. Sans effet si la vente n'est pas payée à JAMAAL
- * (encaissée par le revendeur ou payée avec son wallet), annulée, ou déjà défalquée.
+ * Une vente fait-elle baisser le crédit marchandises du revendeur ?
+ * Oui si elle est payée à JAMAAL, ou encaissée par le revendeur lui-même (la somme passe alors en « espèces à
+ * reverser » dans son wallet : la dette change de forme, elle ne compte pas deux fois). Non si elle est payée avec le
+ * solde de son wallet (achat pour lui-même), pas encore payée, ou annulée.
  */
+export function countsForCredit(o: { paymentStatus: string; status: string; paymentMethod: string | null; paymentRef: string | null }) {
+  if (o.paymentStatus !== "PAYE" || o.status === "ANNULEE") return false;
+  if (o.paymentMethod === "WALLET") return (o.paymentRef ?? "").startsWith(COLLECT_REF_PREFIX);
+  return true;
+}
+
+/** Défalque une vente des crédits du revendeur (voir countsForCredit) ; sans effet si déjà défalquée. */
 export async function deductFromGoodsCreditForOrder(orderId: string) {
   const order = await prisma.order.findUnique({
     where: { id: orderId },
-    select: { consultantId: true, paymentStatus: true, paymentMethod: true, status: true, total: true, deliveryFee: true, items: { select: { productId: true, price: true, quantity: true, volumeLabel: true } } },
+    select: { consultantId: true, paymentStatus: true, paymentMethod: true, paymentRef: true, status: true, total: true, deliveryFee: true, items: { select: { productId: true, price: true, quantity: true, volumeLabel: true } } },
   });
-  if (!order?.consultantId || order.paymentStatus !== "PAYE" || order.status === "ANNULEE" || order.paymentMethod === "WALLET") return [];
+  if (!order?.consultantId || !countsForCredit(order)) return [];
   const consultantId = order.consultantId;
   const done = await prisma.goodsCreditDeduction.findMany({ where: { orderId, kind: "VENTE" }, select: { creditId: true } });
   const credits = await prisma.goodsCredit.findMany({

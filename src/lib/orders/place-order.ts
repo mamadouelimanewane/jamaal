@@ -21,6 +21,7 @@ import { getInstallmentSettings } from "@/lib/installments-store";
 import { offeredCounts } from "@/lib/installments";
 import { getAvailablePaymentProviders } from "@/lib/payment";
 import { codeDiscount, offerDiscount, resolveDiscountCode } from "@/lib/offers";
+import { debitAvoirForOrder } from "@/lib/customer-wallet";
 import { phoneLookupVariants } from "@/lib/phone";
 import { subscriptionDiscount } from "@/lib/subscriptions/plan";
 import { giftRedemption } from "@/lib/gift/gift";
@@ -212,7 +213,7 @@ export async function placeOrder(
     codeRef = await resolveDiscountCode(opts.couponCode, { phone: data.customer.phone || null, consultantId: data.consultantId ?? null });
     if (!codeRef || "error" in codeRef) throw new Error(codeRef && "error" in codeRef ? codeRef.error : "Code promo inconnu.");
   }
-  if (codeRef && !("error" in codeRef) && codeRef.source !== "giftcard") {
+  if (codeRef && !("error" in codeRef) && codeRef.source !== "giftcard" && codeRef.source !== "avoir") {
     const off = codeDiscount(codeRef.kind, codeRef.value, total);
     if (off > 0) {
       total -= off;
@@ -309,6 +310,17 @@ export async function placeOrder(
   }
   const giftCardId = giftCardUse > 0 && codeRef && !("error" in codeRef) ? codeRef.id : null;
 
+  // 3 quinquies bis. Avoir du client (wallet client) : comme une carte cadeau, dans la limite de son solde.
+  let avoirUse = 0;
+  const avoirOwnerId = codeRef && !("error" in codeRef) && codeRef.source === "avoir" ? codeRef.id : null;
+  if (avoirOwnerId && codeRef && !("error" in codeRef)) {
+    avoirUse = giftRedemption(codeRef.value, total);
+    if (avoirUse > 0) {
+      total -= avoirUse;
+      offerData = { discountAmount: (offerData.discountAmount ?? 0) + avoirUse, offerTitle: [offerData.offerTitle, `avoir ${codeRef.code}`].filter(Boolean).join(" · ") };
+    }
+  }
+
   // 3 sexies. Paiement en 2 ou 3 fois : échéances payées en ligne ; préparation et livraison une fois tout réglé.
   let installmentData: { installmentCount?: number; installmentIntervalDays?: number; installmentNextDue?: Date } = {};
   const parts = Math.round(Number(opts.installments ?? 0));
@@ -366,6 +378,8 @@ export async function placeOrder(
       subscriptionId: opts.subscriptionId ?? null,
       // Entièrement réglée par la carte cadeau : rien à encaisser.
       ...(total === 0 && giftCardId ? { paymentStatus: "PAYE" as const, paidAt: new Date(), paymentRef: `carte cadeau ${codeRef && !("error" in codeRef) ? codeRef.code : ""}`, status: "CONFIRMEE" as const } : {}),
+      // Entièrement réglée par l'avoir du client.
+      ...(total === 0 && avoirUse > 0 ? { paymentStatus: "PAYE" as const, paidAt: new Date(), paymentRef: `avoir ${codeRef && !("error" in codeRef) ? codeRef.code : ""}`, status: "CONFIRMEE" as const } : {}),
       ...deliveryData,
       ...reservationData,
       ...offerData,
@@ -386,6 +400,7 @@ export async function placeOrder(
     if (codeRef.source === "coupon") await tx.coupon.update({ where: { id: codeRef.id }, data: { usedCount: { increment: 1 } } });
     else if (codeRef.source === "promo") await tx.promoCode.update({ where: { id: codeRef.id }, data: { usedCount: { increment: 1 } } });
   }
+  if (avoirOwnerId && avoirUse > 0) await debitAvoirForOrder(tx, avoirOwnerId, order.id, avoirUse);
   if (giftCardId) {
     // Débit atomique : refusé si le solde a changé entre-temps (deux commandes en même temps).
     const debit = await tx.giftCard.updateMany({ where: { id: giftCardId, status: "ACTIVE", balance: { gte: giftCardUse } }, data: { balance: { decrement: giftCardUse } } });
